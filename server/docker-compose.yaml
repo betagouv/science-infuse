@@ -1,0 +1,32 @@
+version: '3.4'
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.25.4
+    restart: on-failure:0
+    ports:
+    - 8080:8080
+    - 50051:50051
+    environment:
+      QUERY_DEFAULTS_LIMIT: 20
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: "./data"
+      DEFAULT_VECTORIZER_MODULE: text2vec-transformers
+      ENABLE_MODULES: text2vec-transformers
+      TRANSFORMERS_INFERENCE_API: http://t2v-custom:8080
+      CLUSTER_HOSTNAME: 'node1'
+
+  # TODO just to test, later change to https://huggingface.co/OrdalieTech/Solon-embeddings-base-0.1 
+  t2v-custom:
+    image: solon-inference
+    environment:
+      ENABLE_CUDA: 0
+
+  weaviate-console:
+    container_name: weaviate_console
+    image: semitechnologies/weaviate-console:latest
+    ports:
+      - 4242:80
+    # environment:
+    #   WEAVIATE_HOST: "http://weaviate:8080"
+    # depends_on:
+    #   - weaviate

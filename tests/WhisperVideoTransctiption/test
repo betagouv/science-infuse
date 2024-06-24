@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Get list of all environments
+envs=$(conda env list | awk 'NR>2 {print $1}')
+
+# Function to get space used by an environment
+get_env_space() {
+    env_path=$1
+    du -sh "$env_path" 2>/dev/null | awk '{print $1}'
+}
+
+# Loop through each environment and print name and space used
+for env in $envs; do
+    if [[ "$env" == /* ]]; then
+        env_path="$env"
+    else
+        env_path="$(conda info --base)/envs/$env"
+    fi
+    env_space=$(get_env_space "$env_path")
+    echo "Environment: $env"
+    echo "Space Used: $env_space"
+    echo
+done
