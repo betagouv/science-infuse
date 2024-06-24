@@ -1,0 +1,42 @@
+{
+  "name": "webapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "copy-dsfr-to-public",
+    "predev": "only-include-used-icons",
+    "prebuild": "only-include-used-icons"
+  },
+  "dependencies": {
+    "@codegouvfr/react-dsfr": "^1.9.17",
+    "@emotion/react": "^11.11.4",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.20",
+    "@preact-signals/safe-react": "^0.6.1",
+    "@preact/signals-react": "^2.0.2",
+    "@types/react-highlight-words": "^0.20.0",
+    "axios": "^1.7.2",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-highlight-words": "^0.20.0",
+    "sass": "^1.77.6",
+    "tss-react": "^4.9.10"
+  },
+  "devDependencies": {
+    "@preact/signals-react-transform": "^0.3.1",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,9 @@
+/* @tailwind base; */
+/* @tailwind components; */
+@tailwind utilities;
+
+
+
+.fr-card__body {
+    max-width: 100%;
+}
