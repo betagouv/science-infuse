@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.services import add_video_chunks, list_videos
+from services import add_video_chunks, list_videos
 from fastapi import UploadFile, File
 from typing import List
 

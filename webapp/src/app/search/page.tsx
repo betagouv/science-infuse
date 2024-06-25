@@ -14,34 +14,71 @@ import Highlighter from "react-highlight-words";
 import { useSearchParams } from "next/navigation";
 
 
-interface ChunkWithDistance {
-  chunk: string;
+interface ChunkWithScore {
+  text: string;
   media_type: string;
-  media_name: string;
-  original_public_path: string;
   start_offset: number;
   end_offset: number;
-  distance: number;
-
+  score: number;
 }
 interface SearchResult {
   document_id: string;
   local_path: string;
   original_public_path: string;
   media_name: string;
-  max_distance: number;
-  min_distance: number;
-  chunks: ChunkWithDistance[];
+  max_score: number;
+  min_score: number;
+  chunks: ChunkWithScore[];
 }
 
-const RenderChunkPreview = ({ chunk, media_type, start_offset, end_offset, distance, query, original_public_path }: ChunkWithDistance & { query: string }) => {
+const removeDiacritics = (text: string) => {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+const escapeRegExp = (text: string) => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+};
+
+// Custom function to handle chunk finding with normalization
+const findNormalizedChunks = (data: any) => {
+
+  const normalizedText = removeDiacritics(data.textToHighlight);
+  let chunks: any[] = [];
+  data.searchWords.forEach((word: string) => {
+    if (!word.trim()) return; // Skip empty or whitespace-only words
+
+    const escapedWord = escapeRegExp(word.trim()); // Escape special characters
+    const regex = new RegExp(escapedWord, 'gi');
+    let match;
+    while ((match = regex.exec(normalizedText)) != null) {
+      const start = match.index;
+      const end = regex.lastIndex;
+      // Ensure we do not re-find the same zero-length match
+      if (end === start) {
+        regex.lastIndex = start + 1; // Move past this index
+      }
+      // Check if this match is already covered by a previously found chunk
+
+      if (!chunks.find(c => c.start <= start && c.end >= end)) {
+        chunks.push({ start, end });
+      }
+    }
+  });
+
+  // Return chunks sorted by start position
+  return chunks.sort((a, b) => a.start - b.start);
+
+};
+
+
+const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score, query }: ChunkWithScore & { query: string }) => {
   const [expanded, setExpanded] = useState(false)
-  const score = (Number((1 - distance)) * 100).toFixed();
+  const _score = (Number((score)) * 100).toFixed();
   return (
     <Accordion
       label={<div className="flex max-w-full gap-2 justiy-center items-center whitespace-nowrap overflow-ellipsis">
-        <Tag small className=" h-fit" >{score}%</Tag>
-        <p className="overflow-ellipsis max-w-full overflow-hidden">{chunk}</p>
+        <Tag small className=" h-fit" >{_score}%</Tag>
+        <p className="overflow-ellipsis max-w-full overflow-hidden">{text}</p>
       </div>}
       onExpandedChange={(value,) => setExpanded(!value)}
       expanded={expanded}
@@ -50,16 +87,17 @@ const RenderChunkPreview = ({ chunk, media_type, start_offset, end_offset, dista
       <Highlight>
         <Highlighter
           highlightClassName="YourHighlightClass"
-          searchWords={query.split(" ").map(q => q.trim())}
-          autoEscape={true}
-          textToHighlight={chunk}
+          searchWords={removeDiacritics(query).split(" ").map(q => q.trim())}
+          autoEscape={false}
+          textToHighlight={text}
+          findChunks={findNormalizedChunks}
         />
       </Highlight>
       <Typography>Media Type: {media_type}</Typography>
       <Typography>Start Offset: {start_offset}</Typography>
       <Typography>End Offset: {end_offset}</Typography>
-      <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${start_offset}`} target="_blank">{original_public_path}</a></Typography>
-      <Typography>Distance: {score}</Typography>
+      {/* <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${start_offset}`} target="_blank">{original_public_path}</a></Typography> */}
+      <Typography>Score: {score}</Typography>
     </Accordion>
   );
 };
@@ -121,7 +159,7 @@ const Search: React.FC = () => {
       <div>
         {results.length > 0 ?
           <div className="container flex flex-wrap gap-4">
-            {results.sort((a, b) => a.min_distance - b.min_distance).map((result, index) => (
+            {results.sort((a, b) => b.min_score - a.min_score).map((result, index) => (
               <div
                 key={index}
                 className="flex-auto sm:flex-auto md:flex-auto sm:w-[calc(100%)] md:w-[calc(50%-1rem)]"
@@ -141,7 +179,7 @@ const Search: React.FC = () => {
                   }
                   titleAs="h3"
                   desc={<>
-                    {result.chunks.sort((a, b) => a.distance - b.distance).map(chunk => <RenderChunkPreview query={query} {...chunk} />)}
+                    {result.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview query={query} {...chunk} />)}
                   </>}
                   footer={
                     <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>
@@ -159,7 +197,7 @@ const Search: React.FC = () => {
                   start={
                     <ul className="fr-badges-group">
                       <li>
-                        {result.max_distance == 0 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((1 - result.max_distance)) * 100).toFixed()}%</Badge>}
+                        {result.max_score == 0 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((result.max_score)) * 100).toFixed()}%</Badge>}
                       </li>
                       {/* <li>
                         <Badge small>{result.chunks.length} matches</Badge>

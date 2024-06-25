@@ -3,7 +3,7 @@ from app.processing.stt.SIWhisperModel import SIWhisperModel
 from pytube import YouTube
 import os
 
-from app.schemas import DocumentChunk, MediaType
+from app.schemas import Document, DocumentChunk, MediaType
 
 class YoutubeProcessor(BaseDocumentProcessor):
     def __init__(self, client, whisper: SIWhisperModel, youtube_url: str):
@@ -21,19 +21,22 @@ class YoutubeProcessor(BaseDocumentProcessor):
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
         return file_path, video_name
 
-    def extract_chunks(self):
+    def extract_document(self):
         # Load and process audio file
         video_path, video_name = self.download_youtube_video()
         segments = self.whisper.get_paragraphs_from_audio_path(video_path)
         chunks = [DocumentChunk(
-            media_name=video_name,
-            chunk=segment.text,
-            document_id=self.id, 
-            local_path=video_path, 
-            original_public_path=self.youtube_url,
+            text=segment.text,
             media_type=MediaType.YOUTUBE,
             start_offset=int(segment.start), 
             end_offset=int(segment.end)
         ) for segment in segments]
+        document = Document(
+            chunks=chunks,
+            document_id=self.id, 
+            local_path=video_path, 
+            original_public_path=self.youtube_url,
+            media_name=video_name,
+        )
 
-        return chunks
+        return document, chunks

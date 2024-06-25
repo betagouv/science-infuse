@@ -2,8 +2,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
 
-from app.schemas import DocumentChunk, DocumentSearchResult
-from app.search.search_chunks import search_chunks_in_document
+from schemas import DocumentChunk, DocumentSearchResult
+from search.search_chunks import search_chunks_in_document
 
 router = APIRouter()
 

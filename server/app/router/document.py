@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form
-from app.services import add_video_chunks, add_text_chunks
+from services import add_video_chunks, add_text_chunks
 import uuid
 
 router = APIRouter()

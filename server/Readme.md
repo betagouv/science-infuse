@@ -8,5 +8,5 @@ commands
 docker build -f solon.Dockerfile -t solon-inference .
 
 docker compose up
-uvicorn app.main:app --reload
+python app/main.py
 ```

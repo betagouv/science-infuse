@@ -1,9 +1,9 @@
 from langchain_text_splitters import CharacterTextSplitter
 
-from app.SIWeaviateClient import SIWeaviateClient
+from SIWeaviateClient import SIWeaviateClient
 
-from .schemas import DocumentChunk, MediaType
-from .processing.stt.SIWhisperModel import SIWhisperModel
+from schemas import DocumentChunk, MediaType
+from processing.stt.SIWhisperModel import SIWhisperModel
 
 # TODO: group whisper chunks by larger groups
 def add_video_chunks(original_public_path: str, file_path: str, document_id: str):

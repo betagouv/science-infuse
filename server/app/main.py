@@ -2,7 +2,9 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from .router import document, search
+import uvicorn
+from models import create_weaviate_schema
+from router import document, search
 from starlette.middleware.base import BaseHTTPMiddleware
 import logging
 
@@ -38,8 +40,18 @@ app.add_middleware(
 app.include_router(document.router, prefix="/document", tags=["document"])
 app.include_router(search.router, prefix="/search", tags=["search"])
 
+
+@app.on_event("startup")
+async def startup_event():
+    create_weaviate_schema()
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Science Infuse"}
 
+
+log_config = uvicorn.config.LOGGING_CONFIG
+log_config["formatters"]["access"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
+log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
+uvicorn.run(app, log_config=log_config)
 
