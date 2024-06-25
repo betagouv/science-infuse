@@ -11,7 +11,7 @@ from schemas import ChunkWithScore, DocumentChunk, DocumentSearchResult, MediaTy
 
 # only search in chunk property
 query_properties = ["chunk"]
-def search_multi_documents(client: WeaviateClient, query: str) -> List[DocumentSearchResult]:
+def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> List[DocumentSearchResult]:
     print("SEARCH_MULTI_DOCUMENTS 0", query)
     
     # Perform hybrid query on the DocumentChunk collection
@@ -19,6 +19,7 @@ def search_multi_documents(client: WeaviateClient, query: str) -> List[DocumentS
         query=query,
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=["text"],
+        filters=filters,
         return_references=[QueryReference(
             link_on="belongsToDocument", 
             return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"]
@@ -62,34 +63,34 @@ def search_multi_documents(client: WeaviateClient, query: str) -> List[DocumentS
     
     return documents_search_response
 
-def search_single_document(client: WeaviateClient, query: str, documentId: str) -> DocumentSearchResult:
-    print("search_single_document")
-    response = client.collections.get("DocumentChunk").query.hybrid(
-        query=query,
-        query_properties=query_properties,
-        limit=1000,
-        filters=Filter.by_property("document_id").equal(get_valid_uuid(uuid=documentId)),
-        return_metadata=MetadataQuery(score=True),
-    )
+# def search_single_document(client: WeaviateClient, query: str, documentId: str) -> DocumentSearchResult:
+#     print("search_single_document")
+#     response = client.collections.get("DocumentChunk").query.hybrid(
+#         query=query,
+#         query_properties=query_properties,
+#         limit=1000,
+#         filters=Filter.by_property("document_id").equal(get_valid_uuid(uuid=documentId)),
+#         return_metadata=MetadataQuery(score=True),
+#     )
 
-    currentDocumentChunksWithDistance: List[ChunkWithScore] = []
+#     currentDocumentChunksWithDistance: List[ChunkWithScore] = []
     
-    for _documentChunk in response.objects:
-        score = _documentChunk.metadata.score
-        cuurrentChunkWithScore = ChunkWithScore.model_validate({**_documentChunk.properties, "score": 1-score, "document_id": str(_documentChunk.properties["document_id"])})
-        currentDocumentChunksWithDistance.append(cuurrentChunkWithScore)
+#     for _documentChunk in response.objects:
+#         score = _documentChunk.metadata.score
+#         cuurrentChunkWithScore = ChunkWithScore.model_validate({**_documentChunk.properties, "score": 1-score, "document_id": str(_documentChunk.properties["document_id"])})
+#         currentDocumentChunksWithDistance.append(cuurrentChunkWithScore)
 
-    documentSearchResult = DocumentSearchResult(
-        document_id=str(documentId),
-        media_type = response.objects[0].properties['media_type'],
-        media_name = response.objects[0].properties['media_name'],
-        local_path=response.objects[0].properties['local_path'],
-        original_public_path=response.objects[0].properties['original_public_path'],
-        max_score=max(chunk.score for chunk in currentDocumentChunksWithDistance),
-        min_score=min(chunk.score for chunk in currentDocumentChunksWithDistance), 
-        chunks=currentDocumentChunksWithDistance
-    )
-    return documentSearchResult
+#     documentSearchResult = DocumentSearchResult(
+#         document_id=str(documentId),
+#         media_type = response.objects[0].properties['media_type'],
+#         media_name = response.objects[0].properties['media_name'],
+#         local_path=response.objects[0].properties['local_path'],
+#         original_public_path=response.objects[0].properties['original_public_path'],
+#         max_score=max(chunk.score for chunk in currentDocumentChunksWithDistance),
+#         min_score=min(chunk.score for chunk in currentDocumentChunksWithDistance), 
+#         chunks=currentDocumentChunksWithDistance
+#     )
+#     return documentSearchResult
 
 
 def search_chunks_in_document(query: str, document_id: Optional[str]) -> List[DocumentSearchResult]:
@@ -98,4 +99,5 @@ def search_chunks_in_document(query: str, document_id: Optional[str]) -> List[Do
         if (not document_id):
             return search_multi_documents(client, query)
         else:
-            return [search_single_document(client, query, document_id)]
+            filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
+            return search_multi_documents(client, query, filters=filter)
