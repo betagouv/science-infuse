@@ -71,7 +71,9 @@ const findNormalizedChunks = (data: any) => {
 };
 
 
-const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score, query }: ChunkWithScore & { query: string }) => {
+const getSearchWords = (query: string) => query.split(" ").map(q => q.trim()).filter(word => word.length > 2)
+
+const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score, original_public_path, searchWords }: ChunkWithScore & { searchWords: string[], original_public_path: string }) => {
   const [expanded, setExpanded] = useState(false)
   const _score = (Number((score)) * 100).toFixed();
   return (
@@ -86,8 +88,8 @@ const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score,
       <Typography>Passage: </Typography>
       <Highlight>
         <Highlighter
-          highlightClassName="YourHighlightClass"
-          searchWords={removeDiacritics(query).split(" ").map(q => q.trim())}
+          highlightClassName="highlightSearch"
+          searchWords={searchWords}
           autoEscape={false}
           textToHighlight={text}
           findChunks={findNormalizedChunks}
@@ -96,7 +98,7 @@ const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score,
       <Typography>Media Type: {media_type}</Typography>
       <Typography>Start Offset: {start_offset}</Typography>
       <Typography>End Offset: {end_offset}</Typography>
-      {/* <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${start_offset}`} target="_blank">{original_public_path}</a></Typography> */}
+      <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${start_offset}`} target="_blank">{original_public_path}</a></Typography>
       <Typography>Score: {score}</Typography>
     </Accordion>
   );
@@ -110,6 +112,7 @@ const Search: React.FC = () => {
   const [query, setQuery] = useState<string>(searchQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
+  const searchWords = getSearchWords(query);
 
   const handleSearch = async () => {
     try {
@@ -159,7 +162,7 @@ const Search: React.FC = () => {
       <div>
         {results.length > 0 ?
           <div className="container flex flex-wrap gap-4">
-            {results.sort((a, b) => b.min_score - a.min_score).map((result, index) => (
+            {results.sort((a, b) => b.max_score - a.max_score).map((result, index) => (
               <div
                 key={index}
                 className="flex-auto sm:flex-auto md:flex-auto sm:w-[calc(100%)] md:w-[calc(50%-1rem)]"
@@ -170,8 +173,8 @@ const Search: React.FC = () => {
                   className="grid-item flex flex-col items-center justify-center w-full h-full"
                   title={<a target="_blank" href={result.original_public_path}>
                     <Highlighter
-                      highlightClassName="YourHighlightClass"
-                      searchWords={query.split(" ").map(q => q.trim())}
+                      highlightClassName="highlightSearch"
+                      searchWords={searchWords}
                       autoEscape={true}
                       textToHighlight={result.media_name}
                     />
@@ -179,7 +182,7 @@ const Search: React.FC = () => {
                   }
                   titleAs="h3"
                   desc={<>
-                    {result.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview query={query} {...chunk} />)}
+                    {result.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview searchWords={searchWords} original_public_path={result.original_public_path} {...chunk} />)}
                   </>}
                   footer={
                     <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>
@@ -197,7 +200,7 @@ const Search: React.FC = () => {
                   start={
                     <ul className="fr-badges-group">
                       <li>
-                        {result.max_score == 0 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((result.max_score)) * 100).toFixed()}%</Badge>}
+                        {result.max_score == 1 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((result.max_score)) * 100).toFixed()}%</Badge>}
                       </li>
                       {/* <li>
                         <Badge small>{result.chunks.length} matches</Badge>

@@ -10,7 +10,7 @@ class BaseDocumentProcessor(ABC):
         self.client = client
         self.base_download_folder = os.path.join(os.getcwd(), '..', 'documents')
         self.id = str(uuid.uuid4())
-        self.process_document()
+        # self.process_document()
 
 
     def process_document(self):

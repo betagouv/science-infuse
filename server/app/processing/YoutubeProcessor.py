@@ -6,9 +6,10 @@ import os
 from app.schemas import Document, DocumentChunk, MediaType
 
 class YoutubeProcessor(BaseDocumentProcessor):
-    def __init__(self, client, whisper: SIWhisperModel, youtube_url: str):
+    def __init__(self, client, whisper: SIWhisperModel, youtube_url: str, paragraph_pause_threshold: float = 1):
         self.whisper = whisper
         self.youtube_url = youtube_url
+        self.paragraph_pause_threshold = paragraph_pause_threshold
         super().__init__(client)
         
     def download_youtube_video(self):
@@ -24,6 +25,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
     def extract_document(self):
         # Load and process audio file
         video_path, video_name = self.download_youtube_video()
+        self.whisper.set_paragraph_pause_threshold(self.paragraph_pause_threshold)
         segments = self.whisper.get_paragraphs_from_audio_path(video_path)
         chunks = [DocumentChunk(
             text=segment.text,

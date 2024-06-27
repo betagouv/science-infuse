@@ -7,3 +7,7 @@
 .fr-card__body {
     max-width: 100%;
 }
+
+.highlightSearch {
+    background-color: #ce70cc;
+}

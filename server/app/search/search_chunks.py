@@ -20,6 +20,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=["text"],
         filters=filters,
+        limit=500,
         return_references=[QueryReference(
             link_on="belongsToDocument", 
             return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"]
@@ -94,10 +95,9 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
 
 
 def search_chunks_in_document(query: str, document_id: Optional[str]) -> List[DocumentSearchResult]:
-    print("document_id", document_id)
     with SIWeaviateClient() as client:
         if (not document_id):
             return search_multi_documents(client, query)
         else:
-            filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
-            return search_multi_documents(client, query, filters=filter)
+            document_id_filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
+            return search_multi_documents(client, query, filters=document_id_filter)
