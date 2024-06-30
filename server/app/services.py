@@ -5,7 +5,7 @@ from SIWeaviateClient import SIWeaviateClient
 from schemas import DocumentChunk, MediaType
 from processing.audio.SIWhisperModel import SIWhisperModel
 
-# TODO: group whisper chunks by larger groups
+# TODO: NOT UP TO DATE
 def add_video_chunks(original_public_path: str, file_path: str, document_id: str):
     whisper = SIWhisperModel('medium', 'whisper-medium')
     chunks = whisper.get_srt(file_path)

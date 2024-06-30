@@ -12,24 +12,9 @@ import { Accordion } from "@codegouvfr/react-dsfr/Accordion";
 import { Highlight } from "@codegouvfr/react-dsfr/Highlight";
 import Highlighter from "react-highlight-words";
 import { useSearchParams } from "next/navigation";
+import { BaseDocumentChunk, ChunkWithScore, ChunkWithScoreUnion, DocumentSearchResult, ImageChunk, isImageChunk, isTextChunk } from "@/types";
 
 
-interface ChunkWithScore {
-  text: string;
-  media_type: string;
-  start_offset: number;
-  end_offset: number;
-  score: number;
-}
-interface SearchResult {
-  document_id: string;
-  local_path: string;
-  original_public_path: string;
-  media_name: string;
-  max_score: number;
-  min_score: number;
-  chunks: ChunkWithScore[];
-}
 
 const removeDiacritics = (text: string) => {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -73,33 +58,37 @@ const findNormalizedChunks = (data: any) => {
 
 const getSearchWords = (query: string) => query.split(" ").map(q => q.trim()).filter(word => word.length > 2)
 
-const RenderChunkPreview = ({ text, media_type, start_offset, end_offset, score, original_public_path, searchWords }: ChunkWithScore & { searchWords: string[], original_public_path: string }) => {
+const RenderChunkPreview = (props:  { chunk: ChunkWithScoreUnion, searchWords: string[], original_public_path: string }) => {
   const [expanded, setExpanded] = useState(false)
-  const _score = (Number((score)) * 100).toFixed();
+  const _score = (Number((props.chunk.score)) * 100).toFixed();
   return (
     <Accordion
       label={<div className="flex max-w-full gap-2 justiy-center items-center whitespace-nowrap overflow-ellipsis">
         <Tag small className=" h-fit" >{_score}%</Tag>
-        <p className="overflow-ellipsis max-w-full overflow-hidden">{text}</p>
+        <p className="overflow-ellipsis max-w-full overflow-hidden">{props.chunk.text}</p>
       </div>}
       onExpandedChange={(value,) => setExpanded(!value)}
       expanded={expanded}
     >
       <Typography>Passage: </Typography>
-      <Highlight>
-        <Highlighter
-          highlightClassName="highlightSearch"
-          searchWords={searchWords}
-          autoEscape={false}
-          textToHighlight={text}
-          findChunks={findNormalizedChunks}
-        />
-      </Highlight>
-      <Typography>Media Type: {media_type}</Typography>
-      <Typography>Start Offset: {start_offset}</Typography>
-      <Typography>End Offset: {end_offset}</Typography>
-      <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${start_offset}`} target="_blank">{original_public_path}</a></Typography>
-      <Typography>Score: {score}</Typography>
+      {isImageChunk(props.chunk) && <>
+      <img src={`http://localhost:8001/${props.chunk.metadata.public_path}`} className="max-w-full max-h-48" />
+      </>}
+      {isTextChunk(props.chunk) && <>
+        <Highlight>
+          <Highlighter
+            highlightClassName="highlightSearch"
+            searchWords={props.searchWords}
+            autoEscape={false}
+            textToHighlight={props.chunk.text}
+            findChunks={findNormalizedChunks}
+          />
+        </Highlight>
+      </>}
+      <Typography>Media Type: {props.chunk.media_type}</Typography>
+      <Typography>Metadatas {JSON.stringify(props.chunk.metadata)}</Typography>
+      {/* <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${}`} target="_blank">{original_public_path}</a></Typography> */}
+      <Typography>Score: {props.chunk.score}</Typography>
     </Accordion>
   );
 };
@@ -110,14 +99,14 @@ const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<DocumentSearchResult[]>([]);
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const searchWords = getSearchWords(query);
 
   const handleSearch = async () => {
     try {
       if (!query) return;
-      const response = await axios.post<SearchResult[]>(
+      const response = await axios.post<DocumentSearchResult[]>(
         "http://localhost:8000/search/query",
         {
           query: query,
@@ -182,7 +171,7 @@ const Search: React.FC = () => {
                   }
                   titleAs="h3"
                   desc={<>
-                    {result.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview searchWords={searchWords} original_public_path={result.original_public_path} {...chunk} />)}
+                    {result.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview chunk={chunk} searchWords={searchWords} original_public_path={result.original_public_path} />)}
                   </>}
                   footer={
                     <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>
@@ -202,17 +191,14 @@ const Search: React.FC = () => {
                       <li>
                         {result.max_score == 1 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((result.max_score)) * 100).toFixed()}%</Badge>}
                       </li>
-                      {/* <li>
-                        <Badge small>{result.chunks.length} matches</Badge>
-                      </li> */}
+                      {/* display chunk types list */}
                       <li>
-                        <Badge small>
-                          {Array.from(
-                            new Set(
-                              result.chunks.map((chunk) => chunk.media_type)
-                            )
-                          ).join(", ")}
-                        </Badge>
+                        {Array.from(new Set(result.chunks.map((chunk) => chunk.media_type))).map(type =>
+                          <Badge small>
+                            {type}
+                          </Badge>
+                        )}
+
                       </li>
                     </ul>
                   }

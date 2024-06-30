@@ -1,13 +1,11 @@
-from collections import defaultdict
-from langchain_text_splitters import CharacterTextSplitter
 from weaviate.util import get_valid_uuid
-from weaviate.classes.query import Filter, GeoCoordinate, MetadataQuery, QueryReference 
+from weaviate.classes.query import Filter, QueryReference 
 import weaviate.classes as wvc
 from weaviate import WeaviateClient
 from typing import List, Dict, Optional
 
 from SIWeaviateClient import SIWeaviateClient
-from schemas import ChunkWithScore, DocumentChunk, DocumentSearchResult, MediaType
+from schemas import ChunkWithScore, DocumentSearchResult, create_document_chunk
 
 # only search in chunk property
 query_properties = ["chunk"]

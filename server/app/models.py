@@ -33,20 +33,36 @@ def create_weaviate_schema(remove=False):
             vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
             properties=[
                 Property(name="text", description="a portion of a document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
-                Property(name="start_offset", data_type=DataType.NUMBER, skip_vectorization=True, description="start of the chunk in the original document (character or second)"),
-                Property(name="end_offset", data_type=DataType.NUMBER, skip_vectorization=True, description="end of the chunk in the original document (character or second)"),
                 Property(name="media_type", data_type=DataType.TEXT, skip_vectorization=True, description="type of source document"),
+                Property(name="metadata", 
+                         data_type=DataType.OBJECT, 
+                         skip_vectorization=True, 
+                         description="metadata of the chunk, dependent on the media_type",
+                         nested_properties=[
+                            #  image metadata
+                            Property(name="local_path", data_type=DataType.TEXT, skip_vectorization=True),
+                            Property(name="page_number", description="optional: if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
+                            Property(name="width", data_type=DataType.INT, skip_vectorization=True),
+                            Property(name="height", data_type=DataType.INT, skip_vectorization=True),
+                            #  TextMetadata
+                            Property(name="text_start_offset", data_type=DataType.INT, skip_vectorization=True,),
+                            Property(name="text_end_offset", data_type=DataType.INT, skip_vectorization=True),
+                            #  VideoTranscriptMetadata
+                            Property(name="start_offset", data_type=DataType.NUMBER, skip_vectorization=True,),
+                            Property(name="end_offset", data_type=DataType.NUMBER, skip_vectorization=True),
+                         ]
+                ),
             ]
         )
         
-        document_collection.config.add_reference(
+        client.collections.get('Document').config.add_reference(
             ReferenceProperty(
                 name="hasChunks",
                 target_collection="DocumentChunk"
             )
         )
         
-        document_chunk_collection.config.add_reference(
+        client.collections.get('DocumentChunk').config.add_reference(
             ReferenceProperty(
                 name="belongsToDocument",
                 target_collection="Document"

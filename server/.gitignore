@@ -1,4 +1,6 @@
 documents/*
+weaviate_data/*
+notebooks/data/*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

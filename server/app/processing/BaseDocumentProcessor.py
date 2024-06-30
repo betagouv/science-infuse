@@ -10,9 +10,15 @@ class BaseDocumentProcessor(ABC):
         self.client = client
         self.base_download_folder = os.path.join(os.getcwd(), '..', 'documents')
         self.id = str(uuid.uuid4())
-        # self.process_document()
+        # TODO UNCOMMENT
+        self.process_document()
 
-
+    def get_random_uuid(self):
+        return str(uuid.uuid4())
+    
+    def absolute_path_to_local(self, path_str: str):
+        return path_str.replace(self.base_download_folder, "")
+    
     def process_document(self):
         document, chunks = self.extract_document()
         self.save_document(document, chunks)
