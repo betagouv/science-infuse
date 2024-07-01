@@ -1,6 +1,8 @@
 documents/*
 weaviate_data/*
 notebooks/data/*
+notebooks/models/*
+notebooks/yolov10/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
