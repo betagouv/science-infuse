@@ -62,37 +62,37 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
     
     return documents_search_response
 
-# def search_single_document(client: WeaviateClient, query: str, documentId: str) -> DocumentSearchResult:
-#     print("search_single_document")
-#     response = client.collections.get("DocumentChunk").query.hybrid(
-#         query=query,
-#         query_properties=query_properties,
-#         limit=1000,
-#         filters=Filter.by_property("document_id").equal(get_valid_uuid(uuid=documentId)),
-#         return_metadata=MetadataQuery(score=True),
-#     )
 
-#     currentDocumentChunksWithDistance: List[ChunkWithScore] = []
+def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[ChunkWithScore]:
+    document_chunk = client.collections.get("DocumentChunk")
     
-#     for _documentChunk in response.objects:
-#         score = _documentChunk.metadata.score
-#         cuurrentChunkWithScore = ChunkWithScore.model_validate({**_documentChunk.properties, "score": 1-score, "document_id": str(_documentChunk.properties["document_id"])})
-#         currentDocumentChunksWithDistance.append(cuurrentChunkWithScore)
+    chunks_search_response = []
+    
+    response = document_chunk.query.hybrid(
+        query=query,
+        return_metadata=wvc.query.MetadataQuery(score=True),
+        query_properties=["text"],
+        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"])]
+    )
 
-#     documentSearchResult = DocumentSearchResult(
-#         document_id=str(documentId),
-#         media_type = response.objects[0].properties['media_type'],
-#         media_name = response.objects[0].properties['media_name'],
-#         local_path=response.objects[0].properties['local_path'],
-#         original_public_path=response.objects[0].properties['original_public_path'],
-#         max_score=max(chunk.score for chunk in currentDocumentChunksWithDistance),
-#         min_score=min(chunk.score for chunk in currentDocumentChunksWithDistance), 
-#         chunks=currentDocumentChunksWithDistance
-#     )
-#     return documentSearchResult
+    for chunk in response.objects:
+        score = chunk.metadata.score
+        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score})
+        chunks_search_response.append(chunk_with_score)
+
+    return chunks_search_response
+
+def search_chunks(query: str, document_id: Optional[str]) -> List[ChunkWithScore]:
+    with SIWeaviateClient() as client:
+        if (not document_id):
+            return search_all_chunks(client, query)
+        return []
+        # else:
+        #     document_id_filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
+        #     return search_multi_documents(client, query, filters=document_id_filter)
 
 
-def search_chunks_in_document(query: str, document_id: Optional[str]) -> List[DocumentSearchResult]:
+def search_chunks_grouped_by_document(query: str, document_id: Optional[str]) -> List[DocumentSearchResult]:
     with SIWeaviateClient() as client:
         if (not document_id):
             return search_multi_documents(client, query)

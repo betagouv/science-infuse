@@ -2,8 +2,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
 
-from schemas import DocumentChunk, DocumentSearchResult
-from search.search_chunks import search_chunks_in_document
+from schemas import ChunkWithScore, DocumentChunk, DocumentSearchResult
+from search.search_chunks import search_chunks_grouped_by_document, search_chunks
 
 router = APIRouter()
 
@@ -11,12 +11,15 @@ class SearchQuery(BaseModel):
     query: str
     document_id: Optional[str] = None
 
-class DocumentIDQuery(BaseModel):
-    document_id: str
 
-@router.post("/query", response_model=List[DocumentSearchResult])
-async def query_search(query: SearchQuery):
-    results = search_chunks_in_document(query.query, document_id=query.document_id)
+@router.post("/search_chunks_grouped_by_document", response_model=List[DocumentSearchResult])
+async def _search_chunks_grouped_by_document(query: SearchQuery):
+    results = search_chunks_grouped_by_document(query.query, document_id=query.document_id)
+    return results
+
+@router.post("/search_chunks", response_model=List[ChunkWithScore])
+async def _search_chunks(query: SearchQuery):
+    results = search_chunks(query.query, document_id=query.document_id)
     return results
 
 # @router.post("/document", response_model=List[DocumentChunk])

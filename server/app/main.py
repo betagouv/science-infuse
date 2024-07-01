@@ -43,7 +43,7 @@ app.include_router(search.router, prefix="/search", tags=["search"])
 
 @app.on_event("startup")
 async def startup_event():
-    create_weaviate_schema(remove=True)
+    create_weaviate_schema(remove=False)
 
 @app.get("/")
 def read_root():

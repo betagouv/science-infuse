@@ -88,26 +88,3 @@ export function isTextChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore
 export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"videoTranscript"> {
   return chunk.media_type === "videoTranscript";
 }
-
-// Example of how to use these types in a component
-interface RenderChunkPreviewProps extends ChunkWithScoreUnion {
-  searchWords: string[];
-  original_public_path: string;
-}
-
-export const RenderChunkPreview: React.FC<RenderChunkPreviewProps> = (props) => {
-  const [expanded, setExpanded] = useState(false);
-
-  if (isImageChunk(props)) {
-    const { width, height, public_path } = props.metadata;
-    // Render image chunk...
-  } else if (isTextChunk(props)) {
-    const { text_start_offset, text_end_offset } = props.metadata;
-    // Render text chunk...
-  } else if (isVideoTranscriptChunk(props)) {
-    const { video_start_offset, video_end_offset } = props.metadata;
-    // Render video transcript chunk...
-  }
-
-  // Common rendering logic...
-};
