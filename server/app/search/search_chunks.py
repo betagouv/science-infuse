@@ -5,7 +5,7 @@ from weaviate import WeaviateClient
 from typing import List, Dict, Optional
 
 from SIWeaviateClient import SIWeaviateClient
-from schemas import ChunkWithScore, DocumentSearchResult, create_document_chunk
+from schemas import ChunkWithScore, DocumentSearchResult
 
 # only search in chunk property
 query_properties = ["chunk"]
@@ -18,7 +18,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=["text"],
         filters=filters,
-        limit=500,
+        limit=100,
         return_references=[QueryReference(
             link_on="belongsToDocument", 
             return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"]
