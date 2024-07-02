@@ -23,7 +23,7 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
         >
             <Typography>Passage: </Typography>
             {isImageChunk(props.chunk) && <>
-                <img src={`http://localhost:8001/${props.chunk.metadata.public_path}`} className="max-w-full max-h-48" />
+                <img src={`http://localhost:8001${props.chunk.metadata.public_path}`} className="max-w-full max-h-48" />
             </>}
             {isTextChunk(props.chunk) && <>
                 <Quote

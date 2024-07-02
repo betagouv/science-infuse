@@ -46,18 +46,6 @@ class ChunkWithScore(Generic[ChunkType], BaseDocumentChunk):
     metadata: DocumentChunkMetadata
     score: float
 
-
-def create_document_chunk(data: dict) -> DocumentChunk:
-    media_type = data["media_type"]
-    if media_type == "image":
-        return ImageChunk(**data)
-    elif media_type == "text":
-        return TextChunk(**data)
-    elif media_type == "videoTranscript":
-        return VideoTranscriptChunk(**data)
-    else:
-        raise ValueError(f"Unsupported media_type: {media_type}")
-
 class Document(BaseModel):
     chunks: List[DocumentChunk]
     document_id: str
@@ -68,28 +56,14 @@ class Document(BaseModel):
 
 # -----------
 
-
-class MediaType(Enum):
-    AUDIO = "audio"
-    VIDEO = "video"
-    YOUTUBE = "youtube"
-    TEXT = "text"
 class ImportDocument(BaseModel):
     original_public_path: str
     
 
 class SearchQuery(BaseModel):
     query: str
-
-
-
-class DocumentIDQuery(BaseModel):
-    document_id: str
-
-
-# ##################
-# class ChunkWithScore(BaseDocumentChunk):
-#     score: float
+    document_id: Optional[str] = None
+    
 
 class DocumentSearchResult(BaseModel):
     document_id: str

@@ -3,27 +3,40 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
+import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import assert from "assert";
 import { Typography } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import { DocumentSearchResult } from "@/types";
+import { ChunkWithScoreUnion, DocumentSearchResult } from "@/types";
+import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";
 import FilterMenu from "./FilterMenu";
+import DocumentChunkFull from "./DocumentChunkFull";
+import Masonry from '@mui/lab/Masonry';
+import { styled } from '@mui/material/styles';
 
 
+const Item = styled('div')(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(0.5),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
 
-
-
+const groupByDocument = signal<boolean>(false)
 const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
-  const [results, setResults] = useState<DocumentSearchResult[]>([]);
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const searchWords = getSearchWords(query);
 
-  const handleSearch = async () => {
+  const [resultsGrouped, setResultsGrouped] = useState<DocumentSearchResult[]>([]);
+  const [resultsChunks, setResultsChunks] = useState<ChunkWithScoreUnion[]>([]);
+
+  const handleSearchGroupedDocuments = async () => {
     try {
       if (!query) return;
       const response = await axios.post<DocumentSearchResult[]>(
@@ -32,20 +45,56 @@ const Search: React.FC = () => {
           query: query,
         }
       );
-      setResults(response.data);
+      setResultsGrouped(response.data);
     } catch (error) {
       console.error("Error searching:", error);
     }
   };
 
+  const handleSearchChunks = async () => {
+    try {
+      if (!query) return;
+      const response = await axios.post<ChunkWithScoreUnion[]>(
+        "http://localhost:8000/search/search_chunks",
+        {
+          query: query,
+        }
+      );
+      setResultsChunks(response.data);
+    } catch (error) {
+      console.error("Error searching:", error);
+    }
+  };
+
+  const handleSearch = () => {
+    if (groupByDocument.value == true) {
+      handleSearchGroupedDocuments();
+    } else {
+      handleSearchChunks();
+    }
+  }
+
   useEffect(() => {
-    handleSearch();
-  }, []);
+    handleSearch()
+  }, [groupByDocument.value]);
 
   return (
     <div className="py-8 flex flex-col gap-4 px-4 md:px-0">
       <Typography variant="h1" gutterBottom>Rechercher des médias</Typography>
-      <div className="flex flex-col gap-4"> 
+      <div className="flex flex-col gap-4">
+
+        <ToggleSwitch
+          inputTitle="the-title"
+          showCheckedHint={false}
+          checked={groupByDocument.value}
+          onChange={() => {
+            groupByDocument.value = !groupByDocument.value
+          }}
+          label="Grouper la recherche par document"
+          labelPosition="right"
+        />
+
+
         <SearchBar
           big
           onButtonClick={function noRefCheck() { handleSearch() }}
@@ -67,18 +116,34 @@ const Search: React.FC = () => {
             />
           }
         />
-                <FilterMenu/>
+        <FilterMenu />
+
 
       </div>
-      <div>
-        {results.length > 0 ?
+
+      {groupByDocument.value == true ? <div>
+        {resultsGrouped.length > 0 ?
           <div className="container flex flex-wrap gap-4">
-            {results.sort((a, b) => b.max_score - a.max_score).map((result, index) => (
-              <DocumentCardWithChunks searchResult={result} searchWords={searchWords}/>
+            {resultsGrouped.sort((a, b) => b.max_score - a.max_score).map((result, index) => (
+              <DocumentCardWithChunks searchResult={result} searchWords={searchWords} />
             ))}
           </div>
-          : <p>Aucun résultat trouvé.</p>        }
+          : <p>Aucun résultat trouvé.</p>}
       </div>
+        :
+        <div>
+          {resultsChunks.length > 0 ?
+            <div className="container flex flex-wrap gap-4">
+              <Masonry columns={2} spacing={2}>
+                {resultsChunks.sort((a, b) => b.score - a.score).map((result, index) => (
+                  <Item key={index} >
+                    <DocumentChunkFull chunk={result} searchWords={searchWords} />
+                  </Item>
+                ))}
+              </Masonry>
+            </div>
+            : <p>Aucun résultat trouvé.</p>}
+        </div>}
     </div>
   );
 };
