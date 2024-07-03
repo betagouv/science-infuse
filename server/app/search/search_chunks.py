@@ -21,25 +21,25 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         limit=100,
         return_references=[QueryReference(
             link_on="belongsToDocument", 
-            return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"]
+            return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"]
         )]
     )
         
     # Group the chunks by their document ID and build document search results
     document_results: Dict[str, Dict] = {}
     for chunk in response.objects:
-        doc_ref = chunk.references['belongsToDocument'].objects[0].properties
-        document_id = doc_ref['document_id']
+        document = chunk.references['belongsToDocument'].objects[0].properties
+        document_id = document['document_id']
         
         if document_id not in document_results:
             document_results[document_id] = {
-                "properties": doc_ref,
+                "properties": document,
                 "chunks": []
             }
         
         score = chunk.metadata.score
         print("SEARCH_MULTI_DOCUMENTS 1 SCORE", score)
-        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score})
+        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document})
         document_results[document_id]["chunks"].append(chunk_with_score)
     
     # Build the final response
@@ -50,7 +50,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         
         document_search_result = DocumentSearchResult(
             document_id=document_properties['document_id'],
-            local_path=document_properties['local_path'],
+            public_path=document_properties['public_path'],
             original_public_path=document_properties['original_public_path'],
             media_name=document_properties['media_name'],
             min_score=min(chunk.score for chunk in chunks_with_score),
@@ -72,12 +72,13 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
         query=query,
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=["text"],
-        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "local_path", "original_public_path", "media_name", "max_score", "min_score"])]
+        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"])]
     )
 
     for chunk in response.objects:
         score = chunk.metadata.score
-        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score})
+        document = chunk.references["belongsToDocument"].objects[0].properties
+        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document})
         chunks_search_response.append(chunk_with_score)
 
     return chunks_search_response

@@ -5,13 +5,15 @@ import { Tag } from "@codegouvfr/react-dsfr/Tag";
 import { Typography } from "@mui/material";
 import { Accordion } from "@codegouvfr/react-dsfr/Accordion";
 import Highlighter from "react-highlight-words";
-import { ChunkWithScoreUnion, DocumentSearchResult, isImageChunk, isTextChunk } from "@/types";
+import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk } from "@/types";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { findNormalizedChunks } from "../text-highlighter";
+import { MEDIA_BASE_URL } from "@/config";
 
-const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: string[], original_public_path: string }) => {
+const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: string[]}) => {
     const [expanded, setExpanded] = useState(false)
     const _score = (Number((props.chunk.score)) * 100).toFixed();
+    console.log("${MEDIA_BASE_URL}", MEDIA_BASE_URL)
     return (
         <Accordion
             label={<div className="flex max-w-full gap-2 justiy-center items-center whitespace-nowrap overflow-ellipsis">
@@ -22,8 +24,8 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             expanded={expanded}
         >
             <Typography>Passage: </Typography>
-            {isImageChunk(props.chunk) && <>
-                <img src={`http://localhost:8001${props.chunk.metadata.public_path}`} className="max-w-full max-h-48" />
+            {isPdfImageChunk(props.chunk) && <>
+                <img src={`${MEDIA_BASE_URL}${props.chunk.metadata.public_path}`} className="max-w-full max-h-48" />
             </>}
             {isTextChunk(props.chunk) && <>
                 <Quote
@@ -40,7 +42,6 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             </>}
             <Typography>Media Type: {props.chunk.media_type}</Typography>
             <Typography>Metadatas {JSON.stringify(props.chunk.metadata)}</Typography>
-            {/* <Typography>Source: <a href={`${original_public_path.replace('https://www.youtube.com/watch?v=', 'https://youtu.be/')}?t=${}`} target="_blank">{original_public_path}</a></Typography> */}
             <Typography>Score: {props.chunk.score}</Typography>
         </Accordion>
     );
@@ -55,7 +56,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
 
 
             className="grid-item flex flex-col items-center justify-center w-full h-full"
-            title={<a target="_blank" href={searchResult.original_public_path}>
+            title={<a target="_blank" href={`${MEDIA_BASE_URL}${searchResult.public_path}`}>
                 <Highlighter
                     highlightClassName="highlightSearch"
                     searchWords={searchWords}
@@ -66,7 +67,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
             }
             titleAs="h3"
             desc={<>
-                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview chunk={chunk} searchWords={searchWords} original_public_path={searchResult.original_public_path} />)}
+                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview chunk={chunk} searchWords={searchWords} />)}
             </>}
             footer={
                 <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>

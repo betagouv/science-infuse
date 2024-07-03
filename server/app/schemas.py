@@ -2,56 +2,84 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Literal, Optional, Union, List, Literal, TypeVar, Generic
 
-# every document chunk will have a text property in which we will search
+class BoundingBox(BaseModel):
+    """
+    Represents a bounding box with coordinates for the top-left and bottom-right corners.
+    """
+    x1: float = Field(..., description="X-coordinate of the top-left corner")
+    y1: float = Field(..., description="Y-coordinate of the top-left corner")
+    x2: float = Field(..., description="X-coordinate of the bottom-right corner")
+    y2: float = Field(..., description="Y-coordinate of the bottom-right corner")
+
+
 class BaseDocumentChunk(BaseModel):
+    """
+    Every document chunk has a text property in which we will do the semantic search\n
+    This class is implemented to represent different types of chunks (media_type)\n
+    Every implementation will have a metadata field with custom properties (e.g., for PdfImage, we need to know the page_number where the image was found).    """
     text: str
-    media_type: Literal["image", "text", "videoTranscript"]
+    media_type: Literal[
+        "pdf_image", "raw_image",
+        "pdf_text", 
+        "video_transcript"
+    ]
+    metadata: Union[dict, BaseModel]
+
 
 # VideoTranscript : text part of a video
 class VideoTranscriptMetadata(BaseModel):
-    video_start_offset: float
-    video_end_offset: float
+    start: float
+    end: float
     
 class VideoTranscriptChunk(BaseDocumentChunk):
-    media_type: Literal["videoTranscript"] = "videoTranscript"
+    media_type: Literal["video_transcript"] = "video_transcript"
     metadata: VideoTranscriptMetadata
 
-# Image
-class ImageMetadata(BaseModel):
+# PdfImage
+class PdfImageMetadata(BaseModel):
     public_path: str
-    page_number: Optional[int]
-    width: int
-    height: int
+    page_number: int
+    bbox: BoundingBox
 
-class ImageChunk(BaseDocumentChunk):
-    media_type: Literal["image"] = "image"
-    metadata: ImageMetadata
+class PdfImageChunk(BaseDocumentChunk):
+    media_type: Literal["pdf_image"] = "pdf_image"
+    metadata: PdfImageMetadata
 
-# Text : portion of a text in a document
-class TextMetadata(BaseModel):
-    # page: int
-    text_start_offset: int
-    text_end_offset: int
+# RawImage
+class RawImageMetadata(BaseModel):
+    public_path: str
+class RawImageChunk(BaseDocumentChunk):
+    media_type: Literal["raw_image"] = "raw_image"
+    metadata: RawImageMetadata
 
-class TextChunk(BaseDocumentChunk):
-    media_type: Literal["text"] = "text"
-    metadata: TextMetadata
+# PdfText : portion of a text in a document
+class PdfTextMetadata(BaseModel):
+    page_number: int
+    bbox:BoundingBox
 
-DocumentChunkMetadata = Union[ImageMetadata, TextMetadata, VideoTranscriptMetadata]
-DocumentChunk = Union[ImageChunk, TextChunk, VideoTranscriptChunk]
+class PdfTextChunk(BaseDocumentChunk):
+    media_type: Literal["pdf_text"] = "pdf_text"
+    metadata: PdfTextMetadata
+
+DocumentChunkMetadata = Union[RawImageMetadata, PdfImageMetadata, PdfTextMetadata, VideoTranscriptMetadata]
+DocumentChunk = Union[RawImageChunk, PdfImageChunk, PdfTextChunk, VideoTranscriptChunk]
 
 # ChunkWithScore
 ChunkType = TypeVar('ChunkType', bound=BaseDocumentChunk)
-class ChunkWithScore(Generic[ChunkType], BaseDocumentChunk):
-    metadata: DocumentChunkMetadata
-    score: float
 
 class Document(BaseModel):
-    chunks: List[DocumentChunk]
     document_id: str
-    local_path: str
+    public_path: str
     original_public_path: str
     media_name: str
+
+class DocumentWithChunks(Document):
+    chunks: List[DocumentChunk]
+
+class ChunkWithScore(Generic[ChunkType], BaseDocumentChunk):
+    document: Document
+    metadata: DocumentChunkMetadata
+    score: float
 
 
 # -----------
@@ -67,7 +95,7 @@ class SearchQuery(BaseModel):
 
 class DocumentSearchResult(BaseModel):
     document_id: str
-    local_path: str
+    public_path: str
     original_public_path: str
     media_name: str
     max_score: float

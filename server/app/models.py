@@ -20,7 +20,7 @@ def create_weaviate_schema(remove=False):
             vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
             properties=[
                 Property(name="document_id", data_type=DataType.TEXT, skip_vectorization=True),
-                Property(name="local_path", data_type=DataType.TEXT, skip_vectorization=True, description="local path of the file"),
+                Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True, description="local path of the file"),
                 Property(name="original_public_path", data_type=DataType.TEXT, skip_vectorization=True, description="where the file comes from (youtube url, public url,...)"),
                 Property(name="media_name", data_type=DataType.TEXT, skip_vectorization=True, description="name of the media"),
             ]
@@ -40,16 +40,16 @@ def create_weaviate_schema(remove=False):
                          description="metadata of the chunk, dependent on the media_type",
                          nested_properties=[
                             #  image metadata
-                            Property(name="local_path", data_type=DataType.TEXT, skip_vectorization=True),
-                            Property(name="page_number", description="optional: if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
-                            Property(name="width", data_type=DataType.INT, skip_vectorization=True),
-                            Property(name="height", data_type=DataType.INT, skip_vectorization=True),
-                            #  TextMetadata
-                            Property(name="text_start_offset", data_type=DataType.INT, skip_vectorization=True,),
-                            Property(name="text_end_offset", data_type=DataType.INT, skip_vectorization=True),
-                            #  VideoTranscriptMetadata
-                            Property(name="start_offset", data_type=DataType.NUMBER, skip_vectorization=True,),
-                            Property(name="end_offset", data_type=DataType.NUMBER, skip_vectorization=True),
+                            Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True),
+                            Property(name="page_number", description="[optional] if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
+                            Property(name="bbox", description="[optional] bounding box", data_type=DataType.OBJECT, skip_vectorization=True, nested_properties=[
+                                Property(name="x1", data_type=DataType.NUMBER),
+                                Property(name="y1", data_type=DataType.NUMBER),
+                                Property(name="x2", data_type=DataType.NUMBER),
+                                Property(name="y2", data_type=DataType.NUMBER)
+                            ]),
+                            Property(name="start", data_type=DataType.NUMBER, skip_vectorization=True,),
+                            Property(name="end", data_type=DataType.NUMBER, skip_vectorization=True),
                          ]
                 ),
             ]

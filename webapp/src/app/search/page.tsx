@@ -137,7 +137,7 @@ const Search: React.FC = () => {
               <Masonry columns={2} spacing={2}>
                 {resultsChunks.sort((a, b) => b.score - a.score).map((result, index) => (
                   <Item key={index} >
-                    <DocumentChunkFull chunk={result} searchWords={searchWords} />
+                    <DocumentChunkFull key={result.document.public_path} chunk={result} searchWords={searchWords} />
                   </Item>
                 ))}
               </Masonry>

@@ -3,7 +3,7 @@ from app.processing.audio.SIWhisperModel import SIWhisperModel
 from pytube import YouTube
 import os
 
-from app.schemas import Document, VideoTranscriptChunk, VideoTranscriptMetadata
+from app.schemas import DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
 class YoutubeProcessor(BaseDocumentProcessor):
     def __init__(self, client, whisper: SIWhisperModel, youtube_url: str, paragraph_pause_threshold: float = 1):
@@ -31,15 +31,15 @@ class YoutubeProcessor(BaseDocumentProcessor):
             VideoTranscriptChunk(
                 text=segment.text,
                 metadata=VideoTranscriptMetadata(
-                    start_offset=segment.start,
-                    end_offset=segment.end
+                    start=segment.start,
+                    end=segment.end
                 )
             ) 
         for segment in segments]
-        document = Document(
+        document = DocumentWithChunks(
             chunks=chunks,
             document_id=self.id, 
-            local_path=video_path, 
+            public_path=self.absolute_path_to_local(video_path), 
             original_public_path=self.youtube_url,
             media_name=video_name,
         )

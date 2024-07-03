@@ -1,0 +1,1 @@
+export const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_BASE_URL
