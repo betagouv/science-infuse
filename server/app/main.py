@@ -23,14 +23,11 @@ async def catch_exceptions_middleware(request: Request, call_next):
 
 app = FastAPI()
 
-origins = [
-    "*"
-    # "http://localhost:3000",
-    # "http://localhost:8002",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
