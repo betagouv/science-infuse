@@ -234,7 +234,7 @@ prometheus-client
 promise==2.3
 prompt-toolkit
 proto-plus==1.24.0
-protobuf==3.20.0
+protobuf==3.20.2
 psutil
 psycopg2-binary==2.9.9
 ptyprocess
