@@ -1,1 +1,2 @@
-export const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_BASE_URL
+export const NEXT_PUBLIC_FILE_SERVER_URL = process.env.NEXT_PUBLIC_FILE_SERVER_URL
+export const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL

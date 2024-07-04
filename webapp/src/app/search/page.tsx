@@ -15,6 +15,7 @@ import FilterMenu from "./FilterMenu";
 import DocumentChunkFull from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
+import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 
 
 const Item = styled('div')(({ theme }) => ({
@@ -40,7 +41,7 @@ const Search: React.FC = () => {
     try {
       if (!query) return;
       const response = await axios.post<DocumentSearchResult[]>(
-        "http://localhost:8000/search/search_chunks_grouped_by_document",
+        `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`,
         {
           query: query,
         }
@@ -55,7 +56,7 @@ const Search: React.FC = () => {
     try {
       if (!query) return;
       const response = await axios.post<ChunkWithScoreUnion[]>(
-        "http://localhost:8000/search/search_chunks",
+        `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`,
         {
           query: query,
           // media_types: ["pdf_text"]
