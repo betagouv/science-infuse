@@ -48,6 +48,8 @@ services:
       - "8002:3000"
   
   server:
+    depends_on:
+      - weaviate
     build:
       context: ./server
     ports:
