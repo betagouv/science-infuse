@@ -28,6 +28,7 @@ const Item = styled('div')(({ theme }) => ({
 
 const groupByDocument = signal<boolean>(false)
 const Search: React.FC = () => {
+  console.log("NEXT_PUBLIC_SERVER_URL", NEXT_PUBLIC_SERVER_URL)
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
