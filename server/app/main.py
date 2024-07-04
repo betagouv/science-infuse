@@ -31,10 +31,28 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
-# app.add_middleware(BaseHTTPMiddleware, dispatch=catch_exceptions_middleware)
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "http://51.38.223.168"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
-
+@app.options("/{rest_of_path:path}")
+async def options_route(request: Request):
+    return JSONResponse(
+        status_code=200,
+        content={"message": "OK"},
+        headers={
+            "Access-Control-Allow-Origin": "http://51.38.223.168",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 app.include_router(document.router, prefix="/document", tags=["document"])
 app.include_router(search.router, prefix="/search", tags=["search"])
 
