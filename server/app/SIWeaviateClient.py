@@ -1,5 +1,6 @@
 import weaviate
 import os
+from weaviate.connect import ConnectionParams
 from weaviate import WeaviateClient
 class SIWeaviateClient:
     def __init__(self):
@@ -10,14 +11,25 @@ class SIWeaviateClient:
 
     def connect_with_env(self) -> WeaviateClient:
         
-        return weaviate.connect_to_custom(
-            http_host=os.getenv("WEAVIATE_URL"),
-            http_port=int(os.getenv("WEAVIATE_PORT")),
-            http_secure=False,
-            grpc_host=os.getenv("WEAVIATE_URL"),
-            grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT")),
-            grpc_secure=False,
+        client = weaviate.WeaviateClient(
+            connection_params=ConnectionParams.from_params(
+                http_host=os.getenv("WEAVIATE_URL"),
+                http_port=int(os.getenv("WEAVIATE_PORT")),
+                http_secure=False,
+                grpc_host=os.getenv("WEAVIATE_URL"),
+                grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT")),
+                grpc_secure=False,
+            ),
         )
+        return client
+        # return weaviate.connect_to_custom(
+        #     http_host=os.getenv("WEAVIATE_URL"),
+        #     http_port=int(os.getenv("WEAVIATE_PORT")),
+        #     http_secure=False,
+        #     grpc_host=os.getenv("WEAVIATE_URL"),
+        #     grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT")),
+        #     grpc_secure=False,
+        # )
 
 
     # TODO: implement different connection strategies for prod/...
