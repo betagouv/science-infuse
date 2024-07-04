@@ -46,3 +46,9 @@ services:
       context: ./webapp
     ports:
       - "8002:3000"
+  
+  server:
+    build:
+      context: ./server
+    ports:
+      - "8000:8000"
