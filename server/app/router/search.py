@@ -12,10 +12,10 @@ router = APIRouter()
 
 @router.post("/search_chunks_grouped_by_document", response_model=List[DocumentSearchResult])
 async def _search_chunks_grouped_by_document(query: SearchQuery):
-    results = search_chunks_grouped_by_document(query.query, document_id=query.document_id)
+    results = search_chunks_grouped_by_document(query)
     return results
 
 @router.post("/search_chunks", response_model=List[ChunkWithScore])
 async def _search_chunks(query: SearchQuery):
-    results = search_chunks(query.query, document_id=query.document_id)
+    results = search_chunks(query)
     return results

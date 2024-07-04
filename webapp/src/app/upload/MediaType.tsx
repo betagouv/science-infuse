@@ -20,7 +20,7 @@ const MediaTypePicker = () => {
 
             >
                 {mediaTypes.map(mt => (
-                    <option value={mt}>{mt}</option>
+                    <option key={mt} value={mt}>{mt}</option>
                 ))}
             </Select>
             <Button

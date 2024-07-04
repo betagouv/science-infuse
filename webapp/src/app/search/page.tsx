@@ -58,6 +58,7 @@ const Search: React.FC = () => {
         "http://localhost:8000/search/search_chunks",
         {
           query: query,
+          // media_types: ["pdf_text"]
         }
       );
       setResultsChunks(response.data);
@@ -125,7 +126,7 @@ const Search: React.FC = () => {
         {resultsGrouped.length > 0 ?
           <div className="container flex flex-wrap gap-4">
             {resultsGrouped.sort((a, b) => b.max_score - a.max_score).map((result, index) => (
-              <DocumentCardWithChunks searchResult={result} searchWords={searchWords} />
+              <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
             ))}
           </div>
           : <p>Aucun résultat trouvé.</p>}

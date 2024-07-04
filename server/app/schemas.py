@@ -12,11 +12,18 @@ class BoundingBox(BaseModel):
     y2: float = Field(..., description="Y-coordinate of the bottom-right corner")
 
 
+class Document(BaseModel):
+    document_id: str
+    public_path: str
+    original_public_path: str
+    media_name: str
+
 class BaseDocumentChunk(BaseModel):
     """
     Every document chunk has a text property in which we will do the semantic search\n
     This class is implemented to represent different types of chunks (media_type)\n
     Every implementation will have a metadata field with custom properties (e.g., for PdfImage, we need to know the page_number where the image was found).    """
+    document: Document
     text: str
     media_type: Literal[
         "pdf_image", "raw_image",
@@ -67,17 +74,10 @@ DocumentChunk = Union[RawImageChunk, PdfImageChunk, PdfTextChunk, VideoTranscrip
 # ChunkWithScore
 ChunkType = TypeVar('ChunkType', bound=BaseDocumentChunk)
 
-class Document(BaseModel):
-    document_id: str
-    public_path: str
-    original_public_path: str
-    media_name: str
-
 class DocumentWithChunks(Document):
     chunks: List[DocumentChunk]
 
 class ChunkWithScore(Generic[ChunkType], BaseDocumentChunk):
-    document: Document
     metadata: DocumentChunkMetadata
     score: float
 
@@ -91,6 +91,8 @@ class ImportDocument(BaseModel):
 class SearchQuery(BaseModel):
     query: str
     document_id: Optional[str] = None
+    media_types: Optional[List[str]] = None
+    
     
 
 class DocumentSearchResult(BaseModel):

@@ -5,7 +5,7 @@ from weaviate import WeaviateClient
 from typing import List, Dict, Optional
 
 from SIWeaviateClient import SIWeaviateClient
-from schemas import ChunkWithScore, DocumentSearchResult
+from schemas import ChunkWithScore, DocumentSearchResult, SearchQuery
 
 # only search in chunk property
 query_properties = ["chunk"]
@@ -72,6 +72,7 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
         query=query,
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=["text"],
+        filters=filters,
         return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"])]
     )
 
@@ -83,20 +84,30 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
 
     return chunks_search_response
 
-def search_chunks(query: str, document_id: Optional[str]) -> List[ChunkWithScore]:
+def search_chunks(query: SearchQuery) -> List[ChunkWithScore]:
+    filters = None
+    if (query.media_types):
+        filters = Filter.by_property("media_type").contains_any(query.media_types) # TODO ADD
+
     with SIWeaviateClient() as client:
-        if (not document_id):
-            return search_all_chunks(client, query)
+        if (not query.document_id):
+            return search_all_chunks(client, query.query, filters=filters)
         return []
         # else:
         #     document_id_filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
         #     return search_multi_documents(client, query, filters=document_id_filter)
 
 
-def search_chunks_grouped_by_document(query: str, document_id: Optional[str]) -> List[DocumentSearchResult]:
+def search_chunks_grouped_by_document(query: SearchQuery) -> List[DocumentSearchResult]:
+    filters = None
+    if (query.media_types):
+        filters = Filter.by_property("media_type").contains_any(query.media_types)
+
     with SIWeaviateClient() as client:
-        if (not document_id):
-            return search_multi_documents(client, query)
+        if (not query.document_id):
+            return search_multi_documents(client, query.query, filters=filters)
         else:
-            document_id_filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
-            return search_multi_documents(client, query, filters=document_id_filter)
+            print("FILTERS", filters)
+            # TODO ADD
+            filters = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=query.document_id)) 
+            return search_multi_documents(client, query.query, filters=filters)

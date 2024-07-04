@@ -10,6 +10,7 @@ export interface BoundingBox {
 }
 export interface BaseDocumentChunk<T extends MediaType> {
   text: string;
+  document: Document,
   media_type: T;
   metadata: MetadataType<T>;
 }
@@ -50,7 +51,6 @@ export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk
 
 export interface ChunkWithScore<T extends MediaType> extends BaseDocumentChunk<T> {
   score: number;
-  document: Document;
 }
 
 export type ChunkWithScoreUnion =
@@ -86,14 +86,14 @@ export const isTextChunk = (chunk: ChunkWithScoreUnion) => {
   return isPdfImageChunk(chunk)
 }
 
-export const isPdfImageChunk = (chunk: ChunkWithScoreUnion) => {
+export const isPdfImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_image"> => {
   return chunk.media_type == "pdf_image";
 }
 
-export const isPdfTextChunk = (chunk: ChunkWithScoreUnion) => {
+export const isPdfTextChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_text"> => {
   return chunk.media_type === "pdf_text";
 }
 
-export const isVideoTranscriptChunk = (chunk: ChunkWithScoreUnion) => {
+export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"video_transcript"> {
   return chunk.media_type === "video_transcript";
 }

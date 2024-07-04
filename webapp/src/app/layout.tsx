@@ -87,9 +87,9 @@ export default function RootLayout({ children }: { children: JSX.Element; }) {
                 `}
                 bottomItems={[
                   headerFooterDisplayItem,
-                  <FooterPersonalDataPolicyItem />,
-                  <FooterConsentManagementItem />,
-                  <ClientFooterItem />
+                  <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
+                  <FooterConsentManagementItem key="FooterConsentManagementItem" />,
+                  <ClientFooterItem key="ClientFooterItem" />
                 ]}
               />
             </MuiDsfrThemeProvider>

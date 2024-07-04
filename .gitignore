@@ -1,1 +1,2 @@
 tests/WhisperVideoTransctiption/models/*
+weaviate_data/*

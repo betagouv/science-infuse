@@ -1,5 +1,4 @@
 documents/*
-weaviate_data/*
 notebooks/data/*
 notebooks/models/*
 notebooks/yolov10/

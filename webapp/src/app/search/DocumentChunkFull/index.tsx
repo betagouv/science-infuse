@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk } from "@/types";
+import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, PdfImageChunk, VideoTranscriptChunk } from "@/types";
 import { Tag } from "@codegouvfr/react-dsfr/Tag";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
@@ -30,26 +30,23 @@ const RenderPdfTextCard = (props: { searchWords: string[], chunk: ChunkWithScore
     />
 }
 
-const RenderPdfImageCard = (chunk: ChunkWithScore<"pdf_image" | "raw_image">) => {
+const RenderPdfImageCard = (props: { chunk: ChunkWithScore<"pdf_image"> }) => {
     return <Card
         background
         border
-        desc={<img className="w-full" src={`${MEDIA_BASE_URL}${chunk.metadata.public_path}`} />}
-        // desc="Lorem ipsum dolor sit amet, consectetur adipiscing, incididunt, ut labore et dolore magna aliqua. Vitae sapien pellentesque habitant morbi tristique senectus et"
+        desc={<img className="w-full" src={`${MEDIA_BASE_URL}${props.chunk.metadata.public_path}`} />}
         enlargeLink
-        // imageAlt="texte alternatif de l’image"
-        // imageUrl="https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"
         linkProps={{
-            href: `${MEDIA_BASE_URL}${chunk.metadata.public_path}`,
+            href: `${MEDIA_BASE_URL}${props.chunk.metadata.public_path}`,
             target: "_blank"
         }}
         size="medium"
-        title={chunk.media_type}
+        title={props.chunk.media_type}
         titleAs="h3"
     />
 }
 
-const RenderVideoTranscriptCard = (props: {chunk: ChunkWithScore<"video_transcript">, searchWords: string[]}) => {
+export const RenderVideoTranscriptCard = (props: { chunk: ChunkWithScore<"video_transcript">, searchWords: string[] }) => {
     console.log("colibri", props.chunk)
     return <Card
         background
@@ -77,16 +74,11 @@ const RenderVideoTranscriptCard = (props: {chunk: ChunkWithScore<"video_transcri
 }
 
 export default (props: { chunk: ChunkWithScoreUnion, searchWords: string[] }) => {
-    const [expanded, setExpanded] = useState(false)
-    const _score = (Number((props.chunk.score)) * 100).toFixed();
     return (
         <div>
-            <Tag small className=" h-fit" >{_score}%</Tag>
-
-            {isPdfImageChunk(props.chunk) && <RenderPdfImageCard {...props.chunk} />}
+            {isPdfImageChunk(props.chunk) && <RenderPdfImageCard chunk={props.chunk} />}
             {isPdfTextChunk(props.chunk) && <RenderPdfTextCard chunk={props.chunk} searchWords={props.searchWords} />}
-            {isVideoTranscriptChunk(props.chunk) && <RenderVideoTranscriptCard chunk={props.chunk} searchWords={props.searchWords}/>}
-            {/* <Typography>Score: {props.chunk.score}</Typography> */}
+            {isVideoTranscriptChunk(props.chunk) && <RenderVideoTranscriptCard chunk={props.chunk} searchWords={props.searchWords} />}
         </div>
     );
 };

@@ -6,7 +6,7 @@ import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
 from app.SIWeaviateClient import SIWeaviateClient
-from app.schemas import BoundingBox, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
+from app.schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from app.processing.image.SIImageDescription import SIImageDescription
 from app.processing.text.SIITranslator import SITranslator
 from app.processing.BaseDocumentProcessor import BaseDocumentProcessor
@@ -148,6 +148,13 @@ class PDFProcessor(BaseDocumentProcessor):
             {**image, "description_fr": translated_description}
             for image, translated_description in zip(images_chunks, translated_images_descriptions)
         ]
+        
+        document = Document(
+            document_id=self.id,
+            public_path=self.absolute_path_to_local(local_pdf_path),
+            original_public_path=local_pdf_path,
+            media_name=media_name,
+        )
         chunks = []
         for img in images_with_descriptions:
             print(img.get('description_en'))
@@ -157,6 +164,7 @@ class PDFProcessor(BaseDocumentProcessor):
 
             chunk = PdfImageChunk(
                 text=img.get('description_fr'),
+                document=document,
                 metadata=PdfImageMetadata(
                     public_path=self.absolute_path_to_local(image_path),
                     page_number=img.get('page_number'),
@@ -172,6 +180,7 @@ class PDFProcessor(BaseDocumentProcessor):
         for text in texts:
             chunk = PdfTextChunk(
                 text=text.get('text'),
+                document=document,
                 metadata=PdfTextMetadata(
                     page_number=text.get('page_number'),
                     bbox=text.get('bbox')
@@ -181,13 +190,7 @@ class PDFProcessor(BaseDocumentProcessor):
             
         media_name =Path(self.pdf_path).stem
         # print(images_with_descriptions)
-        document = DocumentWithChunks(
-            chunks=chunks,
-            document_id=self.id,
-            public_path=self.absolute_path_to_local(local_pdf_path),
-            original_public_path=local_pdf_path,
-            media_name=media_name,
-        )
+        
         return document, chunks
 
 
