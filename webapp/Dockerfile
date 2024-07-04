@@ -4,6 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 
+# Create the public directory
+RUN mkdir -p /app/public
+
 RUN npm install
 
 COPY . .
