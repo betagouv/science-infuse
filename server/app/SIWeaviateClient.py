@@ -9,10 +9,7 @@ class SIWeaviateClient:
         return weaviate.connect_to_local()
 
     def connect_with_env(self) -> WeaviateClient:
-        print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
-        print("WEAVIATE_PORT", os.getenv("WEAVIATE_PORT"))
-        print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
-        print("WEAVIATE_GRPC_PORT", os.getenv("WEAVIATE_GRPC_PORT"))
+        
         return weaviate.connect_to_custom(
             http_host=os.getenv("WEAVIATE_URL"),
             http_port=int(os.getenv("WEAVIATE_PORT")),
