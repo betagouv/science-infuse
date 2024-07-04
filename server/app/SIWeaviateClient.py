@@ -21,6 +21,7 @@ class SIWeaviateClient:
                 grpc_secure=False,
             ),
         )
+        client.connect()
         return client
         # return weaviate.connect_to_custom(
         #     http_host=os.getenv("WEAVIATE_URL"),
