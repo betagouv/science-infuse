@@ -51,6 +51,7 @@ services:
     environment:
       - WEAVIATE_URL=${WEAVIATE_URL}
       - WEAVIATE_PORT=${WEAVIATE_PORT}
+      - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
     build:
       context: ./server
     ports:

@@ -54,5 +54,13 @@ def read_root():
 log_config = uvicorn.config.LOGGING_CONFIG
 log_config["formatters"]["access"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
 log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
+
+import os
+
+print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
+print("WEAVIATE_PORT", os.getenv("WEAVIATE_PORT"))
+print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
+print("WEAVIATE_GRPC_PORT", os.getenv("WEAVIATE_GRPC_PORT"))
+        
 uvicorn.run(app, log_config=log_config)
 
