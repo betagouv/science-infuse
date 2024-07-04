@@ -62,5 +62,5 @@ print("WEAVIATE_PORT", os.getenv("WEAVIATE_PORT"))
 print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
 print("WEAVIATE_GRPC_PORT", os.getenv("WEAVIATE_GRPC_PORT"))
         
-uvicorn.run(app, log_config=log_config)
+uvicorn.run(app, host="0.0.0.0", log_config=log_config)
 
