@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
+EXPOSE 8000
+
 # Run the main.py script
 CMD ["python", "app/main.py"]
 # CMD ["python", "-m", "http.server", "8000"]
