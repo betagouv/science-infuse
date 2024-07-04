@@ -23,15 +23,6 @@ class SIWeaviateClient:
         )
         client.connect()
         return client
-        # return weaviate.connect_to_custom(
-        #     http_host=os.getenv("WEAVIATE_URL"),
-        #     http_port=int(os.getenv("WEAVIATE_PORT")),
-        #     http_secure=False,
-        #     grpc_host=os.getenv("WEAVIATE_URL"),
-        #     grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT")),
-        #     grpc_secure=False,
-        # )
-
 
     # TODO: implement different connection strategies for prod/...
     # def connect_to_remote(self):
