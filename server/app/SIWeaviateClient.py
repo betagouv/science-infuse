@@ -1,4 +1,5 @@
 import weaviate
+import os
 from weaviate import WeaviateClient
 class SIWeaviateClient:
     def __init__(self):
@@ -6,6 +7,13 @@ class SIWeaviateClient:
 
     def connect_to_local(self) -> WeaviateClient:
         return weaviate.connect_to_local()
+
+    def connect_to_docker(self) -> WeaviateClient:
+        return weaviate.connect_to_custom(
+            http_host=os.getenv("WEAVIATE_URL"),
+            http_port=os.getenv("WEAVIATE_PORT"),
+            http_secure=False,
+        )
 
     # TODO: implement different connection strategies for prod/...
     # def connect_to_remote(self):
