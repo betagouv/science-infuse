@@ -7,7 +7,7 @@ class SIWeaviateClient:
         self.client:WeaviateClient = None
 
     def connect_to_local(self) -> WeaviateClient:
-        return weaviate.connect_to_local()
+        self.client = weaviate.connect_to_local()
 
     def connect_with_env(self) -> WeaviateClient:
         
