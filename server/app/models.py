@@ -3,7 +3,7 @@ import weaviate
 from weaviate.classes.config import Property, DataType, ReferenceProperty, Configure, Tokenization
 from weaviate.exceptions import UnexpectedStatusCodeError
 
-from app.SIWeaviateClient import SIWeaviateClient
+from SIWeaviateClient import SIWeaviateClient
 
 def create_weaviate_schema(remove=False):
     with SIWeaviateClient() as client:
