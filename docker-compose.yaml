@@ -49,7 +49,7 @@ services:
   webapp:
     build:
       context: ./webapp
-    environment:
+    args:
       - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
       - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
     ports:
