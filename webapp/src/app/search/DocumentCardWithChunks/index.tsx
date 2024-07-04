@@ -8,13 +8,13 @@ import Highlighter from "react-highlight-words";
 import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk, isVideoTranscriptChunk, PdfImageChunk } from "@/types";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { findNormalizedChunks } from "../text-highlighter";
-import { MEDIA_BASE_URL } from "@/config";
+import { NEXT_PUBLIC_FILE_SERVER_URL } from "@/config";
 import { RenderVideoTranscriptCard } from "../DocumentChunkFull";
 
 const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: string[] }) => {
     const [expanded, setExpanded] = useState(false)
     const _score = (Number((props.chunk.score)) * 100).toFixed();
-    console.log("${MEDIA_BASE_URL}", MEDIA_BASE_URL)
+    console.log("${NEXT_PUBLIC_FILE_SERVER_URL}", NEXT_PUBLIC_FILE_SERVER_URL)
     return (
         <Accordion
             label={<div className="flex max-w-full gap-2 justiy-center items-center whitespace-nowrap overflow-ellipsis">
@@ -30,7 +30,7 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             }
 
             {isPdfImageChunk(props.chunk) && <>
-                <img key={(props.chunk as PdfImageChunk).metadata.public_path} src={`${MEDIA_BASE_URL}${(props.chunk as PdfImageChunk).metadata.public_path}`} className="max-w-full max-h-48" />
+                <img key={(props.chunk as PdfImageChunk).metadata.public_path} src={`${NEXT_PUBLIC_FILE_SERVER_URL}${(props.chunk as PdfImageChunk).metadata.public_path}`} className="max-w-full max-h-48" />
             </>}
             {isTextChunk(props.chunk) && <>
                 <Quote
@@ -61,7 +61,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
 
 
             className="grid-item flex flex-col items-center justify-center w-full h-full"
-            title={<a target="_blank" href={`${MEDIA_BASE_URL}${searchResult.public_path}`}>
+            title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.public_path}`}>
                 <Highlighter
                     highlightClassName="highlightSearch"
                     searchWords={searchWords}

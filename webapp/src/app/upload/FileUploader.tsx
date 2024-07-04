@@ -4,6 +4,7 @@ import { Upload } from "@codegouvfr/react-dsfr/Upload";
 import { Typography } from "@mui/material";
 import axios from "axios";
 import { mediaType } from "./UploadMediaStepper";
+import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 
 
 const FileUploader = () => {
@@ -30,7 +31,7 @@ const FileUploader = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:8000/document/upload",
+                `${NEXT_PUBLIC_SERVER_URL}/document/upload`,
                 formData,
                 {
                     headers: {
