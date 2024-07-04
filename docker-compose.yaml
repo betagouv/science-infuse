@@ -44,9 +44,5 @@ services:
   webapp:
     build:
       context: ./webapp
-      dockerfile: Dockerfile
     ports:
       - "8002:3000"
-    volumes:
-      - ./webapp:/app
-      - /app/node_modules
