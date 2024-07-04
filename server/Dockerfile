@@ -14,5 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the main.py script
-CMD ["ash"]
-# CMD ["python", "app/main.py"]
+CMD ["python", "-m", "http.server", "8000"]
