@@ -1,8 +1,10 @@
 import logging
-from fastapi import FastAPI, Request
+from watchdog.observers import Observer
+from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
+from ftp_file_watcher import WatchdogHandler
 from models import create_weaviate_schema
 from router import document, search
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -36,7 +38,7 @@ app.add_middleware(
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
     response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "http://51.38.223.168"
+    response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "*"
@@ -48,7 +50,7 @@ async def options_route(request: Request):
         status_code=200,
         content={"message": "OK"},
         headers={
-            "Access-Control-Allow-Origin": "http://51.38.223.168",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
             "Access-Control-Allow-Headers": "*",
         },
@@ -59,7 +61,22 @@ app.include_router(search.router, prefix="/search", tags=["search"])
 
 @app.on_event("startup")
 async def startup_event():
-    create_weaviate_schema(remove=False)
+    create_weaviate_schema(remove=True)
+    # watch for new files in the 
+    # path_to_watch = os.path.join(os.getcwd(), '..', 'ftp-data')
+    path_to_watch = os.path.join(os.getcwd(), 'ftp-data')
+    event_handler = WatchdogHandler(path_to_watch)
+    observer = Observer()
+    observer.schedule(event_handler, path_to_watch, recursive=True)
+    observer.start()
+
+    # Run observer in a separate thread
+    def run_observer():
+        observer.join()
+    import threading
+    observer_thread = threading.Thread(target=run_observer)
+    observer_thread.start()
+
 
 @app.get("/")
 def read_root():
