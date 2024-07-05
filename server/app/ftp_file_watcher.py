@@ -60,7 +60,11 @@ def process_media(file_path):
         print(f"File size: {file_size} bytes", flush=True)
         image_descriptor = ImageDescriptor()
         translator = Translator()
-        return process_pdf(file_path, image_descriptor, translator)  # Assuming process_pdf is async
+        try:
+            pdf = process_pdf(file_path, image_descriptor, translator)  # Assuming process_pdf is async
+        except Exception as e:
+            print("ERRROR PROCESSING PDF", e, flush=True)
+        return pdf 
     elif extension == '.mp4':
         return 'MP4 Video'
     elif extension in ['.jpg', '.jpeg', '.png', '.gif']:
