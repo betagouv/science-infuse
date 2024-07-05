@@ -52,12 +52,12 @@ class FileHandler(FileSystemEventHandler):
 def process_media(file_path):
     _, extension = os.path.splitext(file_path)
     extension = extension.lower()
-    print("PROCESS MEDIA", file_path)
+    print("PROCESS MEDIA", file_path, flush=True)
     
     if extension == '.pdf':
-        print("PROCESSING PDF")
+        print("PROCESSING PDF", flush=True)
         file_size = os.path.getsize(file_path)
-        print(f"File size: {file_size} bytes")
+        print(f"File size: {file_size} bytes", flush=True)
         image_descriptor = ImageDescriptor()
         translator = Translator()
         return process_pdf(file_path, image_descriptor, translator)  # Assuming process_pdf is async
@@ -75,11 +75,11 @@ def process_media(file_path):
 def process_queue():
     while True:
         file_path = file_queue.get()
-        print(f"Processing file: {file_path}")
+        print(f"Processing file: {file_path}", flush=True)
         
         # Use the Hugging Face pipeline to process the file
         result = process_media(file_path)
-        print(f"Result for {file_path}: {result}")
+        print(f"Result for {file_path}: {result}", flush=True)
         
         file_queue.task_done()
 
