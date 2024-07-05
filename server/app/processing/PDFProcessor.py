@@ -20,6 +20,7 @@ non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
     def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, pdf_path: str):
         self.pdf_path = pdf_path
+        print("PDFProcessor pdf_path", pdf_path)
         self.image_descriptor = image_descriptor
         self.translator = translator
         super().__init__(client)
@@ -141,10 +142,13 @@ class PDFProcessor(BaseDocumentProcessor):
 
 
     def extract_document(self):
+        print("PDFProcessor extract_document self.pdf_path", self.pdf_path)
         local_pdf_path = self.save_pdf(self.pdf_path)
 
         images = self.get_pdf_images(local_pdf_path)
+        print("PDFProcessor extract_document images", len(images))
         texts = self.get_pdf_text_chunks(local_pdf_path)
+        print("PDFProcessor extract_document texts", len(texts))
         images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
         # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
         images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
