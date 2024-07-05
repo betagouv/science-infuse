@@ -20,18 +20,23 @@ translator = SITranslator()
 class FileHandler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory:
-            # Wait for the file to finish uploading
-            while True:
-                try:
-                    with open(event.src_path, 'rb') as f:
-                        f.read()
-                    break
-                except IOError:
-                    time.sleep(1)
+            self.wait_for_file_completion(event.src_path)
             
-            # Add the file path to the queue
-            file_queue.put(event.src_path)
-            print(f"File {event.src_path} added to queue")
+    def wait_for_file_completion(self, file_path):
+        last_size = -1
+        while True:
+            try:
+                current_size = os.path.getsize(file_path)
+                if current_size == last_size:
+                    # File size hasn't changed, assume it's complete
+                    file_queue.put(file_path)
+                    print(f"File {file_path} added to queue")
+                    break
+                last_size = current_size
+            except OSError:
+                # File might be in use, wait and retry
+                pass
+            time.sleep(2)
 
 def process_media(file_path):
     _, extension = os.path.splitext(file_path)
