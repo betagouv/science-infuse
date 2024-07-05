@@ -20,7 +20,7 @@ non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
     def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, pdf_path: str):
         self.pdf_path = pdf_path
-        print("PDFProcessor pdf_path", pdf_path)
+        print("PDFProcessor pdf_path", pdf_path, flush=True)
         self.image_descriptor = image_descriptor
         self.translator = translator
         super().__init__(client)
@@ -142,13 +142,13 @@ class PDFProcessor(BaseDocumentProcessor):
 
 
     def extract_document(self):
-        print("PDFProcessor extract_document self.pdf_path", self.pdf_path)
+        print("PDFProcessor extract_document self.pdf_path", self.pdf_path, flush=True)
         local_pdf_path = self.save_pdf(self.pdf_path)
 
         images = self.get_pdf_images(local_pdf_path)
-        print("PDFProcessor extract_document images", len(images))
+        print("PDFProcessor extract_document images", len(images), flush=True)
         texts = self.get_pdf_text_chunks(local_pdf_path)
-        print("PDFProcessor extract_document texts", len(texts))
+        print("PDFProcessor extract_document texts", len(texts), flush=True)
         images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
         # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
         images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
@@ -169,8 +169,8 @@ class PDFProcessor(BaseDocumentProcessor):
         )
         chunks = []
         for img in images_with_descriptions:
-            print(f"description_en : {img.get('description_en')}")
-            print(f"description_fr : {img.get('description_fr')}")
+            print(f"description_en : {img.get('description_en')}", flush=True)
+            print(f"description_fr : {img.get('description_fr')}", flush=True)
             image_path = self.save_image(img.get('image'))
             img.get('image').close()
 
