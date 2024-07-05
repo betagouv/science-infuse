@@ -69,6 +69,8 @@ services:
       - "8000:8000"
     volumes:
       - ./documents:/documents
+      - ./ftp-data:/ftp-data
+
   ftp:
     image: stilliard/pure-ftpd:hardened
     container_name: pure-ftpd
