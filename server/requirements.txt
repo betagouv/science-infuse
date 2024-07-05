@@ -36,5 +36,5 @@ unstructured-inference==0.7.36
 unstructured.pytesseract==0.3.12
 pillow_heif==0.16.0
 einops==0.8.0
-packaging
+setuptools
 flash-attn==2.5.9.post1
