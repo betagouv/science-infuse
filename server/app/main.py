@@ -64,7 +64,10 @@ async def startup_event():
     create_weaviate_schema(remove=True)
     # watch for new files in the 
     # path_to_watch = os.path.join(os.getcwd(), '..', 'ftp-data')
+
     path_to_watch = os.path.join(os.getcwd(), 'ftp-data')
+    print("path_to_watch", path_to_watch)
+    print("LIST DIR", os.listdir(os.getcwd()))
     event_handler = WatchdogHandler(path_to_watch)
     observer = Observer()
     observer.schedule(event_handler, path_to_watch, recursive=True)

@@ -64,6 +64,8 @@ COPY requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install -r requirements.txt
 
+RUN apt install poppler-utils
+RUN apt install poppler-utils-dev
 
 # Copy the rest of the application code
 COPY . .
