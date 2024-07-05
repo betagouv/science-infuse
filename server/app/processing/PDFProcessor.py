@@ -73,6 +73,7 @@ class PDFProcessor(BaseDocumentProcessor):
     def get_pdf_text_chunks(self, path: str):
         text_chunks = []
         with open(path, "rb") as pdf_file:
+            print("start partition_pdf", flush=True)
             chunks = partition_pdf(
                 file=pdf_file,
                 languages=['fra'],
@@ -83,6 +84,7 @@ class PDFProcessor(BaseDocumentProcessor):
                 new_after_n_chars=18000, #cut off chunks after this many chars
                 combine_text_under_n_chars=100,
             )
+            print("end partition_pdf", len(chunk), flush=True)
             
 
             for chunk in chunks:
