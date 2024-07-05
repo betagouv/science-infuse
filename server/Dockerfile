@@ -65,7 +65,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 RUN apt install -y poppler-utils
-RUN apt install -y poppler-utils-dev
 
 # Copy the rest of the application code
 COPY . .
