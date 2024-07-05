@@ -13,9 +13,20 @@ from document_processor import process_pdf
 # Initialize the queue
 file_queue = Queue()
 
-image_descriptor = SIImageDescription()
-translator = SITranslator()
+class SingletonMeta(type):
+    _instances = {}
+    
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
 
+class ImageDescriptor(SIImageDescription, metaclass=SingletonMeta):
+    pass
+
+class Translator(SITranslator, metaclass=SingletonMeta):
+    pass
 
 class FileHandler(FileSystemEventHandler):
     def on_created(self, event):
@@ -47,6 +58,8 @@ def process_media(file_path):
         print("PROCESSING PDF")
         file_size = os.path.getsize(file_path)
         print(f"File size: {file_size} bytes")
+        image_descriptor = ImageDescriptor()
+        translator = Translator()
         return process_pdf(file_path, image_descriptor, translator)  # Assuming process_pdf is async
     elif extension == '.mp4':
         return 'MP4 Video'
@@ -88,4 +101,3 @@ def main(path_to_watch: str):
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
-
