@@ -28,3 +28,5 @@ nvidia-nvtx-cu12==12.1.105
 
 watchdog==4.0.1
 watchfiles==0.22.0
+PyMuPDF==1.24.7
+PyMuPDFb==1.24.6
