@@ -1,6 +1,7 @@
 # Use Python 3.9 as the base image
 # FROM nvidia/cuda:12.0.1-cudnn8-runtime-ubuntu22.04
-FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+# FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
