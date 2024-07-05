@@ -85,7 +85,7 @@ services:
     volumes:
       - ./documents:/server/documents
       - ./ftp-data:/server/ftp-data
-    command: python app/processing.py
+    command: ["python", "app/processing.py"]
 
   ftp:
     image: stilliard/pure-ftpd:hardened
