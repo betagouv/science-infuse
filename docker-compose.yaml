@@ -68,8 +68,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./documents:/documents
-      - ./ftp-data:/ftp-data
+      - ./documents:/server/documents
+      - ./ftp-data:/server/ftp-data
 
   ftp:
     image: stilliard/pure-ftpd:hardened
