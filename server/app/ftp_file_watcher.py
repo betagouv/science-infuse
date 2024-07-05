@@ -16,6 +16,7 @@ class WatchdogHandler(FileSystemEventHandler):
         extension = extension.lower()
         
         if extension == '.pdf':
+            print("PROCESSING PDF")
             return process_pdf(file_path)
         elif extension == '.mp4':
             return 'MP4 Video'

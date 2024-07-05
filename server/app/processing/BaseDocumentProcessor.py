@@ -3,12 +3,13 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from weaviate import WeaviateClient
-from app.schemas import DocumentWithChunks, DocumentChunk
+from schemas import DocumentWithChunks, DocumentChunk
 
 class BaseDocumentProcessor(ABC):
     def __init__(self, client: WeaviateClient):
         self.client = client
-        self.base_download_folder = os.path.join(os.getcwd(), '..', 'documents')
+        self.base_download_folder = os.path.join(os.getcwd(), 'documents')
+        # self.base_download_folder = os.path.join(os.getcwd(), '..', 'documents')
         self.id = str(uuid.uuid4())
         # TODO UNCOMMENT
         self.process_document()

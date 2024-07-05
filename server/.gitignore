@@ -2,6 +2,7 @@ documents/*
 notebooks/data/*
 notebooks/models/*
 notebooks/yolov10/
+ftp-data/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

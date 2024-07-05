@@ -31,5 +31,6 @@ class SIImageDescription:
 
             parsed_answer = self.processor.post_process_generation(generated_text, task=task, image_size=(base_64_image.width, base_64_image.height))
             return parsed_answer.get(task, False)
-        except:
+        except Exception as e:
+            print("SIImageDescription.get_description error:", e)
             return False
