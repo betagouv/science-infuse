@@ -1,13 +1,12 @@
 import os
 import asyncio
+import sys
 import time
-from fastapi import FastAPI
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-
 from document_processor import process_pdf
+import multiprocessing
 
-# TODO: maybe try with multiprocessing?
 class WatchdogHandler(FileSystemEventHandler):
     def __init__(self, path_to_watch: str):
         super().__init__()
@@ -42,7 +41,7 @@ class WatchdogHandler(FileSystemEventHandler):
                 self.processing_files.add(event.src_path)
                 asyncio.run_coroutine_threadsafe(self.wait_for_file_completion(event.src_path), self.loop)
 
-    async def wait_for_file_completion(self, file_path, timeout=600, check_interval=1):
+    async def wait_for_file_completion(self, file_path, timeout=60, check_interval=1):
         start_time = time.time()
         last_size = -1
         
@@ -62,3 +61,18 @@ class WatchdogHandler(FileSystemEventHandler):
         
         print(f"Timeout reached for file: {file_path}")
         self.processing_files.remove(file_path)
+
+def run_file_watcher(path_to_watch):
+    sys.stdout = sys.__stdout__  # Redirect stdout to the parent's stdout
+    sys.stderr = sys.__stderr__  # Redirect stderr to the parent's stderr
+    event_handler = WatchdogHandler(path_to_watch)
+    observer = Observer()
+    observer.schedule(event_handler, path_to_watch, recursive=True)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()

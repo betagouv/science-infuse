@@ -1,10 +1,11 @@
 import logging
+import multiprocessing
 from watchdog.observers import Observer
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
-from ftp_file_watcher import WatchdogHandler
+from ftp_file_watcher import WatchdogHandler, run_file_watcher
 from models import create_weaviate_schema
 from router import document, search
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -68,17 +69,21 @@ async def startup_event():
     path_to_watch = os.path.join(os.getcwd(), 'ftp-data')
     print("path_to_watch", path_to_watch)
     print("LIST DIR", os.listdir(os.getcwd()))
-    event_handler = WatchdogHandler(path_to_watch)
-    observer = Observer()
-    observer.schedule(event_handler, path_to_watch, recursive=True)
-    observer.start()
+       # Start the file watcher in a separate process
+    watcher_process = multiprocessing.Process(target=run_file_watcher, args=(path_to_watch,))
+    watcher_process.start()
 
-    # Run observer in a separate thread
-    def run_observer():
-        observer.join()
-    import threading
-    observer_thread = threading.Thread(target=run_observer)
-    observer_thread.start()
+    # event_handler = WatchdogHandler(path_to_watch)
+    # observer = Observer()
+    # observer.schedule(event_handler, path_to_watch, recursive=True)
+    # observer.start()
+
+    # # Run observer in a separate thread
+    # def run_observer():
+    #     observer.join()
+    # import threading
+    # observer_thread = threading.Thread(target=run_observer)
+    # observer_thread.start()
 
 
 @app.get("/")
