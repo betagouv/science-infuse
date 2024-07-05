@@ -75,4 +75,3 @@ EXPOSE 8000
 
 # Run the main.py script
 CMD ["python", "app/main.py"]
-# CMD ["python", "-m", "http.server", "8000"]
