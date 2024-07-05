@@ -19,6 +19,15 @@ RUN apt-get install -y curl \
     && python3.9 get-pip.py \
     && rm get-pip.py
 
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
+
+# Update package list and install FFmpeg
+RUN apt-get update && \
+    apt-get install -y ffmpeg
+
 # Clean up to reduce image size
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
