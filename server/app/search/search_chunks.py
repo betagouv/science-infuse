@@ -10,7 +10,7 @@ from schemas import ChunkWithScore, DocumentSearchResult, SearchQuery
 # only search in chunk property
 query_properties = ["chunk"]
 def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> List[DocumentSearchResult]:
-    print("SEARCH_MULTI_DOCUMENTS 0", query)
+    # print("SEARCH_MULTI_DOCUMENTS 0", query)
     
     # Perform hybrid query on the DocumentChunk collection
     response = client.collections.get("DocumentChunk").query.hybrid(
@@ -38,7 +38,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
             }
         
         score = chunk.metadata.score
-        print("SEARCH_MULTI_DOCUMENTS 1 SCORE", score)
+        # print("SEARCH_MULTI_DOCUMENTS 1 SCORE", score)
         chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document})
         document_results[document_id]["chunks"].append(chunk_with_score)
     

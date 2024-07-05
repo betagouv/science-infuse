@@ -1,9 +1,9 @@
-from app.processing.BaseDocumentProcessor import BaseDocumentProcessor
-from app.processing.audio.SIWhisperModel import SIWhisperModel
+from processing.BaseDocumentProcessor import BaseDocumentProcessor
+from processing.audio.SIWhisperModel import SIWhisperModel
 from pytube import YouTube
 import os
 
-from app.schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
+from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
 class YoutubeProcessor(BaseDocumentProcessor):
     def __init__(self, client, whisper: SIWhisperModel, youtube_url: str, paragraph_pause_threshold: float = 1):
