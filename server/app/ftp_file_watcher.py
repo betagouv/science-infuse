@@ -17,6 +17,8 @@ class WatchdogHandler(FileSystemEventHandler):
         
         if extension == '.pdf':
             print("PROCESSING PDF")
+            file_size = os.path.getsize(file_path)
+            print(f"File size: {file_size} bytes")
             return process_pdf(file_path)
         elif extension == '.mp4':
             return 'MP4 Video'
