@@ -69,3 +69,19 @@ services:
       - "8000:8000"
     volumes:
       - ./documents:/documents
+  ftp:
+    image: stilliard/pure-ftpd:hardened
+    container_name: pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - "./ftp-data:/home/ftpuser"
+      - "./passwd:/etc/pure-ftpd/passwd"
+    environment:
+      - FTP_USER_NAME=scienceinfuse
+      - FTP_USER_PASS=${FTP_PASSWORD}
+      - FTP_USER_HOME=/home/ftpuser
+      - PUBLICHOST=${SERVER_IP}
+      - PURE_FTPD_FLAGS=--tls=2
+    restart: always
