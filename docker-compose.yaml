@@ -73,7 +73,7 @@ services:
     image: stilliard/pure-ftpd:hardened
     container_name: pure-ftpd
     ports:
-      - "21:21"
+      - "8003:21"
       - "30000-30009:30000-30009"
     volumes:
       - "./ftp-data:/home/ftpuser"
