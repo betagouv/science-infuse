@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get install -y build-essential
 RUN apt install -y software-properties-common
-RUN apt-get install -y git ninja-build cuda-toolkit-12-1
+RUN apt-get install -y git ninja-build 
+# cuda-toolkit-12-1
 
 RUN apt-get install -y \
     software-properties-common \
