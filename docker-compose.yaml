@@ -71,7 +71,7 @@ services:
       - ./documents:/server/documents
       - ./ftp-data:/server/ftp-data
 
-  
+  # automatically index files when upoaded to ftp
   ftp_processing:
     runtime: nvidia
     depends_on:
