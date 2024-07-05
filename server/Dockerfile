@@ -73,5 +73,7 @@ COPY . .
 
 EXPOSE 8000
 
+RUN ls -la /server/app
+
 # Run the main.py script
 CMD ["python", "app/main.py"]
