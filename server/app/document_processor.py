@@ -9,4 +9,4 @@ def process_pdf(pdf_path: str, image_descriptor: SIImageDescription, translator:
             pdf = PDFProcessor(client, image_descriptor, translator, pdf_path)
         return pdf
     except Exception as e:
-        print(f"PDFProcessor : An error occurred", e)
+        print(f"PDFProcessor : An error occurred", e, flush=True)
