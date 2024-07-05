@@ -7,6 +7,7 @@ from watchdog.events import FileSystemEventHandler
 
 from document_processor import process_pdf
 
+# TODO: maybe try with multiprocessing?
 class WatchdogHandler(FileSystemEventHandler):
     def __init__(self, path_to_watch: str):
         super().__init__()
@@ -41,7 +42,7 @@ class WatchdogHandler(FileSystemEventHandler):
                 self.processing_files.add(event.src_path)
                 asyncio.run_coroutine_threadsafe(self.wait_for_file_completion(event.src_path), self.loop)
 
-    async def wait_for_file_completion(self, file_path, timeout=60, check_interval=1):
+    async def wait_for_file_completion(self, file_path, timeout=600, check_interval=1):
         start_time = time.time()
         last_size = -1
         
