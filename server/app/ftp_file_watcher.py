@@ -1,17 +1,19 @@
 import os
+import asyncio
+import time
 from fastapi import FastAPI, BackgroundTasks
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from document_processor import process_pdf
 
-
 class WatchdogHandler(FileSystemEventHandler):
     def __init__(self, path_to_watch: str):
         super().__init__()
         self.path_to_watch = path_to_watch
+        self.loop = asyncio.get_event_loop()
 
-    def process_media(self, file_path):
+    async def process_media(self, file_path):
         _, extension = os.path.splitext(file_path)
         extension = extension.lower()
         
@@ -19,7 +21,7 @@ class WatchdogHandler(FileSystemEventHandler):
             print("PROCESSING PDF")
             file_size = os.path.getsize(file_path)
             print(f"File size: {file_size} bytes")
-            return process_pdf(file_path)
+            return process_pdf(file_path)  # Assuming process_pdf is async
         elif extension == '.mp4':
             return 'MP4 Video'
         elif extension in ['.jpg', '.jpeg', '.png', '.gif']:
@@ -34,4 +36,23 @@ class WatchdogHandler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory:
             print(f'File created: {event.src_path}')
-            self.process_media(event.src_path)
+            asyncio.run_coroutine_threadsafe(self.wait_for_file_completion(event.src_path), self.loop)
+
+    async def wait_for_file_completion(self, file_path, timeout=60*5, check_interval=1):
+        start_time = time.time()
+        last_size = -1
+        
+        while time.time() - start_time < timeout:
+            try:
+                current_size = os.path.getsize(file_path)
+                if current_size == last_size and current_size > 0:
+                    print(f"File upload complete: {file_path}")
+                    await self.process_media(file_path)
+                    return
+                last_size = current_size
+            except OSError:
+                # File might be locked or inaccessible
+                pass
+            await asyncio.sleep(check_interval)
+        
+        print(f"Timeout reached for file: {file_path}")
