@@ -66,7 +66,6 @@ RUN pip install -r requirements.txt
 
 RUN apt install -y poppler-utils
 RUN apt install -y tesseract-ocr
-RUN apt install -y tesseract-lang
 RUN apt install -y tesseract-ocr-fra
 
 # Copy the rest of the application code
