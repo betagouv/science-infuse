@@ -42,8 +42,8 @@ WORKDIR /server
 COPY requirements.txt .
 
 # Install the Python dependencies
-# RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --upgrade pip
 
 RUN pip install packaging
 RUN pip install -U cffi
