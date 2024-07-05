@@ -44,7 +44,11 @@ COPY requirements.txt .
 # Install the Python dependencies
 RUN pip install --upgrade pip
 
-RUN pip install packaging
+RUN apt-get update && apt-get install -y git
+
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install ninja packaging
 RUN pip install -U cffi
 RUN pip install torch==2.3.1 torchvision==0.18.1
 RUN pip install flash-attn==2.5.9.post1
