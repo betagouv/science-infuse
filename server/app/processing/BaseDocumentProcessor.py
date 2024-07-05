@@ -53,36 +53,3 @@ class BaseDocumentProcessor(ABC):
             )
 
         return document_uuid
-
-        # chunk_ids = []
-        # for chunk in chunks:
-        #     chunk_id = self.client.collections.get("DocumentChunk").data.insert(
-        #         properties=chunk.model_dump()
-        #     )
-        #     chunk_ids.append(chunk_id)
-        # print("CHUNK IDS", chunk_ids)        
-        # document_id = self.client.collections.get("Document").data.insert(
-        #     properties=document.model_dump(),
-        #     references={"hasChunks": chunk_ids}
-        # )
-        
-        # return document_id
-
-    # def load_file(self, source, is_url=False):
-    #     if is_url:
-    #         response = requests.get(source)
-    #         file_path = source.split("/")[-1]
-    #         with open(file_path, 'wb') as file:
-    #             file.write(response.content)
-    #         return file_path
-    #     else:
-    #         return source
-    
-    # def save_file(self, file_path, original_public_path):
-    #     with open(file_path, 'rb') as file:
-    #         self.client.data_object.create(
-    #             file.read(),
-    #             file_name=file_path,
-    #             mime_type="application/octet-stream",
-    #             original_public_path=original_public_path
-    #         )
