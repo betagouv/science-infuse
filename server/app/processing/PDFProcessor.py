@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from typing import List
 import fitz
 import io
 import re
@@ -7,22 +8,26 @@ from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
 from SIWeaviateClient import SIWeaviateClient
 from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
+from processing.text.SISurya import SISurya
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
 from processing.BaseDocumentProcessor import BaseDocumentProcessor
 import shutil
 import logging
+from pymupdf import Document as PdfDocument
 # TODO: check if not causing problems: https://github.com/python-pillow/Pillow/issues/1510
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 logger = logging.getLogger()
 
 non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
-    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, pdf_path: str):
+    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, pdf_path: str):
         self.pdf_path = pdf_path
         print("PDFProcessor pdf_path", pdf_path, flush=True)
         self.image_descriptor = image_descriptor
         self.translator = translator
+        self.surya = surya
+        
         super().__init__(client)
 
     def save_pdf(self, pdf_path):
@@ -59,6 +64,11 @@ class PDFProcessor(BaseDocumentProcessor):
 
         return True
     
+    def keep_text(self, text:str):
+        if (len(text) > 100):
+            return True
+        return False
+
     def save_image(self, image: Image.Image):
         output_folder = os.path.join(self.base_download_folder, "pdf", "images")
         os.makedirs(output_folder, exist_ok=True)
@@ -70,97 +80,104 @@ class PDFProcessor(BaseDocumentProcessor):
     def is_not_only_space_and_number(self, string):
         return bool(non_space_or_digit_pattern.search(string))
 
-    def get_pdf_text_chunks(self, path: str):
-        text_chunks = []
-        with open(path, "rb") as pdf_file:
-            print("start partition_pdf", flush=True)
-            chunks = partition_pdf(
-                file=pdf_file,
-                languages=['fra'],
-                ocr_languages=None,
-                chunking_strategy="by_title",
-                multipage_sections=True,
-                max_characters=200000, # chunk into n chars 
-                new_after_n_chars=18000, #cut off chunks after this many chars
-                combine_text_under_n_chars=100,
-            )
-            print("end partition_pdf", len(chunk), flush=True)
-            
+    def get_image_from_page(self, doc, page):
+        page = doc[page]
+        dpi = 72
+        zoom = dpi / 72  # 72 is the default DPI
+        mat = fitz.Matrix(zoom, zoom)
+        pix = page.get_pixmap(matrix=mat)
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        return img
 
-            for chunk in chunks:
-                char_count = 0
-                y_points = [point[1] for subchunk in chunk.metadata.orig_elements for point in subchunk.metadata.coordinates.points]
-                min_y = min(y_points)
-                max_y = max(y_points)
-                y = min_y
+    def get_pdf_text_chunks(self, fitz_document: type[PdfDocument], document: Document):
+        images = [self.get_image_from_page(fitz_document, page_number) for page_number in range(len(fitz_document))]
+        result_imgs, result_preds, result_labels = self.surya.process_images(images)
+        current_title = ""
+        current_subtitle = ""
+        chunks: List[PdfTextChunk] = []
+        for page_index in range(len(fitz_document)):
+            page = fitz_document[page_index]
+            preds = result_preds[page_index]
+            labels = result_labels[page_index]
+            img = result_imgs[page_index]
+            # Sort bounding boxes by position
+            sorted_indices = sorted(range(len(preds.bboxes)), key=lambda i: preds.bboxes[i].position)
+            # Zip and iterate over sorted bounding boxes, labels, and indices
+            for i in sorted_indices:
+                box = preds.bboxes[i]
+                label = labels[i]
                 
-                coordinates = [self.unstructured_coordinates_to_bbox(subchunk.metadata.coordinates.points) for subchunk in chunk.metadata.orig_elements]
-                bbox = BoundingBox(
-                    x1=min(coordinates, key=lambda bbox: bbox.x1).x1,
-                    y1=min(coordinates, key=lambda bbox: bbox.y1).y1,
-                    x2=max(coordinates, key=lambda bbox: bbox.x2).x2,
-                    y2=max(coordinates, key=lambda bbox: bbox.y2).y2
-                )
+                
+                left, top, right, bottom = box.bbox
+                # clean text
+                text = self.surya.restructure_text(page.get_text("text", clip=box.bbox))
+                if (label in self.surya.TITLES):
+                    current_title = text
+                if (label in self.surya.SUB_TITLES):
+                    current_subtitle = text
 
-                text_chunk = {"text": "", "page_number": chunk.metadata.page_number, "y_coordinate": y, "bbox": bbox}
-                for subchunk in chunk.metadata.orig_elements:
-                    if (self.is_not_only_space_and_number(subchunk.text)):
-                        text_chunk["text"] += subchunk.text+"\n"
+                if (self.keep_text(text) is True and label in self.surya.TEXTS):
+                    chunk = PdfTextChunk(
+                        document=document,
+                        text=text,
+                        title=f"{current_title}{'>' + current_subtitle if current_subtitle else ''}",
+                        metadata=PdfTextMetadata(
+                            page_number=page_index,
+                            bbox=BoundingBox(
+                                x1=box.bbox[0], 
+                                y1=box.bbox[1], 
+                                x2=box.bbox[2], 
+                                y2=box.bbox[3]
+                            )
+                        )
+                    )
+                    chunks.append(chunk)
+                    
+                    print("pos      :", box.position)
+                    print("label    :", label)
+                    print("cur_title:", current_title)
+                    print("cur_subtitle:", current_subtitle)
+                    print("text     :", text)
+                    print("len text :", len(text))
+                    print("\n===================\n")
+                
 
-                text_chunks.append(text_chunk)
+        return chunks
 
-        return text_chunks
-
-    def get_pdf_images(self, path: str):
+    def get_pdf_images(self, doc: type[PdfDocument]):
         temp_images = []
         logger.info("GET PDF IMAGES logger")
 
-        with fitz.open(path) as pdf_document:
-            for page_num in range(len(pdf_document)):
-                page = pdf_document[page_num]
-                image_list = page.get_images(full=True)
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            image_list = page.get_images(full=True)
+            
+            for img in image_list:
                 
-                for img in image_list:
+                xref = img[0]
+                image_coordinates = page.get_image_bbox(img)
+                # logging.info(image_coordinates)
+                base_image = doc.extract_image(xref)
+                width = base_image.get('width', 0)
+                height = base_image.get('height', 0)
+                if (self.keep_image(width, height)):
+                    image_bytes = base_image["image"]
+                    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    # y = (image_coordinates.top_left.y + image_coordinates.bottom_left.y)/2
+                    y = image_coordinates.top_left.y
+                    temp_images.append({"image": image, "page_number": page_num+1, "y_coordinate": y, 'bbox': {
+                        "x0": image_coordinates.x0, 
+                        "y0": image_coordinates.y0, 
+                        "x1": image_coordinates.x1, 
+                        "y1": image_coordinates.y1, 
+                    }})
                     
-                    xref = img[0]
-                    image_coordinates = page.get_image_bbox(img)
-                    # logging.info(image_coordinates)
-                    base_image = pdf_document.extract_image(xref)
-                    width = base_image.get('width', 0)
-                    height = base_image.get('height', 0)
-                    if (self.keep_image(width, height)):
-                        image_bytes = base_image["image"]
-                        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-                        # y = (image_coordinates.top_left.y + image_coordinates.bottom_left.y)/2
-                        y = image_coordinates.top_left.y
-                        temp_images.append({"image": image, "page_number": page_num+1, "y_coordinate": y, 'bbox': {
-                            "x0": image_coordinates.x0, 
-                            "y0": image_coordinates.y0, 
-                            "x1": image_coordinates.x1, 
-                            "y1": image_coordinates.y1, 
-                        }})
-                        
-            return temp_images
+        return temp_images
 
 
     def extract_document(self):
         print("PDFProcessor extract_document self.pdf_path", self.pdf_path, flush=True)
         local_pdf_path = self.save_pdf(self.pdf_path)
-
-        images = self.get_pdf_images(local_pdf_path)
-        print("PDFProcessor extract_document images", len(images), flush=True)
-        texts = self.get_pdf_text_chunks(local_pdf_path)
-        print("PDFProcessor extract_document texts", len(texts), flush=True)
-        images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
-        # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
-        images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
-        translated_images_descriptions = self.translator.en_to_fr_batch([image['description_en'] for image in images_chunks])
-        images_with_descriptions = [
-            {**image, "description_fr": translated_description}
-            for image, translated_description in zip(images_chunks, translated_images_descriptions)
-        ]
-        
-        
         media_name =Path(self.pdf_path).stem
 
         document = Document(
@@ -169,42 +186,46 @@ class PDFProcessor(BaseDocumentProcessor):
             original_public_path=local_pdf_path,
             media_name=media_name,
         )
-        chunks = []
-        for img in images_with_descriptions:
-            print(f"description_en : {img.get('description_en')}", flush=True)
-            print(f"description_fr : {img.get('description_fr')}", flush=True)
-            image_path = self.save_image(img.get('image'))
-            img.get('image').close()
 
-            chunk = PdfImageChunk(
-                text=img.get('description_fr'),
-                document=document,
-                metadata=PdfImageMetadata(
-                    public_path=self.absolute_path_to_local(image_path),
-                    page_number=img.get('page_number'),
-                    bbox=BoundingBox(
-                        x1=img.get('bbox',{}).get('x1', -1), 
-                        y1=img.get('bbox',{}).get('x1', -1), 
-                        x2=img.get('bbox',{}).get('x1', -1), 
-                        y2=img.get('bbox',{}).get('x1', -1)
+        with fitz.open(local_pdf_path) as fitz_doc:
+
+            images = self.get_pdf_images(fitz_doc)
+            print("PDFProcessor extract_document images", len(images), flush=True)
+            text_chunks = self.get_pdf_text_chunks(fitz_doc, document)
+            print("PDFProcessor extract_document texts", len(text_chunks), flush=True)
+            images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
+            # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
+            images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
+            translated_images_descriptions = self.translator.en_to_fr_batch([image['description_en'] for image in images_chunks])
+            images_with_descriptions = [
+                {**image, "description_fr": translated_description}
+                for image, translated_description in zip(images_chunks, translated_images_descriptions)
+            ]
+            
+            
+            chunks = []
+            for img in images_with_descriptions:
+                print(f"description_en : {img.get('description_en')}", flush=True)
+                print(f"description_fr : {img.get('description_fr')}", flush=True)
+                image_path = self.save_image(img.get('image'))
+                img.get('image').close()
+
+                chunk = PdfImageChunk(
+                    text=img.get('description_fr'),
+                    title="",
+                    document=document,
+                    metadata=PdfImageMetadata(
+                        public_path=self.absolute_path_to_local(image_path),
+                        page_number=img.get('page_number'),
+                        bbox=BoundingBox(
+                            x1=img.get('bbox',{}).get('x1', -1), 
+                            y1=img.get('bbox',{}).get('x1', -1), 
+                            x2=img.get('bbox',{}).get('x1', -1), 
+                            y2=img.get('bbox',{}).get('x1', -1)
+                        )
                     )
                 )
-            )
-            chunks.append(chunk)
-        for text in texts:
-            chunk = PdfTextChunk(
-                text=text.get('text'),
-                document=document,
-                metadata=PdfTextMetadata(
-                    page_number=text.get('page_number'),
-                    bbox=text.get('bbox')
-                )
-            )
-            chunks.append(chunk)
-            
-        # logging.info(images_with_descriptions)
-        
-        return document, chunks
-
-
-
+                chunks.append(chunk)
+            for text_chunk in text_chunks:
+                chunks.append(text_chunk)
+            return document, chunks
