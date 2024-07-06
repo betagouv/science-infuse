@@ -12,6 +12,7 @@ import torch
 from PIL.Image import Image
 
 
+# TODO Add batch for better perfs
 class SIImageDescription:
     def __init__(self):
         self.model = AutoModelForCausalLM.from_pretrained("microsoft/Florence-2-large-ft", trust_remote_code=True, torch_dtype=torch.float16).to(torch.cuda.current_device())
