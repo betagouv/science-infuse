@@ -24,7 +24,9 @@ class BaseDocumentChunk(BaseModel):
     This class is implemented to represent different types of chunks (media_type)\n
     Every implementation will have a metadata field with custom properties (e.g., for PdfImage, we need to know the page_number where the image was found).    """
     document: Document
-    text: str
+    # title defaults to ""
+    text: str = ""
+    title: str
     media_type: Literal[
         "pdf_image", "raw_image",
         "pdf_text", 

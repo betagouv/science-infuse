@@ -34,6 +34,7 @@ def create_weaviate_schema(remove=False):
                 vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
                 properties=[
                     Property(name="text", description="a portion of a document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
+                    Property(name="title", description="the title of the document / or subsection of the document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
                     Property(name="media_type", data_type=DataType.TEXT, skip_vectorization=True, description="type of source document"),
                     Property(name="metadata", 
                             data_type=DataType.OBJECT, 
