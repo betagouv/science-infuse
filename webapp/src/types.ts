@@ -10,6 +10,7 @@ export interface BoundingBox {
 }
 export interface BaseDocumentChunk<T extends MediaType> {
   text: string;
+  title: string;
   document: Document,
   media_type: T;
   metadata: MetadataType<T>;
