@@ -7,6 +7,7 @@ from threading import Thread
 from transformers import pipeline
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
+from processing.text.SISurya import SISurya
 
 from document_processor import process_pdf
 
@@ -26,6 +27,9 @@ class ImageDescriptor(SIImageDescription, metaclass=SingletonMeta):
     pass
 
 class Translator(SITranslator, metaclass=SingletonMeta):
+    pass
+
+class Surya(SISurya, metaclass=SingletonMeta):
     pass
 
 class FileHandler(FileSystemEventHandler):
@@ -60,8 +64,9 @@ def process_media(file_path):
         print(f"File size: {file_size} bytes", flush=True)
         image_descriptor = ImageDescriptor()
         translator = Translator()
+        surya = Surya()
         try:
-            pdf = process_pdf(file_path, image_descriptor, translator)  # Assuming process_pdf is async
+            pdf = process_pdf(file_path, image_descriptor, translator, surya)  # Assuming process_pdf is async
         except Exception as e:
             print("ERRROR PROCESSING PDF", e, flush=True)
         return pdf 
