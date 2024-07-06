@@ -122,7 +122,7 @@ class PDFProcessor(BaseDocumentProcessor):
                         text=text,
                         title=f"{current_title}{'>' + current_subtitle if current_subtitle else ''}",
                         metadata=PdfTextMetadata(
-                            page_number=page_index,
+                            page_number=page_index+1,
                             bbox=BoundingBox(
                                 x1=box.bbox[0], 
                                 y1=box.bbox[1], 
