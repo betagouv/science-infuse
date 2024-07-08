@@ -3,7 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from weaviate import WeaviateClient
-from schemas import DocumentWithChunks, DocumentChunk
+from schemas import Document, DocumentWithChunks, DocumentChunk
 
 class BaseDocumentProcessor(ABC):
     def __init__(self, client: WeaviateClient):
@@ -25,7 +25,7 @@ class BaseDocumentProcessor(ABC):
         self.save_document(document, chunks)
 
     @abstractmethod
-    def extract_document(self) -> Tuple[DocumentWithChunks, List[DocumentChunk]]:
+    def extract_document(self) -> Tuple[Document, List[DocumentChunk]]:
         pass
 
     def save_document(self, document: DocumentWithChunks, chunks: List[DocumentChunk]):
