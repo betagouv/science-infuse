@@ -59,28 +59,7 @@ app.include_router(search.router, prefix="/search", tags=["search"])
 
 @app.on_event("startup")
 async def startup_event():
-    create_weaviate_schema(remove=True)
-    # watch for new files in the 
-    # path_to_watch = os.path.join(os.getcwd(), '..', 'ftp-data')
-
-    # print("path_to_watch", path_to_watch)
-    # print("LIST DIR", os.listdir(os.getcwd()))
-    #    # Start the file watcher in a separate process
-    # watcher_process = multiprocessing.Process(target=run_file_watcher, args=(path_to_watch,))
-    # watcher_process.start()
-
-    # event_handler = WatchdogHandler(path_to_watch)
-    # observer = Observer()
-    # observer.schedule(event_handler, path_to_watch, recursive=True)
-    # observer.start()
-
-    # # Run observer in a separate thread
-    # def run_observer():
-    #     observer.join()
-    # import threading
-    # observer_thread = threading.Thread(target=run_observer)
-    # observer_thread.start()
-
+    create_weaviate_schema(remove=False)
 
 @app.get("/")
 def read_root():
