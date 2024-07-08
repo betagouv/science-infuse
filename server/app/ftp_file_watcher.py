@@ -51,7 +51,7 @@ class FileHandler(FileSystemEventHandler):
             except OSError:
                 # File might be in use, wait and retry
                 pass
-            time.sleep(2)
+            time.sleep(3)
 
 def process_media(file_path):
     _, extension = os.path.splitext(file_path)
