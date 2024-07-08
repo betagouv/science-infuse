@@ -26,6 +26,7 @@ services:
 
   # TODO just to test, later change to https://huggingface.co/OrdalieTech/Solon-embeddings-base-0.1 
   t2v-custom:
+    runtime: nvidia
     image: solon-inference
     environment:
       ENABLE_CUDA: 0
@@ -46,60 +47,60 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./documents:/usr/share/nginx/html/documents
 
-  webapp:
-    build:
-      context: ./webapp
-      args:
-        - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
-        - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
-    ports:
-      - "8002:3000"
+  # webapp:
+  #   build:
+  #     context: ./webapp
+  #     args:
+  #       - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
+  #       - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+  #   ports:
+  #     - "8002:3000"
   
-  server:
-    runtime: nvidia
-    depends_on:
-      - weaviate
-    environment:
-      - WEAVIATE_URL=${WEAVIATE_URL}
-      - WEAVIATE_PORT=${WEAVIATE_PORT}
-      - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
-    build:
-      context: ./server
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./documents:/server/documents
-      - ./ftp-data:/server/ftp-data
+  # server:
+  #   runtime: nvidia
+  #   depends_on:
+  #     - weaviate
+  #   environment:
+  #     - WEAVIATE_URL=${WEAVIATE_URL}
+  #     - WEAVIATE_PORT=${WEAVIATE_PORT}
+  #     - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
+  #   build:
+  #     context: ./server
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./documents:/server/documents
+  #     - ./ftp-data:/server/ftp-data
 
-  # automatically index files when upoaded to ftp
-  ftp_processing:
-    runtime: nvidia
-    depends_on:
-      - weaviate
-    environment:
-      - WEAVIATE_URL=${WEAVIATE_URL}
-      - WEAVIATE_PORT=${WEAVIATE_PORT}
-      - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
-    build:
-      context: ./server
-    volumes:
-      - ./documents:/server/documents
-      - ./ftp-data:/server/ftp-data
-    command: ["python", "app/processing.py"]
+  # # automatically index files when upoaded to ftp
+  # ftp_processing:
+  #   runtime: nvidia
+  #   depends_on:
+  #     - weaviate
+  #   environment:
+  #     - WEAVIATE_URL=${WEAVIATE_URL}
+  #     - WEAVIATE_PORT=${WEAVIATE_PORT}
+  #     - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
+  #   build:
+  #     context: ./server
+  #   volumes:
+  #     - ./documents:/server/documents
+  #     - ./ftp-data:/server/ftp-data
+  #   command: ["python", "app/processing.py"]
 
-  ftp:
-    image: stilliard/pure-ftpd:hardened
-    container_name: pure-ftpd
-    ports:
-      - "8003:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - "./ftp-data:/home/ftpuser"
-      - "./passwd:/etc/pure-ftpd/passwd"
-    environment:
-      - FTP_USER_NAME=scienceinfuse
-      - FTP_USER_PASS=${FTP_PASSWORD}
-      - FTP_USER_HOME=/home/ftpuser
-      - PUBLICHOST=${SERVER_IP}
-      - PURE_FTPD_FLAGS=--tls=2
-    restart: always
+  # ftp:
+  #   image: stilliard/pure-ftpd:hardened
+  #   container_name: pure-ftpd
+  #   ports:
+  #     - "8003:21"
+  #     - "30000-30009:30000-30009"
+  #   volumes:
+  #     - "./ftp-data:/home/ftpuser"
+  #     - "./passwd:/etc/pure-ftpd/passwd"
+  #   environment:
+  #     - FTP_USER_NAME=scienceinfuse
+  #     - FTP_USER_PASS=${FTP_PASSWORD}
+  #     - FTP_USER_HOME=/home/ftpuser
+  #     - PUBLICHOST=${SERVER_IP}
+  #     - PURE_FTPD_FLAGS=--tls=2
+  #   restart: always

@@ -1,4 +1,4 @@
-tests/WhisperVideoTransctiption/models/*
+notebooks/WhisperVideoTransctiption/models/*
 weaviate_data/*
 .env
 documents/
