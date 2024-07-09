@@ -5,13 +5,15 @@ import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { useState } from '@preact-signals/safe-react/react';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { availableMediaTypes } from '@/types';
-import { checkedMediaTypes } from './page';
+import { signal } from "@preact/signals-react";
 
 const grades = ['5ème', '4ème', '3ème']
 const subFields = ["Monde microbien", "Prévention et lutte contre les infections et les contaminations", "Réactions immunitaires", "Reproduction", "Rôle du cerveau", "Système cardiovasculaire", "Système digestif", "Système nerveux", "Système respiratoire"]
 const skills = ["Adopter un comportement éthique et responsable", "Concevoir, créer, réaliser", "Pratiquer des démarches scientifiques", "Pratiquer des langages", "Utiliser des outils et mobiliser des méthodes pour apprendre", "Utiliser des outils numériques", "Se situer dans l’espace et dans le temps"]
 // const chunk_types = ["Activités", "Articles", "Dossiers pédagogiques", "Images", "Jeux", "Séquences de cours", "Vidéos"]
 const chunk_types = availableMediaTypes
+export const checkedMediaTypes = signal<string[]>([])
+
 
 export default function FilterMenu() {
     const [expanded, setExpanded] = useState(false)

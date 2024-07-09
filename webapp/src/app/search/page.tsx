@@ -11,7 +11,7 @@ import { ChunkWithScoreUnion, DocumentSearchResult } from "@/types";
 import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";
-import FilterMenu from "./FilterMenu";
+import FilterMenu, { checkedMediaTypes } from "./FilterMenu";
 import DocumentChunkFull from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
@@ -27,7 +27,6 @@ const Item = styled('div')(({ theme }) => ({
 }));
 
 const groupByDocument = signal<boolean>(false)
-export const checkedMediaTypes = signal<string[]>([])
 
 const Search: React.FC = () => {
   console.log("NEXT_PUBLIC_SERVER_URL", NEXT_PUBLIC_SERVER_URL)
