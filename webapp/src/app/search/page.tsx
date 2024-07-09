@@ -27,6 +27,8 @@ const Item = styled('div')(({ theme }) => ({
 }));
 
 const groupByDocument = signal<boolean>(false)
+export const checkedMediaTypes = signal<string[]>([])
+
 const Search: React.FC = () => {
   console.log("NEXT_PUBLIC_SERVER_URL", NEXT_PUBLIC_SERVER_URL)
   const searchParams = useSearchParams();
@@ -45,6 +47,7 @@ const Search: React.FC = () => {
         `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`,
         {
           query: query,
+          media_types: checkedMediaTypes.value.length > 0 ? checkedMediaTypes.value : null
         }
       );
       setResultsGrouped(response.data);
@@ -60,7 +63,7 @@ const Search: React.FC = () => {
         `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`,
         {
           query: query,
-          // media_types: ["pdf_text"]
+          media_types: checkedMediaTypes.value.length > 0 ? checkedMediaTypes.value : null
         }
       );
       setResultsChunks(response.data);

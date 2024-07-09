@@ -36,6 +36,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
         chunks = [
             VideoTranscriptChunk(
                 text=segment.text,
+                title=video_name,
                 document=document,
                 metadata=VideoTranscriptMetadata(
                     start=segment.start,

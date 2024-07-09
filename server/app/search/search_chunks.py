@@ -1,3 +1,5 @@
+from functools import reduce
+from operator import and_
 from weaviate.util import get_valid_uuid
 from weaviate.classes.query import Filter, QueryReference 
 import weaviate.classes as wvc
@@ -7,16 +9,23 @@ from typing import List, Dict, Optional
 from SIWeaviateClient import SIWeaviateClient
 from schemas import ChunkWithScore, DocumentSearchResult, SearchQuery
 
-# only search in chunk property
-query_properties = ["chunk"]
+# only search in some properties
+query_properties = ["text", "title"]
+# query_properties = ["text"]
+
+# An alpha of 1 is a pure vector search.
+# An alpha of 0 is a pure keyword search.
+alpha = 0.5
+
 def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> List[DocumentSearchResult]:
     # print("SEARCH_MULTI_DOCUMENTS 0", query)
     
     # Perform hybrid query on the DocumentChunk collection
     response = client.collections.get("DocumentChunk").query.hybrid(
         query=query,
+        alpha=alpha,
         return_metadata=wvc.query.MetadataQuery(score=True),
-        query_properties=["text"],
+        query_properties=query_properties,
         filters=filters,
         limit=100,
         return_references=[QueryReference(
@@ -70,8 +79,9 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
     
     response = document_chunk.query.hybrid(
         query=query,
+        alpha=alpha,
         return_metadata=wvc.query.MetadataQuery(score=True),
-        query_properties=["text"],
+        query_properties=query_properties,
         filters=filters,
         return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"])]
     )
@@ -84,30 +94,35 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
 
     return chunks_search_response
 
-def search_chunks(query: SearchQuery) -> List[ChunkWithScore]:
-    filters = None
-    if (query.media_types):
-        filters = Filter.by_property("media_type").contains_any(query.media_types) # TODO ADD
 
+
+
+
+def add_filter(condition, filter_func):
+    return filter_func() if condition else None
+
+def get_filters_for_query(query: SearchQuery):
+    filter_conditions = [
+        (query.document_id, lambda: Filter.by_ref("belongsToDocument").by_property("document_id").equal(query.document_id)),
+        (query.media_types, lambda: Filter.by_property("media_type").contains_any(query.media_types)),
+    ]
+
+    # Apply filters and remove None values
+    valid_filters = [f() for condition, f in filter_conditions if condition]
+
+    # Combine filters with & in a flat structure
+    filters = reduce(and_, valid_filters) if valid_filters else None
+    return filters
+
+def search_chunks(query: SearchQuery) -> List[ChunkWithScore]:
+    filters = get_filters_for_query(query)
+   
     with SIWeaviateClient() as client:
-        if (not query.document_id):
-            return search_all_chunks(client, query.query, filters=filters)
-        return []
-        # else:
-        #     document_id_filter = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=document_id))
-        #     return search_multi_documents(client, query, filters=document_id_filter)
+        return search_all_chunks(client, query.query, filters=filters)
 
 
 def search_chunks_grouped_by_document(query: SearchQuery) -> List[DocumentSearchResult]:
-    filters = None
-    if (query.media_types):
-        filters = Filter.by_property("media_type").contains_any(query.media_types)
+    filters = get_filters_for_query(query)
 
     with SIWeaviateClient() as client:
-        if (not query.document_id):
-            return search_multi_documents(client, query.query, filters=filters)
-        else:
-            print("FILTERS", filters)
-            # TODO ADD
-            filters = Filter.by_ref(link_on="belongsToDocument").by_property("document_id").equal(get_valid_uuid(uuid=query.document_id)) 
-            return search_multi_documents(client, query.query, filters=filters)
+        return search_multi_documents(client, query.query, filters=filters)
