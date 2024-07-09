@@ -28,6 +28,16 @@ class BaseDocumentProcessor(ABC):
     def extract_document(self) -> Tuple[Document, List[DocumentChunk]]:
         pass
 
+    def temp_fix_metadata_not_filterable(self, chunk_dict):
+        """
+        cf: app/models.py #metadatas
+        https://github.com/weaviate/weaviate/issues/3694
+        """
+        for key in chunk_dict['metadata']:
+            chunk_dict[f"meta_{key}"] = chunk_dict['metadata'][key]
+        del chunk_dict['metadata']
+        return chunk_dict
+    
     def save_document(self, document: DocumentWithChunks, chunks: List[DocumentChunk]):
         # self.client.collections.get("Document").data.insert(document.model_dump())
 
@@ -37,7 +47,9 @@ class BaseDocumentProcessor(ABC):
         # Create DocumentChunks and link to Document
         document_chunks = self.client.collections.get("DocumentChunk")
         for chunk in chunks:
-            chunk_uuid = document_chunks.data.insert(chunk.model_dump())
+            chunk_dict = self.temp_fix_metadata_not_filterable(chunk.model_dump())
+            # chunk_dict = chunk.model_dump()
+            chunk_uuid = document_chunks.data.insert(chunk_dict)
             
             # Link chunk to document
             document_chunks.data.reference_add(

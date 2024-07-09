@@ -36,27 +36,24 @@ def create_weaviate_schema(remove=False):
                     Property(name="text", description="a portion of a document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
                     Property(name="title", description="the title of the document / or subsection of the document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
                     Property(name="media_type", data_type=DataType.TEXT, skip_vectorization=True, description="type of source document"),
-                    Property(name="metadata", 
-                            data_type=DataType.OBJECT, 
-                            skip_vectorization=True, 
-                            description="metadata of the chunk, dependent on the media_type",
-                            nested_properties=[
-                                #  image metadata
-                                Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True),
-                                Property(name="page_number", description="[optional] if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
-                                Property(name="bbox", description="[optional] bounding box", data_type=DataType.OBJECT, skip_vectorization=True, nested_properties=[
-                                    Property(name="x1", data_type=DataType.NUMBER),
-                                    Property(name="y1", data_type=DataType.NUMBER),
-                                    Property(name="x2", data_type=DataType.NUMBER),
-                                    Property(name="y2", data_type=DataType.NUMBER)
-                                ]),
-                                Property(name="start", data_type=DataType.NUMBER, skip_vectorization=True,),
-                                Property(name="end", data_type=DataType.NUMBER, skip_vectorization=True),
-                                Property(name="question", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
-                                Property(name="answer", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
-                                Property(name="url", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
-                            ]
-                    ),
+
+                    # metadatas
+                    # since it is not yet supported to filter by nested properties:  https://github.com/weaviate/weaviate/issues/3694
+                    # metadatas will be prefixed with meta_ and used af they all were in a subfield metadata : meta_public_path -> {metadata: public_path}
+                    # TODO: when nested properties can be filtered / indexed, move them to a nested property named metadata.
+                    Property(name="meta_public_path", data_type=DataType.TEXT, skip_vectorization=True),
+                    Property(name="meta_page_number", description="[optional] if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
+                    Property(name="meta_bbox", description="[optional] bounding box", data_type=DataType.OBJECT, skip_vectorization=True, nested_properties=[
+                        Property(name="x1", data_type=DataType.NUMBER),
+                        Property(name="y1", data_type=DataType.NUMBER),
+                        Property(name="x2", data_type=DataType.NUMBER),
+                        Property(name="y2", data_type=DataType.NUMBER)
+                    ]),
+                    Property(name="meta_start", data_type=DataType.NUMBER, skip_vectorization=True,),
+                    Property(name="meta_end", data_type=DataType.NUMBER, skip_vectorization=True),
+                    Property(name="meta_question", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
+                    Property(name="meta_answer", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
+                    Property(name="meta_url", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
                 ]
             )
             
