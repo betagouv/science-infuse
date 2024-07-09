@@ -52,6 +52,9 @@ def create_weaviate_schema(remove=False):
                                 ]),
                                 Property(name="start", data_type=DataType.NUMBER, skip_vectorization=True,),
                                 Property(name="end", data_type=DataType.NUMBER, skip_vectorization=True),
+                                Property(name="question", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
+                                Property(name="answer", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
+                                Property(name="url", description="[optional] (WebsiteQA)", data_type=DataType.TEXT, skip_vectorization=True),
                             ]
                     ),
                 ]
