@@ -128,10 +128,6 @@ def main():
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             urls = get_qas_urls(playwright)
-            print("URLS", urls)
-            print("LEN URLS", len(urls))
-            # base_url = "https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions?tx_questionssante_search%5Bpage%5D=320#results-list"
-            # urls = get_qas_urls(base_url, browser)
             browser.close()
 
         # Use ThreadPoolExecutor to process URLs in parallel

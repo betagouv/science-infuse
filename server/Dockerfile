@@ -65,9 +65,10 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 RUN apt install -y poppler-utils
-RUN apt install -y tesseract-ocr
-RUN apt install -y tesseract-ocr-fra
+# RUN apt install -y tesseract-ocr
+# RUN apt install -y tesseract-ocr-fra
 
+RUN playwright install
 # Copy the rest of the application code
 COPY . .
 
