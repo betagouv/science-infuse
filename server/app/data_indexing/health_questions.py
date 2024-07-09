@@ -86,8 +86,8 @@ def get_url_at_page(page_number: int):
     return f"https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions?tx_questionssante_search%5Bpage%5D={page_number}#results-list"
 
 def get_qas_urls(playwright):
-    # page_number = get_qa_list_page_number(playwright)
-    page_number=20
+    page_number = get_qa_list_page_number(playwright)
+    # page_number=20
     qas_urls = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(get_qa_list_from_page, get_url_at_page(page_index+1)) for page_index in range(page_number)]

@@ -69,6 +69,7 @@ RUN apt install -y poppler-utils
 # RUN apt install -y tesseract-ocr-fra
 
 RUN playwright install
+RUN playwright install-deps
 # Copy the rest of the application code
 COPY . .
 
