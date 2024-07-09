@@ -101,7 +101,7 @@ export const RenderVideoTranscriptCard = (props: {
                 target: "_blank",
             }}
             size="medium"
-            title={props.chunk.media_type}
+            title={props.chunk.title}
             titleAs="h3"
         />
     );

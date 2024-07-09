@@ -87,6 +87,7 @@ def get_url_at_page(page_number: int):
 
 def get_qas_urls(playwright):
     page_number = get_qa_list_page_number(playwright)
+    print("PAGE NUM", page_number)
     # page_number=20
     qas_urls = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:

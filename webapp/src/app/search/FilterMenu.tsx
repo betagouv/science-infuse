@@ -4,12 +4,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { useState } from '@preact-signals/safe-react/react';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { availableMediaTypes } from '@/types';
+import { checkedMediaTypes } from './page';
 
 const grades = ['5ème', '4ème', '3ème']
 const subFields = ["Monde microbien", "Prévention et lutte contre les infections et les contaminations", "Réactions immunitaires", "Reproduction", "Rôle du cerveau", "Système cardiovasculaire", "Système digestif", "Système nerveux", "Système respiratoire"]
 const skills = ["Adopter un comportement éthique et responsable", "Concevoir, créer, réaliser", "Pratiquer des démarches scientifiques", "Pratiquer des langages", "Utiliser des outils et mobiliser des méthodes pour apprendre", "Utiliser des outils numériques", "Se situer dans l’espace et dans le temps"]
 // const chunk_types = ["Activités", "Articles", "Dossiers pédagogiques", "Images", "Jeux", "Séquences de cours", "Vidéos"]
-const chunk_types = ["Image", "Texte"]
+const chunk_types = availableMediaTypes
 
 export default function FilterMenu() {
     const [expanded, setExpanded] = useState(false)
@@ -52,8 +54,8 @@ export default function FilterMenu() {
                             options={grades.map(grade => ({
                                 label: grade,
                                 nativeInputProps: {
-                                    name: 'grade',
-                                    value: 'grade',
+                                    name: grade,
+                                    value: grade,
                                     disabled: true,
                                 }
                             }))}
@@ -61,11 +63,11 @@ export default function FilterMenu() {
                     </Box>
                     <Box className="flex flex-col w-full items-center">
                         <Checkbox
-                            options={subFields.map(grade => ({
-                                label: grade,
+                            options={subFields.map(subField => ({
+                                label: subField,
                                 nativeInputProps: {
-                                    name: 'grade',
-                                    value: 'grade',
+                                    name: subField,
+                                    value: subField,
                                     disabled: true,
                                 }
                             }))}
@@ -73,11 +75,11 @@ export default function FilterMenu() {
                     </Box>
                     <Box className="flex flex-col w-full items-center">
                         <Checkbox
-                            options={skills.map(grade => ({
-                                label: grade,
+                            options={skills.map(skill => ({
+                                label: skill,
                                 nativeInputProps: {
-                                    name: 'grade',
-                                    value: 'grade',
+                                    name: skill,
+                                    value: skill,
                                     disabled: true,
                                 }
                             }))}
@@ -85,11 +87,21 @@ export default function FilterMenu() {
                     </Box>
                     <Box className="flex flex-col w-full items-center">
                         <Checkbox
-                            options={chunk_types.map(grade => ({
-                                label: grade,
+                            options={chunk_types.map(chunk_type => ({
+                                label: chunk_type,
                                 nativeInputProps: {
-                                    name: 'grade',
-                                    value: 'grade',
+                                    name: chunk_type,
+                                    value: chunk_type,
+                                    onChange: (e) => {
+                                        const mediaType = e.target.value
+                                        const checked = e.target.checked
+                                        if (checked) {
+                                            checkedMediaTypes.value = checkedMediaTypes.value.includes(mediaType) ? checkedMediaTypes.value : [...checkedMediaTypes.value, mediaType]
+                                        } else {
+                                            checkedMediaTypes.value = checkedMediaTypes.value.filter(mt => mt != mediaType);
+                                        }
+                                        console.log("checkedMediaTypes", checkedMediaTypes.value)
+                                    }
                                 }
                             }))}
                         />

@@ -1,6 +1,16 @@
 //  this should match schema.py
 
-type MediaType = "pdf_image" | "raw_image" | "pdf_text" | "video_transcript" | "website_qa";
+const MediaType = {
+  PdfImage: "pdf_image",
+  RawImage: "raw_image",
+  PdfText: "pdf_text",
+  VideoTranscript: "video_transcript",
+  WebsiteQa: "website_qa"
+} as const;
+
+type MediaType = typeof MediaType[keyof typeof MediaType];
+
+export const availableMediaTypes = Object.values(MediaType);
 
 export interface BoundingBox {
   x1: number
