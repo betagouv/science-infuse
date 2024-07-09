@@ -1,6 +1,6 @@
 //  this should match schema.py
 
-type MediaType = "pdf_image" | "raw_image" | "pdf_text" | "video_transcript";
+type MediaType = "pdf_image" | "raw_image" | "pdf_text" | "video_transcript" | "website_qa";
 
 export interface BoundingBox {
   x1: number
@@ -36,19 +36,29 @@ export interface PdfTextMetadata {
   bbox: BoundingBox;
 }
 
+export interface WebsiteQAMetadata {
+  question: string;
+  answer: string;
+  url: string;
+}
+
+
+
 type MetadataType<T extends MediaType> =
   T extends "pdf_image" ? PdfImageMetadata :
   T extends "raw_image" ? RawImageMetadata :
   T extends "pdf_text" ? PdfTextMetadata :
   T extends "video_transcript" ? VideoTranscriptMetadata :
+  T extends "website_qa" ? WebsiteQAMetadata :
   never;
 
 export type VideoTranscriptChunk = BaseDocumentChunk<"video_transcript">;
 export type PdfImageChunk = BaseDocumentChunk<"pdf_image">;
 export type RawImageChunk = BaseDocumentChunk<"raw_image">;
 export type PdfTextChunk = BaseDocumentChunk<"pdf_text">;
+export type WebsiteQAChunk = BaseDocumentChunk<"website_qa">;
 
-export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk | PdfTextChunk;
+export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk | PdfTextChunk | WebsiteQAChunk;
 
 export interface ChunkWithScore<T extends MediaType> extends BaseDocumentChunk<T> {
   score: number;
@@ -58,7 +68,8 @@ export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_image"> & { media_type: "pdf_image" })
   | (ChunkWithScore<"raw_image"> & { media_type: "raw_image" })
   | (ChunkWithScore<"pdf_text"> & { media_type: "pdf_text" })
-  | (ChunkWithScore<"video_transcript"> & { media_type: "video_transcript" });
+  | (ChunkWithScore<"video_transcript"> & { media_type: "video_transcript" })
+  | (ChunkWithScore<"website_qa"> & { media_type: "website_qa" })
 
 
 export interface Document {
@@ -97,4 +108,8 @@ export const isPdfTextChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithSc
 
 export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"video_transcript"> {
   return chunk.media_type === "video_transcript";
+}
+
+export function isWebsiteQAChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_qa"> {
+  return chunk.media_type === "website_qa";
 }

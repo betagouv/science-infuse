@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, Field
-from typing import Literal, Optional, Union, List, Literal, TypeVar, Generic
+from typing import Any, Literal, Optional, Union, List, Literal, TypeVar, Generic
 
 class BoundingBox(BaseModel):
     """
@@ -35,6 +35,20 @@ class BaseDocumentChunk(BaseModel):
     ]
     metadata: Union[dict, BaseModel]
 
+    @classmethod
+    def model_validate(cls, obj: Any, *args, **kwargs):
+        """
+        https://github.com/weaviate/weaviate/issues/3694
+        migrate back weaviate fields like meta_xxx:yyy to metadata: {xxx: yyy}
+        """
+        if isinstance(obj, dict):
+            metadata = {}
+            for key in list(obj.keys()):
+                if key.startswith('meta_'):
+                    metadata[key[5:]] = obj.pop(key)
+            if metadata:
+                obj['metadata'] = metadata
+        return super().model_validate(obj, *args, **kwargs)
 
 # VideoTranscript : text part of a video
 class VideoTranscriptMetadata(BaseModel):
