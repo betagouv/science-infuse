@@ -46,3 +46,4 @@ unstructured.pytesseract==0.3.12
 sacremoses==0.1.1
 surya-ocr==0.4.14
 google-api-python-client==2.136.0
+playwright==1.45.0
