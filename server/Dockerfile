@@ -58,18 +58,21 @@ RUN pip install ninja packaging
 RUN pip install -U cffi
 RUN pip install torch==2.3.1 torchvision==0.18.1
 RUN pip install flash-attn --no-build-isolation --no-cache-dir
+# RUN apt install -y tesseract-ocr
+# RUN apt install -y tesseract-ocr-fra
+RUN playwright install
+RUN playwright install-deps
+
+RUN apt install -y poppler-utils
+RUN apt-get install -y libcudnn8
+RUN apt-get install -y libcudnn8-dev
+
 
 COPY requirements.txt .
 
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install -r requirements.txt
 
-RUN apt install -y poppler-utils
-# RUN apt install -y tesseract-ocr
-# RUN apt install -y tesseract-ocr-fra
-
-RUN playwright install
-RUN playwright install-deps
 # Copy the rest of the application code
 COPY . .
 
