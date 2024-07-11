@@ -166,7 +166,7 @@ class NaivePDFProcessor(BaseDocumentProcessor):
         document = Document(
             document_id=self.id,
             public_path=self.absolute_path_to_local(local_pdf_path),
-            original_public_path=local_pdf_path,
+            original_path=local_pdf_path,
             media_name=media_name,
         )
         chunks = []

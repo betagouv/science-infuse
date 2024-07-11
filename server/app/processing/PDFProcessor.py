@@ -7,6 +7,7 @@ import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
 from SIWeaviateClient import SIWeaviateClient
+from S3Storage import S3Storage
 from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from processing.text.SISurya import SISurya
 from processing.image.SIImageDescription import SIImageDescription
@@ -21,23 +22,21 @@ logger = logging.getLogger()
 
 non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
-    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, pdf_path: str):
+    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, s3: S3Storage, pdf_path: str):
         self.pdf_path = pdf_path
         print("PDFProcessor pdf_path", pdf_path, flush=True)
         self.image_descriptor = image_descriptor
         self.translator = translator
         self.surya = surya
+        self.s3 = s3
         
         super().__init__(client)
 
-    def save_pdf(self, pdf_path):
-        output_folder = os.path.join(self.base_download_folder, 'pdf')
-        os.makedirs(output_folder, exist_ok=True)
+    def save_pdf_to_s3(self, pdf_path):
         filename = f"{self.id}.pdf"
-        pdf_destination_path = os.path.join(output_folder, filename)
-        # save the pdf locally
-        shutil.copyfile(pdf_path, pdf_destination_path)
-        return pdf_destination_path
+        s3_object_name = os.path.join('pdf', filename)
+        self.save_to_s3(self.s3, pdf_path, s3_object_name)
+        return s3_object_name
     
     def unstructured_coordinates_to_bbox(self, coordinates):
         if (not coordinates):
@@ -68,14 +67,6 @@ class PDFProcessor(BaseDocumentProcessor):
         if (len(text) > 100):
             return True
         return False
-
-    def save_image(self, image: Image.Image):
-        output_folder = os.path.join(self.base_download_folder, "pdf", "images")
-        os.makedirs(output_folder, exist_ok=True)
-        image_path = os.path.join(output_folder, f"{self.get_random_uuid()}.png")
-        image.save(image_path, "PNG")
-        image.close()
-        return image_path
 
     def is_not_only_space_and_number(self, string):
         return bool(non_space_or_digit_pattern.search(string))
@@ -144,6 +135,16 @@ class PDFProcessor(BaseDocumentProcessor):
 
         return chunks
 
+    def save_image(self, image: Image.Image):
+        output_folder = os.path.join(self.base_download_folder, "pdf", "images")
+        os.makedirs(output_folder, exist_ok=True)
+        file_name = f"{self.get_random_uuid()}.png"
+        image_path = os.path.join(output_folder, file_name)
+        image.save(image_path, "PNG")
+        image.close()
+        return image_path, file_name
+
+
     def get_pdf_images(self, doc: type[PdfDocument]):
         temp_images = []
         logger.info("GET PDF IMAGES logger")
@@ -177,17 +178,17 @@ class PDFProcessor(BaseDocumentProcessor):
 
     def extract_document(self):
         print("PDFProcessor extract_document self.pdf_path", self.pdf_path, flush=True)
-        local_pdf_path = self.save_pdf(self.pdf_path)
+        pdf_s3_object_name = self.save_pdf_to_s3(self.pdf_path)
         media_name =Path(self.pdf_path).stem
 
         document = Document(
             document_id=self.id,
-            public_path=self.absolute_path_to_local(local_pdf_path),
-            original_public_path=local_pdf_path,
+            original_path=self.pdf_path,
+            s3_object_name=pdf_s3_object_name,
             media_name=media_name,
         )
 
-        with fitz.open(local_pdf_path) as fitz_doc:
+        with fitz.open(self.pdf_path) as fitz_doc:
 
             images = self.get_pdf_images(fitz_doc)
             print("PDFProcessor extract_document images", len(images), flush=True)
@@ -202,12 +203,12 @@ class PDFProcessor(BaseDocumentProcessor):
                 for image, translated_description in zip(images_chunks, translated_images_descriptions)
             ]
             
-            
             chunks = []
+            # create chunks for every images, and save them to s3
             for img in images_with_descriptions:
-                print(f"description_en : {img.get('description_en')}", flush=True)
-                print(f"description_fr : {img.get('description_fr')}", flush=True)
-                image_path = self.save_image(img.get('image'))
+                image_path, file_name = self.save_image(img.get('image'))
+                image_s3_object_name = f"{pdf_s3_object_name}/images/{file_name}"
+                self.save_to_s3(self.s3, image_path, image_s3_object_name)
                 img.get('image').close()
 
                 chunk = PdfImageChunk(
@@ -215,7 +216,7 @@ class PDFProcessor(BaseDocumentProcessor):
                     title="",
                     document=document,
                     metadata=PdfImageMetadata(
-                        public_path=self.absolute_path_to_local(image_path),
+                        s3_object_name=image_s3_object_name,
                         page_number=img.get('page_number'),
                         bbox=BoundingBox(
                             x1=img.get('bbox',{}).get('x1', -1), 

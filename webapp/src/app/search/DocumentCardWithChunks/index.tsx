@@ -30,7 +30,7 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             }
 
             {isPdfImageChunk(props.chunk) && <>
-                <img key={(props.chunk as PdfImageChunk).metadata.public_path} src={`${NEXT_PUBLIC_FILE_SERVER_URL}${(props.chunk as PdfImageChunk).metadata.public_path}`} className="max-w-full max-h-48" />
+                <img key={props.chunk.metadata.s3_object_name} src={`${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.metadata.s3_object_name}`} className="max-w-full max-h-48" />
             </>}
             {isTextChunk(props.chunk) && <>
                 <Quote

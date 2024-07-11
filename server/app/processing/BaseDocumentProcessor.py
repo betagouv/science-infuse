@@ -3,6 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from weaviate import WeaviateClient
+from S3Storage import S3Storage
 from schemas import Document, DocumentWithChunks, DocumentChunk
 
 class BaseDocumentProcessor(ABC):
@@ -13,6 +14,10 @@ class BaseDocumentProcessor(ABC):
         self.id = str(uuid.uuid4())
         # TODO UNCOMMENT
         self.process_document()
+
+    def save_to_s3(self, s3: S3Storage, input_file_path: str, s3_object_name: str):
+        s3.upload_file(input_file_path, s3_object_name)
+        return s3_object_name
 
     def get_random_uuid(self):
         return str(uuid.uuid4())

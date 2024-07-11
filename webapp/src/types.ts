@@ -36,7 +36,7 @@ export interface RawImageMetadata {
 }
 
 export interface PdfImageMetadata {
-  public_path: string;
+  s3_object_name: string;
   page_number: number;
   bbox: BoundingBox;
 }
@@ -85,7 +85,8 @@ export type ChunkWithScoreUnion =
 export interface Document {
   document_id: string;
   public_path: string;
-  original_public_path: string;
+  original_path: string;
+  s3_object_name: string;
   media_name: string;
 }
 export interface DocumentWithChunks extends Document {
@@ -95,7 +96,7 @@ export interface DocumentWithChunks extends Document {
 export interface DocumentSearchResult {
   document_id: string;
   public_path: string;
-  original_public_path: string;
+  original_path: string;
   media_name: string;
   max_score: number;
   min_score: number;
