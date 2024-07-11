@@ -30,7 +30,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         limit=100,
         return_references=[QueryReference(
             link_on="belongsToDocument", 
-            return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"]
+            return_properties=["s3_object_name", "document_id", "public_path", "original_path", "media_name", "max_score", "min_score"]
         )]
     )
         
@@ -60,7 +60,7 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
         document_search_result = DocumentSearchResult(
             document_id=document_properties['document_id'],
             public_path=document_properties['public_path'],
-            original_public_path=document_properties['original_public_path'],
+            original_path=document_properties['original_path'],
             media_name=document_properties['media_name'],
             min_score=min(chunk.score for chunk in chunks_with_score),
             max_score=max(chunk.score for chunk in chunks_with_score),
@@ -83,7 +83,7 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=query_properties,
         filters=filters,
-        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["document_id", "public_path", "original_public_path", "media_name", "max_score", "min_score"])]
+        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["s3_object_name", "document_id", "public_path", "original_path", "media_name", "max_score", "min_score"])]
     )
 
     for chunk in response.objects:

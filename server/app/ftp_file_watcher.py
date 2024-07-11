@@ -66,7 +66,7 @@ def process_media(file_path):
         translator = Translator()
         surya = Surya()
         try:
-            pdf = process_pdf(file_path, image_descriptor, translator, surya)  # Assuming process_pdf is async
+            pdf = process_pdf(file_path, image_descriptor, translator, surya)
         except Exception as e:
             print("ERRROR PROCESSING PDF", e, flush=True)
         return pdf 

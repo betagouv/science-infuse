@@ -1,13 +1,20 @@
 import logging
 from watchdog.observers import Observer
-from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
+from S3Storage import S3Storage
 from models import create_weaviate_schema
 from router import document, search
 import logging
+from redis import asyncio as aioredis
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
 
+s3 = S3Storage()
 # create an instance of the logger
 logger = logging.getLogger()
 async def catch_exceptions_middleware(request: Request, call_next):
@@ -60,22 +67,36 @@ app.include_router(search.router, prefix="/search", tags=["search"])
 @app.on_event("startup")
 async def startup_event():
     create_weaviate_schema(remove=False)
+    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    # redis = aioredis.from_url(os.environ.get("REDIS_URL", "redis://redis:6379"))
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Science Infuse"}
 
 
+
+
+@cache(expire=3600)
+async def get_s3_url(s3_object_name: str):
+    print(f"Attempting to retrieve cache for {s3_object_name}")
+    s3_public_path = s3.get_presigned_url(s3_object_name, expiration=3600)
+    print(f"Generated URL: {s3_public_path}")
+    return s3_public_path
+
+@app.get("/s3/{s3_object_name:path}")
+async def s3_redirect(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
+    print(f"Redirecting to: {s3_url}")
+    return RedirectResponse(s3_url, status_code=307)
+
+
+
 log_config = uvicorn.config.LOGGING_CONFIG
 log_config["formatters"]["access"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
 log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
 
-import os
-
-print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
-print("WEAVIATE_PORT", os.getenv("WEAVIATE_PORT"))
-print("WEAVIATE_URL", os.getenv("WEAVIATE_URL"))
-print("WEAVIATE_GRPC_PORT", os.getenv("WEAVIATE_GRPC_PORT"))
         
 uvicorn.run(app, host="0.0.0.0", log_config=log_config)
 

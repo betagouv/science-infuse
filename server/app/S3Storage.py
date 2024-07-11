@@ -9,6 +9,7 @@ class S3Storage:
         self.S3_ENDPOINT = os.environ.get("S3_ENDPOINT", "")
         self.S3_REGION = os.environ.get("S3_REGION", "")
         self.bucket_name = os.environ.get("S3_BUCKET", "")
+        self.is_dev = os.environ.get("ENVIRONMENT", "") == "dev"
         
         self.s3_client = boto3.client(
             "s3",
@@ -30,13 +31,13 @@ class S3Storage:
         for obj in response.get('Contents', []):
             print(f'  {obj["Key"]}')
 
-    def upload_file(self, file_path, object_name):
+    def upload_file(self, input_file_path, s3_object_name):
         try:
-            self.s3_client.upload_file(file_path, self.bucket_name, object_name, ExtraArgs={'ACL': 'public-read'})
-            print(f"File {file_path} uploaded successfully to bucket {self.bucket_name} as {object_name}.")
+            self.s3_client.upload_file(input_file_path, self.bucket_name, s3_object_name, ExtraArgs={'ACL': 'public-read'})
+            print(f"File {input_file_path} uploaded successfully to bucket {self.bucket_name} as {s3_object_name}.")
             
             # Generate the public URL
-            public_url = f"{self.S3_ENDPOINT}/{self.bucket_name}/{object_name}"
+            public_url = f"{self.S3_ENDPOINT}/{self.bucket_name}/{s3_object_name}"
             print(f"Public URL: {public_url}")
             return public_url
         except Exception as e:

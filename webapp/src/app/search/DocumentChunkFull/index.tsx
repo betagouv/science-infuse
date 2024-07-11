@@ -3,7 +3,7 @@ import { Card } from "@codegouvfr/react-dsfr/Card";
 import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteQAChunk } from "@/types";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
-import { NEXT_PUBLIC_FILE_SERVER_URL } from "@/config";
+import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";
 import VideoPlayer from "@/app/mediaViewers/VideoPlayer";
 import { Typography } from "@mui/material";
 import { Collapse } from '@mui/material';
@@ -56,12 +56,12 @@ const RenderPdfImageCard = (props: { chunk: ChunkWithScore<"pdf_image"> }) => {
             desc={
                 <img
                     className="w-full"
-                    src={`${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.metadata.public_path}`}
+                    src={`${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.metadata.s3_object_name}`}
                 />
             }
             enlargeLink
             linkProps={{
-                href: `${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.metadata.public_path}`,
+                href: `${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.metadata.s3_object_name}`,
                 target: "_blank",
             }}
             size="medium"
@@ -83,7 +83,7 @@ export const RenderVideoTranscriptCard = (props: {
             desc={
                 <div>
                     <VideoPlayer
-                        videoUrl={`${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.document.public_path}`}
+                        videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.document.s3_object_name}`}
                         startOffset={props.chunk.metadata.start}
                         endOffset={props.chunk.metadata.end}
                     />
@@ -97,7 +97,7 @@ export const RenderVideoTranscriptCard = (props: {
                 </div>
             }
             linkProps={{
-                href: `${props.chunk.document.original_public_path}`,
+                href: `${props.chunk.document.original_path}`,
                 target: "_blank",
             }}
             size="medium"
@@ -176,7 +176,7 @@ export const RenderWebsiteQAChunk = (props: { chunk: ChunkWithScore<"website_qa"
                 </div>
             }
             linkProps={{
-                href: `${props.chunk.document.original_public_path}`,
+                href: `${props.chunk.document.original_path}`,
                 target: "_blank",
             }}
             size="medium"

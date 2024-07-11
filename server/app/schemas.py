@@ -14,8 +14,9 @@ class BoundingBox(BaseModel):
 
 class Document(BaseModel):
     document_id: str
-    public_path: str
-    original_public_path: str
+    public_path: Optional[str] = Field(default="")
+    original_path: str
+    s3_object_name: Optional[str] = Field(default="")
     media_name: str
 
 class BaseDocumentChunk(BaseModel):
@@ -61,7 +62,7 @@ class VideoTranscriptChunk(BaseDocumentChunk):
 
 # PdfImage
 class PdfImageMetadata(BaseModel):
-    public_path: str
+    s3_object_name: str
     page_number: int
     bbox: BoundingBox
 
@@ -71,7 +72,7 @@ class PdfImageChunk(BaseDocumentChunk):
 
 # RawImage
 class RawImageMetadata(BaseModel):
-    public_path: str
+    s3_object_name: str
 class RawImageChunk(BaseDocumentChunk):
     media_type: Literal["raw_image"] = "raw_image"
     metadata: RawImageMetadata
@@ -115,7 +116,7 @@ class ChunkWithScore(Generic[ChunkType], BaseDocumentChunk):
 # -----------
 
 class ImportDocument(BaseModel):
-    original_public_path: str
+    original_path: str
     
 
 class SearchQuery(BaseModel):
@@ -128,7 +129,7 @@ class SearchQuery(BaseModel):
 class DocumentSearchResult(BaseModel):
     document_id: str
     public_path: str
-    original_public_path: str
+    original_path: str
     media_name: str
     max_score: float
     min_score: float

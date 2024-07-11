@@ -21,8 +21,9 @@ def create_weaviate_schema(remove=False):
                 vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
                 properties=[
                     Property(name="document_id", data_type=DataType.TEXT, skip_vectorization=True),
-                    Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True, description="local path of the file"),
-                    Property(name="original_public_path", data_type=DataType.TEXT, skip_vectorization=True, description="where the file comes from (youtube url, public url,...)"),
+                    Property(name="s3_object_name", data_type=DataType.TEXT, skip_vectorization=True, description="object name of the s3 file (used to access the file)"),
+                    Property(name="original_path", data_type=DataType.TEXT, skip_vectorization=True, description="original source of the file"),
+                    Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True, description="[optional] things like youtube url, website, ... accessible from internet"),
                     Property(name="media_name", data_type=DataType.TEXT, skip_vectorization=True, description="name of the media"),
                 ]
             )
@@ -41,7 +42,7 @@ def create_weaviate_schema(remove=False):
                     # since it is not yet supported to filter by nested properties:  https://github.com/weaviate/weaviate/issues/3694
                     # metadatas will be prefixed with meta_ and used af they all were in a subfield metadata : meta_public_path -> {metadata: public_path}
                     # TODO: when nested properties can be filtered / indexed, move them to a nested property named metadata.
-                    Property(name="meta_public_path", data_type=DataType.TEXT, skip_vectorization=True),
+                    Property(name="meta_s3_object_name", data_type=DataType.TEXT, skip_vectorization=True, description="object name of the s3 file (used to access the file)"),
                     Property(name="meta_page_number", description="[optional] if in document, page where the image can be found", data_type=DataType.INT, skip_vectorization=True),
                     Property(name="meta_bbox", description="[optional] bounding box", data_type=DataType.OBJECT, skip_vectorization=True, nested_properties=[
                         Property(name="x1", data_type=DataType.NUMBER),

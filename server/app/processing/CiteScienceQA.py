@@ -59,7 +59,7 @@ class CiteScienceQA(BaseDocumentProcessor):
             document = Document(
                 document_id=self.get_random_uuid(),
                 public_path=url,
-                original_public_path=url,
+                original_path=url,
                 media_name=title,
             )
             chunk = WebsiteQAChunk(
