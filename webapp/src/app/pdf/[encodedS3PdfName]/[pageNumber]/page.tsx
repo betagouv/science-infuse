@@ -32,7 +32,7 @@ export default function PdfPage({
             .catch(error => {
                 console.error('Error fetching PDF URL:', error)
             })
-    }, [])
+    }, [decodedPdfUrl])
 
 
     return url ? <RenderPdf pdfUrl={url} defaultPage={parseInt(pageNumber as string)} /> : "loading"

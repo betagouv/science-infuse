@@ -10,10 +10,16 @@ import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
+// there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
+    'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
+    import.meta.url
 ).toString();
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(typeof window === 'undefined' ?
+//     `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+//     :
+//     'pdfjs-dist/build/pdf.worker.min.mjs'
+//     , import.meta.url,).toString();
 
 const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
     const [numPages, setNumPages] = useState<number>();
@@ -33,12 +39,12 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
             <Document
                 file={props.pdfUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
-                            loading={
-                                <div className="flex justify-center items-center flex-col gap-2">
-                                    <span className="text-lg font-bold">Chargement du pdf en cours</span>
-                                    <CircularProgress className="ml-2" />
-                                </div>
-                            }                >
+                loading={
+                    <div className="flex justify-center items-center flex-col gap-2">
+                        <span className="text-lg font-bold">Chargement du pdf en cours</span>
+                        <CircularProgress className="ml-2" />
+                    </div>
+                }                >
                 <Page pageNumber={pageNumber} />
             </Document>
 
