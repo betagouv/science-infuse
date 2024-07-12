@@ -58,8 +58,7 @@ RUN pip install ninja packaging
 RUN pip install -U cffi
 RUN pip install torch==2.3.1 torchvision==0.18.1
 RUN pip install flash-attn --no-build-isolation --no-cache-dir
-# RUN apt install -y tesseract-ocr
-# RUN apt install -y tesseract-ocr-fra
+RUN pip install playwright==1.45.0
 RUN playwright install
 RUN playwright install-deps
 
