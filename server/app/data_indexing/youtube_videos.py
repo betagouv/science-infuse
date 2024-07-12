@@ -1,6 +1,8 @@
 from googleapiclient.discovery import build
 import os
 import sys
+
+import pytube.exceptions
 sys.path.append(os.path.join(os.getcwd(), 'app'))
 
 from S3Storage import S3Storage
@@ -11,7 +13,7 @@ from weaviate.classes.query import Filter, GeoCoordinate, MetadataQuery, QueryRe
 from processing.YoutubeProcessor import YoutubeProcessor
 from processing.audio.SIWhisperModel import SIWhisperModel 
 from pytube import YouTube
-
+import pytube
 # Replace with your own API key
 api_key = os.environ.get('YOUTUBE_API_KEY', '')
 
@@ -20,33 +22,57 @@ youtube = build("youtube", "v3", developerKey=api_key)
 
 # Replace with the channel ID you want to fetch videos from
 # LE BLOB
-def get_channel_videos(channel_id):
+# def get_channel_videos(channel_id):
+#     videos = []
+#     next_page_token = None
+    
+#     while True:
+#         request = youtube.search().list(
+#             part="snippet",
+#             channelId=channel_id,
+#             maxResults=50,
+#             type="video",
+#             pageToken=next_page_token
+#         )
+#         response = request.execute()
+        
+#         for item in response["items"]:
+#             videos.append({
+#                 "title": item["snippet"]["title"],
+#                 "video_id": item["id"]["videoId"],
+#                 "publish_time": item["snippet"]["publishTime"]
+#             })
+        
+#         next_page_token = response.get("nextPageToken")
+#         if not next_page_token:
+#             break
+    
+#     return videos
+
+
+# trick to bypass the 500 result limit from search, get channel full playlist -> no limit
+# https://stackoverflow.com/questions/55014224/how-can-i-list-the-uploads-from-a-youtube-channel/55031047#55031047 
+def get_channel_videos(playlist_id):
+    playlist_id = f"{playlist_id[0]}U{playlist_id[2:]}"
     videos = []
     next_page_token = None
     
     while True:
-        request = youtube.search().list(
-            part="snippet",
-            channelId=channel_id,
+        res = youtube.playlistItems().list(
+            part='snippet',
+            playlistId=playlist_id,
             maxResults=50,
-            type="video",
             pageToken=next_page_token
-        )
-        response = request.execute()
+        ).execute()
         
-        for item in response["items"]:
-            videos.append({
-                "title": item["snippet"]["title"],
-                "video_id": item["id"]["videoId"],
-                "publish_time": item["snippet"]["publishTime"]
-            })
+        videos += res['items']
         
-        next_page_token = response.get("nextPageToken")
-        if not next_page_token:
+        next_page_token = res.get('nextPageToken')
+        
+        if next_page_token is None:
             break
-    
+            
     return videos
-
 
 def is_url_already_indexed(url, client: WeaviateClient):
     document = client.collections.get("Document")
@@ -66,6 +92,7 @@ MAX_VIDEO_LENGTH_SECONDS = 60*1 #1 hour
 
 def index_channel(channel_id: str):
     channel_videos = get_channel_videos(channel_id)
+    print(len(channel_videos))
     
     s3 = S3Storage()
     with SIWeaviateClient() as client:
@@ -89,6 +116,9 @@ def index_channel(channel_id: str):
                     YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url)
                     print("---")
                     break
+                except pytube.exceptions.AgeRestrictedError:
+                    print("Age restricted -> SKIP")
+                    continue
                 except:
                     if i == 9:
                         raise Exception("Failed after 10 retries")
