@@ -38,7 +38,7 @@ class S3Storage:
             
             # Generate the public URL
             public_url = f"{self.S3_ENDPOINT}/{self.bucket_name}/{s3_object_name}"
-            print(f"Public URL: {public_url}")
+            # print(f"Public URL: {public_url}")
             return public_url
         except Exception as e:
             print(f"Error during file upload: {e}")

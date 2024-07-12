@@ -70,21 +70,30 @@ def index_channel(channel_id: str):
     
     s3 = S3Storage()
     with SIWeaviateClient() as client:
-        for video in channel_videos[:10]:
+        for i, video in enumerate(channel_videos):
+            print(f"video {i}/{len(channel_videos)}")          
             url = f"https://www.youtube.com/watch?v={video['video_id']}"
             # yt = YouTube(url)
             # if (yt.length > MAX_VIDEO_LENGTH_SECONDS):
                 # print(f"Video Too Long, SKIP INDEXING {url}")
                 # continue
 
-            if (is_url_already_indexed(url, client)):
-                print(f"Already in DB, SKIP INDEXING {url}")
-                continue
             print(f"Title: {video['title']}")
             print(f"Video ID: {video['video_id']}")
-            print('indexing....')
-            YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url)
-            print("---")
+            # print('indexing....')
+            
+            for i in range(10):
+                if (is_url_already_indexed(url, client)):
+                    print(f"Already in DB, SKIP INDEXING {url}")
+                    continue
+                try:
+                    YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url)
+                    print("---")
+                    break
+                except:
+                    if i == 9:
+                        raise Exception("Failed after 10 retries")
+                    continue    
     s3.s3_client.close()
     
 # Fetch the videos
