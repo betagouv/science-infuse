@@ -195,7 +195,7 @@ export const RenderWebsiteExperienceChunk = (props: { chunk: ChunkWithScore<"web
             border
             desc={<div className="flex flex-col gap-4">
                 <div className="flex flex-col">
-                    {props.chunk.metadata.description.split('\n').map(paragraph => <Typography className="text-md w-full mb-0 text-left">
+                    {props.chunk.metadata.description.split('\n').map(paragraph => <Typography key={paragraph} className="text-md w-full mb-0 text-left">
 
                         <Highlighter
                             highlightClassName="highlightSearch"
