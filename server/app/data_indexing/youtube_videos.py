@@ -121,7 +121,7 @@ def index_channel(channel_id: str):
                     continue
                 except:
                     if i == 9:
-                        raise Exception("Failed after 10 retries")
+                        print("===================Failed after 10 retries")
                     continue
     s3.s3_client.close()
     
