@@ -65,7 +65,12 @@ def get_channel_videos(playlist_id):
             pageToken=next_page_token
         ).execute()
         
-        videos += res['items']
+        for item in res["items"]:
+            videos.append({
+                "title": item["snippet"]["title"],
+                "video_id": item["snippet"]["resourceId"]["videoId"],
+                "publish_time": item["snippet"]["publishedAt"]
+            })
         
         next_page_token = res.get('nextPageToken')
         
