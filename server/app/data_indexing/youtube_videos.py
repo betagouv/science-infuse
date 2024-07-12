@@ -42,7 +42,6 @@ def get_channel_videos(channel_id):
             })
         
         next_page_token = response.get("nextPageToken")
-        break        
         if not next_page_token:
             break
     
