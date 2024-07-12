@@ -15,8 +15,10 @@ class BaseDocumentProcessor(ABC):
         # TODO UNCOMMENT
         self.process_document()
 
-    def save_to_s3(self, s3: S3Storage, input_file_path: str, s3_object_name: str):
+    def save_to_s3(self, s3: S3Storage, input_file_path: str, s3_object_name: str, remove=True):
         s3.upload_file(input_file_path, s3_object_name)
+        if (remove is True):
+            os.remove(input_file_path)
         return s3_object_name
 
     def get_random_uuid(self):

@@ -30,11 +30,12 @@ class YoutubeProcessor(BaseDocumentProcessor):
         video_s3_object_name = f"youtube/{self.get_random_uuid()}.mp4"
         print("EXTRACT DOCUMNET YOUTUBE video_s3_object_name 1", video_s3_object_name)
         # save video to s3
+        self.whisper.set_paragraph_pause_threshold(self.paragraph_pause_threshold)
+        segments = self.whisper.get_paragraphs_from_audio_path(video_path)
+        
         self.save_to_s3(self.s3, video_path, video_s3_object_name)
         print("EXTRACT DOCUMNET YOUTUBE video_s3_object_name 2", video_s3_object_name)
 
-        self.whisper.set_paragraph_pause_threshold(self.paragraph_pause_threshold)
-        segments = self.whisper.get_paragraphs_from_audio_path(video_path)
         document = Document(
             document_id=self.id, 
             public_path=self.youtube_url, 

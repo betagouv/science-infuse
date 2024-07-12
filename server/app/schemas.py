@@ -32,7 +32,7 @@ class BaseDocumentChunk(BaseModel):
         "pdf_image", "raw_image",
         "pdf_text", 
         "video_transcript",
-        "website_qa"
+        "website_qa", "website_experience"
     ]
     metadata: Union[dict, BaseModel]
 
@@ -96,11 +96,21 @@ class WebsiteQAChunk(BaseDocumentChunk):
     media_type: Literal["website_qa"] = "website_qa"
     metadata: WebsiteQAMetadata
 
+# WebsiteExperience
+class WebsiteExperienceMetadata(BaseModel):
+    description: str
+    title: str
+    type: str
+    url: str
+
+class WebsiteExperienceChunk(BaseDocumentChunk):
+    media_type: Literal["website_experience"] = "website_experience"
+    metadata: WebsiteExperienceMetadata
 
 
 
-DocumentChunkMetadata = Union[RawImageMetadata, PdfImageMetadata, PdfTextMetadata, VideoTranscriptMetadata, WebsiteQAMetadata]
-DocumentChunk = Union[RawImageChunk, PdfImageChunk, PdfTextChunk, VideoTranscriptChunk, WebsiteQAChunk]
+DocumentChunkMetadata = Union[RawImageMetadata, PdfImageMetadata, PdfTextMetadata, VideoTranscriptMetadata, WebsiteQAMetadata, WebsiteExperienceMetadata]
+DocumentChunk = Union[RawImageChunk, PdfImageChunk, PdfTextChunk, VideoTranscriptChunk, WebsiteQAChunk, WebsiteExperienceChunk]
 
 # ChunkWithScore
 ChunkType = TypeVar('ChunkType', bound=BaseDocumentChunk)
