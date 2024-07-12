@@ -72,10 +72,10 @@ def index_channel(channel_id: str):
     with SIWeaviateClient() as client:
         for video in channel_videos[:10]:
             url = f"https://www.youtube.com/watch?v={video['video_id']}"
-            yt = YouTube(url)
-            if (yt.length > MAX_VIDEO_LENGTH_SECONDS):
-                print(f"Video Too Long, SKIP INDEXING {url}")
-                continue
+            # yt = YouTube(url)
+            # if (yt.length > MAX_VIDEO_LENGTH_SECONDS):
+                # print(f"Video Too Long, SKIP INDEXING {url}")
+                # continue
 
             if (is_url_already_indexed(url, client)):
                 print(f"Already in DB, SKIP INDEXING {url}")
