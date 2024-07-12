@@ -30,6 +30,7 @@
     "react-highlight-words": "^0.20.0",
     "react-link-parser": "^1.1.6",
     "react-linkify": "^1.0.0-alpha",
+    "react-pdf": "^9.1.0",
     "sass": "^1.77.6",
     "tss-react": "^4.9.10"
   },

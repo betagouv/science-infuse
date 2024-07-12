@@ -91,6 +91,10 @@ async def s3_redirect(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
     print(f"Redirecting to: {s3_url}")
     return RedirectResponse(s3_url, status_code=307)
 
+@app.get("/s3_url/{s3_object_name:path}")
+async def get_s3_url(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
+    return s3_url
+
 
 
 log_config = uvicorn.config.LOGGING_CONFIG

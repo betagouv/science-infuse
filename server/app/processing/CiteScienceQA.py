@@ -78,7 +78,3 @@ class CiteScienceQA(BaseDocumentProcessor):
         except TimeoutError:
             print(f"Timeout occurred for URL: {url}. Retrying...")
             raise
-
-    def process_document(self):
-        document, chunks = self.extract_document()
-        self.save_document(document, chunks)

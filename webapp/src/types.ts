@@ -5,7 +5,8 @@ const MediaType = {
   RawImage: "raw_image",
   PdfText: "pdf_text",
   VideoTranscript: "video_transcript",
-  WebsiteQa: "website_qa"
+  WebsiteQa: "website_qa",
+  WebsiteExperience: "website_experience",
 } as const;
 
 type MediaType = typeof MediaType[keyof typeof MediaType];
@@ -52,6 +53,13 @@ export interface WebsiteQAMetadata {
   url: string;
 }
 
+export interface WebsiteExperienceMetadata {
+  description: string;
+  title: string;
+  type: string;
+  url: string;
+}
+
 
 
 type MetadataType<T extends MediaType> =
@@ -60,6 +68,7 @@ type MetadataType<T extends MediaType> =
   T extends "pdf_text" ? PdfTextMetadata :
   T extends "video_transcript" ? VideoTranscriptMetadata :
   T extends "website_qa" ? WebsiteQAMetadata :
+  T extends "website_experience" ? WebsiteExperienceMetadata :
   never;
 
 export type VideoTranscriptChunk = BaseDocumentChunk<"video_transcript">;
@@ -67,6 +76,7 @@ export type PdfImageChunk = BaseDocumentChunk<"pdf_image">;
 export type RawImageChunk = BaseDocumentChunk<"raw_image">;
 export type PdfTextChunk = BaseDocumentChunk<"pdf_text">;
 export type WebsiteQAChunk = BaseDocumentChunk<"website_qa">;
+export type WebsiteExperienceChunk = BaseDocumentChunk<"website_experience">;
 
 export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk | PdfTextChunk | WebsiteQAChunk;
 
@@ -80,6 +90,7 @@ export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_text"> & { media_type: "pdf_text" })
   | (ChunkWithScore<"video_transcript"> & { media_type: "video_transcript" })
   | (ChunkWithScore<"website_qa"> & { media_type: "website_qa" })
+  | (ChunkWithScore<"website_experience"> & { media_type: "website_experience" })
 
 
 export interface Document {
@@ -123,4 +134,8 @@ export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is Chu
 
 export function isWebsiteQAChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_qa"> {
   return chunk.media_type === "website_qa";
+}
+
+export function isWebsiteExperienceChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_experience"> {
+  return chunk.media_type === "website_experience";
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteQAChunk } from "@/types";
+import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";
@@ -33,7 +33,7 @@ const RenderPdfTextCard = (props: {
                         <button className="fr-btn fr-btn--secondary">
                             <a
                                 target="_blank"
-                                href={`${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.document.public_path}#page=${props.chunk.metadata.page_number}`}
+                                href={`/pdf/${encodeURIComponent((props.chunk.document.s3_object_name))}/${props.chunk.metadata.page_number}`}
                             >
                                 source
                             </a>
@@ -186,6 +186,38 @@ export const RenderWebsiteQAChunk = (props: { chunk: ChunkWithScore<"website_qa"
     );
 };
 
+
+export const RenderWebsiteExperienceChunk = (props: { chunk: ChunkWithScore<"website_experience">; searchWords: string[]; }) => {
+    return (
+        <Card
+            background
+            start={<ul className="fr-badges-group"><li><Badge severity="new">Web/{props.chunk.metadata.type}</Badge></li></ul>}
+            border
+            desc={<div className="flex flex-col gap-4">
+                <div className="flex flex-col">
+                    {props.chunk.metadata.description.split('\n').map(paragraph => <Typography className="text-md w-full mb-0 text-left">
+
+                        <Highlighter
+                            highlightClassName="highlightSearch"
+                            searchWords={props.searchWords}
+                            autoEscape={false}
+                            textToHighlight={paragraph}
+                            findChunks={findNormalizedChunks}
+                        />
+                    </Typography>)}
+                </div>
+            </div>}
+            linkProps={{
+                href: `${props.chunk.document.original_path}`,
+                target: "_blank",
+            }}
+            size="medium"
+            title={props.chunk.title}
+            titleAs="h3"
+        />
+    )
+}
+
 export default (props: {
     chunk: ChunkWithScoreUnion;
     searchWords: string[];
@@ -209,6 +241,12 @@ export default (props: {
             )}
             {isWebsiteQAChunk(props.chunk) && (
                 <RenderWebsiteQAChunk
+                    chunk={props.chunk}
+                    searchWords={props.searchWords}
+                />
+            )}
+            {isWebsiteExperienceChunk(props.chunk) && (
+                <RenderWebsiteExperienceChunk
                     chunk={props.chunk}
                     searchWords={props.searchWords}
                 />

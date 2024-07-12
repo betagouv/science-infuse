@@ -14,6 +14,7 @@ python app/main.py
 ## index data
 ### index cite-sante
 python app/data_indexing/health_questions.py
+python app/data_indexing/ressources_juniors.py
 
 
 ### NOTES

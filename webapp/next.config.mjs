@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: false, // Recommended for the `pages` directory, default in `app`.
   swcMinify: true,
   experimental: {
-    swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]]
+    swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
   },
   webpack: config => {
     // https://github.com/wojtekmaj/react-pdf?tab=readme-ov-file#nextjs
