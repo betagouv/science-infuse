@@ -82,10 +82,10 @@ def index_channel(channel_id: str):
             print(f"Video ID: {video['video_id']}")
             # print('indexing....')
             
+            if (is_url_already_indexed(url, client)):
+                print(f"Already in DB, SKIP INDEXING {url}")
+                continue
             for i in range(10):
-                if (is_url_already_indexed(url, client)):
-                    print(f"Already in DB, SKIP INDEXING {url}")
-                    continue
                 try:
                     YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url)
                     print("---")
@@ -93,7 +93,7 @@ def index_channel(channel_id: str):
                 except:
                     if i == 9:
                         raise Exception("Failed after 10 retries")
-                    continue    
+                    continue
     s3.s3_client.close()
     
 # Fetch the videos
