@@ -1,5 +1,6 @@
-//  this should match schema.py
+import { User } from "@prisma/client";
 
+//  this should match schema.py
 const MediaType = {
   PdfImage: "pdf_image",
   RawImage: "raw_image",

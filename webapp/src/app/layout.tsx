@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Providers } from "./providers"
 import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
@@ -54,47 +55,49 @@ export default function RootLayout({ children }: { children: JSX.Element; }) {
         />
       </head>
       <body>
-        <DsfrProvider lang={lang}>
-          <ConsentBannerAndConsentManagement />
-          <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
-            <MuiDsfrThemeProvider>
-              <Header
-                brandTop={<>INTITULE<br />OFFICIEL</>}
-                serviceTitle="Science Infuse"
-                homeLinkProps={{
-                  "href": "/",
-                  "title": "Accueil - Science Infuse"
-                }}
-                quickAccessItems={[
-                  headerFooterDisplayItem,
-                  {
-                    iconId: "ri-mail-line",
-                    linkProps: {
-                      href: `mailto:${"joseph.garrone@code.gouv.fr"}`,
+        <Providers>
+          <DsfrProvider lang={lang}>
+            <ConsentBannerAndConsentManagement />
+            <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
+              <MuiDsfrThemeProvider>
+                <Header
+                  brandTop={<>INTITULE<br />OFFICIEL</>}
+                  serviceTitle="Science Infuse"
+                  homeLinkProps={{
+                    "href": "/",
+                    "title": "Accueil - Science Infuse"
+                  }}
+                  quickAccessItems={[
+                    headerFooterDisplayItem,
+                    {
+                      iconId: "ri-mail-line",
+                      linkProps: {
+                        href: `mailto:${"joseph.garrone@code.gouv.fr"}`,
+                      },
+                      text: "Nous contacter",
                     },
-                    text: "Nous contacter",
-                  },
-                ]}
-                navigation={<Navigation />}
-              />
-              <div className={cx(style.container)}>
-                {children}
-              </div>
-              {/* <Follow /> */}
-              <Footer
-                accessibility="fully compliant"
-                contentDescription={`
+                  ]}
+                  navigation={<Navigation />}
+                />
+                <div className={cx(style.container)}>
+                  {children}
+                </div>
+                {/* <Follow /> */}
+                <Footer
+                  accessibility="fully compliant"
+                  contentDescription={`
                 `}
-                bottomItems={[
-                  headerFooterDisplayItem,
-                  <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
-                  <FooterConsentManagementItem key="FooterConsentManagementItem" />,
-                  <ClientFooterItem key="ClientFooterItem" />
-                ]}
-              />
-            </MuiDsfrThemeProvider>
-          </NextAppDirEmotionCacheProvider>
-        </DsfrProvider>
+                  bottomItems={[
+                    headerFooterDisplayItem,
+                    <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
+                    <FooterConsentManagementItem key="FooterConsentManagementItem" />,
+                    <ClientFooterItem key="ClientFooterItem" />
+                  ]}
+                />
+              </MuiDsfrThemeProvider>
+            </NextAppDirEmotionCacheProvider>
+          </DsfrProvider>
+        </Providers>
       </body>
     </html>
   );
