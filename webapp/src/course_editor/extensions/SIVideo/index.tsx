@@ -7,6 +7,7 @@ export default Node.create({
   name: 'siVideo',
 
   group: 'block',
+  draggable: true,
 
   atom: true,
 
