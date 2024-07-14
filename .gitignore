@@ -1,4 +1,5 @@
 notebooks/WhisperVideoTransctiption/models/*
 weaviate_data/*
+postgresql_data/
 .env
 documents/
