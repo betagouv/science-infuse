@@ -51,6 +51,16 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./documents:/usr/share/nginx/html/documents
 
+  postgresql:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"  # Expose PostgreSQL default port
+    volumes:
+      - ./postgresql_data:/var/lib/postgresql/data  # Persistent data volume
+
   webapp:
     build:
       context: ./webapp
