@@ -14,6 +14,15 @@ export const GROUPS: Group[] = [
           editor.chain().focus().openImageSearch().run()
         },
       },
+      {
+        name: 'video',
+        label: 'Video',
+        iconName: 'Video',
+        description: 'Search and insert an video',
+        action: editor => {
+          editor.chain().focus().openVideoSearch().run()
+        },
+      },
     ]
   },
   {

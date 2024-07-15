@@ -5,6 +5,7 @@ from watchdog.events import FileSystemEventHandler
 from queue import Queue
 from threading import Thread
 from transformers import pipeline
+from S3Storage import S3Storage
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
 from processing.text.SISurya import SISurya
@@ -30,6 +31,9 @@ class Translator(SITranslator, metaclass=SingletonMeta):
     pass
 
 class Surya(SISurya, metaclass=SingletonMeta):
+    pass
+
+class S3(S3Storage, metaclass=SingletonMeta):
     pass
 
 class FileHandler(FileSystemEventHandler):
@@ -60,13 +64,14 @@ def process_media(file_path):
     
     if extension == '.pdf':
         print("PROCESSING PDF", flush=True)
-        file_size = os.path.getsize(file_path)
-        print(f"File size: {file_size} bytes", flush=True)
+        # file_size = os.path.getsize(file_path)
+        # print(f"File size: {file_size} bytes", flush=True)
         image_descriptor = ImageDescriptor()
         translator = Translator()
         surya = Surya()
+        s3 = S3()
         try:
-            pdf = process_pdf(file_path, image_descriptor, translator, surya)
+            pdf = process_pdf(file_path, image_descriptor, translator, s3, surya)
         except Exception as e:
             print("ERRROR PROCESSING PDF", e, flush=True)
         return pdf 

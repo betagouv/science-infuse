@@ -11,14 +11,26 @@ export const ImageSearchExtension = Extension.create({
         return {
             openImageSearch: () => (props: { editor: Editor }) => {
                 const { editor } = props;
+                let tippyInstance: any;
+
                 const component = new ReactRenderer(ImageSearchPopup, {
                     props: {
                         editor,
+                        closePopup: () => {
+                            if (tippyInstance) {
+                                console.log("TIPPYINSTANCE", tippyInstance.popper)
+                                tippyInstance.popper.querySelector('.tippy-box').style.opacity = '0'
+                                setTimeout(() => {
+                                    console.log("TIPPYINSTANCE DESTROY", tippyInstance)
+                                    tippyInstance.destroy();
+                                }, 400)
+                            }
+                        },
                     },
                     editor,
-                })
+                });
 
-                const popup = tippy(document.body, {
+                tippyInstance = tippy(document.body, {
                     getReferenceClientRect: () => {
                         const { view } = editor
                         const { state } = view
@@ -38,11 +50,9 @@ export const ImageSearchExtension = Extension.create({
                     appendTo: () => document.body,
                     content: component.element,
                     onCreate(instance) {
-                        console.log("ONCREATE", instance)
                         setTimeout(() => {
-                            // @ts-ignore
-                            instance.popper.querySelector("input").focus()
-                        }, 400)
+                            instance.popper.querySelector("input")?.focus()
+                        }, 0)
                     },
                     showOnCreate: true,
                     interactive: true,

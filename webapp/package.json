@@ -61,7 +61,9 @@
     "tailwind-merge": "^2.4.0",
     "tippy.js": "^6.3.7",
     "tiptap-extension-global-drag-handle": "^0.1.10",
-    "tss-react": "^4.9.10"
+    "tiptap-extension-resize-image": "^1.1.8",
+    "tss-react": "^4.9.10",
+    "use-debounce": "^10.0.1"
   },
   "devDependencies": {
     "@preact/signals-react-transform": "^0.3.1",

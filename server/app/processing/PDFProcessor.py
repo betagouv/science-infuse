@@ -35,7 +35,7 @@ class PDFProcessor(BaseDocumentProcessor):
     def save_pdf_to_s3(self, pdf_path):
         filename = f"{self.id}.pdf"
         s3_object_name = os.path.join('pdf', filename)
-        self.save_to_s3(self.s3, pdf_path, s3_object_name)
+        self.save_to_s3(self.s3, pdf_path, s3_object_name, remove=False)
         return s3_object_name
     
     def unstructured_coordinates_to_bbox(self, coordinates):
@@ -151,35 +151,26 @@ class PDFProcessor(BaseDocumentProcessor):
 
         for page_num in range(len(doc)):
             page = doc[page_num]
-            image_list = page.get_images(full=True)
             
-            for img in image_list:
-                
-                xref = img[0]
-                image_coordinates = page.get_image_bbox(img)
-                # logging.info(image_coordinates)
-                base_image = doc.extract_image(xref)
-                width = base_image.get('width', 0)
-                height = base_image.get('height', 0)
+            for item in doc.get_page_images(page_num):
+                pix = fitz.Pixmap(doc, item[0])  # pixmap from the image xref
+                pix0 = fitz.Pixmap(fitz.csRGB, pix)  # force into RGB
+                pil_image = Image.frombytes("RGB", [pix0.width, pix0.height], pix0.samples)
+                x0, y0, x1, y1 = page.get_image_bbox(item[7])
+                width = x1 - x0
+                height = y1 - y0
                 if (self.keep_image(width, height)):
-                    image_bytes = base_image["image"]
-                    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-                    # y = (image_coordinates.top_left.y + image_coordinates.bottom_left.y)/2
-                    y = image_coordinates.top_left.y
-                    temp_images.append({"image": image, "page_number": page_num+1, "y_coordinate": y, 'bbox': {
-                        "x0": image_coordinates.x0, 
-                        "y0": image_coordinates.y0, 
-                        "x1": image_coordinates.x1, 
-                        "y1": image_coordinates.y1, 
-                    }})
+                    temp_images.append({"image": pil_image, "page_number": page_num+1, 'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1, }})
                     
         return temp_images
 
 
     def extract_document(self):
         print("PDFProcessor extract_document self.pdf_path", self.pdf_path, flush=True)
-        pdf_s3_object_name = self.save_pdf_to_s3(self.pdf_path)
         media_name =Path(self.pdf_path).stem
+
+
+        pdf_s3_object_name = self.save_pdf_to_s3(self.pdf_path)
 
         document = Document(
             document_id=self.id,
@@ -229,4 +220,6 @@ class PDFProcessor(BaseDocumentProcessor):
                 chunks.append(chunk)
             for text_chunk in text_chunks:
                 chunks.append(text_chunk)
+
+            os.remove(self.pdf_path)
             return document, chunks
