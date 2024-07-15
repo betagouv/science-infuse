@@ -26,7 +26,9 @@ import styled from '@emotion/styled'
 import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
 import ImageSearch from './extensions/ImageSearch'
 import Image from '@tiptap/extension-image'
-import SIVideo from './extensions/SIVideo'
+import SIVideo from './extensions/VideoSearch'
+import VideoSearch from './extensions/VideoSearch'
+import ImageResize from 'tiptap-extension-resize-image';
 
 const StyledEditor = styled.div`
 
@@ -65,7 +67,7 @@ const StyledEditor = styled.div`
     pointer-events: none;
   }
 }
-  
+
 .ProseMirror {
   min-height: 100vh;
 }
@@ -136,24 +138,29 @@ export default function App() {
       CodeBlock,
       Image,
       ImageSearch,
+      VideoSearch,
       Underline,
       Link,
       FontFamily,
       Color,
       TextAlign,
       TextStyle,
+      ImageResize,
       CharacterCount.configure({
         limit: 10000,
       }),
       Placeholder.configure({
-        placeholder: ({ node, pos }) => {
-          console.log("NODE", pos, node.type)
+        placeholder: (props) => {
+          const { node, pos } = props;
+          console.log("NODE", pos, node.type);
           if (node.type.name === 'heading') {
-            if (pos == 0)
-              return 'Titre du cours'
-            return 'Titre'
+            if (pos === 0) {
+              return 'Titre du cours';
+            }
+            return 'Titre';
           }
-          // return 'Can you add some further context?'
+          return "";
+          // return 'Ajouter du texte...';
         },
         // emptyNodeClass: 'is-empty',
         // considerAnyAsEmpty: true,
@@ -166,12 +173,7 @@ export default function App() {
     ],
     content: `
     <h1>
-      It’ll always have a heading …
     </h1>
-    <p>
-      … if you pass a custom document. That’s the beauty of having full control over the schema.
-    </p>
-     <si-video startOffset="89.82" endOffset="98.82" videoUrl="http://localhost:8000/s3/youtube/d18df3e7-374d-40dc-b4e5-3f2767c3c436.mp4"></si-video>
   `,
   })
 

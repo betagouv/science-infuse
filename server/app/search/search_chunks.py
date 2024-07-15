@@ -80,6 +80,7 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
     response = document_chunk.query.hybrid(
         query=query,
         alpha=alpha,
+        limit=20,
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=query_properties,
         filters=filters,

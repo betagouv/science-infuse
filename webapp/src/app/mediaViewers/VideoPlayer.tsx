@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Slider, IconButton } from '@mui/material';
+import { Slider, IconButton, Box, Typography } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -13,9 +13,8 @@ export interface VideoPlayerProps {
 
 const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoPlayerProps) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const [duration, setDuration] = useState<number>(0);
-    const [currentTime, setCurrentTime] = useState<number>(0);
+    const [currentTime, setCurrentTime] = useState<number>(startOffset);
     const [range, setRange] = useState<[number, number]>([startOffset, endOffset]);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
@@ -29,9 +28,8 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
 
             const handleTimeUpdate = () => {
                 setCurrentTime(video.currentTime);
-                if (video.currentTime >= range[1]) {
+                if (isPlaying && video.currentTime >= range[1]) {
                     video.pause();
-                    video.currentTime = range[1];
                     setIsPlaying(false);
                 }
             };
@@ -44,35 +42,20 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
                 video.removeEventListener('timeupdate', handleTimeUpdate);
             };
         }
-    }, [range]);
+    }, [range, isPlaying]);
 
-    useEffect(() => {
-        updatePreviewFrame(range[1]);
-    }, [range]);
+    const handleGlobalRangeChange = (event: Event, newValue: number | number[]) => {
+        const newTime = newValue as number;
+        if (videoRef.current) {
+            videoRef.current.currentTime = newTime;
+        }
+    };
 
-    const handleRangeChange = (event: Event, newValue: number | number[]) => {
+    const handleSpecificRangeChange = (event: Event, newValue: number | number[]) => {
         const [start, end] = newValue as number[];
         setRange([start, end]);
         if (onRangeChange) {
             onRangeChange(start, end);
-        }
-        if (videoRef.current) {
-            videoRef.current.currentTime = start;
-        }
-        updatePreviewFrame(end);
-    };
-
-    const updatePreviewFrame = (time: number) => {
-        const video = videoRef.current;
-        const canvas = previewCanvasRef.current;
-        if (video && canvas) {
-            video.currentTime = time;
-            video.onseeked = () => {
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                }
-            };
         }
     };
 
@@ -87,6 +70,9 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
             if (isPlaying) {
                 videoRef.current.pause();
             } else {
+                if (videoRef.current.currentTime < range[0] || videoRef.current.currentTime >= range[1]) {
+                    videoRef.current.currentTime = range[0];
+                }
                 videoRef.current.play();
             }
             setIsPlaying(!isPlaying);
@@ -101,64 +87,68 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
         }
     };
 
-    const handleTimelineClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        const timelineRect = event.currentTarget.getBoundingClientRect();
-        const clickPosition = (event.clientX - timelineRect.left) / timelineRect.width;
-        const newTime = duration * clickPosition;
-        if (videoRef.current) {
-            videoRef.current.currentTime = Math.max(range[0], Math.min(range[1], newTime));
-        }
-    };
-
     return (
-        <div className="video-player-container relative">
-            <video className="w-full" ref={videoRef} controls={!onRangeChange}>
+        <div className="video-player-container">
+            <video className="w-full" ref={videoRef} controls={false}>
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            {onRangeChange &&
-                <div className="overlay absolute inset-x-0 bottom-0 bg-white bg-opacity-50 text-white p-4">
-                    <div className="flex items-center mb-2">
-                        <IconButton onClick={handlePlayPause} color="primary">
-                            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                        </IconButton>
-                        {true &&  (
-                        // {currentTime >= range[1] && (
-                            <IconButton onClick={handleReplay} color="primary">
-                                <ReplayIcon />
-                            </IconButton>
-                        )}
-                        <div className="flex-grow mx-2" onClick={handleTimelineClick}>
-                            <Slider
-                                value={range}
-                                onChange={handleRangeChange}
-                                valueLabelDisplay="auto"
-                                valueLabelFormat={formatTime}
-                                min={0}
-                                max={duration}
-                                sx={{
-                                    color: 'primary.main',
-                                    '& .MuiSlider-thumb': {
-                                        height: 20,
-                                        width: 20,
-                                        backgroundColor: '#fff',
-                                        border: '2px solid currentColor',
-                                        '&:focus, &:hover, &.Mui-active': {
-                                            boxShadow: '0 0 0 8px rgba(255, 255, 255, 0.16)',
-                                        },
-                                    },
-                                    '& .MuiSlider-rail': {
-                                        opacity: 0.28,
-                                    },
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className="absolute right-4 top-[-68px]">
-                        <canvas ref={previewCanvasRef} width="120" height="68" className="border border-white" />
-                    </div>
-                </div>
-            }
+            <Box sx={{ padding: 1, bgcolor: 'rgba(0, 0, 0, 0.7)' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <IconButton onClick={handlePlayPause} sx={{ color: 'white', padding: 0.5 }}>
+                        {isPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+                    </IconButton>
+                    <IconButton onClick={handleReplay} sx={{ color: 'white', padding: 0.5 }}>
+                        <ReplayIcon fontSize="small" />
+                    </IconButton>
+                    <Typography variant="caption" sx={{ ml: 1, color: 'white' }}>
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="caption" sx={{ color: 'white', width: 60, flexShrink: 0 }}>
+                    </Typography>
+                    <Slider
+                        value={currentTime}
+                        onChange={handleGlobalRangeChange}
+                        min={0}
+                        max={duration}
+                        step={0.1}
+                        size="small"
+                        sx={{
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            padding: '5px 0',
+                            '& .MuiSlider-thumb': {
+                                width: 12,
+                                height: 12,
+                            },
+                        }}
+                    />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="caption" sx={{ color: 'white', width: 60, flexShrink: 0 }}>
+                        Section
+                    </Typography>
+                    <Slider
+                        value={range}
+                        onChange={handleSpecificRangeChange}
+                        valueLabelDisplay="auto"
+                        valueLabelFormat={formatTime}
+                        min={0}
+                        max={duration}
+                        disableSwap
+                        size="small"
+                        sx={{
+                            color: 'primary.main',
+                            padding: '5px 0',
+                            '& .MuiSlider-thumb': {
+                                width: 12,
+                                height: 12,
+                            },
+                        }}
+                    />
+                </Box>
+            </Box>
         </div>
     );
 };
