@@ -81,6 +81,8 @@ class Document(BaseModel):
     public_path: Optional[str] = Field(default="")
     original_path: str
     s3_object_name: Optional[str] = Field(default="")
+    user_approved: Optional[bool] = Field(default=False)
+    user_disapproved: Optional[bool] = Field(default=False)
     media_name: str
 
 
@@ -90,6 +92,8 @@ class BaseDocumentChunk(BaseModel):
     text: str = ""
     title: str
     media_type: MediaType
+    user_approved: Optional[bool] = Field(default=False)
+    user_disapproved: Optional[bool] = Field(default=False)
     metadata: Union[dict, BaseModel]
 
     def __init_subclass__(cls, **kwargs):

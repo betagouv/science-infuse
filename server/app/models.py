@@ -21,6 +21,8 @@ def create_weaviate_schema(remove=False):
                 vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
                 properties=[
                     Property(name="document_id", data_type=DataType.TEXT, skip_vectorization=True),
+                    Property(name="user_approved",  data_type=DataType.BOOL, skip_vectorization=True),  
+                    Property(name="user_disapproved",  data_type=DataType.BOOL, skip_vectorization=True),  
                     Property(name="s3_object_name", data_type=DataType.TEXT, skip_vectorization=True, description="object name of the s3 file (used to access the file)"),
                     Property(name="original_path", data_type=DataType.TEXT, skip_vectorization=True, description="original source of the file"),
                     Property(name="public_path", data_type=DataType.TEXT, skip_vectorization=True, description="[optional] things like youtube url, website, ... accessible from internet"),
@@ -37,6 +39,8 @@ def create_weaviate_schema(remove=False):
                     Property(name="text", description="a portion of a document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
                     Property(name="title", description="the title of the document / or subsection of the document", tokenization=Tokenization.LOWERCASE, data_type=DataType.TEXT),
                     Property(name="media_type", data_type=DataType.TEXT, skip_vectorization=True, description="type of source document"),
+                    Property(name="user_approved",  data_type=DataType.BOOL, skip_vectorization=True),  
+                    Property(name="user_disapproved",  data_type=DataType.BOOL, skip_vectorization=True),  
 
                     # metadatas
                     # since it is not yet supported to filter by nested properties:  https://github.com/weaviate/weaviate/issues/3694

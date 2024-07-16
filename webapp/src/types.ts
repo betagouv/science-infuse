@@ -26,6 +26,8 @@ export interface BaseDocumentChunk<T extends MediaType> {
   title: string;
   document: Document,
   media_type: T;
+  user_approved?: boolean;
+  user_disapproved?: boolean;
   metadata: MetadataType<T>;
 }
 
@@ -101,6 +103,8 @@ export interface Document {
   public_path: string;
   original_path: string;
   s3_object_name: string;
+  user_approved?: boolean;
+  user_disapproved?: boolean;
   media_name: string;
 }
 export interface DocumentWithChunks extends Document {
