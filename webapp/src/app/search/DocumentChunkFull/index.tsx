@@ -10,13 +10,17 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 // import Button from "@codegouvfr/react-dsfr/Button";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Button } from "@codegouvfr/react-dsfr/Button";
+import axios from "axios";
 // Types
 type UserApprovalButtonsProps = {
     onApprove: () => void;
     onDisapprove: () => void;
+    userApproved: boolean;
+    userDisapproved: boolean;
 };
 
 type BaseCardProps = {
+    chunk: ChunkWithScoreUnion;
     children: React.ReactNode;
     title: string;
     linkProps?: {
@@ -24,42 +28,72 @@ type BaseCardProps = {
         target: string;
     };
     badgeText?: string;
+    groupedInDocument?: boolean;
     badgeSeverity?: "new" | "info" | "success" | "warning" | "error";
 };
 
 type ChunkRendererProps = {
     chunk: ChunkWithScoreUnion;
+    groupedInDocument?: boolean;
     searchWords: string[];
 };
 
 // New component for user approval
-export const UserApprovalButtons: React.FC<UserApprovalButtonsProps> = ({ onApprove, onDisapprove }) => (
-    <div className="absolute bottom-2 right-2 flex gap-2">
+export const UserApprovalButtons: React.FC<UserApprovalButtonsProps> = ({ userApproved, userDisapproved, onApprove, onDisapprove }) => {
+    console.log("UserApprovalButtons", userApproved, userDisapproved)
+    return (
+        <div className="absolute bottom-2 right-2 flex gap-2">
+            <Button
+                style={{ color: userApproved ? "green" : "gray" }}
+                onClick={onApprove}
+                iconId="ri-thumb-up-fill"
+                title="Disapprove"
+                priority="tertiary no outline"
+            />
+            <Button
+                style={{ color: userDisapproved ? "red" : "gray" }}
+                onClick={onDisapprove}
+                iconId="ri-thumb-down-fill"
+                title="Disapprove"
+                priority="tertiary no outline"
+            />
+        </div>
+    );
+}
 
-
-        <Button
-            onClick={onDisapprove}
-            iconId="ri-thumb-up-fill"
-            title="Disapprove"
-            priority="tertiary no outline"
-            className="text-green-500 hover:text-green-700"
-        />
-        <Button
-            onClick={onDisapprove}
-            iconId="ri-thumb-down-fill"
-            title="Disapprove"
-            priority="tertiary no outline"
-            className="text-red-500 hover:text-red-700"
-        />
-    </div>
-);
+export const getColorFromScore = (score: number) => {
+    const clampedScore = Math.max(0, Math.min(1, score));
+    const hue = clampedScore * 120;
+    return `hsl(${hue}, 100%, 50%)`;
+}
 
 // Base Card component
-export const BaseCard: React.FC<BaseCardProps> = ({ children, title, linkProps, badgeText, badgeSeverity = "new" }) => {
-    const [isApproved, setIsApproved] = useState<boolean | null>(null);
+export const BaseCard: React.FC<BaseCardProps> = ({ groupedInDocument, children, title, linkProps, chunk, badgeText, badgeSeverity = "new" }) => {
+    const [isApproved, setIsApproved] = useState<boolean>(!!chunk.user_approved);
+    const [isDisApproved, setIsDisApproved] = useState<boolean>(!!chunk.user_disapproved);
 
-    const handleApprove = () => setIsApproved(true);
-    const handleDisapprove = () => setIsApproved(false);
+    const handleApprove = async () => {
+        await axios.post(
+            `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
+            {
+                approve: true,
+                uuid: chunk.uuid,
+            }
+        );
+        setIsApproved(true)
+        setIsDisApproved(false)
+    };
+    const handleDisapprove = async () => {
+        await axios.post(
+            `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
+            {
+                approve: false,
+                uuid: chunk.uuid,
+            }
+        );
+        setIsApproved(false)
+        setIsDisApproved(true)
+    };
 
     return (
         <div className="relative">
@@ -67,11 +101,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({ children, title, linkProps, 
             <Card
                 background
                 border
-                start={badgeText && (
+                start={
                     <ul className="fr-badges-group">
-                        <li><Badge severity={badgeSeverity}>{badgeText}</Badge></li>
+                        <li><Badge style={{ borderLeft: `4px solid ${getColorFromScore(chunk.score)}` }}>score: {(chunk.score * 100).toFixed(0)}%</Badge> </li>
+                        {badgeText && <li><Badge severity={badgeSeverity}>{badgeText}</Badge></li>}
                     </ul>
-                )}
+                }
                 desc={
                     <div className="relative">
                         {children}
@@ -82,14 +117,16 @@ export const BaseCard: React.FC<BaseCardProps> = ({ children, title, linkProps, 
                 title={title}
                 titleAs="h3"
             />
-            <UserApprovalButtons onApprove={handleApprove} onDisapprove={handleDisapprove} />
+            <UserApprovalButtons userApproved={isApproved} userDisapproved={isDisApproved} onApprove={handleApprove} onDisapprove={handleDisapprove} />
         </div>
     );
 };
 
-export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => (
+export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => (
     <BaseCard
-        title={`${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+        groupedInDocument={groupedInDocument}
+        chunk={chunk}
+        title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
         linkProps={{
             href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
             target: "_blank",
@@ -105,17 +142,15 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
     </BaseCard>
 );
 
-export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk }) => (
+export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => (
     <BaseCard
-        title={`${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+        groupedInDocument={groupedInDocument}
+        chunk={chunk}
+        title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
         linkProps={{
             href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
             target: "_blank",
         }}
-    // linkProps={{
-    //     href: `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`,
-    //     target: "_blank",
-    // }}
     >
         <img
             className="w-full"
@@ -125,8 +160,10 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
     </BaseCard>
 );
 
-export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => (
+export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => (
     <BaseCard
+        groupedInDocument={groupedInDocument}
+        chunk={chunk}
         title={chunk.title}
         linkProps={{
             href: chunk.document.original_path,
@@ -150,12 +187,14 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
     </BaseCard>
 );
 
-export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
+export const RenderWebsiteQAChunk: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);
     const answerParts = chunk.metadata.answer.split("\n");
 
     return (
         <BaseCard
+            groupedInDocument={groupedInDocument}
+            chunk={chunk}
             title={chunk.title}
             linkProps={{
                 href: chunk.document.original_path,
@@ -194,8 +233,10 @@ export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa"
     );
 };
 
-export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ chunk, searchWords }) => (
+export const RenderWebsiteExperienceChunk: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => (
     <BaseCard
+        groupedInDocument={groupedInDocument}
+        chunk={chunk}
         title={chunk.title}
         linkProps={{
             href: chunk.document.original_path,
@@ -219,12 +260,12 @@ export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"web
     </BaseCard>
 );
 
-const ChunkRenderer: React.FC<ChunkRendererProps> = ({ chunk, searchWords }) => {
-    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard chunk={chunk} />;
-    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard chunk={chunk} searchWords={searchWords} />;
-    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk chunk={chunk} searchWords={searchWords} />;
+const ChunkRenderer: React.FC<ChunkRendererProps> = ({ groupedInDocument, chunk, searchWords }) => {
+    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard groupedInDocument={groupedInDocument} chunk={chunk} />;
+    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
+    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
     return null;
 };
 

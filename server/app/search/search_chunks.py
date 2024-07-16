@@ -15,7 +15,7 @@ query_properties = ["text", "title"]
 
 # An alpha of 1 is a pure vector search.
 # An alpha of 0 is a pure keyword search.
-alpha = 0.5
+alpha = 0.75
 
 def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> List[DocumentSearchResult]:
     # print("SEARCH_MULTI_DOCUMENTS 0", query)

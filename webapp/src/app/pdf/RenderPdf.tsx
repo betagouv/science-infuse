@@ -35,7 +35,7 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
     const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages || prev));
 
     return (
-        <Box className="py-8 flex flex-col items-center gap-4 px-4 md:px-0">
+        <Box className="py-8 flex flex-col items-center gap-4 px-4 md:px-0 min-h-screen">
             <Document
                 file={props.pdfUrl}
                 onLoadSuccess={onDocumentLoadSuccess}

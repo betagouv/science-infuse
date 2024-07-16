@@ -12,7 +12,7 @@ import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";
 import FilterMenu, { checkedMediaTypes } from "./FilterMenu";
-import DocumentChunkFull from "./DocumentChunkFull";
+import ChunkRenderer from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
@@ -29,7 +29,6 @@ const Item = styled('div')(({ theme }) => ({
 const groupByDocument = signal<boolean>(false)
 
 const Search: React.FC = () => {
-  console.log("NEXT_PUBLIC_SERVER_URL", NEXT_PUBLIC_SERVER_URL)
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
@@ -142,7 +141,7 @@ const Search: React.FC = () => {
               <Masonry columns={2} spacing={2}>
                 {resultsChunks.sort((a, b) => b.score - a.score).map((result, index) => (
                   <Item key={index} >
-                    <DocumentChunkFull key={result.document.public_path} chunk={result} searchWords={searchWords} />
+                    <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
                   </Item>
                 ))}
               </Masonry>

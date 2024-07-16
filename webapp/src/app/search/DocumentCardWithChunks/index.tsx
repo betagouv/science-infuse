@@ -9,12 +9,11 @@ import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { findNormalizedChunks } from "../text-highlighter";
 import { NEXT_PUBLIC_FILE_SERVER_URL } from "@/config";
-import ChunkRenderer, { RenderVideoTranscriptCard } from "../DocumentChunkFull";
+import ChunkRenderer, { getColorFromScore, RenderVideoTranscriptCard } from "../DocumentChunkFull";
 
 const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: string[] }) => {
     const [expanded, setExpanded] = useState(false)
     const _score = (Number((props.chunk.score)) * 100).toFixed();
-    console.log("${NEXT_PUBLIC_FILE_SERVER_URL}", NEXT_PUBLIC_FILE_SERVER_URL)
     return (
         <Accordion
             label={<div className="flex max-w-full gap-2 justiy-center items-center whitespace-nowrap overflow-ellipsis">
@@ -24,11 +23,21 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             onExpandedChange={(value,) => setExpanded(!value)}
             expanded={expanded}
         >
-            <ChunkRenderer chunk={props.chunk} searchWords={props.searchWords} />
-            <Typography>Score: {props.chunk.score}</Typography>
+            <ChunkRenderer groupedInDocument={true} chunk={props.chunk} searchWords={props.searchWords} />
         </Accordion>
     );
 };
+
+const getTitleLink = (searchResult: DocumentSearchResult) => {
+    try {
+        console.log("DEBUG", searchResult.chunks[0].metadata)
+        const s3_object_name = searchResult.chunks[0]?.document?.s3_object_name;
+        if (s3_object_name.endsWith('pdf'))
+            return `/pdf/${encodeURIComponent(s3_object_name)}/1}`
+    } catch (error) {
+    }
+    return ""
+}
 
 export default (props: { searchResult: DocumentSearchResult, searchWords: string[] }) => {
     const { searchResult, searchWords } = props;
@@ -37,7 +46,8 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
     >
         <Card
             className="grid-item flex flex-col items-center justify-center w-full h-full"
-            title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.public_path}`}>
+            title={<a target="_blank" href={getTitleLink(props.searchResult)}>
+                {/* title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.public_path}`}> */}
                 <Highlighter
                     highlightClassName="highlightSearch"
                     searchWords={searchWords}
@@ -48,7 +58,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
             }
             titleAs="h3"
             desc={<>
-                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview key={chunk.text} chunk={chunk} searchWords={searchWords} />)}
+                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview key={chunk.uuid} chunk={chunk} searchWords={searchWords} />)}
             </>}
             footer={
                 <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>
@@ -66,7 +76,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
             start={
                 <ul className="fr-badges-group">
                     <li>
-                        {searchResult.max_score == 1 ? <Badge small severity="success">Exact match</Badge> : <Badge small>Max score: {(Number((searchResult.max_score)) * 100).toFixed()}%</Badge>}
+                        <li><Badge style={{ borderLeft: `4px solid ${getColorFromScore(searchResult.max_score)}` }}>score: {(searchResult.max_score * 100).toFixed(0)}%</Badge> </li>
                     </li>
                     {/* display chunk types list */}
                     <li>

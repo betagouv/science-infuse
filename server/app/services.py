@@ -22,12 +22,15 @@ def approve_document(query: UserApproveQuery):
         )
 
 def approve_document_chunk(query: UserApproveQuery):
+    updated_properties = {
+        "user_approved": query.approve,
+        "user_disapproved": not query.approve,
+    }
+    
     with SIWeaviateClient() as client:
         documentChunk = client.collections.get("DocumentChunk")
         documentChunk.data.update(
             uuid=query.uuid,
-            properties={
-                "user_approved": query.approve,
-            }
+            properties=updated_properties
         )
 
