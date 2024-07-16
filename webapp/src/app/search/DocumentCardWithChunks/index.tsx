@@ -9,7 +9,7 @@ import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { findNormalizedChunks } from "../text-highlighter";
 import { NEXT_PUBLIC_FILE_SERVER_URL } from "@/config";
-import { RenderVideoTranscriptCard } from "../DocumentChunkFull";
+import ChunkRenderer, { RenderVideoTranscriptCard } from "../DocumentChunkFull";
 
 const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: string[] }) => {
     const [expanded, setExpanded] = useState(false)
@@ -24,29 +24,7 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
             onExpandedChange={(value,) => setExpanded(!value)}
             expanded={expanded}
         >
-
-            {isVideoTranscriptChunk(props.chunk) &&
-                <RenderVideoTranscriptCard chunk={props.chunk} searchWords={props.searchWords} />
-            }
-
-            {isPdfImageChunk(props.chunk) && <>
-                <img key={props.chunk.metadata.s3_object_name} src={`${NEXT_PUBLIC_FILE_SERVER_URL}${props.chunk.metadata.s3_object_name}`} className="max-w-full max-h-48" />
-            </>}
-            {isTextChunk(props.chunk) && <>
-                <Quote
-                    author="Auteur"
-                    source={<><li><cite>Ouvrage</cite></li><li>Détail 1</li><li>Détail 2</li><li>Détail 3</li><li><a href="[À MODIFIER | Lien vers la sources ou des infos complémentaires]" target="_blank">Détail 4</a></li></>}
-                    text={<Highlighter
-                        highlightClassName="highlightSearch"
-                        searchWords={props.searchWords}
-                        autoEscape={false}
-                        textToHighlight={props.chunk.text}
-                        findChunks={findNormalizedChunks}
-                    />}
-                />
-            </>}
-            <Typography>Media Type: {props.chunk.media_type}</Typography>
-            <Typography>Metadatas {JSON.stringify(props.chunk.metadata)}</Typography>
+            <ChunkRenderer chunk={props.chunk} searchWords={props.searchWords} />
             <Typography>Score: {props.chunk.score}</Typography>
         </Accordion>
     );
@@ -58,8 +36,6 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
         className="flex-auto sm:flex-auto md:flex-auto sm:w-[calc(100%)] md:w-[calc(50%-1rem)]"
     >
         <Card
-
-
             className="grid-item flex flex-col items-center justify-center w-full h-full"
             title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.public_path}`}>
                 <Highlighter

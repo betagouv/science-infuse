@@ -8,7 +8,18 @@ commands
 docker build -f solon.Dockerfile -t solon-inference .
 
 docker compose up
-python app/main.py
+```
+
+## apply migrations
+After runing the app (main.py) from docker or from cli to create the first database object, we can run the migrations.
+
+```sh
+python app/migration.py migrate
+```
+
+## create new migration
+```sh
+python app/migration.py create migration_name
 ```
 
 ## index data
