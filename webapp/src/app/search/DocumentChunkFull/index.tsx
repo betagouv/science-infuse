@@ -5,252 +5,227 @@ import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";
 import VideoPlayer from "@/app/mediaViewers/VideoPlayer";
-import { Typography } from "@mui/material";
-import { Collapse } from '@mui/material';
+import { Typography, Collapse } from '@mui/material';
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import Button from "@codegouvfr/react-dsfr/Button";
-
-const RenderPdfTextCard = (props: {
-    searchWords: string[];
-    chunk: ChunkWithScore<"pdf_text">;
-}) => {
-    return (
-        <Card
-            background
-            border
-            desc={
-                <Highlighter
-                    highlightClassName="highlightSearch"
-                    searchWords={props.searchWords}
-                    autoEscape={false}
-                    textToHighlight={props.chunk.text}
-                    findChunks={findNormalizedChunks}
-                />
-            }
-            footer={
-                <ul className="fr-btns-group fr-btns-group--inline-reverse fr-btns-group--inline-lg">
-                    <li>
-                        <button className="fr-btn fr-btn--secondary">
-                            <a
-                                target="_blank"
-                                href={`/pdf/${encodeURIComponent((props.chunk.document.s3_object_name))}/${props.chunk.metadata.page_number}`}
-                            >
-                                source
-                            </a>
-                        </button>
-                    </li>
-                </ul>
-            }
-            size="small"
-            title=""
-            titleAs="h3"
-        />
-    );
+// import Button from "@codegouvfr/react-dsfr/Button";
+import { fr } from "@codegouvfr/react-dsfr";
+import { Button } from "@codegouvfr/react-dsfr/Button";
+// Types
+type UserApprovalButtonsProps = {
+    onApprove: () => void;
+    onDisapprove: () => void;
 };
 
-const RenderPdfImageCard = (props: { chunk: ChunkWithScore<"pdf_image"> }) => {
-    return (
-        <Card
-            background
-            border
-            desc={
-                <img
-                    className="w-full"
-                    src={`${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.metadata.s3_object_name}`}
-                />
-            }
-            enlargeLink
-            linkProps={{
-                href: `${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.metadata.s3_object_name}`,
-                target: "_blank",
-            }}
-            size="medium"
-            title={props.chunk.media_type}
-            titleAs="h3"
-        />
-    );
+type BaseCardProps = {
+    children: React.ReactNode;
+    title: string;
+    linkProps?: {
+        href: string;
+        target: string;
+    };
+    badgeText?: string;
+    badgeSeverity?: "new" | "info" | "success" | "warning" | "error";
 };
 
-export const RenderVideoTranscriptCard = (props: {
-    chunk: ChunkWithScore<"video_transcript">;
-    searchWords: string[];
-}) => {
-    console.log("colibri", props.chunk);
-    return (
-        <Card
-            background
-            border
-            desc={
-                <div>
-                    <VideoPlayer
-                        videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${props.chunk.document.s3_object_name}`}
-                        startOffset={props.chunk.metadata.start}
-                        endOffset={props.chunk.metadata.end}
-                    />
-                    <Highlighter
-                        highlightClassName="highlightSearch"
-                        searchWords={props.searchWords}
-                        autoEscape={false}
-                        textToHighlight={props.chunk.text}
-                        findChunks={findNormalizedChunks}
-                    />
-                </div>
-            }
-            linkProps={{
-                href: `${props.chunk.document.original_path}`,
-                target: "_blank",
-            }}
-            size="medium"
-            title={props.chunk.title}
-            titleAs="h3"
-        />
-    );
-};
-
-export const RenderWebsiteQAChunk = (props: { chunk: ChunkWithScore<"website_qa">; searchWords: string[]; }) => {
-    const answerParts = props.chunk.metadata.answer.split("\n")
-    const [expanded, setExpanded] = useState(false);
-
-    return (
-        <Card
-            background
-            start={<ul className="fr-badges-group"><li><Badge severity="new">Question Réponse</Badge></li></ul>}
-            border
-            desc={
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col">
-                        <Typography className="text-md w-full mb-0">
-                            <Highlighter
-                                highlightClassName="highlightSearch"
-                                searchWords={props.searchWords}
-                                autoEscape={false}
-                                textToHighlight={props.chunk.metadata.question}
-                                findChunks={findNormalizedChunks}
-                            />
-                        </Typography>
-                    </div>
-                    <Button className="self-center" priority="secondary" onClick={() => setExpanded(!expanded)}>
-                        {expanded ? 'Masquer les réponses' : 'Afficher les réponses'}
-                    </Button>
-                    <div className="flex flex-col gap-4">
-                        <Collapse in={expanded}>
-                            {answerParts.map(answer => {
-                                return answer.startsWith('```') && answer.endsWith('```') ?
-
-                                    <div key={answer} className="bg-gray-50 p-4 text-left">
-                                        {/* <LinkParser> */}
-                                        <Highlighter
-                                            highlightClassName="highlightSearch"
-                                            searchWords={props.searchWords}
-                                            autoEscape={false}
-                                            textToHighlight={answer.slice(3, -3)}
-                                            findChunks={findNormalizedChunks}
-                                        />
-                                        {/* </LinkParser> */}
-                                    </div>
-                                    :
-                                    <div key={answer} className="text-left px-4">
-                                        {/* <LinkParser> */}
-                                        <Highlighter
-                                            highlightClassName="highlightSearch"
-                                            searchWords={props.searchWords}
-                                            autoEscape={false}
-                                            textToHighlight={answer}
-                                            findChunks={findNormalizedChunks}
-                                        />
-                                        {/* </LinkParser> */}
-                                    </div>
-                            })}
-                        </Collapse>
-                    </div>
-                    {/* <Quote
-                        text={'test'}
-                    /> */}
-                    {/* <Highlighter
-                        highlightClassName="highlightSearch"
-                        searchWords={props.searchWords}
-                        autoEscape={false}
-                        textToHighlight={props.chunk.metadata.question}
-                        findChunks={findNormalizedChunks}
-                    /> */}
-                </div>
-            }
-            linkProps={{
-                href: `${props.chunk.document.original_path}`,
-                target: "_blank",
-            }}
-            size="medium"
-            title={props.chunk.title}
-            titleAs="h3"
-        />
-    );
-};
-
-
-export const RenderWebsiteExperienceChunk = (props: { chunk: ChunkWithScore<"website_experience">; searchWords: string[]; }) => {
-    return (
-        <Card
-            background
-            start={<ul className="fr-badges-group"><li><Badge severity="new">Web/{props.chunk.metadata.type}</Badge></li></ul>}
-            border
-            desc={<div className="flex flex-col gap-4">
-                <div className="flex flex-col">
-                    {props.chunk.metadata.description.split('\n').map(paragraph => <Typography key={paragraph} className="text-md w-full mb-0 text-left">
-
-                        <Highlighter
-                            highlightClassName="highlightSearch"
-                            searchWords={props.searchWords}
-                            autoEscape={false}
-                            textToHighlight={paragraph}
-                            findChunks={findNormalizedChunks}
-                        />
-                    </Typography>)}
-                </div>
-            </div>}
-            linkProps={{
-                href: `${props.chunk.document.original_path}`,
-                target: "_blank",
-            }}
-            size="medium"
-            title={props.chunk.title}
-            titleAs="h3"
-        />
-    )
-}
-
-export default (props: {
+type ChunkRendererProps = {
     chunk: ChunkWithScoreUnion;
     searchWords: string[];
-}) => {
+};
+
+// New component for user approval
+export const UserApprovalButtons: React.FC<UserApprovalButtonsProps> = ({ onApprove, onDisapprove }) => (
+    <div className="absolute bottom-2 right-2 flex gap-2">
+
+
+        <Button
+            onClick={onDisapprove}
+            iconId="ri-thumb-up-fill"
+            title="Disapprove"
+            priority="tertiary no outline"
+            className="text-green-500 hover:text-green-700"
+        />
+        <Button
+            onClick={onDisapprove}
+            iconId="ri-thumb-down-fill"
+            title="Disapprove"
+            priority="tertiary no outline"
+            className="text-red-500 hover:text-red-700"
+        />
+    </div>
+);
+
+// Base Card component
+export const BaseCard: React.FC<BaseCardProps> = ({ children, title, linkProps, badgeText, badgeSeverity = "new" }) => {
+    const [isApproved, setIsApproved] = useState<boolean | null>(null);
+
+    const handleApprove = () => setIsApproved(true);
+    const handleDisapprove = () => setIsApproved(false);
+
     return (
-        <div>
-            {isPdfImageChunk(props.chunk) && (
-                <RenderPdfImageCard chunk={props.chunk} />
-            )}
-            {isPdfTextChunk(props.chunk) && (
-                <RenderPdfTextCard
-                    chunk={props.chunk}
-                    searchWords={props.searchWords}
-                />
-            )}
-            {isVideoTranscriptChunk(props.chunk) && (
-                <RenderVideoTranscriptCard
-                    chunk={props.chunk}
-                    searchWords={props.searchWords}
-                />
-            )}
-            {isWebsiteQAChunk(props.chunk) && (
-                <RenderWebsiteQAChunk
-                    chunk={props.chunk}
-                    searchWords={props.searchWords}
-                />
-            )}
-            {isWebsiteExperienceChunk(props.chunk) && (
-                <RenderWebsiteExperienceChunk
-                    chunk={props.chunk}
-                    searchWords={props.searchWords}
-                />
-            )}
+        <div className="relative">
+
+            <Card
+                background
+                border
+                start={badgeText && (
+                    <ul className="fr-badges-group">
+                        <li><Badge severity={badgeSeverity}>{badgeText}</Badge></li>
+                    </ul>
+                )}
+                desc={
+                    <div className="relative">
+                        {children}
+                    </div>
+                }
+                linkProps={linkProps}
+                size="medium"
+                title={title}
+                titleAs="h3"
+            />
+            <UserApprovalButtons onApprove={handleApprove} onDisapprove={handleDisapprove} />
         </div>
     );
 };
+
+export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => (
+    <BaseCard
+        title={`${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+        linkProps={{
+            href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+            target: "_blank",
+        }}
+    >
+        <Highlighter
+            highlightClassName="highlightSearch"
+            searchWords={searchWords}
+            autoEscape={false}
+            textToHighlight={chunk.text}
+            findChunks={findNormalizedChunks}
+        />
+    </BaseCard>
+);
+
+export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk }) => (
+    <BaseCard
+        title={`${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+        linkProps={{
+            href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+            target: "_blank",
+        }}
+    // linkProps={{
+    //     href: `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`,
+    //     target: "_blank",
+    // }}
+    >
+        <img
+            className="w-full"
+            src={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`}
+            alt={chunk.media_type}
+        />
+    </BaseCard>
+);
+
+export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => (
+    <BaseCard
+        title={chunk.title}
+        linkProps={{
+            href: chunk.document.original_path,
+            target: "_blank",
+        }}
+    >
+        <div>
+            <VideoPlayer
+                videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`}
+                startOffset={chunk.metadata.start}
+                endOffset={chunk.metadata.end}
+            />
+            <Highlighter
+                highlightClassName="highlightSearch"
+                searchWords={searchWords}
+                autoEscape={false}
+                textToHighlight={chunk.text}
+                findChunks={findNormalizedChunks}
+            />
+        </div>
+    </BaseCard>
+);
+
+export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
+    const [expanded, setExpanded] = useState(false);
+    const answerParts = chunk.metadata.answer.split("\n");
+
+    return (
+        <BaseCard
+            title={chunk.title}
+            linkProps={{
+                href: chunk.document.original_path,
+                target: "_blank",
+            }}
+            badgeText="Question Réponse"
+        >
+            <div className="flex flex-col gap-4">
+                <Typography className="text-md w-full mb-0">
+                    <Highlighter
+                        highlightClassName="highlightSearch"
+                        searchWords={searchWords}
+                        autoEscape={false}
+                        textToHighlight={chunk.metadata.question}
+                        findChunks={findNormalizedChunks}
+                    />
+                </Typography>
+                <Button className="self-center" priority="secondary" onClick={() => setExpanded(!expanded)}>
+                    {expanded ? 'Masquer les réponses' : 'Afficher les réponses'}
+                </Button>
+                <Collapse in={expanded}>
+                    {answerParts.map((answer, index) => (
+                        <div key={index} className={answer.startsWith('```') && answer.endsWith('```') ? "bg-gray-50 p-4 text-left" : "text-left px-4"}>
+                            <Highlighter
+                                highlightClassName="highlightSearch"
+                                searchWords={searchWords}
+                                autoEscape={false}
+                                textToHighlight={answer.startsWith('```') ? answer.slice(3, -3) : answer}
+                                findChunks={findNormalizedChunks}
+                            />
+                        </div>
+                    ))}
+                </Collapse>
+            </div>
+        </BaseCard>
+    );
+};
+
+export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ chunk, searchWords }) => (
+    <BaseCard
+        title={chunk.title}
+        linkProps={{
+            href: chunk.document.original_path,
+            target: "_blank",
+        }}
+        badgeText={`Web/${chunk.metadata.type}`}
+    >
+        <div className="flex flex-col gap-4">
+            {chunk.metadata.description.split('\n').map((paragraph, index) => (
+                <Typography key={index} className="text-md w-full mb-0 text-left">
+                    <Highlighter
+                        highlightClassName="highlightSearch"
+                        searchWords={searchWords}
+                        autoEscape={false}
+                        textToHighlight={paragraph}
+                        findChunks={findNormalizedChunks}
+                    />
+                </Typography>
+            ))}
+        </div>
+    </BaseCard>
+);
+
+const ChunkRenderer: React.FC<ChunkRendererProps> = ({ chunk, searchWords }) => {
+    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard chunk={chunk} />;
+    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard chunk={chunk} searchWords={searchWords} />;
+    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk chunk={chunk} searchWords={searchWords} />;
+    return null;
+};
+
+export default ChunkRenderer;

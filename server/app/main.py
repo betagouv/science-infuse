@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
 from S3Storage import S3Storage
 from models import create_weaviate_schema
-from router import document, search
+from router import document, search, user_approved
 import logging
 from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
@@ -62,6 +62,7 @@ async def options_route(request: Request):
     )
 app.include_router(document.router, prefix="/document", tags=["document"])
 app.include_router(search.router, prefix="/search", tags=["search"])
+app.include_router(user_approved.router, prefix="/approve", tags=["search"])
 
 
 @app.on_event("startup")

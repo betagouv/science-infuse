@@ -7,7 +7,7 @@ from weaviate import WeaviateClient
 from typing import List, Dict, Optional
 
 from SIWeaviateClient import SIWeaviateClient
-from schemas import ChunkWithScore, DocumentSearchResult, SearchQuery
+from schemas import ChunkWithScore, DocumentChunkRegistry, DocumentSearchResult, MetadataRegistry, SearchQuery
 
 # only search in some properties
 query_properties = ["text", "title"]
@@ -38,17 +38,19 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
     document_results: Dict[str, Dict] = {}
     for chunk in response.objects:
         document = chunk.references['belongsToDocument'].objects[0].properties
+        document_uuid = str(chunk.references['belongsToDocument'].objects[0].uuid)
         document_id = document['document_id']
         
         if document_id not in document_results:
             document_results[document_id] = {
                 "properties": document,
+                "uuid": document_uuid,
                 "chunks": []
             }
         
         score = chunk.metadata.score
         # print("SEARCH_MULTI_DOCUMENTS 1 SCORE", score)
-        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document})
+        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": {**document, "uuid": document_uuid}, "uuid": str(chunk.uuid)})
         document_results[document_id]["chunks"].append(chunk_with_score)
     
     # Build the final response
@@ -56,8 +58,10 @@ def search_multi_documents(client: WeaviateClient, query: str, filters=None) -> 
     for doc_id, data in document_results.items():
         chunks_with_score = data["chunks"]
         document_properties = data["properties"]
+        document_uuid = data["uuid"]
         
         document_search_result = DocumentSearchResult(
+            uuid=document_uuid,
             document_id=document_properties['document_id'],
             public_path=document_properties['public_path'],
             original_path=document_properties['original_path'],
@@ -76,7 +80,8 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
     document_chunk = client.collections.get("DocumentChunk")
     
     chunks_search_response = []
-    
+    all_properties = DocumentChunkRegistry.get_properties() + [f"meta_{prop}" for prop in MetadataRegistry.get_properties()]
+    print("ALL PROPS", all_properties) 
     response = document_chunk.query.hybrid(
         query=query,
         alpha=alpha,
@@ -84,14 +89,16 @@ def search_all_chunks(client: WeaviateClient, query: str, filters=None) -> List[
         return_metadata=wvc.query.MetadataQuery(score=True),
         query_properties=query_properties,
         filters=filters,
-        return_references=[QueryReference(link_on="belongsToDocument", return_properties=["s3_object_name", "document_id", "public_path", "original_path", "media_name", "max_score", "min_score"])]
+        return_references=[QueryReference(link_on="belongsToDocument", return_properties=all_properties)]
     )
 
     for chunk in response.objects:
         score = chunk.metadata.score
-        document = chunk.references["belongsToDocument"].objects[0].properties
-        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document})
+        document = {**chunk.references["belongsToDocument"].objects[0].properties, "uuid": str(chunk.references["belongsToDocument"].objects[0].uuid)}
+        # print("chunk.properties", chunk.properties)
+        chunk_with_score = ChunkWithScore.model_validate({**chunk.properties, "score": score, "document": document, "uuid": str(chunk.uuid)})
         chunks_search_response.append(chunk_with_score)
+        # print("=============chunk.properties.metadata", chunk_with_score.metadata)
 
     return chunks_search_response
 

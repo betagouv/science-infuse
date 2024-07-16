@@ -21,6 +21,7 @@ export interface BoundingBox {
   y2: number
 }
 export interface BaseDocumentChunk<T extends MediaType> {
+  uuid: string;
   text: string;
   title: string;
   document: Document,
@@ -95,6 +96,7 @@ export type ChunkWithScoreUnion =
 
 
 export interface Document {
+  uuid: string;
   document_id: string;
   public_path: string;
   original_path: string;
@@ -106,6 +108,7 @@ export interface DocumentWithChunks extends Document {
 }
 
 export interface DocumentSearchResult {
+  uuid: string;
   document_id: string;
   public_path: string;
   original_path: string;
