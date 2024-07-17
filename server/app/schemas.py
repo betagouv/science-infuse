@@ -76,7 +76,7 @@ def register_metadata(cls: Type['BaseModel']) -> Type['BaseModel']:
 
 @register_document_chunk
 class Document(BaseModel):
-    uuid: str
+    uuid: Optional[str] = Field(default="")
     document_id: str
     public_path: Optional[str] = Field(default="")
     original_path: str

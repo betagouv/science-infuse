@@ -31,12 +31,14 @@ python app/data_indexing/youtube_videos.py
 
 ## backup data
 ```python
-result = client.backup.create(
-    backup_id="my-backup-id",
-    backend="filesystem",
-    include_collections=["Document", "DocumentChunk"],
-    wait_for_completion=True,
-)
+from SIWeaviateClient import SIWeaviateClient
+with SIWeaviateClient() as client:
+    result = client.backup.create(
+        backup_id="my-backup-id",
+        backend="filesystem",
+        include_collections=["Document", "DocumentChunk"],
+        wait_for_completion=True,
+    )
 ```
 
 ## restore data
