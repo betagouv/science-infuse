@@ -64,6 +64,8 @@ services:
       - ./postgresql_data:/var/lib/postgresql/data  # Persistent data volume
 
   webapp:
+    depends_on:
+      - postgresql
     build:
       context: ./webapp
       args:
