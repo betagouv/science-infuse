@@ -15,14 +15,16 @@ services:
       - http
     volumes:
       - ./weaviate_data:/var/lib/weaviate
+      - ./weaviate_backups:/var/lib/weaviate_backups
     environment:
       QUERY_DEFAULTS_LIMIT: 20
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       DEFAULT_VECTORIZER_MODULE: text2vec-transformers
-      ENABLE_MODULES: text2vec-transformers
+      ENABLE_MODULES: backup-filesystem,text2vec-transformers
       TRANSFORMERS_INFERENCE_API: http://t2v-custom:8080
       CLUSTER_HOSTNAME: 'node1'
+      BACKUP_FILESYSTEM_PATH: /var/lib/weaviate_backups
 
   # TODO just to test, later change to https://huggingface.co/OrdalieTech/Solon-embeddings-base-0.1 
   t2v-custom:

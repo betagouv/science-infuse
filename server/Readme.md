@@ -29,6 +29,27 @@ python app/data_indexing/ressources_juniors.py
 python app/data_indexing/youtube_videos.py
 
 
+## backup data
+```python
+result = client.backup.create(
+    backup_id="my-backup-id",
+    backend="filesystem",
+    include_collections=["Document", "DocumentChunk"],
+    wait_for_completion=True,
+)
+```
+
+## restore data
+```python
+client.collections.delete("Document")
+client.collections.delete("DocumentChunk")
+result = client.backup.restore(
+    backup_id="my-backup-id",
+    backend="filesystem",
+    wait_for_completion=True,
+)
+```
+
 ### NOTES
 Need to use S3 for file storage, but s3 does not provide direct link to see access file.
 Need to use `s3_client.generate_presigned_url` with `Key={OBJECT_PATH}` to get a temporary file path
