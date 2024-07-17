@@ -87,7 +87,7 @@ class Document(BaseModel):
 
 
 class BaseDocumentChunk(BaseModel):
-    uuid: str
+    uuid: Optional[str] = Field(default="")
     document: Document
     text: str = ""
     title: str
