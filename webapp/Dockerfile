@@ -3,11 +3,12 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package*.json ./
+COPY .npmrc ./
 
 # Create the public directory
 RUN mkdir -p /app/public
 
-RUN npm install
+RUN npm install --force
 
 COPY . .
 
