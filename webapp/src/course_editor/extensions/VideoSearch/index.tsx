@@ -5,6 +5,13 @@ import VideoSearchPopup from './VideoSearchPopup'
 import tippy from 'tippy.js'
 
 
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    SiVideo: {
+      openVideoSearch: () => ReturnType;
+    };
+  }
+}
 export default Node.create({
   name: 'si-video',
 
@@ -45,11 +52,9 @@ export default Node.create({
   addNodeView() {
     return ReactNodeViewRenderer(VideoNode)
   },
-  // @ts-ignore
   addCommands() {
     return {
-      openVideoSearch: () => (props: { editor: Editor }) => {
-        const { editor } = props;
+      openVideoSearch: () => ({editor, chain}) => {
         let tippyInstance: any;
 
         const component = new ReactRenderer(VideoSearchPopup, {
@@ -104,7 +109,7 @@ export default Node.create({
           maxWidth: '1000px',
         })
 
-        return true
+        return chain().run();
       },
     }
   },
