@@ -1,1 +1,0 @@
-{"startedAt":"2024-07-17T12:04:54.249021938Z","completedAt":"2024-07-17T12:04:56.252064178Z","id":"my-very-first-backup","nodes":{"node1":{"classes":["Document","DocumentChunk"],"status":"SUCCESS","error":""}},"node_mapping":null,"status":"SUCCESS","version":"2.1","serverVersion":"1.25.4","leader":"node1","error":""}
