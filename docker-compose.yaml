@@ -69,6 +69,7 @@ services:
       args:
         - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
         - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+        - DATABASE_URL=${DATABASE_URL}
     ports:
       - "8002:3000"
   
