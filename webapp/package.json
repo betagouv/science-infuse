@@ -11,6 +11,9 @@
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons"
   },
+  "prisma": {
+    "schema": "./src/prisma/schema.prisma"
+  },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.9.17",
     "@emotion/react": "^11.11.4",
