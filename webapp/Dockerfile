@@ -22,10 +22,12 @@ ARG DATABASE_URL
 ENV DATABASE_URL $DATABASE_URL
 
 ENV NEXT_TELEMETRY_DISABLED 1
-RUN npx prisma db push
-RUN npx prisma generate
+
 RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Use a shell script as entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

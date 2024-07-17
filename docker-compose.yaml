@@ -74,7 +74,14 @@ services:
         - DATABASE_URL=${DATABASE_URL}
     ports:
       - "8002:3000"
-  
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    healthcheck:
+      test: ["CMD", "npx", "prisma", "db", "push"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   server:
     runtime: nvidia
     depends_on:
