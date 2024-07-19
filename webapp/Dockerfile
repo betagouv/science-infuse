@@ -5,13 +5,13 @@ RUN mkdir -p /app/public
 
 COPY package.json ./
 COPY package-lock.json ./
-COPY .npmrc ./
+RUN npm install
 
-COPY . .
+ENV PATH /app/node_modules/.bin:$PATH
 
-RUN npm install --force
-RUN npm install prisma -g
-RUN npm install  @codegouvfr/react-dsfr --force
+COPY tsconfig.json ./
+COPY public ./
+COPY src ./
 
 ARG NEXT_PUBLIC_FILE_SERVER_URL
 ENV NEXT_PUBLIC_FILE_SERVER_URL $NEXT_PUBLIC_FILE_SERVER_URL
