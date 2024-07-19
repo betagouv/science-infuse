@@ -9,9 +9,9 @@ RUN npm install --force
 
 ENV PATH /app/node_modules/.bin:$PATH
 
-COPY tsconfig.json ./
-COPY public ./
-COPY src ./
+COPY tsconfig.json ./tsconfig.json
+COPY public ./public
+COPY src ./src
 
 ARG NEXT_PUBLIC_FILE_SERVER_URL
 ENV NEXT_PUBLIC_FILE_SERVER_URL $NEXT_PUBLIC_FILE_SERVER_URL

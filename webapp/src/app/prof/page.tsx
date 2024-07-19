@@ -1,10 +1,10 @@
 // app/prof/page.tsx
 import { Suspense } from 'react';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../api/auth/[...nextauth]/route';
 import ProfDashboardContent from './ProfDashboardContent';
 import { prisma } from '@/prisma/prisma';
 import { revalidatePath } from 'next/cache';
+import { authOptions } from '../api/auth/[...nextauth]/authOptions';
 
 export default async function ProfDashboard() {
   const session = await getServerSession(authOptions);

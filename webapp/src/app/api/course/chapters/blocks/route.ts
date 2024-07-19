@@ -2,8 +2,8 @@
 import { NextResponse } from 'next/server';
 import { CourseChapterBlock, PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../../auth/[...nextauth]/route';
 import { CreateCourseChapterBlockRequest } from '@/types/api/courseChapter';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 const prisma = new PrismaClient();
 
