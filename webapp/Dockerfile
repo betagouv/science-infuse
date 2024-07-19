@@ -1,6 +1,7 @@
 FROM node:21-alpine
 
 WORKDIR /app
+RUN mkdir -p /app/public
 
 COPY package.json ./
 COPY package-lock.json ./
