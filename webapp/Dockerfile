@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:22.4
 
 WORKDIR /app
 RUN mkdir -p /app/public
@@ -6,7 +6,7 @@ RUN mkdir -p /app/public
 COPY package.json ./
 COPY package-lock.json ./
 RUN npm install --force
-
+#RUN npm i -g prisma
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY tsconfig.json ./tsconfig.json
