@@ -4,7 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { useState } from '@preact-signals/safe-react/react';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { availableMediaTypes } from '@/types';
+import { availableMediaTypes } from '@/types/vectordb';
 import { signal } from "@preact/signals-react";
 
 const grades = ['5ème', '4ème', '3ème']

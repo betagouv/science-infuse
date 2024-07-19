@@ -14,7 +14,7 @@ export interface Command {
   description: string
   aliases?: string[]
   iconName: keyof typeof icons
-  action: (editor: Editor) => void
+  action: (editor: Editor) => Promise<void>
   shouldBeHidden?: (editor: Editor) => boolean
 }
 

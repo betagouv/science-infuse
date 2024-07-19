@@ -7,25 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Document {
-  id        String   @id @default(cuid())
+model CourseChapter {
+  id        String               @id @default(cuid())
   title     String
-  text      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  author    User                 @relation(fields: [authorId], references: [id])
   authorId  String
+  blocs     CourseChapterBlock[]
+}
+
+model CourseChapterBlock {
+  id              String        @id @default(cuid())
+  title           String
+  content         String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  author          User          @relation(fields: [authorId], references: [id])
+  authorId        String
+  courseChapter   CourseChapter @relation(fields: [courseChapterId], references: [id])
+  courseChapterId String
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  emailVerified DateTime?
-  image         String?
-  documents     Document[]
-  Account       Account[]
-  Session       Session[]
+  id                  String               @id @default(cuid())
+  name                String?
+  email               String?              @unique
+  emailVerified       DateTime?
+  image               String?
+  Account             Account[]
+  Session             Session[]
+  CourseChapters      CourseChapter[]
+  CourseChapterBlocks CourseChapterBlock[]
 }
 
 model Account {

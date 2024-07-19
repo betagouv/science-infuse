@@ -56,7 +56,8 @@ export const SlashCommand = Extension.create({
           const isValidAfterContent = !afterContent?.endsWith('  ')
 
           return (
-            ((isRootDepth && isParagraph && isStartOfNode) || (isInColumn && isParagraph && isStartOfNode)) &&
+            ((isStartOfNode) || (isInColumn && isParagraph && isStartOfNode)) &&
+            // ((isRootDepth && isParagraph && isStartOfNode) || (isInColumn && isParagraph && isStartOfNode)) &&
             isValidAfterContent
           )
         },
@@ -75,7 +76,7 @@ export const SlashCommand = Extension.create({
           props.action(editor)
           view.focus()
         },
-        items: ({ query }: { query: string }) => {
+        items: ({ query, editor }: { query: string, editor: Editor }) => {
           const withFilteredCommands = GROUPS.map(group => ({
             ...group,
             commands: group.commands
