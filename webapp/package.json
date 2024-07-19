@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "copy-dsfr-to-public",
-    "predev": "npx only-include-used-icons",
-    "prebuild": "npx only-include-used-icons"
+    "predev": "only-include-used-icons",
+    "prebuild": "only-include-used-icons"
     
   },
   "prisma": {
