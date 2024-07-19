@@ -8,7 +8,15 @@ COPY .npmrc ./
 # Create the public directory
 RUN mkdir -p /app/public
 
-RUN npm install --force
+# Debug: List contents before npm install
+RUN echo "Contents of /app before npm install:" && ls -la /app
+
+# Verbose npm install
+RUN npm install --force --verbose
+
+# Debug: List contents after npm install
+RUN echo "Contents of /app after npm install:" && ls -la /app
+RUN echo "Contents of /app/node_modules (if it exists):" && ls -la /app/node_modules || echo "node_modules does not exist"
 
 COPY . .
 
@@ -32,7 +40,7 @@ RUN echo "Node version: $(node -v)"
 RUN echo "NPM version: $(npm -v)"
 RUN echo "PATH: $PATH"
 RUN npm ls @codegouvfr/react-dsfr
-RUN ls -la /app/node_modules/.bin
+RUN ls -la /app/node_modules/.bin || echo "/app/node_modules/.bin does not exist"
 RUN which only-include-used-icons || echo "only-include-used-icons not found in PATH"
 
 ENV PATH /app/node_modules/.bin:$PATH
