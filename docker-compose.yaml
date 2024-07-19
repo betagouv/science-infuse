@@ -104,27 +104,27 @@ services:
       - ./documents:/server/documents
       - ./ftp-data:/server/ftp-data
 
-  # automatically index files when upoaded to ftp
-  ftp_processing:
-    runtime: nvidia
-    depends_on:
-      - weaviate
-    environment:
-      - WEAVIATE_URL=${WEAVIATE_URL}
-      - WEAVIATE_PORT=${WEAVIATE_PORT}
-      - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
-      - S3_SECRET_KEY=${S3_SECRET_KEY}
-      - S3_ENDPOINT=${S3_ENDPOINT}
-      - S3_REGION=${S3_REGION}
-      - S3_BUCKET=${S3_BUCKET}
-    build:
-      context: ./server
-    volumes:
-      - ./documents:/server/documents
-      - ./ftp-data:/server/ftp-data
-    command: ["python", "app/processing.py"]
+  # # automatically index files when upoaded to ftp
+  # ftp_processing:
+  #   runtime: nvidia
+  #   depends_on:
+  #     - weaviate
+  #   environment:
+  #     - WEAVIATE_URL=${WEAVIATE_URL}
+  #     - WEAVIATE_PORT=${WEAVIATE_PORT}
+  #     - WEAVIATE_GRPC_PORT=${WEAVIATE_GRPC_PORT}
+  #     - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+  #     - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+  #     - S3_SECRET_KEY=${S3_SECRET_KEY}
+  #     - S3_ENDPOINT=${S3_ENDPOINT}
+  #     - S3_REGION=${S3_REGION}
+  #     - S3_BUCKET=${S3_BUCKET}
+  #   build:
+  #     context: ./server
+  #   volumes:
+  #     - ./documents:/server/documents
+  #     - ./ftp-data:/server/ftp-data
+  #   command: ["python", "app/processing.py"]
 
   ftp:
     image: stilliard/pure-ftpd:hardened
