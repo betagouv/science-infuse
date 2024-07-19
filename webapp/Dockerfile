@@ -3,10 +3,9 @@ FROM node:22-alpine
 WORKDIR /app
 RUN mkdir -p /app/public
 
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.json ./
 COPY .npmrc ./
-
-# Create the public directory
 
 COPY . .
 
