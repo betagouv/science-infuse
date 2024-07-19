@@ -25,6 +25,9 @@ ENV DATABASE_URL $DATABASE_URL
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Generate Prisma client
+RUN ls
+RUN ls src
+RUN ls src/prisma
 RUN npx prisma generate
 
 RUN npm run build
