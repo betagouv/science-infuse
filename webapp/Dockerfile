@@ -9,7 +9,6 @@ COPY .npmrc ./
 RUN mkdir -p /app/public
 
 RUN npm install --force
-ENV PATH /app/node_modules/.bin:$PATH
 
 COPY . .
 
@@ -28,7 +27,18 @@ RUN npm i -g prisma
 # Generate Prisma client
 RUN npx prisma generate
 
-RUN ls -la
+# Add debugging information
+RUN echo "Node version: $(node -v)"
+RUN echo "NPM version: $(npm -v)"
+RUN echo "PATH: $PATH"
+RUN npm ls @codegouvfr/react-dsfr
+RUN ls -la /app/node_modules/.bin
+RUN which only-include-used-icons || echo "only-include-used-icons not found in PATH"
+
+ENV PATH /app/node_modules/.bin:$PATH
+
+# Try to run the script directly
+RUN /app/node_modules/.bin/only-include-used-icons || echo "Failed to run only-include-used-icons directly"
 
 RUN npm run build
 
