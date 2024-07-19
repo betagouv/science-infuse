@@ -135,6 +135,7 @@ services:
     volumes:
       - "./ftp-data:/home/ftpuser"
       - "./passwd:/etc/pure-ftpd/passwd"
+      - "/etc/ssl/private/:/etc/ssl/private/"
     environment:
       - FTP_USER_NAME=scienceinfuse
       - FTP_USER_PASS=${FTP_PASSWORD}
