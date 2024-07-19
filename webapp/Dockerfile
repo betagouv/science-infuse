@@ -11,7 +11,7 @@ COPY . .
 
 RUN npm install --force
 RUN npm install prisma -g
-RUN npm install @codegouvfr/react-dsfr
+RUN npm install  @codegouvfr/react-dsfr --force
 
 ARG NEXT_PUBLIC_FILE_SERVER_URL
 ENV NEXT_PUBLIC_FILE_SERVER_URL $NEXT_PUBLIC_FILE_SERVER_URL
