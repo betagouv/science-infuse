@@ -26,6 +26,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm i -g prisma
 # Generate Prisma client
 RUN npx prisma generate
+# List files in the current directory
+RUN ls -la
 
 RUN npm run build
 
