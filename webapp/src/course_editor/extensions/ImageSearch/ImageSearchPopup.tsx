@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import axios from 'axios';
-import { ChunkWithScore, ChunkWithScoreUnion } from '@/types';
+import { ChunkWithScore, ChunkWithScoreUnion } from '@/types/vectordb';
 import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import { useDebounce } from 'use-debounce';
@@ -26,7 +26,7 @@ const getSIImages = async (query: string) => {
 const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {
   const { editor, closePopup } = props;
   const [query, setQuery] = useState('');
-  const [debouncedQuery] = useDebounce(query, 500); // Adjust the debounce delay as needed
+  const [debouncedQuery] = useDebounce(query, 500);
   const [images, setImages] = useState<string[]>([]);
 
   const searchImages = useCallback(async () => {

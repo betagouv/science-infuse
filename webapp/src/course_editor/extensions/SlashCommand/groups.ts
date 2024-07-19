@@ -1,3 +1,4 @@
+import { apiClient } from '@/lib/api-client'
 import { Group } from './types'
 
 export const GROUPS: Group[] = [
@@ -6,11 +7,28 @@ export const GROUPS: Group[] = [
     title: 'ScienceInfuse',
     commands: [
       {
+        name: 'newBlock',
+        label: 'Nouveau Bloc',
+        iconName: 'FilePlus2',
+        description: 'Search and insert an image',
+        action: async editor => {
+          const newBlock = await apiClient.createCourseChapterBlock({
+            title: 'New Group',
+            content: 'Group content',
+            chapterId: editor.storage.simetadata.chapterId,
+          })
+          editor.chain().focus().addCourseBlock(newBlock.id).run()
+        },
+        shouldBeHidden: editor => {
+          return editor.state.selection.$from.depth > 1
+        }
+      },
+      {
         name: 'image',
         label: 'Image',
         iconName: 'Image',
         description: 'Search and insert an image',
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().openImageSearch().run()
         },
       },
@@ -19,7 +37,7 @@ export const GROUPS: Group[] = [
         label: 'Video',
         iconName: 'Video',
         description: 'Search and insert an video',
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().openVideoSearch().run()
         },
       },
@@ -35,7 +53,7 @@ export const GROUPS: Group[] = [
         iconName: 'Heading1',
         description: 'High priority section title',
         aliases: ['h1'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setHeading({ level: 1 }).run()
         },
       },
@@ -45,7 +63,7 @@ export const GROUPS: Group[] = [
         iconName: 'Heading2',
         description: 'Medium priority section title',
         aliases: ['h2'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setHeading({ level: 2 }).run()
         },
       },
@@ -55,7 +73,7 @@ export const GROUPS: Group[] = [
         iconName: 'Heading3',
         description: 'Low priority section title',
         aliases: ['h3'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setHeading({ level: 3 }).run()
         },
       },
@@ -65,7 +83,7 @@ export const GROUPS: Group[] = [
         iconName: 'List',
         description: 'Unordered list of items',
         aliases: ['ul'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().toggleBulletList().run()
         },
       },
@@ -75,7 +93,7 @@ export const GROUPS: Group[] = [
         iconName: 'ListOrdered',
         description: 'Ordered list of items',
         aliases: ['ol'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().toggleOrderedList().run()
         },
       },
@@ -84,7 +102,7 @@ export const GROUPS: Group[] = [
         label: 'Blockquote',
         iconName: 'Quote',
         description: 'Element for quoting',
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setBlockquote().run()
         },
       },
@@ -94,7 +112,7 @@ export const GROUPS: Group[] = [
         iconName: 'SquareCode',
         description: 'Code block with syntax highlighting',
         shouldBeHidden: editor => editor.isActive('columns'),
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setCodeBlock().run()
         },
       },
@@ -110,7 +128,7 @@ export const GROUPS: Group[] = [
         iconName: 'Table',
         description: 'Insert a table',
         shouldBeHidden: editor => editor.isActive('columns'),
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: false }).run()
         },
       },
@@ -120,7 +138,7 @@ export const GROUPS: Group[] = [
         iconName: 'Minus',
         description: 'Insert a horizontal divider',
         aliases: ['hr'],
-        action: editor => {
+        action: async editor => {
           editor.chain().focus().setHorizontalRule().run()
         },
       },

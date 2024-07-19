@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "copy-dsfr-to-public",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons"
+    
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"

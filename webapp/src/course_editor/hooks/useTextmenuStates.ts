@@ -14,8 +14,7 @@ export const useTextmenuStates = (editor: Editor) => {
       const domAtPos = view.domAtPos(from || 0).node as HTMLElement
       const nodeDOM = view.nodeDOM(from || 0) as HTMLElement
       const node = nodeDOM || domAtPos
-      console.log("NODEEE", node)
-      if (nodeDOM && (nodeDOM.querySelector('img') || nodeDOM.querySelector('video'))) {
+      if (nodeDOM && nodeDOM?.querySelector && (nodeDOM.querySelector('img') || nodeDOM.querySelector('video'))) {
         return false
       }
       // if (isCustomNodeSelected(editor, node)) {

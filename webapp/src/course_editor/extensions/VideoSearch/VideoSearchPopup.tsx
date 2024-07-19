@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import axios from 'axios';
-import { ChunkWithScore } from '@/types';
+import { ChunkWithScore } from '@/types/vectordb';
 import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import VideoPlayer from '@/app/mediaViewers/VideoPlayer';
@@ -29,7 +29,7 @@ const getSIVideos = async (query: string) => {
 const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {
   const { editor, closePopup } = props;
   const [query, setQuery] = useState('');
-  const [debouncedQuery] = useDebounce(query, 500); // Adjust the debounce delay as needed
+  const [debouncedQuery] = useDebounce(query, 500);
   const [videos, setVideos] = useState<ChunkWithScore<'video_transcript'>[]>([]);
 
   const searchVideos = useCallback(async () => {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types";
+import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";

@@ -5,13 +5,13 @@ import ImageSearchPopup from './ImageSearchPopup'
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
-      ImageSearch: {
-        openImageSearch: () => ReturnType;
-      };
+        ImageSearch: {
+            openImageSearch: () => ReturnType;
+        };
     }
-  }
+}
 
-  
+
 export const ImageSearchExtension = Extension.create({
     name: 'imageSearch',
 
