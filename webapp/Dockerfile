@@ -12,6 +12,10 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY tsconfig.json ./tsconfig.json
 COPY public ./public
 COPY src ./src
+COPY next.config.mjs ./next.config.mjs
+COPY tailwind.config.ts ./tailwind.config.ts
+COPY postcss.config.mjs ./postcss.config.mjs
+COPY .eslintrc.json ./.eslintrc.json
 
 ARG NEXT_PUBLIC_FILE_SERVER_URL
 ENV NEXT_PUBLIC_FILE_SERVER_URL $NEXT_PUBLIC_FILE_SERVER_URL
