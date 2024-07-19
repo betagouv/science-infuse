@@ -23,11 +23,14 @@ python app/migration.py create migration_name
 ```
 
 ## index data
-### index cite-sante
+#### [cite-sante](https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions)
 python app/data_indexing/health_questions.py
+#### [ressources-juniors](https://www.cite-sciences.fr/fr/ressources/juniors)
 python app/data_indexing/ressources_juniors.py
+#### [@leblob_fr](https://www.youtube.com/@leblob_fr) | [@citedesscience](https://www.youtube.com/@citedessciences) | [palaisdeladécouverte](https://www.youtube.com/c/palaisdelad%C3%A9couverte)
 python app/data_indexing/youtube_videos.py
-
+#### all pdfs from custom directory (recursive)
+python app/data_indexing/pdf_documents.py
 
 ## backup data
 ```python

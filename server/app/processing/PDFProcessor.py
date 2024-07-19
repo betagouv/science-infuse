@@ -22,13 +22,14 @@ logger = logging.getLogger()
 
 non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
-    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, s3: S3Storage, pdf_path: str):
+    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, s3: S3Storage, pdf_path: str, remove_after_upload_to_s3: bool=True):
         self.pdf_path = pdf_path
         print("PDFProcessor pdf_path", pdf_path, flush=True)
         self.image_descriptor = image_descriptor
         self.translator = translator
         self.surya = surya
         self.s3 = s3
+        self.remove_after_upload_to_s3 = remove_after_upload_to_s3
         
         super().__init__(client)
 
@@ -220,6 +221,8 @@ class PDFProcessor(BaseDocumentProcessor):
                 chunks.append(chunk)
             for text_chunk in text_chunks:
                 chunks.append(text_chunk)
-
-            os.remove(self.pdf_path)
+    
+            if (self.remove_after_upload_to_s3 is True):
+                os.remove(self.pdf_path)
+    
             return document, chunks
