@@ -7,7 +7,7 @@ import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import assert from "assert";
 import { Typography } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import { ChunkWithScoreUnion, DocumentSearchResult } from "@/types";
+import { ChunkWithScoreUnion, DocumentSearchResult } from "@/types/vectordb";
 import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";

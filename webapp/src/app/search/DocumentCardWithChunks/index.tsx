@@ -5,7 +5,7 @@ import { Tag } from "@codegouvfr/react-dsfr/Tag";
 import { Typography } from "@mui/material";
 import { Accordion } from "@codegouvfr/react-dsfr/Accordion";
 import Highlighter from "react-highlight-words";
-import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk, isVideoTranscriptChunk, PdfImageChunk } from "@/types";
+import { ChunkWithScoreUnion, DocumentSearchResult, isPdfImageChunk, isTextChunk, isVideoTranscriptChunk, PdfImageChunk } from "@/types/vectordb";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { findNormalizedChunks } from "../text-highlighter";
 import { NEXT_PUBLIC_FILE_SERVER_URL } from "@/config";
