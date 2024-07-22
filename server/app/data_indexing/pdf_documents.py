@@ -53,4 +53,4 @@ def index_pdfs_from_dir(dir: str):
 
 # you can change it to whatever directory containing pdfs, 
 # it will skip a file based on it's absolute path on the server (stored as original_path in db) cf : is_document_already_indexed
-index_pdfs_from_dir('/home/debian/science-infuse/ftp-data')
+index_pdfs_from_dir('/server/ftp-data')

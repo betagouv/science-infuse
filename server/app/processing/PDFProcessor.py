@@ -15,6 +15,7 @@ from processing.text.SIITranslator import SITranslator
 from processing.BaseDocumentProcessor import BaseDocumentProcessor
 import shutil
 import logging
+import numpy as np
 from pymupdf import Document as PdfDocument
 # TODO: check if not causing problems: https://github.com/python-pillow/Pillow/issues/1510
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -49,7 +50,19 @@ class PDFProcessor(BaseDocumentProcessor):
 
         return BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2)
     
-    def keep_image(self, width, height):
+    def is_single_color(self, image, tolerance=50):
+        img_array = np.array(image)
+        
+        # Reshape the array to 2D (pixels, color channels)
+        reshaped = img_array.reshape(-1, img_array.shape[-1])
+        
+        # Calculate the difference between each pixel and the first pixel
+        diff = np.abs(reshaped - reshaped[0])
+        
+        # Check if all differences are within the tolerance
+        return np.all(diff <= tolerance)
+
+    def keep_image_based_on_size(self, width, height):
         aspect_ratio = width / height
         res_megapixel = (width * height) / 1_000_000
 
@@ -150,19 +163,40 @@ class PDFProcessor(BaseDocumentProcessor):
         temp_images = []
         logger.info("GET PDF IMAGES logger")
 
+        temp_images = []
+
         for page_num in range(len(doc)):
             page = doc[page_num]
             
-            for item in doc.get_page_images(page_num):
-                pix = fitz.Pixmap(doc, item[0])  # pixmap from the image xref
-                pix0 = fitz.Pixmap(fitz.csRGB, pix)  # force into RGB
-                pil_image = Image.frombytes("RGB", [pix0.width, pix0.height], pix0.samples)
-                x0, y0, x1, y1 = page.get_image_bbox(item[7])
-                width = x1 - x0
-                height = y1 - y0
-                if (self.keep_image(width, height)):
-                    temp_images.append({"image": pil_image, "page_number": page_num+1, 'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1, }})
+            for img_index, item in enumerate(doc.get_page_images(page_num)):
+                try:
+                    xref = item[0]
+                    base_image = doc.extract_image(xref)
                     
+                    if base_image:
+                        image_bytes = base_image["image"]
+                        image_ext = base_image["ext"]
+                        pil_image = Image.open(io.BytesIO(image_bytes))
+
+                        if pil_image.mode != "RGB":
+                            pil_image = pil_image.convert("RGB")
+                        
+                        x0, y0, x1, y1 = page.get_image_bbox(item[7])
+                        width = x1 - x0
+                        height = y1 - y0
+                        if (self.keep_image_based_on_size(width, height) and not self.is_single_color(pil_image)):
+                            temp_images.append({
+                                "image": pil_image,
+                                "page_number": page_num + 1,
+                                'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1},
+                                'format': image_ext
+                            })
+                        
+                
+                except Exception as e:
+                    print(f"Error processing image {img_index} on page {page_num}: {str(e)}")
+                    continue
+                                    
         return temp_images
 
 
