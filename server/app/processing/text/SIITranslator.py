@@ -12,7 +12,7 @@ class SITranslator:
         return text.replace('& #160;', '')
 
     def en_to_fr_batch(self, texts: List[str], batch_size=10):
-        translations = self.pipe(texts, batch_size=batch_size)
+        translations = self.pipe(texts, batch_size=batch_size, max_length=512, truncation=True)
         return [self.clean_output(translation['translation_text']) for translation in translations]
 
     def en_to_fr(self, text: str):
