@@ -212,6 +212,9 @@ class SearchQuery(BaseModel):
     query: str
     document_id: Optional[str] = None
     media_types: Optional[List[str]] = None
+    page_number: Optional[int] = 1
+    page_size: Optional[int] = 20
+    
     
     
 class UserApproveQuery(BaseModel):
@@ -227,3 +230,11 @@ class DocumentSearchResult(BaseModel):
     max_score: float
     min_score: float
     chunks: List[ChunkWithScore]
+
+class DocumentSearchResults(BaseModel):
+    documents: List[DocumentSearchResult]
+    page_count: int
+
+class ChunkSearchResults(BaseModel):
+    chunks: List[ChunkWithScore]
+    page_count: int
