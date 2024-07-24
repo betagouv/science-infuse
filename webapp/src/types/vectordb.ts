@@ -122,6 +122,18 @@ export interface DocumentSearchResult {
   chunks: ChunkWithScoreUnion[];
 }
 
+export interface DocumentSearchResults {
+  documents: DocumentSearchResult[],
+  page_count: number,
+}
+
+export interface ChunkSearchResults {
+  chunks: ChunkWithScoreUnion[],
+  page_count: number,
+}
+
+
+
 // Type guard functions
 
 export const isTextChunk = (chunk: ChunkWithScoreUnion) => {

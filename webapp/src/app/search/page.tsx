@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import { QueryFunction, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import assert from "assert";
-import { Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import { ChunkWithScoreUnion, DocumentSearchResult } from "@/types/vectordb";
+import { ChunkSearchResults, ChunkWithScoreUnion, DocumentSearchResult, DocumentSearchResults } from "@/types/vectordb";
 import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";
@@ -15,8 +16,9 @@ import FilterMenu, { checkedMediaTypes } from "./FilterMenu";
 import ChunkRenderer from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
-import { NEXT_PUBLIC_SERVER_URL } from "@/config";
-
+import { DEFAULT_PAGE_NUMBER, NEXT_PUBLIC_SERVER_URL } from "@/config";
+import { SearchQueryProvider } from "./SearchQueryProvider";
+import SIPagination, { pageNumber } from "./SIPagination";
 
 const Item = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -26,7 +28,37 @@ const Item = styled('div')(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const groupByDocument = signal<boolean>(false)
+const groupByDocument = signal<boolean>(false);
+
+type SearchResultType = DocumentSearchResults | ChunkSearchResults;
+
+const fetchSearchResults: QueryFunction<SearchResultType, [string, string, boolean, string[], number, number]> = async ({ queryKey }) => {
+  const [_, query, isGrouped, mediaTypes, pageNumber, pageSize] = queryKey;
+  if (!query) return [];
+
+  const endpoint = isGrouped
+    ? `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`
+    : `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      media_types: mediaTypes.length > 0 ? mediaTypes : null,
+      page_number: pageNumber,
+      page_size: pageSize
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  return response.json();
+};
 
 const Search: React.FC = () => {
   const searchParams = useSearchParams();
@@ -35,74 +67,39 @@ const Search: React.FC = () => {
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const searchWords = getSearchWords(query);
 
-  const [resultsGrouped, setResultsGrouped] = useState<DocumentSearchResult[]>([]);
-  const [resultsChunks, setResultsChunks] = useState<ChunkWithScoreUnion[]>([]);
+  const queryClient = useQueryClient();
 
-  const handleSearchGroupedDocuments = async () => {
-    try {
-      if (!query) return;
-      const response = await axios.post<DocumentSearchResult[]>(
-        `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`,
-        {
-          query: query,
-          media_types: checkedMediaTypes.value.length > 0 ? checkedMediaTypes.value : null
-        }
-      );
-      setResultsGrouped(response.data);
-    } catch (error) {
-      console.error("Error searching:", error);
-    }
-  };
-
-  const handleSearchChunks = async () => {
-    try {
-      if (!query) return;
-      const response = await axios.post<ChunkWithScoreUnion[]>(
-        `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`,
-        {
-          query: query,
-          media_types: checkedMediaTypes.value.length > 0 ? checkedMediaTypes.value : null
-        }
-      );
-      setResultsChunks(response.data);
-    } catch (error) {
-      console.error("Error searching:", error);
-    }
-  };
+  const { data: results, isLoading, isError } = useQuery({
+    queryKey: ['search', query, groupByDocument.value, checkedMediaTypes.value, pageNumber.value, DEFAULT_PAGE_NUMBER] as const,
+    queryFn: fetchSearchResults,
+    enabled: !!query,
+  },);
 
   const handleSearch = () => {
-    if (groupByDocument.value == true) {
-      handleSearchGroupedDocuments();
-    } else {
-      handleSearchChunks();
-    }
-  }
-
-  useEffect(() => {
-    handleSearch()
-  }, [groupByDocument.value]);
+    queryClient.invalidateQueries({ queryKey: ['search'] });
+  };
 
   return (
     <div className="py-8 flex flex-col gap-4 px-4 md:px-0">
       <Typography variant="h1" gutterBottom>Rechercher des médias</Typography>
-      <div className="flex flex-col gap-4">
 
+      <div className="flex flex-col gap-4">
         <ToggleSwitch
           inputTitle="the-title"
           showCheckedHint={false}
           checked={groupByDocument.value}
           onChange={() => {
-            groupByDocument.value = !groupByDocument.value
+            groupByDocument.value = !groupByDocument.value;
+            handleSearch();
           }}
           label="Grouper la recherche par document"
           labelPosition="right"
         />
 
-
         <SearchBar
           big
-          onButtonClick={function noRefCheck() { handleSearch() }}
-          renderInput={({ className, id, placeholder, type }) =>
+          onButtonClick={handleSearch}
+          renderInput={({ className, id, placeholder, type }) => (
             <input
               ref={setInputElement}
               className={className}
@@ -112,44 +109,56 @@ const Search: React.FC = () => {
               value={query}
               onChange={event => setQuery(event.currentTarget.value)}
               onKeyDown={event => {
-                if (event.key === "Escape") {
+                if (event.key === "Enter") {
+                  handleSearch();
+                } else if (event.key === "Escape") {
                   assert(inputElement !== null);
                   inputElement.blur();
                 }
               }}
             />
-          }
+          )}
         />
         <FilterMenu />
-
-
       </div>
 
-      {groupByDocument.value == true ? <div>
-        {resultsGrouped.length > 0 ?
-          <div className="container flex flex-wrap gap-4">
-            {resultsGrouped.sort((a, b) => b.max_score - a.max_score).map((result, index) => (
+      {isLoading ? (
+        <div className="h-40 w-full flex items-center justify-center">
+          <CircularProgress className="ml-2" />
+        </div>
+      ) : isError ? (
+        <p>Une erreur s'est produite lors de la recherche.</p>
+
+      ) : results ? (
+        <div className="container flex flex-wrap gap-4">
+          {groupByDocument.value ? (
+            (results as DocumentSearchResults).documents.sort((a, b) => b.max_score - a.max_score).map((result) => (
               <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
-            ))}
-          </div>
-          : <p>Aucun résultat trouvé.</p>}
-      </div>
-        :
-        <div>
-          {resultsChunks.length > 0 ?
-            <div className="container flex flex-wrap gap-4">
-              <Masonry columns={2} spacing={2}>
-                {resultsChunks.sort((a, b) => b.score - a.score).map((result, index) => (
-                  <Item key={index} >
-                    <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
-                  </Item>
-                ))}
-              </Masonry>
-            </div>
-            : <p>Aucun résultat trouvé.</p>}
-        </div>}
+            ))
+          ) : (
+            <Masonry columns={2} spacing={2}>
+              {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
+                <Item key={index}>
+                  <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
+                </Item>
+              ))}
+            </Masonry>
+          )}
+        </div>
+      ) : (
+        <div className="h-40 w-full flex items-center justify-center">
+          <p>Aucun résultat trouvé.</p>
+        </div>
+      )}
+      <SIPagination pageCount={results?.page_count} />
     </div>
   );
 };
 
-export default Search;
+export default function () {
+  return (
+    <SearchQueryProvider>
+      <Search />
+    </SearchQueryProvider>
+  );
+}

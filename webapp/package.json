@@ -10,7 +10,6 @@
     "postinstall": "copy-dsfr-to-public",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons"
-    
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
@@ -28,6 +27,7 @@
     "@preact/signals-react": "^2.0.2",
     "@prisma/client": "^5.16.2",
     "@radix-ui/react-popover": "^1.1.1",
+    "@tanstack/react-query": "^5.51.11",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/extension-character-count": "^3.0.0",
     "@tiptap/extension-code-block": "^3.0.0",
