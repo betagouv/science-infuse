@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { QueryFunction, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
@@ -64,15 +64,24 @@ const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [query]);
+
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const searchWords = getSearchWords(query);
 
   const queryClient = useQueryClient();
 
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search', query, groupByDocument.value, checkedMediaTypes.value, pageNumber.value, DEFAULT_PAGE_NUMBER] as const,
+    queryKey: ['search', debouncedQuery, groupByDocument.value, checkedMediaTypes.value, pageNumber.value, DEFAULT_PAGE_NUMBER] as const,
     queryFn: fetchSearchResults,
-    enabled: !!query,
+    enabled: !!debouncedQuery,
   },);
 
   const handleSearch = () => {
@@ -138,6 +147,7 @@ const Search: React.FC = () => {
           ) : (
             <Masonry columns={2} spacing={2}>
               {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
+              // {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
                 <Item key={index}>
                   <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
                 </Item>

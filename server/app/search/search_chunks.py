@@ -8,6 +8,7 @@ from weaviate import WeaviateClient
 from typing import List, Dict, Optional, Tuple
 
 from SIWeaviateClient import SIWeaviateClient
+from processing.text.SIReranker import SIReranker
 from schemas import ChunkSearchResults, ChunkWithScore, DocumentChunkRegistry, DocumentSearchResult, DocumentSearchResults, MetadataRegistry, SearchQuery
 
 # only search in some properties
@@ -17,6 +18,8 @@ query_properties = ["text", "title"]
 # An alpha of 1 is a pure vector search.
 # An alpha of 0 is a pure keyword search.
 alpha = 0.75
+
+reranker = SIReranker()
 
 
 def search_multi_documents(
@@ -31,11 +34,6 @@ def search_multi_documents(
     
     # Calculate offset based on page and page_size
     offset = (page - 1) * page_size
-    print("==========================")
-    print("==========================")
-    print(f"page {page} | offset {offset}")
-    print("==========================")
-    print("==========================")
 
     # Perform hybrid query on the DocumentChunk collection
     response = document_chunk_collection.query.hybrid(
@@ -119,12 +117,6 @@ def search_all_chunks(client: WeaviateClient, query: str, page: int = 1, page_si
         filters=filters,
         return_references=[QueryReference(link_on="belongsToDocument", return_properties=all_properties)]
     )
-    print("==========================")
-    print("==========================")
-    print(f"page {page} | offset {offset} | limit {page_size}")
-    print("response.objects", response.objects)
-    print("==========================")
-    print("==========================")
 
     chunks_search_response = []
     for chunk in response.objects:
@@ -160,10 +152,10 @@ def get_filters_for_query(query: SearchQuery):
 
 def search_chunks(query: SearchQuery) -> ChunkSearchResults:
     filters = get_filters_for_query(query)
-    print("PAGE NUMBER", query.page_number)
     with SIWeaviateClient() as client:
-        chunks = search_all_chunks(client, query.query, page=query.page_number, page_size=query.page_size, filters=filters)
-        return chunks
+        searchResult = search_all_chunks(client, query.query, page=query.page_number, page_size=query.page_size, filters=filters)
+        searchResult.chunks = reranker.sort_document_chunks(document_chunks=searchResult.chunks, query=query.query)
+        return searchResult
 
 
 def search_chunks_grouped_by_document(query: SearchQuery) -> DocumentSearchResults:
