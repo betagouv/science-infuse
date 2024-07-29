@@ -1,7 +1,7 @@
 import { CourseChapterBlock } from '@prisma/client';
 import axios from 'axios';
 
-interface CreateCourseChapterBlockRequest {
+interface CreateChapterBlockRequest {
   title: string;
   content: string;
   chapterId: string;
@@ -19,7 +19,7 @@ class ApiClient {
     });
   }
 
-  async createCourseChapterBlock(data: CreateCourseChapterBlockRequest): Promise<CourseChapterBlock> {
+  async createCourseChapterBlock(data: CreateChapterBlockRequest): Promise<CourseChapterBlock> {
     const response = await this.axiosInstance.post<CourseChapterBlock>('/course/chapters/blocks', data);
     return response.data;
   }

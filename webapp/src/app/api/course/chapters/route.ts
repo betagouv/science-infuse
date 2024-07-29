@@ -1,10 +1,9 @@
 // app/api/course-chapters/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/authOptions';
-
-const prisma = new PrismaClient();
+import { apiClient } from '@/lib/api-client';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -16,17 +15,17 @@ export async function POST(request: Request) {
 
     const { title, content } = await request.json();
 
-    const courseChapter = await prisma.courseChapter.create({
+    const chapter = await prisma.chapter.create({
       data: {
         title,
         content,
-        author: {
+        user: {
           connect: { id: session.user.id },
         },
       },
     });
 
-    return NextResponse.json(courseChapter, { status: 201 });
+    return NextResponse.json(chapter, { status: 201 });
   } catch (error) {
     console.error('Error creating course chapter:', error);
     return NextResponse.json({ error: 'Failed to create course chapter' }, { status: 500 });
@@ -41,9 +40,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const chapters = await prisma.courseChapter.findMany({
+    const chapters = await prisma.chapter.findMany({
       where: {
-        author: { id: session.user.id },
+        user: { id: session.user.id },
       },
     });
 

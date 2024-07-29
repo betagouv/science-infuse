@@ -1,4 +1,4 @@
-export interface CreateCourseChapterBlockRequest {
+export interface CreateChapterBlockRequest {
     title: string;
     content: string;
     chapterId: string;

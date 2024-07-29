@@ -7,39 +7,93 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model CourseChapter {
-  id        String               @id @default(cuid())
+// course >>>
+model Chapter {
+  id           String   @id @default(cuid())
+  title        String
+  themeId      String?
+  theme        Theme?   @relation(fields: [themeId], references: [id])
+  introduction String? // TipTap output
+  content      String // TipTap output
+  skills       Skill[]
+  tags         Tag[]
+  blocks       Block[]
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Theme {
+  id       String    @id @default(cuid())
+  title    String
+  chapters Chapter[]
+}
+
+model Skill {
+  id       String    @id @default(cuid())
+  title    String
+  chapters Chapter[]
+}
+
+model Tag {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  chapters    Chapter[]
+  blocks      Block[]
+  activities  Activity[]
+}
+
+model Block {
+  id                String             @id @default(cuid())
+  title             String
+  tags              Tag[]
+  activities        Activity[]
+  educationalLevels EducationalLevel[]
+  content           String // TipTap output
+  bilan             String?
+  chapterId         String
+  chapter           Chapter            @relation(fields: [chapterId], references: [id])
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model Activity {
+  id        String   @id @default(cuid())
   title     String
-  content   String
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
-  author    User                 @relation(fields: [authorId], references: [id])
-  authorId  String
-  blocs     CourseChapterBlock[]
+  content   String // TipTap output
+  tags      Tag[]
+  blockId   String
+  block     Block    @relation(fields: [blockId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model CourseChapterBlock {
-  id              String        @id @default(cuid())
-  title           String
-  content         String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  author          User          @relation(fields: [authorId], references: [id])
-  authorId        String
-  courseChapter   CourseChapter @relation(fields: [courseChapterId], references: [id])
-  courseChapterId String
+model EducationalLevel {
+  id     String  @id @default(cuid())
+  name   String
+  blocks Block[]
 }
 
+// course <<<
 model User {
-  id                  String               @id @default(cuid())
-  name                String?
-  email               String?              @unique
-  emailVerified       DateTime?
-  image               String?
-  Account             Account[]
-  Session             Session[]
-  CourseChapters      CourseChapter[]
-  CourseChapterBlocks CourseChapterBlock[]
+  id            String     @id @default(cuid())
+  firstName     String?
+  lastName      String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  Account       Account[]
+  Session       Session[]
+  chapters      Chapter[]
+  blocks        Block[]
+  activities    Activity[]
 }
 
 model Account {
@@ -48,14 +102,15 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }

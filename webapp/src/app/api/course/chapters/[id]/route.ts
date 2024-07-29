@@ -1,10 +1,8 @@
 // app/api/course-chapters/[id]/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
@@ -17,10 +15,10 @@ export async function GET(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const chapter = await prisma.courseChapter.findUnique({
+    const chapter = await prisma.chapter.findUnique({
       where: {
         id: params.id,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
     });
 
@@ -48,10 +46,10 @@ export async function PUT(
   
       const { title, content } = await request.json();
   
-      const updatedChapter = await prisma.courseChapter.update({
+      const updatedChapter = await prisma.chapter.update({
         where: {
           id: params.id,
-          authorId: session.user.id,
+          userId: session.user.id,
         },
         data: {
           title,

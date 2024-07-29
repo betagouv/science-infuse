@@ -19,6 +19,8 @@ import { styled } from '@mui/material/styles';
 import { DEFAULT_PAGE_NUMBER, NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { SearchQueryProvider } from "./SearchQueryProvider";
 import SIPagination, { pageNumber } from "./SIPagination";
+import { fetchSIContent } from "./fetchSIContent";
+import { useDebounce } from "use-debounce";
 
 const Item = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,48 +32,12 @@ const Item = styled('div')(({ theme }) => ({
 
 const groupByDocument = signal<boolean>(false);
 
-type SearchResultType = DocumentSearchResults | ChunkSearchResults;
-
-const fetchSearchResults: QueryFunction<SearchResultType, [string, string, boolean, string[], number, number]> = async ({ queryKey }) => {
-  const [_, query, isGrouped, mediaTypes, pageNumber, pageSize] = queryKey;
-  if (!query) return [];
-
-  const endpoint = isGrouped
-    ? `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`
-    : `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`;
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      media_types: mediaTypes.length > 0 ? mediaTypes : null,
-      page_number: pageNumber,
-      page_size: pageSize
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-
-  return response.json();
-};
 
 const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('query') || "";
   const [query, setQuery] = useState<string>(searchQuery);
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [query]);
+  const [debouncedQuery] = useDebounce(query, 500);
 
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const searchWords = getSearchWords(query);
@@ -80,7 +46,7 @@ const Search: React.FC = () => {
 
   const { data: results, isLoading, isError } = useQuery({
     queryKey: ['search', debouncedQuery, groupByDocument.value, checkedMediaTypes.value, pageNumber.value, DEFAULT_PAGE_NUMBER] as const,
-    queryFn: fetchSearchResults,
+    queryFn: fetchSIContent,
     enabled: !!debouncedQuery,
   },);
 
@@ -165,10 +131,4 @@ const Search: React.FC = () => {
   );
 };
 
-export default function () {
-  return (
-    <SearchQueryProvider>
-      <Search />
-    </SearchQueryProvider>
-  );
-}
+export default Search;
