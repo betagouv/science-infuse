@@ -17,10 +17,10 @@ export async function GET(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const chapter = await prisma.courseChapterBlock.findUnique({
+    const chapter = await prisma.block.findUnique({
       where: {
         id: params.id,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
     });
 
@@ -48,10 +48,10 @@ export async function PUT(
 
     const { title, content } = await request.json();
 
-    const updatedChapter = await prisma.courseChapterBlock.update({
+    const updatedChapter = await prisma.chapter.update({
       where: {
         id: params.id,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
       data: {
         title,
@@ -77,10 +77,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const deletedChapter = await prisma.courseChapterBlock.delete({
+    const deletedChapter = await prisma.chapter.delete({
       where: {
         id: params.id,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
     })
 

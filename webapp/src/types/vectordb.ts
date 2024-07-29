@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 
 //  this should match schema.py
-const MediaType = {
+export const MediaTypes = {
   PdfImage: "pdf_image",
   RawImage: "raw_image",
   PdfText: "pdf_text",
@@ -10,9 +10,9 @@ const MediaType = {
   WebsiteExperience: "website_experience",
 } as const;
 
-type MediaType = typeof MediaType[keyof typeof MediaType];
+export type MediaType = typeof MediaTypes[keyof typeof MediaTypes];
 
-export const availableMediaTypes = Object.values(MediaType);
+export const availableMediaTypes = Object.values(MediaTypes);
 
 export interface BoundingBox {
   x1: number
@@ -129,6 +129,11 @@ export interface DocumentSearchResults {
 
 export interface ChunkSearchResults {
   chunks: ChunkWithScoreUnion[],
+  page_count: number,
+}
+
+export interface ChunkSearchResultsWithType<CustomType extends MediaType> {
+  chunks: ChunkWithScore<CustomType>[],
   page_count: number,
 }
 

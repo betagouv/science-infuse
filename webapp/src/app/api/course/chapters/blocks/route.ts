@@ -1,11 +1,9 @@
 // app/api/course-chapters/route.ts
 import { NextResponse } from 'next/server';
-import { CourseChapterBlock, PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
-import { CreateCourseChapterBlockRequest } from '@/types/api/courseChapter';
+import { CreateChapterBlockRequest } from '@/types/api/chapter';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -15,28 +13,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { title, content, chapterId }: CreateCourseChapterBlockRequest = await request.json();
+    const { title, content, chapterId }: CreateChapterBlockRequest = await request.json();
 
-    const chapter = await prisma.courseChapter.findUnique({ where: { id: chapterId } });
+    const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } });
     if (!chapter) {
       throw new Error(`CourseChapter with id ${chapterId} not found`);
     }
 
     console.log("CREATE ", title, content, chapterId, session.user.id)
-    const courseChapterBlock = await prisma.courseChapterBlock.create({
+    const block = await prisma.block.create({
       data: {
         title,
         content,
-        courseChapter: {
+        chapter: {
           connect: { id: chapterId }
         },
-        author: {
+        user: {
           connect: { id: session.user.id },
         },
       },
     });
 
-    return NextResponse.json(courseChapterBlock, { status: 201 });
+    return NextResponse.json(block, { status: 201 });
   } catch (error) {
     console.error('Error creating course chapter:', error);
     return NextResponse.json({ error: 'Failed to create course chapter' }, { status: 500 });
@@ -51,9 +49,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const chaptersBlocks = await prisma.courseChapterBlock.findMany({
+    const chaptersBlocks = await prisma.block.findMany({
       where: {
-        author: { id: session.user.id },
+        user: { id: session.user.id },
       },
     });
 

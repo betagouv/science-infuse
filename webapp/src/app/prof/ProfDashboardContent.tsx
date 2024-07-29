@@ -20,23 +20,22 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import { CourseChapter, CourseChapterBlock, User } from '@prisma/client';
+import { Block, Chapter, User } from '@prisma/client';
 
 interface ProfDashboardContentProps {
-  initialChapters: CourseChapter[];
-  initialBlocks: CourseChapterBlock[];
+  initialChapters: Chapter[];
+  initialBlocks: Block[];
   createChapter: () => Promise<string>;
-  deleteChapter: (chapterId: string) => Promise<CourseChapter[]>;
-  user: User;
+  deleteChapter: (chapterId: string) => Promise<Chapter[]>;
+  user?: User;
 }
 
 export default function ProfDashboardContent({ initialChapters, initialBlocks, user, createChapter, deleteChapter }: ProfDashboardContentProps) {
-  const router = useRouter();
   const [chapters, setChapters] = useState(initialChapters);
   const [blocks, setBlocks] = useState(initialBlocks);
   const [openDialog, setOpenDialog] = useState(false);
-  const [name, setName] = useState(user.name || '');
-  const [email, setEmail] = useState(user.email || '');
+  const [name, setName] = useState(user?.firstName || '');
+  const [email, setEmail] = useState(user?.email || '');
 
   const handleCreateChapter = async () => {
     try {
