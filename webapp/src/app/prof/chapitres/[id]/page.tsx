@@ -1,10 +1,50 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CourseChapter } from '@prisma/client';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
+import { Chapter } from '@prisma/client';
+import { Editor, JSONContent } from '@tiptap/react';
 
-const handleSave = async (chapterId: string, title: string, content: string) => {
+
+const saveBlocks = async (editorContent: JSONContent) => {
+  const blocks = editorContent.content?.filter(element => element.type === "courseBlock")
+  console.log("BLOCKS", blocks, editorContent)
+  if (blocks && blocks.length > 0) {
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i]
+      if (block.attrs && block.attrs.id && block.content) {
+        const blockId = block.attrs.id;
+        const blockTitle = block.content[0]?.content?.[0]?.text || ""
+        console.log(`Block ID: ${block.attrs.id}`)
+        console.log('Block Content:', block.content)
+
+        try {
+          const response = await fetch(`/api/course/chapters/blocks/${blockId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title: blockTitle, content: JSON.stringify(block.content) }),
+          });
+
+          if (response.ok) {
+            // alert('Block saved successfully!');
+          } else {
+            throw new Error('Failed to update block');
+          }
+        } catch (error) {
+          console.error('Error updating block:', error);
+          alert('Failed to update block. Please try again.');
+        }
+      }
+    }
+  }
+  return blocks
+}
+
+const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent) => {
+
+  await saveBlocks(editor.getJSON())
 
   try {
     const response = await fetch(`/api/course/chapters/${chapterId}`, {
@@ -12,11 +52,10 @@ const handleSave = async (chapterId: string, title: string, content: string) => 
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content: JSON.stringify(content) }),
     });
 
     if (response.ok) {
-      alert('Course chapter updated successfully!');
     } else {
       throw new Error('Failed to update course chapter');
     }
@@ -30,7 +69,7 @@ const handleSave = async (chapterId: string, title: string, content: string) => 
 
 
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
-  const [chapter, setChapter] = useState<CourseChapter | null>(null);
+  const [chapter, setChapter] = useState<Chapter | null>(null);
 
 
   useEffect(() => {
@@ -57,7 +96,9 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     console.log("EDITORRR", editor)
     if (editor && chapter) {
-      setContent(chapter.content)
+      const content = chapter.content as string;
+      console.log("CHAPTER CONTENT", chapter)
+      setContent(JSON.parse(content))
       editor.storage.simetadata.chapterId = chapter.id;
     }
   }, [editor, chapter])
@@ -77,7 +118,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <div>
-        <button onClick={() => chapter && handleSave(chapter.id, getTitle(), getContent())}>save</button>
+        <button onClick={() => editor && chapter && handleSave(editor, chapter.id, getTitle(), getContent())}>save</button>
         <button onClick={handleGetContent}>Get Content</button>
         <button onClick={handleGetTitle}>Get Title</button>
         <button onClick={handleSetContent}>Set New Content</button>

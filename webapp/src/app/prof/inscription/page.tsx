@@ -38,10 +38,6 @@ export default function Inscription() {
         }
       }
 
-    // const handleGoogleSignUp = () => {
-    //     signIn('google', { callbackUrl: '/prof' });
-    // };
-
     return (
         <div>
             <Breadcrumb 
@@ -55,20 +51,6 @@ export default function Inscription() {
                 <div className='flex flex-col gap-4'>
                     <h1>Inscription à Science Infuse</h1>
 
-                    {/* <h2>S'inscrire avec Google</h2>
-
-                    <Button onClick={handleGoogleSignUp} title="S'inscrire avec Google" priority="secondary" className="flex items-center justify-center h-12 px-4 py-2 space-x-2 text-sm font-medium">
-                        <img src="/login/google.svg" alt="logo google" className="w-5 h-5" />
-                        <p>S'inscrire avec Google</p>
-                    </Button>
-
-                    <div className="flex items-center my-4">
-                        <div className="flex-grow border-solid border-t border-[1px] border-gray-400"></div>
-                        <span className="mx-4 text-gray-600 text-xl">ou</span>
-                        <div className="flex-grow border-solid border-t border-[1px] border-gray-400"></div>
-                    </div>
-
-                    <h2>Créer un compte</h2> */}
                     <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                         <Input
                             label="Prénom"

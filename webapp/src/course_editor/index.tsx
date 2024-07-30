@@ -7,10 +7,9 @@ import { TextMenu } from './extensions/BubbleMenu/BubbleMenu'
 import styled from '@emotion/styled'
 import { getExtensions } from './extensions';
 import "./editor.scss"
+import { EMPTY_DOCUMENT } from '@/config';
 
 const StyledEditor = styled.div`
-
-
 `
 
 
@@ -19,11 +18,11 @@ export const useTiptapEditor = () => {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: getExtensions(),
-    content: `<h1></h1>`,
+    content: EMPTY_DOCUMENT,
   })
 
   const getContent = useCallback(() => {
-    return editor?.getHTML() ?? ''
+    return editor?.getJSON() ?? ''
   }, [editor])
 
   const getTitle = useCallback(() => {

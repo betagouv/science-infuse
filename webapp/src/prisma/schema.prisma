@@ -14,7 +14,7 @@ model Chapter {
   themeId      String?
   theme        Theme?   @relation(fields: [themeId], references: [id])
   introduction String? // TipTap output
-  content      String // TipTap output
+  content      Json // TipTap output
   skills       Skill[]
   tags         Tag[]
   blocks       Block[]
@@ -51,7 +51,7 @@ model Block {
   tags              Tag[]
   activities        Activity[]
   educationalLevels EducationalLevel[]
-  content           String // TipTap output
+  content           Json // TipTap output
   bilan             String?
   chapterId         String
   chapter           Chapter            @relation(fields: [chapterId], references: [id])
@@ -64,7 +64,7 @@ model Block {
 model Activity {
   id        String   @id @default(cuid())
   title     String
-  content   String // TipTap output
+  content   Json // TipTap output
   tags      Tag[]
   blockId   String
   block     Block    @relation(fields: [blockId], references: [id])
