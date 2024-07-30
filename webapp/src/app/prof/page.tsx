@@ -8,6 +8,7 @@ import ProfDashboardContent from './ProfDashboardContent';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { useSession } from "next-auth/react";
+import { EMPTY_DOCUMENT } from "@/config";
 
 export default async function ProfDashboard() {
   const session = await getServerSession(authOptions);
@@ -22,7 +23,7 @@ export default async function ProfDashboard() {
     const newChapter = await prisma.chapter.create({
       data: {
         title: 'New Chapter',
-        content: '',
+        content: JSON.stringify(EMPTY_DOCUMENT),
         userId: session.user.id,
       },
     });

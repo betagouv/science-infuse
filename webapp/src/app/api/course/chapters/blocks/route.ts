@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       throw new Error(`CourseChapter with id ${chapterId} not found`);
     }
 
-    console.log("CREATE ", title, content, chapterId, session.user.id)
+    console.log("CREATE BLOCKKKK", title, content, chapterId, session.user.id)
     const block = await prisma.block.create({
       data: {
         title,

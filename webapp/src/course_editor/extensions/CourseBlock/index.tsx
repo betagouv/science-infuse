@@ -105,7 +105,7 @@ const CourseBlockNode = Node.create({
           if (dispatch) {
             dispatch(tr)
           }
-          const newBlock = apiClient.deleteCourseChapterBlock(blockId);
+          const newBlock = apiClient.deleteBlock(blockId);
 
           return true
         }

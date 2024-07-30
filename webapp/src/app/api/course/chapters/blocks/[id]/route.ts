@@ -1,4 +1,3 @@
-// app/api/course-chapters/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
@@ -17,21 +16,21 @@ export async function GET(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const chapter = await prisma.block.findUnique({
+    const block = await prisma.block.findUnique({
       where: {
         id: params.id,
         userId: session.user.id,
       },
     });
 
-    if (!chapter) {
-      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+    if (!block) {
+      return NextResponse.json({ error: 'Block not found' }, { status: 404 });
     }
 
-    return NextResponse.json(chapter);
+    return NextResponse.json(block);
   } catch (error) {
-    console.error('Error fetching course chapter:', error);
-    return NextResponse.json({ error: 'Failed to fetch course chapter' }, { status: 500 });
+    console.error('Error fetching course Block:', error);
+    return NextResponse.json({ error: 'Failed to fetch Block' }, { status: 500 });
   }
 }
 
@@ -48,7 +47,7 @@ export async function PUT(
 
     const { title, content } = await request.json();
 
-    const updatedChapter = await prisma.chapter.update({
+    const updatedBlock = await prisma.block.update({
       where: {
         id: params.id,
         userId: session.user.id,
@@ -59,10 +58,10 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedChapter);
+    return NextResponse.json(updatedBlock);
   } catch (error) {
-    console.error('Error updating course chapter:', error);
-    return NextResponse.json({ error: 'Failed to update course chapter' }, { status: 500 });
+    console.error('Error updating block:', error);
+    return NextResponse.json({ error: 'Failed to update block' }, { status: 500 });
   }
 }
 
@@ -77,20 +76,20 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const deletedChapter = await prisma.chapter.delete({
+    const deletedBlock = await prisma.block.delete({
       where: {
         id: params.id,
         userId: session.user.id,
       },
     })
 
-    if (!deletedChapter) {
-      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 })
+    if (!deletedBlock) {
+      return NextResponse.json({ error: 'Block not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ message: 'Chapter deleted successfully' })
+    return NextResponse.json({ message: 'Block deleted successfully' })
   } catch (error) {
-    console.error('Error deleting course chapter:', error)
-    return NextResponse.json({ error: 'Failed to delete course chapter' }, { status: 500 })
+    console.error('Error deleting block:', error)
+    return NextResponse.json({ error: 'Failed to delete block' }, { status: 500 })
   }
 }

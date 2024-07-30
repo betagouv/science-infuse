@@ -12,9 +12,9 @@ export const GROUPS: Group[] = [
         iconName: 'FilePlus2',
         description: 'Search and insert an image',
         action: async editor => {
-          const newBlock = await apiClient.createCourseChapterBlock({
-            title: 'New Group',
-            content: 'Group content',
+          const newBlock = await apiClient.createBlcok({
+            title: `New Group ${Math.random()}`,
+            content: '[]',
             chapterId: editor.storage.simetadata.chapterId,
           })
           editor.chain().focus().addCourseBlock(newBlock.id).run()

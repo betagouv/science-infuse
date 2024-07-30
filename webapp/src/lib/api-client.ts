@@ -1,7 +1,7 @@
-import { CourseChapterBlock } from '@prisma/client';
+import { Block } from '@prisma/client';
 import axios from 'axios';
 
-interface CreateChapterBlockRequest {
+interface CreateBlockRequest {
   title: string;
   content: string;
   chapterId: string;
@@ -19,18 +19,18 @@ class ApiClient {
     });
   }
 
-  async createCourseChapterBlock(data: CreateChapterBlockRequest): Promise<CourseChapterBlock> {
-    const response = await this.axiosInstance.post<CourseChapterBlock>('/course/chapters/blocks', data);
+  async createBlcok(data: CreateBlockRequest): Promise<Block> {
+    const response = await this.axiosInstance.post<Block>('/course/chapters/blocks', data);
     return response.data;
   }
 
-  async deleteCourseChapterBlock(blockId: string): Promise<CourseChapterBlock> {
-    const response = await this.axiosInstance.delete<CourseChapterBlock>(`/course/chapters/blocks/${blockId}`);
+  async deleteBlock(blockId: string): Promise<Block> {
+    const response = await this.axiosInstance.delete<Block>(`/course/chapters/blocks/${blockId}`);
     return response.data;
   }
 
-  async getCourseChapterBlocks(): Promise<CourseChapterBlock[]> {
-    const response = await this.axiosInstance.get<CourseChapterBlock[]>('/course/chapters/blocks');
+  async getBlocks(): Promise<Block[]> {
+    const response = await this.axiosInstance.get<Block[]>('/course/chapters/blocks');
     return response.data;
   }
 
