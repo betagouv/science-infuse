@@ -11,6 +11,8 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import axios from "axios";
+import { useCollapse } from 'react-collapsed'
+
 // Types
 type UserApprovalButtonsProps = {
     onApprove: () => void;
@@ -122,25 +124,29 @@ export const BaseCard: React.FC<BaseCardProps> = ({ groupedInDocument, children,
     );
 };
 
-export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => (
-    <BaseCard
-        groupedInDocument={groupedInDocument}
-        chunk={chunk}
-        title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
-        linkProps={{
-            href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
-            target: "_blank",
-        }}
-    >
-        <Highlighter
-            highlightClassName="highlightSearch"
-            searchWords={searchWords}
-            autoEscape={false}
-            textToHighlight={chunk.text}
-            findChunks={findNormalizedChunks}
-        />
-    </BaseCard>
-);
+export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => {
+
+
+    return (
+        <BaseCard
+            groupedInDocument={groupedInDocument}
+            chunk={chunk}
+            title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+            linkProps={{
+                href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+                target: "_blank",
+            }}
+        >
+            <Highlighter
+                highlightClassName="highlightSearch"
+                searchWords={searchWords}
+                autoEscape={false}
+                textToHighlight={chunk.text}
+                findChunks={findNormalizedChunks}
+            />
+        </BaseCard>
+    )
+};
 
 export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => (
     <BaseCard
@@ -160,32 +166,69 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
     </BaseCard>
 );
 
-export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => (
-    <BaseCard
-        groupedInDocument={groupedInDocument}
-        chunk={chunk}
-        title={chunk.title}
-        linkProps={{
-            href: chunk.document.original_path,
-            target: "_blank",
-        }}
-    >
-        <div>
-            <VideoPlayer
-                videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`}
-                startOffset={chunk.metadata.start}
-                endOffset={chunk.metadata.end}
-            />
-            <Highlighter
-                highlightClassName="highlightSearch"
-                searchWords={searchWords}
-                autoEscape={false}
-                textToHighlight={chunk.text}
-                findChunks={findNormalizedChunks}
-            />
-        </div>
-    </BaseCard>
-);
+export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse()
+    return (
+        <BaseCard
+            groupedInDocument={groupedInDocument}
+            chunk={chunk}
+            title={chunk.title}
+            linkProps={{
+                href: chunk.document.original_path,
+                target: "_blank",
+            }}
+        >
+            <div>
+                <VideoPlayer
+                    videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`}
+                    startOffset={chunk.metadata.start}
+                    endOffset={chunk.metadata.end}
+                />
+                <div className="mt-4">
+                    {chunk.text.length < 200 ? <Highlighter
+                        highlightClassName="highlightSearch"
+                        searchWords={searchWords}
+                        autoEscape={false}
+                        textToHighlight={chunk.text.slice(0, 100)}
+                        findChunks={findNormalizedChunks}
+                    />
+                        : <>
+                            <div className="absolute text-left">
+                                <Highlighter
+                                    highlightClassName="highlightSearch"
+                                    searchWords={searchWords}
+                                    autoEscape={false}
+                                    textToHighlight={`${chunk.text.slice(0, 100)}...`}
+                                    findChunks={findNormalizedChunks}
+                                />
+                            </div>
+                            <div
+                                className="text-left"
+                                {...getCollapseProps({ style: { margin: 0 } })}
+                            >
+                                <Highlighter
+                                    highlightClassName="highlightSearch"
+                                    searchWords={searchWords}
+                                    autoEscape={false}
+                                    textToHighlight={chunk.text}
+                                    findChunks={findNormalizedChunks}
+                                />
+                            </div>
+                        </>
+                    }
+
+                </div>
+                <Button
+                    priority="secondary"
+                    {...getToggleProps({ style: { display: 'block', marginTop: isExpanded ? '1rem' : '5rem' } })}
+                >
+                    {isExpanded ? 'Cliquer pour réduire' : 'Lire la suite ?'}
+                </Button>
+
+            </div>
+        </BaseCard >
+    )
+};
 
 export const RenderWebsiteQAChunk: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);

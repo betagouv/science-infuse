@@ -1,7 +1,8 @@
 from S3Storage import S3Storage
 from processing.BaseDocumentProcessor import BaseDocumentProcessor
 from processing.audio.SIWhisperModel import SIWhisperModel
-from pytube import YouTube
+# from pytube import YouTube
+from pytubefix import YouTube
 import os
 
 from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
