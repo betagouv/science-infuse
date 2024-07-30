@@ -139,7 +139,7 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
             chunk={chunk}
             title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
             linkProps={{
-                href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+                href: `/pdf/${chunk.document.uuid}/${chunk.metadata.page_number}`,
                 target: "_blank",
             }}
         >
@@ -167,7 +167,7 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
             chunk={chunk}
             title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
             linkProps={{
-                href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+                href: `/pdf/${chunk.document.uuid}/${chunk.metadata.page_number}`,
                 target: "_blank",
             }}
         >
