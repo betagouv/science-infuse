@@ -24,7 +24,6 @@ class SIReranker:
         sentence_pairs = [[query, chunk.title + ". " + chunk.text] for chunk in document_chunks]
         if (len(sentence_pairs) <= 0):
             return []
-        print("sentence_pairs", sentence_pairs, query)
         reranker_scores = self.model.compute_score(sentence_pairs, max_length=1024)
 
         scored_chunks = list(zip(reranker_scores, [chunk.score for chunk in document_chunks], document_chunks))
