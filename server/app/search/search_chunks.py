@@ -99,8 +99,6 @@ def search_all_chunks(client: WeaviateClient, query: str, page: int = 1, page_si
     document_chunk = client.collections.get("DocumentChunk")
     
     all_properties = DocumentChunkRegistry.get_properties() + [f"meta_{prop}" for prop in MetadataRegistry.get_properties()]
-    print("ALL PROPS", all_properties)
-    print("QUERY", query)
 
     # Calculate offset based on page and page_size
     offset = (page - 1) * page_size

@@ -22,6 +22,9 @@ class SIReranker:
             **1**: Maximum adjustment based on reranker scores
         """
         sentence_pairs = [[query, chunk.title + ". " + chunk.text] for chunk in document_chunks]
+        if (len(sentence_pairs) <= 0):
+            return []
+        print("sentence_pairs", sentence_pairs, query)
         reranker_scores = self.model.compute_score(sentence_pairs, max_length=1024)
 
         scored_chunks = list(zip(reranker_scores, [chunk.score for chunk in document_chunks], document_chunks))
@@ -44,8 +47,7 @@ class SIReranker:
 
         # Update chunks with new scores, maintaining reranker order
         for (original_reranker_score, _, chunk), new_score in zip(sorted_chunks, new_scores):
-            chunk.score = new_score 
-
+            chunk.score = max(0, min(new_score, 1))
         return [chunk for _, _, chunk in sorted_chunks]
      
 
