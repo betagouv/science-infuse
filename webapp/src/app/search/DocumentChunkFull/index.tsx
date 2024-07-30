@@ -12,6 +12,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import axios from "axios";
 import { useCollapse } from 'react-collapsed'
+import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbNoLink from "@/ui/BreadcrumbNoLink";
 
 // Types
 type UserApprovalButtonsProps = {
@@ -125,8 +127,12 @@ export const BaseCard: React.FC<BaseCardProps> = ({ groupedInDocument, children,
 };
 
 export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => {
+    const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
+    if (chunk.title) {
+        path.push(...chunk.title.toLowerCase().split('>'))
+    }
 
-
+    
     return (
         <BaseCard
             groupedInDocument={groupedInDocument}
@@ -137,6 +143,8 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
                 target: "_blank",
             }}
         >
+            <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
+
             <Highlighter
                 highlightClassName="highlightSearch"
                 searchWords={searchWords}
@@ -148,23 +156,30 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
     )
 };
 
-export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => (
-    <BaseCard
-        groupedInDocument={groupedInDocument}
-        chunk={chunk}
-        title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
-        linkProps={{
-            href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
-            target: "_blank",
-        }}
-    >
-        <img
-            className="w-full"
-            src={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`}
-            alt={chunk.media_type}
-        />
-    </BaseCard>
-);
+export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => {
+    const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
+    if (chunk.title) {
+        path.push(...chunk.title.toLowerCase().split('>'))
+    }
+    return (
+        <BaseCard
+            groupedInDocument={groupedInDocument}
+            chunk={chunk}
+            title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+            linkProps={{
+                href: `/pdf/${encodeURIComponent((chunk.document.s3_object_name))}/${chunk.metadata.page_number}`,
+                target: "_blank",
+            }}
+        >
+            <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
+            <img
+                className="w-full"
+                src={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`}
+                alt={chunk.media_type}
+            />
+        </BaseCard>
+    )
+};
 
 export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse()
