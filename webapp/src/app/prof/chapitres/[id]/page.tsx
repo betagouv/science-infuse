@@ -42,7 +42,7 @@ const saveBlocks = async (editorContent: JSONContent) => {
   return blocks
 }
 
-const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent) => {
+const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent | string) => {
 
   await saveBlocks(editor.getJSON())
 

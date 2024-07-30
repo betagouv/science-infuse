@@ -5,7 +5,7 @@ import axios from "axios";
 import { useState } from "react";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from 'react-pdf';
-import { Button, IconButton, Typography, Box, CircularProgress } from '@mui/material';
+import { Button, IconButton, Typography, Box, CircularProgress, TextField } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -25,14 +25,39 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(props.defaultPage);
     const [loading, setLoading] = useState<boolean>(true);
+    const [inputValue, setInputValue] = useState<string>(props.defaultPage.toString());
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
         setNumPages(numPages);
         setLoading(false)
     }
 
-    const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
-    const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages || prev));
+    const goToPrevPage = () => {
+        const newPage = Math.max(pageNumber - 1, 1);
+        setPageNumber(newPage);
+        setInputValue(newPage.toString());
+    }
+    const goToNextPage = () => {
+        const newPage = Math.min(pageNumber + 1, numPages || pageNumber);
+        setPageNumber(newPage);
+        setInputValue(newPage.toString());
+    }
+
+    const handlePageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.value;
+        setInputValue(newValue);
+        const newPage = parseInt(newValue);
+        if (!isNaN(newPage) && newPage >= 1 && newPage <= (numPages || 1)) {
+            setPageNumber(newPage);
+        }
+    };
+
+    const handleBlur = () => {
+        const newPage = parseInt(inputValue);
+        if (isNaN(newPage) || newPage < 1 || newPage > (numPages || 1)) {
+            setInputValue(pageNumber.toString());
+        }
+    };
 
     return (
         <Box className="py-8 flex flex-col items-center gap-4 px-4 md:px-0 min-h-screen">
@@ -53,7 +78,18 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
                     <ChevronLeft />
                 </IconButton>
                 <Typography variant="body1">
-                    Page {pageNumber} sur {numPages ? numPages : '-'}
+                    Page
+                </Typography>
+                <TextField
+                    type="number"
+                    value={inputValue}
+                    onChange={handlePageChange}
+                    onBlur={handleBlur}
+                    inputProps={{ min: 1, max: numPages }}
+                    sx={{ width: '4rem', '& .MuiInputBase-input': { padding: '4px 8px' } }}
+                />
+                <Typography variant="body1">
+                    sur {numPages ? numPages : '-'}
                 </Typography>
                 <IconButton onClick={goToNextPage} disabled={pageNumber >= (numPages || 0)}>
                     <ChevronRight />
