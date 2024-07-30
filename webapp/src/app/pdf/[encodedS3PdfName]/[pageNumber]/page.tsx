@@ -3,9 +3,61 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import RenderPdf from "../../RenderPdf";
-import { useRouter } from "next/router";
+import { QueryFunction, useQuery } from "@tanstack/react-query";
+import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
 
-// export default function Pdf() {
+interface TOCItem {
+    text: string;
+    page: number;
+    items?: TOCItem[];
+}
+
+interface TableOfContents {
+    items: TOCItem[];
+}
+
+interface SideMenuItemProps {
+    text: string;
+    linkProps?: {
+        href: string;
+    };
+    items?: SideMenuItemProps[];
+    isActive?: boolean;
+}
+
+
+const convertTOCToSideMenuItems = (tocItems: TOCItem[]): SideMenuItemProps[] => {
+    return tocItems.map(item => ({
+        text: item.text,
+        linkProps: {
+            href: "#",
+            onClick: () => { console.log("TEST") },
+            target: "_self"
+        },
+        ...(item.items && { items: convertTOCToSideMenuItems(item.items) })
+    }));
+};
+
+
+
+
+const fetchTableOfContents: QueryFunction<TableOfContents, [string, string]> = async ({ queryKey }) => {
+    const [_, documentUuid] = queryKey;
+    const response = await axios.post(
+        `${NEXT_PUBLIC_SERVER_URL}/document/toc`,
+        {},  // empty body
+        {
+            params: { document_uuid: documentUuid },  // query parameters
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return response.data;
+};
+
+
+
 export default function PdfPage({
     params,
 }: {
@@ -13,20 +65,14 @@ export default function PdfPage({
 }) {
 
     const { encodedS3PdfName, pageNumber } = params;
-    console.log("encodedS3PdfName", encodedS3PdfName, pageNumber)
-
-
-
-    // const router = useRouter();
-    // const { encodedS3PdfName, pageNumber } = router.query;
     const decodedPdfUrl = decodeURIComponent(encodedS3PdfName as string);
-    // const decodedPdfUrl = "pdf/40776654-f565-44c5-b0b3-a5b1f1d74636.pdf";
     const [url, setUrl] = useState<string>();
+    const documentUuid = "b6a7357a-cb3c-4329-ab6d-b0d1cff83df8"
+
+
     useEffect(() => {
         axios.get(`${NEXT_PUBLIC_SERVER_URL}/s3_url/${decodedPdfUrl}`)
             .then(response => {
-                console.log("s3_pdf_name", decodedPdfUrl)
-                console.log("s3url", response.data)
                 setUrl(response.data)
             })
             .catch(error => {
@@ -35,5 +81,7 @@ export default function PdfPage({
     }, [decodedPdfUrl])
 
 
+
     return url ? <RenderPdf pdfUrl={url} defaultPage={parseInt(pageNumber as string)} /> : "loading"
+
 }

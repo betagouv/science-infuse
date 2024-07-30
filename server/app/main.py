@@ -79,7 +79,6 @@ def read_root():
 
 
 
-
 @cache(expire=3600)
 async def get_s3_url(s3_object_name: str):
     print(f"Attempting to retrieve cache for {s3_object_name}")

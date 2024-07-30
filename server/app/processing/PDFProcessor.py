@@ -118,6 +118,7 @@ class PDFProcessor(BaseDocumentProcessor):
                 text = self.surya.restructure_text(page.get_text("text", clip=box.bbox))
                 if (label in self.surya.TITLES):
                     current_title = text
+                    current_subtitle = ""
                 if (label in self.surya.SUB_TITLES):
                     current_subtitle = text
 
