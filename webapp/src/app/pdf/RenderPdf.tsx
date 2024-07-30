@@ -121,7 +121,8 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
 
 
     return (
-        <div className="flex flex-row mt-8">
+
+        <div className="flex flex-row mt-8 justify-center">
             {toc && <div
                 className="container"
                 style={{

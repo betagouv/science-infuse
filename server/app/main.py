@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
 from S3Storage import S3Storage
+from SIWeaviateClient import SIWeaviateClient
 from models import create_weaviate_schema
 from router import document, search, user_approved
 import logging
@@ -86,13 +87,24 @@ async def get_s3_url(s3_object_name: str):
     print(f"Generated URL: {s3_public_path}")
     return s3_public_path
 
+@cache(expire=3600)
+async def get_s3_url_from_uuid(document_uuid: str):
+    print(f"Attempting to retrieve cache for {document_uuid}")
+    with SIWeaviateClient() as client:
+        s3_object_name = client.collections.get("Document").query.fetch_object_by_id(document_uuid).properties.get('s3_object_name')
+        print(f"Getting signed url for : {s3_object_name}")
+        s3_public_path = s3.get_presigned_url(s3_object_name, expiration=3600)
+        print(f"Generated URL: {s3_public_path}")
+        return s3_public_path
+
 @app.get("/s3/{s3_object_name:path}")
 async def s3_redirect(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
     print(f"Redirecting to: {s3_url}")
     return RedirectResponse(s3_url, status_code=307)
 
-@app.get("/s3_url/{s3_object_name:path}")
-async def get_s3_url(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
+
+@app.get("/s3_url_pdf/{document_uuid:path}")
+async def get_s3_url(document_uuid: str, s3_url: str = Depends(get_s3_url_from_uuid)):
     return s3_url
 
 

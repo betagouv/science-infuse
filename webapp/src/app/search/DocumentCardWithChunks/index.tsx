@@ -31,9 +31,9 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
 const getTitleLink = (searchResult: DocumentSearchResult) => {
     try {
         console.log("DEBUG", searchResult.chunks[0].metadata)
-        const s3_object_name = searchResult.chunks[0]?.document?.s3_object_name;
-        if (s3_object_name.endsWith('pdf'))
-            return `/pdf/${encodeURIComponent(s3_object_name)}/1}`
+        const documentUuid = searchResult.chunks[0]?.document?.uuid;
+        if (searchResult.chunks[0]?.document?.s3_object_name.endsWith('pdf'))
+            return `/pdf/${documentUuid}/1}`
     } catch (error) {
     }
     return ""
