@@ -74,7 +74,7 @@ const fetchTableOfContents: QueryFunction<TableOfContents, [string, string]> = a
     return response.data;
 };
 
-const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
+const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number }) => {
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(props.defaultPage);
     const [loading, setLoading] = useState<boolean>(true);
@@ -112,7 +112,7 @@ const RenderPdf = (props: { pdfUrl: string, defaultPage: number }) => {
         }
     };
 
-    const documentUuid = "b6a7357a-cb3c-4329-ab6d-b0d1cff83df8"
+    const documentUuid = props.pdfUuid
     const { data: toc, isLoading, error } = useQuery({
         queryKey: ['tableOfContents', documentUuid],
         queryFn: fetchTableOfContents,
