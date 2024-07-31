@@ -8,22 +8,6 @@ import { useDebounce } from 'use-debounce';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchSIContent } from '@/app/search/fetchSIContent';
 
-// const getSIImages = async (query: string) => {
-//   try {
-//     const response = await axios.post<ChunkWithScore<'pdf_image'>[]>(
-//       `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`,
-//       {
-//         query: query,
-//         media_types: ["pdf_image"]
-//       }
-//     );
-//     const images = response.data.map((chunk) => `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`);
-//     return images;
-//   } catch (error) {
-//     console.error("Error searching:", error);
-//   }
-//   return [];
-// };
 
 const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {
   const { editor, closePopup } = props;
