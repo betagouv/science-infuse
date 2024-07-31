@@ -78,6 +78,8 @@ services:
       - "8002:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
     healthcheck:
       test: ["CMD", "npx", "prisma", "db", "push"]
       interval: 10s
