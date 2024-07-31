@@ -1,47 +1,28 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import axios from 'axios';
-import { ChunkWithScore } from '@/types/vectordb';
+import { ChunkSearchResultsWithType, ChunkWithScore } from '@/types/vectordb';
 import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import VideoPlayer from '@/app/mediaViewers/VideoPlayer';
 import { Button } from '@mui/material';
 import { VideoNodeProps } from './VideoNode';
 import { useDebounce } from 'use-debounce';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchSIContent } from '@/app/search/fetchSIContent';
 
-const getSIVideos = async (query: string) => {
-  try {
-    const response = await axios.post<ChunkWithScore<'video_transcript'>[]>(
-      `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`,
-      {
-        query: query,
-        media_types: ["video_transcript"]
-      }
-    );
-    const images = response.data;
-    return images;
-  } catch (error) {
-    console.error("Error searching:", error);
-  }
-  return [];
-};
 
 const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {
   const { editor, closePopup } = props;
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 500);
-  const [videos, setVideos] = useState<ChunkWithScore<'video_transcript'>[]>([]);
 
-  const searchVideos = useCallback(async () => {
-    const videos = await getSIVideos(debouncedQuery);
-    setVideos(videos);
-  }, [debouncedQuery]);
+  const { data: results, isLoading, isError } = useQuery({
+    queryKey: ['search', debouncedQuery, false, ["video_transcript"], 1, 10] as const,
+    queryFn: fetchSIContent,
+    enabled: !!debouncedQuery,
+  },);
 
-  useEffect(() => {
-    if (debouncedQuery) {
-      searchVideos();
-    }
-  }, [debouncedQuery, searchVideos]);
 
   const insertVideo = (props: VideoNodeProps) => {
     closePopup();
@@ -63,7 +44,7 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
         autoFocus
       />
       <Masonry columns={2} spacing={2}>
-        {videos.map((chunk, index) => {
+        {results != undefined && (results as ChunkSearchResultsWithType<"video_transcript">).chunks.map((chunk, index) => {
           const duration = Math.floor(chunk.metadata.end - chunk.metadata.start);
           const videoUrl = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`;
           return (
