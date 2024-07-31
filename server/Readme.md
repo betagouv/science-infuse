@@ -29,6 +29,8 @@ python app/data_indexing/health_questions.py
 python app/data_indexing/ressources_juniors.py
 #### [@leblob_fr](https://www.youtube.com/@leblob_fr) | [@citedesscience](https://www.youtube.com/@citedessciences) | [palaisdeladécouverte](https://www.youtube.com/c/palaisdelad%C3%A9couverte)
 python app/data_indexing/youtube_videos.py
+`/!\ if you get 400 or video require Login error, try setting use_oauth to True. But this require a google account, and access to shell to enter the code.`
+
 #### all pdfs from custom directory (recursive)
 python app/data_indexing/pdf_documents.py
 
