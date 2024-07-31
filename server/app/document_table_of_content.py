@@ -27,7 +27,7 @@ def create_toc_structure(data: List[dict]) -> TableOfContents:
                 else:
                     current[title] = {"items": {}}
             if i < len(item['path']) - 1:
-                current = current[title]["items"]
+                current = current[title].get("item", {})
     
     def build_toc_items(node: dict) -> List[TOCItem]:
         items = []
