@@ -95,7 +95,7 @@ whisper = SIWhisperModel('medium', 'whisper-medium')
 MAX_VIDEO_LENGTH_SECONDS = 60*1 #1 hour
 # MAX_VIDEO_LENGTH_SECONDS = 60*60*1 #1 hour
 
-def index_channel(channel_id: str):
+def index_channel(channel_id: str, use_oauth: bool):
     channel_videos = get_channel_videos(channel_id)
     print(len(channel_videos))
     
@@ -118,7 +118,7 @@ def index_channel(channel_id: str):
                 continue
             for i in range(10):
                 try:
-                    YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url)
+                    YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url, use_oauth=use_oauth)
                     print("---")
                     break
                 except pytube.exceptions.AgeRestrictedError:
@@ -137,6 +137,7 @@ channel_le_blob = "UC3E2DhYIqnoc6H3WXwTVnlA"
 channel_citedessciences = "UC2RSe5ZktAjE3qoMKi2pA_g"
 channel_palaisdeladecouverte = "UC1udnO-W6gpR9qzleJ5SDKw"
 
-index_channel(channel_le_blob)
-index_channel(channel_citedessciences)
-index_channel(channel_palaisdeladecouverte)
+use_oauth = False
+index_channel(channel_le_blob, use_oauth)
+index_channel(channel_citedessciences, use_oauth)
+index_channel(channel_palaisdeladecouverte, use_oauth)
