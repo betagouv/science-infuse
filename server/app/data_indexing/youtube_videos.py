@@ -124,9 +124,11 @@ def index_channel(channel_id: str):
                 except pytube.exceptions.AgeRestrictedError:
                     print("Age restricted -> SKIP")
                     continue
-                except:
+                except Exception as e:
                     if i == 9:
-                        print("===================Failed after 10 retries")
+                        print("===================Failed after 10 retries", e)
+                        import traceback
+                        traceback.print_exc()
                     continue
     s3.s3_client.close()
     
