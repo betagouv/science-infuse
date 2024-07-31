@@ -27,7 +27,7 @@ def create_toc_structure(data: List[dict]) -> TableOfContents:
                 else:
                     current[title] = {"items": {}}
             if i < len(item['path']) - 1:
-                current = current[title].get("item", {})
+                current = current[title]["items"]
     
     def build_toc_items(node: dict) -> List[TOCItem]:
         items = []
@@ -58,10 +58,11 @@ def get_document_toc(client: weaviate.WeaviateClient, document_uuid: str) -> Tab
     unique_chunks = {}
 
     for chunk in chunks:
-        title = chunk['title']
+        title = chunk['title'].strip().lstrip('>').strip()
         page = chunk['page']
         if title not in unique_chunks or page < unique_chunks[title]['page']:
-            unique_chunks[title] = chunk
+            unique_chunks[title] = {'title': title, 'page': page}
+
 
     chunks = list(unique_chunks.values())
     toc = []
