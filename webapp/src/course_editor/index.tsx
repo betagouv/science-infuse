@@ -1,13 +1,14 @@
 'use client';
 
 import { Editor, EditorContent, useEditor } from '@tiptap/react'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { EditorContext } from './context/EditorContext'
 import { TextMenu } from './extensions/BubbleMenu/BubbleMenu'
 import styled from '@emotion/styled'
 import { getExtensions } from './extensions';
 import "./editor.scss"
 import { EMPTY_DOCUMENT } from '@/config';
+import ImageBlockMenu from './extensions/ImageBlock/components/ImageBlockMenu';
 
 const StyledEditor = styled.div`
 `
@@ -45,6 +46,7 @@ export const useTiptapEditor = () => {
 export const TiptapEditor = (props: { editor: Editor }) => {
 
   const { editor } = props;
+  const menuContainerRef = useRef(null)
   const providerValue = useMemo(() => {
     return {
       title: "test",
@@ -52,11 +54,19 @@ export const TiptapEditor = (props: { editor: Editor }) => {
   }, [])
 
   return (
-    <StyledEditor id="editor" className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}>
-      <EditorContext.Provider value={providerValue}>
-        <EditorContent className="editor__content" editor={editor} style={{ minHeight: '100%' }} />
-        {editor && <TextMenu editor={editor} />}
-      </EditorContext.Provider>
+    <StyledEditor
+      id="editor"
+      className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}
+    >
+      <div className="flex h-full" ref={menuContainerRef}>
+
+        <EditorContext.Provider value={providerValue}>
+          <EditorContent className="flex-1 overflow-y-auto" editor={editor} style={{ minHeight: '100%' }} />
+          {editor && <TextMenu editor={editor} />}
+          <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+
+        </EditorContext.Provider>
+      </div>
     </StyledEditor>
   )
 }

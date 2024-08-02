@@ -55,8 +55,7 @@ export default async function ProfDashboard() {
   }
 
 
-
-
+  
   const chapters = await prisma.chapter.findMany({
     where: {
       userId: session.user.id,

@@ -12,6 +12,7 @@ import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
 import TextStyle from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
+import Focus from '@tiptap/extension-focus'
 import { Color } from '@tiptap/extension-color'
 import Placeholder from '@tiptap/extension-placeholder'
 import Document from '@tiptap/extension-document'
@@ -22,9 +23,9 @@ import ImageSearch from './extensions/ImageSearch'
 import SIVideo from './extensions/VideoSearch'
 import CourseBlockNode, { TitleNode } from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
-import ResizableImage from './extensions/ImageResize'
 import { Editor } from '@tiptap/core';
 import { apiClient } from '@/lib/api-client'
+import ImageBlock from './extensions/ImageBlock/ImageBlock'
 
 
 const CustomDocument = Document.extend({
@@ -38,6 +39,10 @@ export const getExtensions = () => {
             dragHandleWidth: 20,
             scrollTreshold: 100,
             dragHandleSelector: ".drag-handle"
+        }),
+        Focus.configure({
+            className: 'has-focus',
+            mode: 'all',
         }),
         SlashCommand,
         SIVideo,
@@ -58,27 +63,28 @@ export const getExtensions = () => {
         TableCell,
         // CodeBlock,
         // Image,
+        ImageBlock,
         ImageSearch,
         FileHandler.configure({
             allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
             onDrop: (editor: Editor, files: File[], pos: number) => {
                 files.forEach(async (file) => {
-                    const url = await apiClient.uploadImage(file)
-                    editor.chain().setImage({src: url}).focus().run()
-                    // editor.chain().setImageBlockAt({ pos, src: url }).focus().run()
+                    // const url = await apiClient.uploadImage(file)
+                    const url = "http://localhost:8000/s3/prof/clzcrfnqs0004101wmflpvz88/0480ad60-aeaf-4abe-95bd-a9d3ca8ee36b.png"
+                    setTimeout(() => {
+                        editor.chain().setImageBlockAt({ pos, src: url }).focus().run()
+                    }, 2000)
                 })
             },
             onPaste: (editor: Editor, files: File[]) => {
                 files.forEach(async (file) => {
-                    const url = await apiClient.uploadImage(file)
-                    return editor.chain().setImage({src: url}).focus().run()
-
-
-                    // return editor
-                    //     .chain()
-                    //     .setImageBlockAt({ pos: editor.state.selection.anchor, src: url })
-                    //     .focus()
-                    //     .run()
+                    // const url = await apiClient.uploadImage(file)
+                    const url = "http://localhost:8000/s3/prof/clzcrfnqs0004101wmflpvz88/0480ad60-aeaf-4abe-95bd-a9d3ca8ee36b.png"
+                    // return editor.chain().setImage({src: url}).focus().run()
+                    editor.chain().setImageBlockAt({ pos: editor.state.selection.anchor, src: "" }).focus().run()
+                    setTimeout(() => {
+                        return editor.chain().setImageBlockAt({ pos: editor.state.selection.anchor, src: url }).focus().run()
+                    }, 2000)
                 })
             },
         }),
@@ -89,7 +95,6 @@ export const getExtensions = () => {
         Color,
         TextAlign,
         TextStyle,
-        ResizableImage,
         CharacterCount.configure({
             limit: 10000,
         }),
