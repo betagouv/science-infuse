@@ -4,7 +4,7 @@ CREATE TABLE "Chapter" (
     "title" TEXT NOT NULL,
     "themeId" TEXT,
     "introduction" TEXT,
-    "content" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE "Tag" (
 CREATE TABLE "Block" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
     "bilan" TEXT,
     "chapterId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE "Block" (
 CREATE TABLE "Activity" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
     "blockId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,6 +70,30 @@ CREATE TABLE "EducationalLevel" (
     "name" TEXT NOT NULL,
 
     CONSTRAINT "EducationalLevel_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "File" (
+    "id" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "author" TEXT NOT NULL,
+    "s3ObjectName" TEXT NOT NULL,
+    "extension" TEXT NOT NULL,
+    "shared" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT,
+
+    CONSTRAINT "File_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FileType" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "fileId" TEXT,
+
+    CONSTRAINT "FileType_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -212,6 +236,12 @@ ALTER TABLE "Activity" ADD CONSTRAINT "Activity_blockId_fkey" FOREIGN KEY ("bloc
 
 -- AddForeignKey
 ALTER TABLE "Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "File" ADD CONSTRAINT "File_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileType" ADD CONSTRAINT "FileType_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "File"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -10,6 +10,14 @@ const createThemes = async () => {
   })
 }
 
+const createFileTypes = async () => {
+  const types = ["image", "activité"]
+  await prisma.fileType.createMany({
+    data: types.map(name => ({ name })),
+    skipDuplicates: true,
+  })
+}
+
 const createEducationLevels = async () => {
   const educationLevels = ["6e", "5e", "4e", "3e", "2nde", "1ere", "Terminale"]
   await prisma.educationalLevel.createMany({
@@ -71,6 +79,7 @@ async function main() {
   await createThemes();
   await createEducationLevels();
   await createSkills();
+  await createFileTypes();
 }
 
 main()

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { CreateChapterBlockRequest } from '@/types/api/chapter';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
+import { Block } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(block, { status: 201 });
+    return NextResponse.json<Block>(block, { status: 201 });
   } catch (error) {
     console.error('Error creating course chapter:', error);
     return NextResponse.json({ error: 'Failed to create course chapter' }, { status: 500 });

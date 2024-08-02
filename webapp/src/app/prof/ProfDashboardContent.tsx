@@ -21,6 +21,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { Block, Chapter, User } from '@prisma/client';
+import { signOut } from 'next-auth/react';
 
 interface ProfDashboardContentProps {
   initialChapters: Chapter[];
@@ -46,7 +47,7 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
       alert('Failed to create new chapter. Please try again.');
     }
   };
-  
+
   const handleDeleteChapter = async (chapterId: string) => {
     try {
       const updatedChapters = await deleteChapter(chapterId);
@@ -145,7 +146,7 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
               <Button
                 variant="contained"
                 color="primary"
-                // onClick={handleCreateChapter}
+              // onClick={handleCreateChapter}
               >
                 Créer un nouveau Bloc
               </Button>
@@ -165,6 +166,9 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
               </Typography>
               <Button variant="outlined" onClick={() => setOpenDialog(true)}>
                 Modifier
+              </Button>
+              <Button variant="outlined" onClick={async () => await signOut()}>
+                Déconnexion
               </Button>
             </Paper>
           </Grid>

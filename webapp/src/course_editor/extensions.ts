@@ -17,17 +17,20 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Document from '@tiptap/extension-document'
 import SlashCommand from './extensions/SlashCommand/SlashCommand'
 import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
+import { FileHandler } from '@tiptap-pro/extension-file-handler'
 import ImageSearch from './extensions/ImageSearch'
 import SIVideo from './extensions/VideoSearch'
-import ImageResize from 'tiptap-extension-resize-image';
 import CourseBlockNode, { TitleNode } from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
+import ResizableImage from './extensions/ImageResize'
+import { Editor } from '@tiptap/core';
+import { apiClient } from '@/lib/api-client'
 
 
 const CustomDocument = Document.extend({
     content: 'heading block*',
-  })
-  
+})
+
 export const getExtensions = () => {
     return [
         SIMetadata,
@@ -56,6 +59,29 @@ export const getExtensions = () => {
         // CodeBlock,
         // Image,
         ImageSearch,
+        FileHandler.configure({
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+            onDrop: (editor: Editor, files: File[], pos: number) => {
+                files.forEach(async (file) => {
+                    const url = await apiClient.uploadImage(file)
+                    editor.chain().setImage({src: url}).focus().run()
+                    // editor.chain().setImageBlockAt({ pos, src: url }).focus().run()
+                })
+            },
+            onPaste: (editor: Editor, files: File[]) => {
+                files.forEach(async (file) => {
+                    const url = await apiClient.uploadImage(file)
+                    return editor.chain().setImage({src: url}).focus().run()
+
+
+                    // return editor
+                    //     .chain()
+                    //     .setImageBlockAt({ pos: editor.state.selection.anchor, src: url })
+                    //     .focus()
+                    //     .run()
+                })
+            },
+        }),
         // VideoSearch,
         Underline,
         Link,
@@ -63,7 +89,7 @@ export const getExtensions = () => {
         Color,
         TextAlign,
         TextStyle,
-        ImageResize,
+        ResizableImage,
         CharacterCount.configure({
             limit: 10000,
         }),
@@ -80,9 +106,6 @@ export const getExtensions = () => {
             },
             showOnlyWhenEditable: false,
             showOnlyCurrent: false,
-
-
         }),
-
     ]
 }

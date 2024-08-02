@@ -6,6 +6,10 @@ interface CreateBlockRequest {
   content: string;
   chapterId: string;
 }
+export interface ImageUploadResponse {
+  s3ObjectName: string;
+  message: string;
+}
 
 class ApiClient {
   private axiosInstance;
@@ -34,6 +38,32 @@ class ApiClient {
     return response.data;
   }
 
+  async uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await this.axiosInstance.post<ImageUploadResponse>('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data && response.data.s3ObjectName) {
+        return `${process.env.NEXT_PUBLIC_SERVER_URL}/s3/${response.data.s3ObjectName}`;
+      } else {
+        throw new Error('Upload failed: No filename received');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Upload error:', error.response?.data || error.message);
+        throw new Error(`Upload failed: ${error.response?.data?.error || error.message}`);
+      } else {
+        console.error('Unexpected error:', error);
+        throw new Error('An unexpected error occurred during upload');
+      }
+    }
+  }
 }
 
 export const apiClient = new ApiClient();
