@@ -112,7 +112,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   }
 
   const handleSetContent = () => {
-    setContent('<h2>Updated Title</h2><p>This content was set from the parent component.</p>')
+    setContent('<h2>Updated Title</h2><img src="http://localhost:8000/s3/pdf/70cc4c0c-7d44-4ac7-a241-a0fb8820e380.pdf/images/d7fed59e-e565-482a-8e56-9e3592b11113.png"/>')
   }
 
   return (
