@@ -32,9 +32,10 @@ const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
     closePopup();
     editor
       .chain()
+      .setImageBlockAt({ pos: editor.state.selection.anchor, src: src })
       .focus()
-      .insertContentAt(editor.state.selection, { type: 'image', attrs: { src } })
-      .run();
+      .run()
+
   };
 
   return (

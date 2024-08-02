@@ -33,7 +33,8 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
     <NodeViewWrapper>
       <div className={wrapperClassName} style={{ width: node.attrs.width }}>
         <div contentEditable={false} ref={imageWrapperRef}>
-          <img className="block" src={src} alt="" onClick={onClick} />
+          {src && <img className="block w-full" src={src} alt="" onClick={onClick} />}
+          {!src && <img className="block w-full" src={"https://t3.ftcdn.net/jpg/05/14/75/82/360_F_514758236_i8rnB85PVdEaK19yGaK0TpaYEYMyxOL5.jpg"} alt="" onClick={onClick} />}
         </div>
       </div>
     </NodeViewWrapper>
