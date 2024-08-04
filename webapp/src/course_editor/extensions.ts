@@ -69,22 +69,12 @@ export const getExtensions = () => {
             allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
             onDrop: (editor: Editor, files: File[], pos: number) => {
                 files.forEach(async (file) => {
-                    // const url = await apiClient.uploadImage(file)
-                    const url = "http://localhost:8000/s3/prof/clzcrfnqs0004101wmflpvz88/0480ad60-aeaf-4abe-95bd-a9d3ca8ee36b.png"
-                    setTimeout(() => {
-                        editor.chain().setImageBlockAt({ pos, src: url }).focus().run()
-                    }, 2000)
+                    editor.chain().setImageFromFile(file).focus().run()
                 })
             },
             onPaste: (editor: Editor, files: File[]) => {
                 files.forEach(async (file) => {
-                    // const url = await apiClient.uploadImage(file)
-                    const url = "http://localhost:8000/s3/prof/clzcrfnqs0004101wmflpvz88/0480ad60-aeaf-4abe-95bd-a9d3ca8ee36b.png"
-                    // return editor.chain().setImage({src: url}).focus().run()
-                    editor.chain().setImageBlockAt({ pos: editor.state.selection.anchor, src: "" }).focus().run()
-                    setTimeout(() => {
-                        return editor.chain().setImageBlockAt({ pos: editor.state.selection.anchor, src: url }).focus().run()
-                    }, 2000)
+                    editor.chain().setImageFromFile(file).focus().run()
                 })
             },
         }),
