@@ -6,7 +6,7 @@ import { authOptions } from '../../auth/[...nextauth]/authOptions';
 import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
-import { ImageUploadResponse } from '@/lib/api-client';
+import { File as DbFile } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             }
         })
 
-        return NextResponse.json<ImageUploadResponse>({ message: 'Image uploaded successfully', s3ObjectName });
+        return NextResponse.json<DbFile>(dbfile);
     } catch (error) {
         console.error('Error writing file:', error);
         return NextResponse.json({ error: 'Error saving the file' }, { status: 500 });

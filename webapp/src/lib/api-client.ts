@@ -11,6 +11,11 @@ export interface ImageUploadResponse {
   message: string;
 }
 
+interface APIClientImageUploadResponse {
+  s3ObjectName: string,
+  url: string
+}
+
 class ApiClient {
   private axiosInstance;
 
@@ -38,32 +43,51 @@ class ApiClient {
     return response.data;
   }
 
-  async uploadImage(file: File): Promise<string> {
+  async uploadImage(file: File): Promise<APIClientImageUploadResponse> {
     const formData = new FormData();
     formData.append('image', file);
 
     try {
-      const response = await this.axiosInstance.post<ImageUploadResponse>('/upload/image', formData, {
+      const response = await this.axiosInstance.post<ImageUploadResponse>('/file/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       if (response.data && response.data.s3ObjectName) {
-        return `${process.env.NEXT_PUBLIC_SERVER_URL}/s3/${response.data.s3ObjectName}`;
+        return {
+          s3ObjectName: response.data.s3ObjectName, url: `${process.env.NEXT_PUBLIC_SERVER_URL}/s3/${response.data.s3ObjectName}`
+        }
       } else {
         throw new Error('Upload failed: No filename received');
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Upload error:', error.response?.data || error.message);
-        throw new Error(`Upload failed: ${error.response?.data?.error || error.message}`);
+        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
       } else {
         console.error('Unexpected error:', error);
         throw new Error('An unexpected error occurred during upload');
       }
     }
   }
+
+  async shareImage(s3ObjectName: string, shared: boolean): Promise<boolean> {
+    const response = await this.axiosInstance.post<boolean>('/file/share', { s3ObjectName, shared });
+    if (response.data) {
+      return response.data
+    }
+    return false;
+  }
+
+  async isImageShared(s3ObjectName: string): Promise<boolean> {
+    const response = await this.axiosInstance.get<boolean>(`/file/share?s3ObjectName=${s3ObjectName}`, {});
+    if (response.data) {
+      return response.data
+    }
+    return false;
+  }
+
 }
 
 export const apiClient = new ApiClient();

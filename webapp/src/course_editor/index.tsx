@@ -31,7 +31,10 @@ export const useTiptapEditor = () => {
   }, [editor])
 
   const setContent = useCallback((content: string) => {
-    editor?.commands.setContent(content)
+    // https://github.com/ueberdosis/tiptap/issues/3764
+    setTimeout(() => {
+      editor?.commands.setContent(content)
+    })
   }, [editor])
 
 
