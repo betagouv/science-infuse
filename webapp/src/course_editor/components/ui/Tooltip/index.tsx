@@ -31,7 +31,7 @@ export const Tooltip = ({
   enabled = true,
   title,
   shortcut,
-  tippyOptions = {},
+  tippyOptions = {zIndex: 99},
 }: TooltipProps): JSX.Element => {
   const renderTooltip = useCallback(
     (attrs: TippyProps) => (
@@ -61,7 +61,7 @@ export const Tooltip = ({
         delay={500}
         offset={[0, 8]}
         touch={false}
-        zIndex={99999}
+        zIndex={99}
         appendTo={document.body}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...tippyOptions}
