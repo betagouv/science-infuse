@@ -5,7 +5,13 @@ import { mergeAttributes, Range } from '@tiptap/core'
 import { ImageBlockView } from './components/ImageBlockView'
 import { Image as TiptapImage } from '../Image'
 import { apiClient } from '@/lib/api-client'
+import { ImageOptions } from '@tiptap/extension-image'
+import { TSeverity } from '@/app/SnackBarProvider'
+import PdfBlock from '../PdfBlock/PdfBlock'
 
+export type ImageBlockOptions = {
+  showSnackbar: (message: string, severity: TSeverity) => void;
+};
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     imageBlock: {
@@ -13,14 +19,14 @@ declare module '@tiptap/core' {
       setImageBlockAt: (attributes: { src: string; pos: number | Range }) => ReturnType
       setImageBlockAlign: (align: 'left' | 'center' | 'right') => ReturnType
       setImageBlockWidth: (width: number) => ReturnType
-      setImageBlockShared: (shared: boolean) => ReturnType
-      setImageFromFile: (file: File, ) => ReturnType
+      setFileShared: (shared: boolean) => ReturnType
+      setFileTypes: (fileTypes: string[]) => ReturnType
+      setImageFromFile: (file: File,) => ReturnType
     }
-
   }
 }
 
-export const ImageBlock = TiptapImage.extend({
+export const ImageBlock = TiptapImage.extend<ImageBlockOptions & ImageOptions>({
   name: 'imageBlock',
 
   group: 'block',
@@ -29,13 +35,19 @@ export const ImageBlock = TiptapImage.extend({
 
   isolating: true,
 
+  addOptions() {
+    return {
+      // ...this.parent(),
+      showSnackbar: () => { },
+    };
+  },
   addAttributes() {
     return {
-      isExternalImage: {
+      isExternalFile: {
         default: false,
-        parseHTML: element => element.getAttribute('data-isExternalImage'),
+        parseHTML: element => element.getAttribute('data-isExternalFile'),
         renderHTML: attributes => ({
-          'data-isExternalImage': attributes.isExternalImage,
+          'data-isExternalFile': attributes.isExternalFile,
         }),
       },
       isUploading: {
@@ -53,10 +65,12 @@ export const ImageBlock = TiptapImage.extend({
         parseHTML: () => false,
         renderHTML: () => ({}),
       },
-      externalSharePermission: {
-        default: null,
-        parseHTML: () => null,
-        renderHTML: () => ({}),
+      shared: {
+        default: false,
+        parseHTML: element => element.getAttribute('data-shared'),
+        renderHTML: attributes => ({
+          'data-shared': attributes.shared,
+        }),
       },
       src: {
         default: '',
@@ -70,6 +84,20 @@ export const ImageBlock = TiptapImage.extend({
         parseHTML: element => element.getAttribute('data-s3ObjectName'),
         renderHTML: attributes => ({
           'data-s3ObjectName': attributes.s3ObjectName,
+        }),
+      },
+      id: {
+        default: '',
+        parseHTML: element => element.getAttribute('data-id'),
+        renderHTML: attributes => ({
+          'data-id': attributes.id,
+        }),
+      },
+      fileTypes: {
+        default: [],
+        parseHTML: element => element.getAttribute('data-fileTypes'),
+        renderHTML: attributes => ({
+          'data-fileTypes': attributes.fileTypes,
         }),
       },
       width: {
@@ -115,7 +143,7 @@ export const ImageBlock = TiptapImage.extend({
           ({ commands, view }) => {
             const uploadId = Math.random().toString(36).substr(2, 9)
             commands.insertContent({
-              type: 'imageBlock',
+              type: this.name,
               attrs: { src: '', isUploading: true, uploadId, isLoaded: false },
             })
 
@@ -144,23 +172,24 @@ export const ImageBlock = TiptapImage.extend({
             }
 
 
-            apiClient.uploadImage(file).then(data => {
+            apiClient.uploadFile(file).then(data => {
               console.log("DATA URL", data)
               loadImageWithRetry(data.url)
                 .then(validUrl => {
                   const img = new Image();
                   img.onload = () => {
                     view.state.doc.descendants((node, pos) => {
-                      if (node.type.name === 'imageBlock' && node.attrs.uploadId === uploadId) {
+                      if (node.type.name === this.name && node.attrs.uploadId === uploadId) {
                         view.dispatch(
                           view.state.tr.setNodeMarkup(pos, null, {
                             ...node.attrs,
                             src: validUrl,
                             isUploading: false,
-                            isExternalImage: true,
+                            isExternalFile: true,
                             isLoaded: true,
                             uploadId: null,
-                            s3ObjectName: data.s3ObjectName
+                            s3ObjectName: data.s3ObjectName,
+                            id: data.id,
                           })
                         );
                         return false; // stop iteration
@@ -183,30 +212,59 @@ export const ImageBlock = TiptapImage.extend({
       setImageBlock:
         attrs =>
           ({ commands }) => {
-            return commands.insertContent({ type: 'imageBlock', attrs: { src: attrs.src } })
+            return commands.insertContent({ type: this.name, attrs: { src: attrs.src } })
           },
 
       setImageBlockAt:
         attrs =>
           ({ commands }) => {
-            return commands.insertContentAt(attrs.pos, { type: 'imageBlock', attrs: { src: attrs.src } })
+            return commands.insertContentAt(attrs.pos, { type: this.name, attrs: { src: attrs.src } })
           },
 
       setImageBlockAlign:
         align =>
           ({ commands }) =>
-            commands.updateAttributes('imageBlock', { align }),
+            commands.updateAttributes(this.name, { align }),
 
       setImageBlockWidth:
         width =>
           ({ commands }) =>
-            commands.updateAttributes('imageBlock', { width: `${Math.max(0, Math.min(100, width))}%` }),
+            commands.updateAttributes(this.name, { width: `${Math.max(0, Math.min(100, width))}%` }),
 
-      setImageBlockShared:
+      setFileShared:
         shared =>
-          ({ commands }) => {
-            commands.updateAttributes('imageBlock', { shared: shared })
-            // apiClient.
+          ({ commands, editor, view }) => {
+            const selectedNodeType = editor?.state?.selection?.node?.type?.name;
+            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
+              return this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+            }
+            console.log("selectedNodeType", selectedNodeType)
+            commands.updateAttributes(selectedNodeType, { shared: shared })
+            const s3ObjectName = editor.getAttributes(selectedNodeType).s3ObjectName
+            console.log("s3ObjectNames3ObjectNames3ObjectNames3ObjectName", s3ObjectName)
+            apiClient.shareFile(s3ObjectName, shared).then(() => {
+              this.options.showSnackbar("Statut de partage mis à jour avec succès", "success");
+            }).catch(() => {
+              this.options.showSnackbar("Échec de la mise à jour du statut de partage", "error");
+            })
+            return true
+          },
+      setFileTypes:
+        fileTypes =>
+          ({ commands, editor }) => {
+            commands.updateAttributes(this.name, { fileTypes: fileTypes })
+            const selectedNodeType = editor?.state?.selection?.node?.type?.name;
+            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
+              return this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+            }
+            console.log("selectedNodeType", selectedNodeType)
+            commands.updateAttributes(selectedNodeType, { fileTypes: fileTypes })
+            const id = editor.getAttributes(selectedNodeType).id
+            apiClient.updateFile(id, {}, fileTypes).then(() => {
+              this.options.showSnackbar("Type de fichier mis à jour avec succès", "success");
+            }).catch(() => {
+              this.options.showSnackbar("Échec de la mise à jour du type de fichier", "error");
+            })
             return true
           },
     }

@@ -3,12 +3,12 @@ import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { useEffect } from "@preact-signals/safe-react/react";
 import axios from "axios";
 import { useState } from "react";
-import { pdfjs } from "react-pdf";
-import { Document, Page } from 'react-pdf';
 import { Button, IconButton, Typography, Box, CircularProgress, TextField } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { QueryFunction, useQuery } from "@tanstack/react-query";
 import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
+import { Document, Page } from 'react-pdf';
+import { pdfjs } from "react-pdf";
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -17,11 +17,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
     import.meta.url
 ).toString();
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(typeof window === 'undefined' ?
-//     `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
-//     :
-//     'pdfjs-dist/build/pdf.worker.min.mjs'
-//     , import.meta.url,).toString();
 
 interface TOCItem {
     text: string;

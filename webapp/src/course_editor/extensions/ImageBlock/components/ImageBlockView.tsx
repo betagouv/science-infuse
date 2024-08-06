@@ -47,7 +47,7 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
             )}
             <img 
               className={cn(
-                "block w-full transition-opacity duration-300",
+                "block w-full transition-opacity duration-300 my-4",
                 isLoaded ? "opacity-100" : "opacity-0"
               )} 
               src={src} 

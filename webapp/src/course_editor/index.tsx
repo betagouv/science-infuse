@@ -1,14 +1,16 @@
 'use client';
 
 import { Editor, EditorContent, useEditor } from '@tiptap/react'
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef, useEffect } from 'react'
 import { EditorContext } from './context/EditorContext'
 import { TextMenu } from './extensions/BubbleMenu/BubbleMenu'
 import styled from '@emotion/styled'
 import { getExtensions } from './extensions';
 import "./editor.scss"
 import { EMPTY_DOCUMENT } from '@/config';
-import ImageBlockMenu from './extensions/ImageBlock/components/ImageBlockMenu';
+import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
+import { Alert, Snackbar, Slide } from '@mui/material';
+import { useSnackbar } from '@/app/SnackBarProvider';
 
 const StyledEditor = styled.div`
 `
@@ -49,12 +51,21 @@ export const useTiptapEditor = () => {
 export const TiptapEditor = (props: { editor: Editor }) => {
 
   const { editor } = props;
+  const { snackbar, hideSnackbar } = useSnackbar();
   const menuContainerRef = useRef(null)
   const providerValue = useMemo(() => {
     return {
       title: "test",
     }
   }, [])
+
+  const [key, setKey] = React.useState(0);
+
+  useEffect(() => {
+    if (snackbar.open) {
+      setKey(prevKey => prevKey + 1);
+    }
+  }, [snackbar.open, snackbar.message]);
 
   return (
     <StyledEditor
@@ -64,11 +75,24 @@ export const TiptapEditor = (props: { editor: Editor }) => {
       <div className="flex h-full" ref={menuContainerRef}>
 
         <EditorContext.Provider value={providerValue}>
-          <EditorContent className="flex-1 overflow-y-auto" editor={editor} style={{ minHeight: '100%' }} />
+          <EditorContent className="flex-1" editor={editor} style={{ minHeight: '100%' }} />
           {editor && <TextMenu editor={editor} />}
-          <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+          <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
 
         </EditorContext.Provider>
+
+        <Snackbar
+          key={key}
+          open={snackbar.open}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          TransitionComponent={Slide}
+          TransitionProps={{ dir: "up" }}
+        >
+          <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </div>
     </StyledEditor>
   )

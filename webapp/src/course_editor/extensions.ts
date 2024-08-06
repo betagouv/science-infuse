@@ -26,13 +26,29 @@ import SIMetadata from './extensions/SIMetadata'
 import { Editor } from '@tiptap/core';
 import { apiClient } from '@/lib/api-client'
 import ImageBlock from './extensions/ImageBlock/ImageBlock'
+import PdfBlock from './extensions/PdfBlock/PdfBlock'
+import { useSnackbar } from '@/app/SnackBarProvider'
 
 
 const CustomDocument = Document.extend({
     content: 'heading block*',
 })
 
+const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+const pdfMime = ['application/pdf']
+
+
+const handleFile = (file: File, editor: Editor, pos?: number) => {
+    if (imagesMime.includes(file.type)) {
+        editor.chain().setImageFromFile(file).focus().run()
+    } else if (pdfMime.includes(file.type)) {
+        editor.chain().setPdfFromFile(file).focus().run()
+    }
+}
+
 export const getExtensions = () => {
+    const { showSnackbar } = useSnackbar();
+
     return [
         SIMetadata,
         GlobalDragHandle.configure({
@@ -63,18 +79,22 @@ export const getExtensions = () => {
         TableCell,
         // CodeBlock,
         // Image,
-        ImageBlock,
+        ImageBlock.configure({
+            showSnackbar: showSnackbar,
+        }),
+        PdfBlock,
         ImageSearch,
         FileHandler.configure({
-            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+            allowedMimeTypes: [...pdfMime, ...imagesMime],
             onDrop: (editor: Editor, files: File[], pos: number) => {
                 files.forEach(async (file) => {
-                    editor.chain().setImageFromFile(file).focus().run()
+                    handleFile(file, editor, pos)
+
                 })
             },
             onPaste: (editor: Editor, files: File[]) => {
                 files.forEach(async (file) => {
-                    editor.chain().setImageFromFile(file).focus().run()
+                    handleFile(file, editor)
                 })
             },
         }),
