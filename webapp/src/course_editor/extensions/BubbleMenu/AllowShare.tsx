@@ -6,6 +6,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import LockIcon from '@mui/icons-material/Lock';
 import Box from '@mui/material/Box';
 import { Icon } from '@/course_editor/components/ui/Icon';
+import { Toolbar } from '@/course_editor/components/ui/Toolbar';
 
 interface AllowShareProps {
   onChange: (isAllowed: boolean) => void;
@@ -24,17 +25,15 @@ const AllowShare: React.FC<AllowShareProps> = ({ onChange, value }) => {
   }, [onChange, value]);
 
   return (
-    <Box display="flex" marginLeft={4} alignItems="center">
-      <Tooltip
-        title={value ? "Contenu partagé" : "Contenu non partagé"}
-        placement="top"
+    <Box display="flex" alignItems="center">
+      <Toolbar.Button
+        tooltip={value ? "Contenu partagé" : "Contenu non partagé"}
+        active={false}
+        onClick={handleClick}
       >
-        <StyledIconButton onClick={handleClick} size="small">
-          <Icon name={value == true ? "Eye" : "Lock"} />
+        <Icon  name={value == true ? "Eye" : "Lock"} />
+      </Toolbar.Button>
 
-          {/* {value ? <VisibilityIcon fontSize="small" /> : <LockIcon fontSize="small" />} */}
-        </StyledIconButton>
-      </Tooltip>
     </Box>
   );
 };

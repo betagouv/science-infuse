@@ -10,14 +10,14 @@ import { File as DbFile } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
-    const file = formData.get('image') as File | null;
+    const file = formData.get('file') as File | null;
     const session = await getServerSession(authOptions);
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!file) {
-        return NextResponse.json({ error: 'No image file provided' }, { status: 400 });
+        return NextResponse.json({ error: 'No file file provided' }, { status: 400 });
     }
     
     console.log("SESSION USER", user)
@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
     let fileExtensionFromMime = ''
     if (mimeType.startsWith('image/')) {
         fileExtensionFromMime = mimeType.split('/')[1]
+    }
+    else if (mimeType == 'application/pdf') {
+        fileExtensionFromMime = 'pdf'
     }
     const fileExtension = fileExtensionFromMime || file.name.split('.').pop() || ''
     console.log("FILE EXTENSION FROM MIME", fileExtensionFromMime)
@@ -58,22 +61,22 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function GET(request: NextRequest) {
-    const fileName = request.nextUrl.searchParams.get('fileName');
+// export async function GET(request: NextRequest) {
+//     const fileName = request.nextUrl.searchParams.get('fileName');
 
-    if (!fileName) {
-        return NextResponse.json({ error: 'Invalid file name' }, { status: 400 });
-    }
+//     if (!fileName) {
+//         return NextResponse.json({ error: 'Invalid file name' }, { status: 400 });
+//     }
 
-    const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
+//     const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
 
-    try {
-        const imageBuffer = await readFile(filePath);
-        return new NextResponse(imageBuffer, {
-            headers: { 'Content-Type': 'image/jpeg' }, // Adjust content type as needed
-        });
-    } catch (error) {
-        console.error('Error reading file:', error);
-        return NextResponse.json({ error: 'Image not found' }, { status: 404 });
-    }
-}
+//     try {
+//         const imageBuffer = await readFile(filePath);
+//         return new NextResponse(imageBuffer, {
+//             headers: { 'Content-Type': 'image/jpeg' }, // Adjust content type as needed
+//         });
+//     } catch (error) {
+//         console.error('Error reading file:', error);
+//         return NextResponse.json({ error: 'Image not found' }, { status: 404 });
+//     }
+// }

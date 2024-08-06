@@ -7,15 +7,24 @@ import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Grow from '@mui/material/Grow';
+import { FileType } from '@prisma/client';
+import { useEffect } from '@preact-signals/safe-react/react';
+import { apiClient } from '@/lib/api-client';
 
-interface FontSizePickerProps {
+interface FileTypePickerProps {
   onChange: (size: string) => void;
   value: string | undefined;
 }
 
-const FontSizePicker: React.FC<FontSizePickerProps> = ({ onChange, value }) => {
+const FileTypePicker: React.FC<FileTypePickerProps> = ({ onChange, value }) => {
   const [open, setOpen] = useState<boolean>(false);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
+  const [fileTypes, setFileTypes] = useState<FileType[]>([]);
+
+  useEffect(() => {
+    apiClient.getFileTypes().then((ft) => setFileTypes(ft))
+    console.log("GET FILE TYPES")
+  }, [])
 
   const handleToggle = useCallback(() => {
     setOpen((prevOpen) => !prevOpen);
@@ -33,15 +42,17 @@ const FontSizePicker: React.FC<FontSizePickerProps> = ({ onChange, value }) => {
     setOpen(false);
   }, [onChange]);
 
+
+
   return (
     <>
       <Button
         ref={anchorRef}
+        // className='w-48'
         onClick={handleToggle}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        {value || 'Font Size'}
-      </Button>
+        {fileTypes.find(type => type.id === value)?.name || 'Type de fichier'}      </Button>
       <Popper
         open={open}
         anchorEl={anchorRef.current}
@@ -61,9 +72,9 @@ const FontSizePicker: React.FC<FontSizePickerProps> = ({ onChange, value }) => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow">
-                  {['Small', 'Medium', 'Large'].map((size) => (
-                    <MenuItem key={size} onClick={handleMenuItemClick(size)}>
-                      {size}
+                  {fileTypes.map((ft) => (
+                    <MenuItem key={ft.id} onClick={handleMenuItemClick(ft.id)}>
+                      {ft.name}
                     </MenuItem>
                   ))}
                 </MenuList>
@@ -76,4 +87,4 @@ const FontSizePicker: React.FC<FontSizePickerProps> = ({ onChange, value }) => {
   );
 };
 
-export default React.memo(FontSizePicker);
+export default React.memo(FileTypePicker);

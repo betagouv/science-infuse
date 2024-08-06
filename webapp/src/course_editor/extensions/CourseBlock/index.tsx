@@ -68,7 +68,6 @@ const CourseBlockNode = Node.create({
           return false
         }
 
-        console.log("CHAPTER ID", editor)
         return chain()
           .insertContent({
             type: this.name,
@@ -162,7 +161,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: 
   }
 
   return (
-    <NodeViewWrapper className="chapter-course-block">
+    <NodeViewWrapper className="relative chapter-course-block sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-4 right-4 cursor-pointer" onClick={handleDelete}>❌</span>
       <NodeViewContent className="content" />
     </NodeViewWrapper>

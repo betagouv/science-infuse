@@ -1,8 +1,18 @@
 import { Editor } from '@tiptap/react'
 import { useCallback, useMemo } from 'react'
-// import { isCustomNodeSelected, isTextSelected } from '@/lib/utils'
 import { ShouldShowProps } from '../types'
 import isTextSelected from '../utils/isTextSelected'
+import { ImageBlock } from '../extensions/ImageBlock'
+import PdfBlock from '../extensions/PdfBlock/PdfBlock'
+
+export const isCustomNodeSelected = (editor: Editor, node: HTMLElement) => {
+  const customNodes = [
+    ImageBlock.name,
+    PdfBlock.name,
+  ]
+  return customNodes.some(type => editor.isActive(type)) //|| isTableGripSelected(node)
+}
+
 
 export const useTextmenuStates = (editor: Editor) => {
   const shouldShow = useCallback(
@@ -17,9 +27,9 @@ export const useTextmenuStates = (editor: Editor) => {
       if (nodeDOM && nodeDOM?.querySelector && (nodeDOM.querySelector('img') || nodeDOM.querySelector('video'))) {
         return false
       }
-      // if (isCustomNodeSelected(editor, node)) {
-      //   return false
-      // }
+      if (isCustomNodeSelected(editor, node)) {
+        return false
+      }
 
       return isTextSelected({ editor })
     },
