@@ -3,7 +3,7 @@
 import { Editor, EditorContent, useEditor } from '@tiptap/react'
 import React, { useCallback, useMemo, useRef, useEffect } from 'react'
 import { EditorContext } from './context/EditorContext'
-import { TextMenu } from './extensions/BubbleMenu/BubbleMenu'
+import { TextMenu } from './extensions/BubbleMenu/TextMenu'
 import styled from '@emotion/styled'
 import { getExtensions } from './extensions';
 import "./editor.scss"

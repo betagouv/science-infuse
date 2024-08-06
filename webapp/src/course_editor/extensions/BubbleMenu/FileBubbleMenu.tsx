@@ -167,6 +167,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
         updateDelay={100}
         tippyOptions={{
           maxWidth: '100%',
+          zIndex: 99,
           offset: [0, -50],
           popperOptions: {
             modifiers: [{ name: 'flip', enabled: false }],

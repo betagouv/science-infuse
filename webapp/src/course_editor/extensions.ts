@@ -28,6 +28,7 @@ import { apiClient } from '@/lib/api-client'
 import ImageBlock from './extensions/ImageBlock/ImageBlock'
 import PdfBlock from './extensions/PdfBlock/PdfBlock'
 import { useSnackbar } from '@/app/SnackBarProvider'
+import { FontSize } from './extensions/FontSize'
 
 
 const CustomDocument = Document.extend({
@@ -68,7 +69,7 @@ export const getExtensions = () => {
         StarterKit.configure({
             document: false,
         }),
-        Highlight,
+        Highlight.configure({ multicolor: true }),
         TaskList,
         TaskItem,
         Table.configure({
@@ -105,6 +106,7 @@ export const getExtensions = () => {
         Color,
         TextAlign,
         TextStyle,
+        FontSize,
         CharacterCount.configure({
             limit: 10000,
         }),

@@ -1,4 +1,4 @@
-import "./globals.css";
+import "./css/globals.css";
 import { Providers } from "./providers"
 import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
