@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
 import { Chapter } from '@prisma/client';
 import { Editor, JSONContent } from '@tiptap/react';
+import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
 
 
 const saveBlocks = async (editorContent: JSONContent) => {
@@ -42,7 +43,7 @@ const saveBlocks = async (editorContent: JSONContent) => {
   return blocks
 }
 
-const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent | string) => {
+const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent | string, showSnackbar: (message: string, severity: TSeverity) => void) => {
 
   await saveBlocks(editor.getJSON())
 
@@ -56,6 +57,7 @@ const handleSave = async (editor: Editor, chapterId: string, title: string, cont
     });
 
     if (response.ok) {
+      showSnackbar("Cours sauvegardé avec succès", "success")
     } else {
       throw new Error('Failed to update course chapter');
     }
@@ -92,6 +94,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
   const { editor, getContent, getTitle, setContent } = useTiptapEditor()
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     console.log("EDITORRR", editor)
@@ -118,7 +121,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <div>
-        <button onClick={() => editor && chapter && handleSave(editor, chapter.id, getTitle(), getContent())}>save</button>
+        <button onClick={() => editor && chapter && handleSave(editor, chapter.id, getTitle(), getContent(), showSnackbar)}>save</button>
         <button onClick={handleGetContent}>Get Content</button>
         <button onClick={handleGetTitle}>Get Title</button>
         <button onClick={handleSetContent}>Set New Content</button>

@@ -122,14 +122,6 @@ const DeleteOption = (props: { editor: Editor }) => {
 export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const menuRef = useRef<HTMLDivElement>(null)
   const tippyInstance = useRef<Instance | null>(null)
-  // const [shared, setShared] = useState(false)
-  // const [snackbar, setSnackbar] = useState({
-  //   open: false,
-  //   message: '',
-  //   severity: 'success' as 'success' | 'error'
-  // });
-
-
 
   const shouldShow = useCallback(() => {
     return true;
@@ -140,18 +132,16 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const s3ObjectName = selectedNodeAttrs?.s3ObjectName;
   const fileTypes = selectedNodeAttrs?.fileTypes;
   const shared = selectedNodeAttrs?.shared;
-  console.log("SHARED", editor?.state?.selection?.node, selectedNodeAttrs)
   const nodeName = editor?.state?.selection?.node?.type?.name;
 
 
-  useEffect(() => {
-    (async () => {
-      if (s3ObjectName) {
-        const isShared = await apiClient.isFileShared(s3ObjectName)
-        // setShared(isShared)
-      }
-    })()
-  }, [s3ObjectName])
+  // useEffect(() => {
+  //   (async () => {
+  //     if (s3ObjectName) {
+  //       const isShared = await apiClient.isFileShared(s3ObjectName)
+  //     }
+  //   })()
+  // }, [s3ObjectName])
 
   const getReferenceClientRect = useCallback(() => {
     const renderContainer = getRenderContainer(editor, 'node-imageBlock')
@@ -189,15 +179,12 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           {!!s3ObjectName && <AllowShare
             value={shared}
             onChange={async function (isAllowed: boolean): Promise<void> {
-              console.log("SET FILE SHARED", isAllowed)
-              // setShared(isAllowed);
               editor.chain().focus(undefined, { scrollIntoView: false }).setFileShared(isAllowed).run()
             }}
           />}
 
           {!!s3ObjectName && <FileTypePicker
             onChange={function (type: string): void {
-              console.log("SET FILE TYPES", type)
               editor.chain().focus(undefined, { scrollIntoView: false }).setFileTypes([type]).run()
             }}
             value={fileTypes.length > 0 ? fileTypes[0] : undefined}

@@ -34,7 +34,7 @@ export const PdfBlockView = (props: PdfBlockViewProps) => {
   const [currentPage, setCurrentPage] = useState(1)
 
   return (
-    <NodeViewWrapper className="sm:rounded-xl sm:border sm:shadow-lg overflow-hidden my-4">
+    <NodeViewWrapper className="sm:rounded-xl sm:border sm:shadow-lg overflow-hidden my-4 relative">
       <div className="pdf-wrapper" ref={imageWrapperRef} style={{ maxHeight: '50vh', overflowY: 'auto', width: '100%' }}>
         <Document
           className={'w-full overflow-hidden'}

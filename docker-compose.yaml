@@ -1,5 +1,19 @@
 version: '3.4'
 services:
+  ollama:
+    container_name: ollama
+    image: ollama/ollama  # Replace with specific Ollama version if needed
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: ["gpu"]
+            count: all  # Adjust count for the number of GPUs you want to use
+    volumes:
+      - ollama:/root/.ollama
+    restart: always
+
   weaviate:
     image: semitechnologies/weaviate:1.25.4
     restart: on-failure:0
@@ -72,12 +86,14 @@ services:
         - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
         - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
         - DATABASE_URL=${DATABASE_URL}
+        - OLLAMA_URL=${OLLAMA_URL}
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
         - NEXTAUTH_URL=${NEXTAUTH_URL}
     ports:
       - "8002:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - OLLAMA_URL=${OLLAMA_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
     healthcheck:
@@ -147,3 +163,6 @@ services:
       - PUBLICHOST=${SERVER_IP}
       - PURE_FTPD_FLAGS=--tls=2
     restart: always
+
+volumes:
+  ollama:

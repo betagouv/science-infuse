@@ -106,6 +106,24 @@ class ApiClient {
     }
     return null;
   }
+
+  async autoComplete(context: string): Promise<string> {
+    const response = await this.axiosInstance.post<string>('/ai/completion', { context });
+    if (response.data) {
+      return response.data
+    }
+    return "";
+  }
+
+
+  async generateQuiz(context: string): Promise<string> {
+    const response = await this.axiosInstance.post<string>('/ai/quiz', { context });
+    if (response.data) {
+      return response.data
+    }
+    return "";
+  }
+
 }
 
 export const apiClient = new ApiClient();
