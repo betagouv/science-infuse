@@ -1,7 +1,7 @@
 "use client"
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { mergeAttributes, Range } from '@tiptap/core'
-
+import { NodeSelection } from 'prosemirror-state';
 import { ImageBlockView } from './components/ImageBlockView'
 import { Image as TiptapImage } from '../Image'
 import { apiClient } from '@/lib/api-client'
@@ -9,7 +9,7 @@ import { ImageOptions } from '@tiptap/extension-image'
 import { TSeverity } from '@/app/SnackBarProvider'
 import PdfBlock from '../PdfBlock/PdfBlock'
 
-export type ImageBlockOptions = {
+export type ImageBlockOptions = ImageOptions & {
   showSnackbar: (message: string, severity: TSeverity) => void;
 };
 declare module '@tiptap/core' {
@@ -26,7 +26,7 @@ declare module '@tiptap/core' {
   }
 }
 
-export const ImageBlock = TiptapImage.extend<ImageBlockOptions & ImageOptions>({
+export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
   name: 'imageBlock',
 
   group: 'block',
@@ -37,8 +37,8 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions & ImageOptions>({
 
   addOptions() {
     return {
-      // ...this.parent(),
-      showSnackbar: () => { },
+      ...this.parent?.(),
+      showSnackbar: (message: string, severity: TSeverity) => { },
     };
   },
   addAttributes() {
@@ -234,9 +234,11 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions & ImageOptions>({
       setFileShared:
         shared =>
           ({ commands, editor, view }) => {
-            const selectedNodeType = editor?.state?.selection?.node?.type?.name;
+            const selection = editor?.state?.selection;
+            const selectedNodeType = selection instanceof NodeSelection ? selection.node.type.name : undefined;
             if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
-              return this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+              this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+              return true;
             }
             console.log("selectedNodeType", selectedNodeType)
             commands.updateAttributes(selectedNodeType, { shared: shared })
@@ -253,9 +255,11 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions & ImageOptions>({
         fileTypes =>
           ({ commands, editor }) => {
             commands.updateAttributes(this.name, { fileTypes: fileTypes })
-            const selectedNodeType = editor?.state?.selection?.node?.type?.name;
+            const selection = editor?.state?.selection;
+            const selectedNodeType = selection instanceof NodeSelection ? selection.node.type.name : undefined;
             if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
-              return this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+              this.options.showSnackbar(`Impossible changer le type d'un bloc "${selectedNodeType}"`, "error");
+              return true;
             }
             console.log("selectedNodeType", selectedNodeType)
             commands.updateAttributes(selectedNodeType, { fileTypes: fileTypes })

@@ -18,9 +18,11 @@ const StyledEditor = styled.div`
 
 export const useTiptapEditor = () => {
 
+  const { showSnackbar } = useSnackbar();
+
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: getExtensions(),
+    extensions: getExtensions(showSnackbar),
     content: EMPTY_DOCUMENT,
   })
 

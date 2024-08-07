@@ -27,7 +27,7 @@ import { Editor } from '@tiptap/core';
 import { apiClient } from '@/lib/api-client'
 import ImageBlock from './extensions/ImageBlock/ImageBlock'
 import PdfBlock from './extensions/PdfBlock/PdfBlock'
-import { useSnackbar } from '@/app/SnackBarProvider'
+import { TSeverity, useSnackbar } from '@/app/SnackBarProvider'
 import { FontSize } from './extensions/FontSize'
 import { AutocompleteExtension } from './extensions/AutoComplete'
 
@@ -48,8 +48,7 @@ const handleFile = (file: File, editor: Editor, pos?: number) => {
     }
 }
 
-export const getExtensions = () => {
-    const { showSnackbar } = useSnackbar();
+export const getExtensions = (showSnackbar: (message: string, severity: TSeverity) => void) => {
 
     return [
         SIMetadata,
