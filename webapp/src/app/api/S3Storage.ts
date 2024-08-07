@@ -17,7 +17,7 @@ class S3Storage {
         this.S3_ENDPOINT = process.env.S3_ENDPOINT || process.env.NEXT_PUBLIC_S3_ENDPOINT || "";
         this.S3_REGION = process.env.S3_REGION || process.env.NEXT_PUBLIC_S3_REGION || "";
         this.bucket_name = process.env.S3_BUCKET || process.env.NEXT_PUBLIC_S3_BUCKET || "";
-        this.is_dev = process.env.ENVIRONMENT || process.env.NEXT_PUBLIC_ENVIRONMENT === "dev";
+        this.is_dev = (process.env.ENVIRONMENT || process.env.NEXT_PUBLIC_ENVIRONMENT) === "dev";
 
         this.s3_client = new S3Client({
             credentials: {
