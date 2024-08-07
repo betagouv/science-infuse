@@ -1,8 +1,6 @@
 @tailwind base;
-/* @tailwind components; */
+@tailwind components;
 @tailwind utilities;
-
-@import url(./lists.css);
 
 
 .fr-card__body {
