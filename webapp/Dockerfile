@@ -5,7 +5,8 @@ RUN mkdir -p /app/public
 
 COPY package.json ./
 COPY package-lock.json ./
-RUN npm install --force
+COPY .npmrc ./
+RUN npm install
 #RUN npm i -g prisma
 ENV PATH /app/node_modules/.bin:$PATH
 
