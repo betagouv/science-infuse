@@ -8,6 +8,7 @@ import { NodeType } from '@tiptap/pm/model';
 import { keymap } from '@tiptap/pm/keymap'
 import Quiz, { Question } from './Quiz';
 import { useState } from '@preact-signals/safe-react/react';
+import { Node as PMNode } from '@tiptap/pm/model'
 
 
 declare module "@tiptap/core" {
@@ -164,8 +165,7 @@ const CourseBlockNode = Node.create({
 })
 
 
-const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: Editor; selected: boolean; }) => {
-  console.log("DBG", node.type.name, node, editor)
+const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor: Editor; selected: boolean; }) => {
   const handleDelete = () => {
     if (node.attrs.id)
       editor.commands.removeCourseBlock(node.attrs.id)
@@ -175,7 +175,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: 
     let text = "";
     const { view, state } = editor;
     const { doc } = state;
-  
+
     // Find the position of the node in the document
     let nodePos: number | null = null;
     doc.descendants((n, pos) => {
@@ -184,19 +184,18 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: 
         return false; // Stop searching
       }
     });
-  
 
-    console.log("DEBUGGG", nodePos, node.nodeSize, node)
+
     if (nodePos !== null) {
       const $start = doc.resolve(nodePos);
       const $end = doc.resolve(nodePos + node.nodeSize);
       const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
-  
+
       console.log("FOUNDDDDD", node.attrs, node.content, domElement);
-  
+
       // Extract text content
       text = doc.textBetween($start.pos, $end.pos);
-  
+
       if (domElement) {
         const pdfs: HTMLDivElement[] = Array.from(domElement.querySelectorAll('.node-pdf .pdf-wrapper'));
         const pdfsTexts = pdfs.map(pdf => pdf.innerText).join("\n\n");
@@ -205,7 +204,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: 
         text += pdfsTexts.trim().slice(0, 2000);
       }
     }
-  
+
     return text.slice(0, 4000);
   };
 
@@ -225,7 +224,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: 
   const parentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map(q => q.question).join("")} className="relative chapter-course-block bg-white sm:rounded-xl sm:border sm:shadow-lg p-8">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map((q: Question) => q.question).join("")} className="relative chapter-course-block bg-white sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-4 right-4 cursor-pointer" onClick={handleDelete}>❌</span>
       <NodeViewContent className="content" />
       <Quiz
