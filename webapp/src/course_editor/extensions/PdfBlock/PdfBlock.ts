@@ -127,29 +127,30 @@ const PdfBlock = Node.create<PdfBlockOptions>({
               attrs: { src: '', isUploading: true, uploadId, isLoaded: false },
             })
 
-            function loadPdfWithRetry(url: string, retries = 5) {
-              return new Promise((resolve, reject) => {
-                const img = new Image();
+            // TODO: fix pdf not available with s3 (delay, or retry)
+            // function loadPdfWithRetry(url: string, retries = 5) {
+            //   return new Promise((resolve, reject) => {
+            //     const img = new Image();
 
-                function onLoad() {
-                  resolve(url);
-                }
+            //     function onLoad() {
+            //       resolve(url);
+            //     }
 
-                function onError() {
-                  if (retries > 0) {
-                    setTimeout(() => {
-                      loadPdfWithRetry(url, retries - 1).then(resolve).catch(reject);
-                    }, 1000);
-                  } else {
-                    reject(new Error('Failed to load image after several retries.'));
-                  }
-                }
+            //     function onError() {
+            //       if (retries > 0) {
+            //         setTimeout(() => {
+            //           loadPdfWithRetry(url, retries - 1).then(resolve).catch(reject);
+            //         }, 1000);
+            //       } else {
+            //         reject(new Error('Failed to load image after several retries.'));
+            //       }
+            //     }
 
-                img.onload = onLoad;
-                img.onerror = onError;
-                img.src = url;
-              });
-            }
+            //     img.onload = onLoad;
+            //     img.onerror = onError;
+            //     img.src = url;
+            //   });
+            // }
 
 
             apiClient.uploadFile(file).then(data => {

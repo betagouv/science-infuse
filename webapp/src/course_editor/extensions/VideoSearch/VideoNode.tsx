@@ -26,7 +26,7 @@ export default function VideoNodeComponent({ node, updateAttributes }: NodeViewP
   }, [])
 
   return (
-    <NodeViewWrapper style={{ opacity: mounted ? 1 : 0 }} className="si-video border-solid border-2 border-blue-200 p-4 my-8 rounded-lg transition-opacity duration-400">
+    <NodeViewWrapper style={{ opacity: mounted ? 1 : 0 }} className="si-video sm:rounded-xl sm:border sm:shadow-lg overflow-hidden my-4 p-4 relative">
       <h2 className="text-xl font-bold mb-2">{(node.attrs as VideoNodeProps).videoTitle}</h2>
       <VideoPlayer
         videoUrl={(node.attrs as VideoNodeProps).videoUrl}

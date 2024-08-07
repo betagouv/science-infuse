@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Node, mergeAttributes } from '@tiptap/core'
 import { NodeViewWrapper, NodeViewContent, ReactNodeViewRenderer } from '@tiptap/react'
 import { apiClient } from '@/lib/api-client';
@@ -6,6 +6,8 @@ import { PluginKey, Selection, TextSelection } from '@tiptap/pm/state'
 import { Editor } from '@tiptap/core'
 import { NodeType } from '@tiptap/pm/model';
 import { keymap } from '@tiptap/pm/keymap'
+import Quiz, { Question } from './Quiz';
+import { useState } from '@preact-signals/safe-react/react';
 
 
 declare module "@tiptap/core" {
@@ -18,6 +20,7 @@ declare module "@tiptap/core" {
   interface Node {
     attrs: {
       id?: string;
+      quizQuestions: Question[]
     };
   }
 
@@ -34,9 +37,16 @@ const CourseBlockNode = Node.create({
       id: {
         default: () => `course-block-${Math.random().toString(36).substr(2, 9)}`,
       },
+      quizQuestions: {
+        default: [],
+        parseHTML: element => JSON.parse(element.getAttribute('data-quizQuestions') || '[]'),
+        renderHTML: attributes => ({
+          'data-quizQuestions': JSON.stringify(attributes.quizQuestions),
+        }),
+      },
     }
   },
-  onTransaction({transaction}) {
+  onTransaction({ transaction }) {
     transaction.steps.forEach((step) => {
       step.getMap().forEach((oldStart: number, oldEnd: number, newStart: number, newEnd: number) => {
         this.editor.state.doc.nodesBetween(newStart, newEnd, (node, pos: number) => {
@@ -155,15 +165,75 @@ const CourseBlockNode = Node.create({
 
 
 const CourseBlockComponent = ({ node, selected, editor }: { node: Node; editor: Editor; selected: boolean; }) => {
+  console.log("DBG", node.type.name, node, editor)
   const handleDelete = () => {
     if (node.attrs.id)
       editor.commands.removeCourseBlock(node.attrs.id)
   }
 
+  const getCourseBlockText = () => {
+    let text = "";
+    const { view, state } = editor;
+    const { doc } = state;
+  
+    // Find the position of the node in the document
+    let nodePos: number | null = null;
+    doc.descendants((n, pos) => {
+      if (n === node) {
+        nodePos = pos;
+        return false; // Stop searching
+      }
+    });
+  
+
+    console.log("DEBUGGG", nodePos, node.nodeSize, node)
+    if (nodePos !== null) {
+      const $start = doc.resolve(nodePos);
+      const $end = doc.resolve(nodePos + node.nodeSize);
+      const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
+  
+      console.log("FOUNDDDDD", node.attrs, node.content, domElement);
+  
+      // Extract text content
+      text = doc.textBetween($start.pos, $end.pos);
+  
+      if (domElement) {
+        const pdfs: HTMLDivElement[] = Array.from(domElement.querySelectorAll('.node-pdf .pdf-wrapper'));
+        const pdfsTexts = pdfs.map(pdf => pdf.innerText).join("\n\n");
+        console.log("pdfs", pdfs);
+        console.log("domElement", domElement);
+        text += pdfsTexts.trim().slice(0, 2000);
+      }
+    }
+  
+    return text.slice(0, 4000);
+  };
+
+  const [questions, setQuestions] = useState(node.attrs.quizQuestions);
+
+  useEffect(() => {
+    // Sync React state with node attributes
+    setQuestions(node.attrs.quizQuestions);
+  }, [node.attrs.quizQuestions]);
+
+  const updateQuestions = useCallback((newQuestions: Question[]) => {
+    setQuestions(newQuestions);
+
+    editor.commands.updateAttributes(node.type.name, { quizQuestions: [...newQuestions] });
+  }, [editor, node.type.name]);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
   return (
-    <NodeViewWrapper className="relative chapter-course-block sm:rounded-xl sm:border sm:shadow-lg p-8">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map(q => q.question).join("")} className="relative chapter-course-block bg-white sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-4 right-4 cursor-pointer" onClick={handleDelete}>❌</span>
       <NodeViewContent className="content" />
+      <Quiz
+        parentRef={parentRef}
+        questions={questions}
+        setQuestions={updateQuestions}
+        context={getCourseBlockText()}
+      />
     </NodeViewWrapper>
   )
 }

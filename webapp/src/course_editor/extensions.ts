@@ -29,6 +29,7 @@ import ImageBlock from './extensions/ImageBlock/ImageBlock'
 import PdfBlock from './extensions/PdfBlock/PdfBlock'
 import { useSnackbar } from '@/app/SnackBarProvider'
 import { FontSize } from './extensions/FontSize'
+import { AutocompleteExtension } from './extensions/AutoComplete'
 
 
 const CustomDocument = Document.extend({
@@ -107,6 +108,7 @@ export const getExtensions = () => {
         TextAlign,
         TextStyle,
         FontSize,
+        // AutocompleteExtension,
         CharacterCount.configure({
             limit: 10000,
         }),
