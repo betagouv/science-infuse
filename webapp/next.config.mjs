@@ -7,12 +7,12 @@ const nextConfig = {
     swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
   },
   env: {
-    S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
-    S3_SECRET_KEY: process.env.S3_SECRET_KEY,
-    S3_ENDPOINT: process.env.S3_ENDPOINT,
-    S3_REGION: process.env.S3_REGION,
-    S3_BUCKET: process.env.S3_BUCKET,
-    ENVIRONMENT: process.env.ENVIRONMENT
+    NEXT_PUBLIC_S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+    NEXT_PUBLIC_S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+    NEXT_PUBLIC_S3_ENDPOINT: process.env.S3_ENDPOINT,
+    NEXT_PUBLIC_S3_REGION: process.env.S3_REGION,
+    NEXT_PUBLIC_S3_BUCKET: process.env.S3_BUCKET,
+    NEXT_PUBLIC_ENVIRONMENT: process.env.ENVIRONMENT
   },
   webpack: config => {
     // https://github.com/wojtekmaj/react-pdf?tab=readme-ov-file#nextjs
