@@ -12,12 +12,12 @@ class S3Storage {
     private s3_client: S3Client;
 
     constructor() {
-        this.S3_ACCESS_KEY = process.env.S3_ACCESS_KEY || "";
-        this.S3_SECRET_KEY = process.env.S3_SECRET_KEY || "";
-        this.S3_ENDPOINT = process.env.S3_ENDPOINT || "";
-        this.S3_REGION = process.env.S3_REGION || "";
-        this.bucket_name = process.env.S3_BUCKET || "";
-        this.is_dev = process.env.ENVIRONMENT === "dev";
+        this.S3_ACCESS_KEY = process.env.S3_ACCESS_KEY || process.env.NEXT_PUBLIC_S3_ACCESS_KEY || "";
+        this.S3_SECRET_KEY = process.env.S3_SECRET_KEY || process.env.NEXT_PUBLIC_S3_SECRET_KEY || "";
+        this.S3_ENDPOINT = process.env.S3_ENDPOINT || process.env.NEXT_PUBLIC_S3_ENDPOINT || "";
+        this.S3_REGION = process.env.S3_REGION || process.env.NEXT_PUBLIC_S3_REGION || "";
+        this.bucket_name = process.env.S3_BUCKET || process.env.NEXT_PUBLIC_S3_BUCKET || "";
+        this.is_dev = process.env.ENVIRONMENT || process.env.NEXT_PUBLIC_ENVIRONMENT === "dev";
 
         this.s3_client = new S3Client({
             credentials: {
