@@ -21,7 +21,7 @@ import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
 import { FileHandler } from '@tiptap-pro/extension-file-handler'
 import ImageSearch from './extensions/ImageSearch'
 import SIVideo from './extensions/VideoSearch'
-import CourseBlockNode, { TitleNode } from './extensions/CourseBlock'
+import CourseBlockNode from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
 import { Editor } from '@tiptap/core';
 import { apiClient } from '@/lib/api-client'
@@ -30,6 +30,10 @@ import PdfBlock from './extensions/PdfBlock/PdfBlock'
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider'
 import { FontSize } from './extensions/FontSize'
 import { AutocompleteExtension } from './extensions/AutoComplete'
+import { IntroductionNode } from './extensions/CourseBlock/IntroductionNode'
+import { ReportNode } from './extensions/CourseBlock/ReportNode'
+import { TitleNode } from './extensions/CourseBlock/TitleNode'
+import { SaveCourse } from './extensions/SaveCourse'
 
 
 const CustomDocument = Document.extend({
@@ -63,8 +67,13 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         }),
         SlashCommand,
         SIVideo,
+        // course
         CourseBlockNode,
         TitleNode,
+        IntroductionNode, 
+        ReportNode,
+        // ContentNode,
+        // /course
         CustomDocument,
         StarterKit.configure({
             document: false,
@@ -81,6 +90,9 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         // CodeBlock,
         // Image,
         ImageBlock.configure({
+            showSnackbar: showSnackbar,
+        }),
+        SaveCourse.configure({
             showSnackbar: showSnackbar,
         }),
         PdfBlock,
@@ -114,12 +126,16 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         Placeholder.configure({
             placeholder: (props) => {
                 const { node, pos } = props;
+                console.log("node.type.name",node.type.name)
                 if (node.type.name === 'heading') {
                     if (pos === 0) {
                         return 'Titre du cours';
                     }
                     return 'Titre';
                 }
+                if (node.type.name === 'introduction') {
+                    return node.attrs['data-is-empty'] === 'true' ? 'placeholder for introduction' : '';
+                }        
                 return "";
             },
             showOnlyWhenEditable: false,

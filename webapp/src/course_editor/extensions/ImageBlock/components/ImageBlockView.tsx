@@ -37,7 +37,7 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
       <div className={wrapperClassName} style={{ width: node.attrs.width }}>
         <div contentEditable={false} ref={imageWrapperRef}>
           <div className="relative">
-            {(isUploading || !isLoaded) && (
+            {(isUploading) && (
               <div className="flex w-full h-48 inset-0 items-center justify-center bg-gray-100 rounded-md">
                 <svg className="w-8 h-8 text-gray-400 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -48,7 +48,7 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
             <img 
               className={cn(
                 "block w-full transition-opacity duration-300 my-4",
-                isLoaded ? "opacity-100" : "opacity-0"
+                src ? "opacity-100" : "opacity-0"
               )} 
               src={src} 
               alt="" 

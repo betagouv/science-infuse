@@ -46,6 +46,7 @@ export async function PUT(
     }
 
     const { title, content } = await request.json();
+    console.log("SAVE BLOCKKKKK", title, "\n", content)
 
     const updatedBlock = await prisma.block.update({
       where: {

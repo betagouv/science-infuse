@@ -44,7 +44,7 @@ export default function SignIn() {
                     href: '/'
                 }} currentPageLabel={"Connexion"}>
             </Breadcrumb>
-            <div className="md:p-16 p-8 w-full md:max-w-[700px] mx-auto bg-[var(--background-default-grey-hover)]">
+            <div className="md:p-16 p-8 w-full md:max-w-[700px] mx-auto bg-[--background-default-grey-hover]">
                 <div className='flex flex-col gap-4'>
                     <h1>Connexion à Science Infuse</h1>
 

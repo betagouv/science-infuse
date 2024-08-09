@@ -47,7 +47,7 @@ export default function Inscription() {
                 }} 
                 currentPageLabel={"Inscription"}
             />
-            <div className="md:p-16 p-8 w-full md:max-w-[700px] mx-auto bg-[var(--background-default-grey-hover)]">
+            <div className="md:p-16 p-8 w-full md:max-w-[700px] mx-auto bg-[--background-default-grey-hover]">
                 <div className='flex flex-col gap-4'>
                     <h1>Inscription à Science Infuse</h1>
 

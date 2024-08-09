@@ -2,14 +2,16 @@ import React, { createContext, useState, useContext } from 'react';
 
 export type TSeverity = 'success' | 'info' | 'warning' | 'error';
 
-interface SnackbarContextType {
-    snackbar: {
-        open: boolean;
-        message: string;
-        severity: TSeverity;
-    };
+interface SnackbarState {
+    open: boolean;
+    message: React.ReactElement | string;
+    severity: TSeverity;
+    icon?: React.ReactElement;
+}
 
-    showSnackbar: (message: string, severity: TSeverity) => void;
+interface SnackbarContextType {
+    snackbar: SnackbarState;
+    showSnackbar: (message: React.ReactElement | string, severity: TSeverity, icon?: React.ReactElement) => void;
     hideSnackbar: () => void;
 }
 
@@ -20,14 +22,19 @@ interface SnackbarProviderProps {
 }
 
 export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) => {
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as TSeverity });
+    const [snackbar, setSnackbar] = useState<SnackbarState>({ 
+        open: false, 
+        message: <></>, 
+        severity: 'success' as TSeverity,
+        icon: undefined,
+    });
 
-    const showSnackbar = (message: string, severity: TSeverity) => {
-        setSnackbar({ open: true, message, severity });
+    const showSnackbar = (message: React.ReactElement | string, severity: TSeverity, icon?: React.ReactElement) => {
+        setSnackbar({ open: true, message: typeof message === 'string' ? <>{message}</> : message, severity, icon });
     };
 
     const hideSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
+        setSnackbar((prev) => ({ ...prev, open: false }));
     };
 
     return (

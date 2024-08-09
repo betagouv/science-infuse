@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { memo, useCallback, useEffect, useRef } from 'react'
 import { Node, mergeAttributes } from '@tiptap/core'
 import { NodeViewWrapper, NodeViewContent, ReactNodeViewRenderer } from '@tiptap/react'
 import { apiClient } from '@/lib/api-client';
@@ -31,7 +31,7 @@ declare module "@tiptap/core" {
 const CourseBlockNode = Node.create({
   name: 'courseBlock',
   group: 'block',
-  content: 'title block+',
+  content: 'heading introduction block+ report',
 
   addAttributes() {
     return {
@@ -52,7 +52,7 @@ const CourseBlockNode = Node.create({
       step.getMap().forEach((oldStart: number, oldEnd: number, newStart: number, newEnd: number) => {
         this.editor.state.doc.nodesBetween(newStart, newEnd, (node, pos: number) => {
           if (node.type.name === 'courseBlock') {
-            console.log(`CourseBlock ${node.attrs.id} was updated`, node.toJSON())
+            // console.log(`CourseBlock ${node.attrs.id} was updated`, node.toJSON())
           }
         })
       })
@@ -74,7 +74,6 @@ const CourseBlockNode = Node.create({
   addCommands() {
     return {
       addCourseBlock: (blockId: string) => ({ chain, state, editor }) => {
-
         if (state.selection.$from.depth > 1) {
           return false
         }
@@ -85,17 +84,33 @@ const CourseBlockNode = Node.create({
             attrs: { id: blockId },
             content: [
               {
-                type: 'title',
-                content: [{ type: 'text', text: 'Chapitre ...' }],
+                type: "heading", attrs: { "level": 2 }, content: [{ type: 'text', text: 'Chapitre' }]
+              },
+              {
+                type: 'introduction',
+                content: [
+                  {
+                    type: "heading", attrs: { "level": 3 }, content: [{ type: 'text', text: 'Introduction' }]
+                  },
+                  { type: 'paragraph', content: [{ type: 'text', text: ' ' }] },
+                ]
               },
               {
                 type: 'paragraph',
+              },
+              {
+                type: 'report',
+                content: [
+                  {
+                    type: "heading", attrs: { "level": 3 }, content: [{ type: 'text', text: 'Bilan de bloc' }]
+                  },
+                  { type: 'paragraph', content: [{ type: 'text', text: ' ' }] },
+                ]
               },
             ],
           })
           .focus()
           .run()
-
       },
       removeCourseBlock: (id: string) => ({ tr, dispatch, editor }) => {
         const { doc } = tr
@@ -191,16 +206,12 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       const $end = doc.resolve(nodePos + node.nodeSize);
       const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
 
-      console.log("FOUNDDDDD", node.attrs, node.content, domElement);
-
       // Extract text content
       text = doc.textBetween($start.pos, $end.pos);
 
       if (domElement) {
         const pdfs: HTMLDivElement[] = Array.from(domElement.querySelectorAll('.node-pdf .pdf-wrapper'));
         const pdfsTexts = pdfs.map(pdf => pdf.innerText).join("\n\n");
-        console.log("pdfs", pdfs);
-        console.log("domElement", domElement);
         text += pdfsTexts.trim().slice(0, 2000);
       }
     }
@@ -209,6 +220,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   };
 
   const [questions, setQuestions] = useState(node.attrs.quizQuestions);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     // Sync React state with node attributes
@@ -224,28 +236,20 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   const parentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map((q: Question) => q.question).join("")} className="relative chapter-course-block bg-white sm:rounded-xl sm:border sm:shadow-lg p-8">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map((q: Question) => q.question).join("")} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-4 right-4 cursor-pointer" onClick={handleDelete}>❌</span>
       <NodeViewContent className="content" />
-      <Quiz
+      <MemoQuiz
         parentRef={parentRef}
         questions={questions}
         setQuestions={updateQuestions}
+        isExpanded={isExpanded}
+        setIsExpanded={setIsExpanded}
         context={getCourseBlockText()}
       />
     </NodeViewWrapper>
   )
 }
 
-export const TitleNode = Node.create({
-  name: 'title',
-  content: 'inline*',
-  parseHTML() {
-    return [{ tag: 'h2' }]
-  },
-  renderHTML({ HTMLAttributes }) {
-    return ['h2', mergeAttributes(HTMLAttributes), 0]
-  },
-})
-
+const MemoQuiz = memo(Quiz);
 export default CourseBlockNode;

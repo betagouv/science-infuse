@@ -1,4 +1,5 @@
 import { Block, File as DbFile, FileType } from '@prisma/client';
+import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 
 interface CreateBlockRequest {
@@ -123,6 +124,18 @@ class ApiClient {
     }
     return "";
   }
+
+  async saveBlock(blockId: string, title: string, content: any[]): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/blocks/${blockId}`, { title: title, content: JSON.stringify(content) })
+    return response.data;
+  }
+
+  async saveChapter(chapterId: string, title: string, content: JSONContent | string): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, { title: title, content: JSON.stringify(content) });
+    return response.data;
+  }
+
+
 
 }
 

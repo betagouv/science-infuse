@@ -7,68 +7,6 @@ import { Editor, JSONContent } from '@tiptap/react';
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
 
 
-const saveBlocks = async (editorContent: JSONContent) => {
-  const blocks = editorContent.content?.filter(element => element.type === "courseBlock")
-  console.log("BLOCKS", blocks, editorContent)
-  if (blocks && blocks.length > 0) {
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i]
-      if (block.attrs && block.attrs.id && block.content) {
-        const blockId = block.attrs.id;
-        const blockTitle = block.content[0]?.content?.[0]?.text || ""
-        console.log(`Block ID: ${block.attrs.id}`)
-        console.log('Block Content:', block.content)
-
-        try {
-          const response = await fetch(`/api/course/chapters/blocks/${blockId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title: blockTitle, content: JSON.stringify(block.content) }),
-          });
-
-          if (response.ok) {
-            // alert('Block saved successfully!');
-          } else {
-            throw new Error('Failed to update block');
-          }
-        } catch (error) {
-          console.error('Error updating block:', error);
-          alert('Failed to update block. Please try again.');
-        }
-      }
-    }
-  }
-  return blocks
-}
-
-const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent | string, showSnackbar: (message: string, severity: TSeverity) => void) => {
-
-  await saveBlocks(editor.getJSON())
-
-  try {
-    const response = await fetch(`/api/course/chapters/${chapterId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title, content: JSON.stringify(content) }),
-    });
-
-    if (response.ok) {
-      showSnackbar("Cours sauvegardé avec succès", "success")
-    } else {
-      throw new Error('Failed to update course chapter');
-    }
-  } catch (error) {
-    console.error('Error updating course chapter:', error);
-    alert('Failed to update course chapter. Please try again.');
-  } finally {
-  }
-};
-
-
 
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   const [chapter, setChapter] = useState<Chapter | null>(null);
@@ -94,38 +32,19 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
   const { editor, getContent, getTitle, setContent } = useTiptapEditor()
-  const { showSnackbar } = useSnackbar();
+
 
   useEffect(() => {
     console.log("EDITORRR", editor)
     if (editor && chapter) {
       const content = chapter.content as string;
-      console.log("CHAPTER CONTENT", chapter)
       setContent(JSON.parse(content))
       editor.storage.simetadata.chapterId = chapter.id;
     }
   }, [editor, chapter])
 
-  const handleGetContent = () => {
-    console.log('Current content:', getContent())
-  }
-
-  const handleGetTitle = () => {
-    console.log('Current title:', getTitle())
-  }
-
-  const handleSetContent = () => {
-    setContent('<h2>Updated Title</h2><div data-type="pdf" src="/decouverte_436.pdf"></div>')
-  }
-
   return (
     <div>
-      <div>
-        <button onClick={() => editor && chapter && handleSave(editor, chapter.id, getTitle(), getContent(), showSnackbar)}>save</button>
-        <button onClick={handleGetContent}>Get Content</button>
-        <button onClick={handleGetTitle}>Get Title</button>
-        <button onClick={handleSetContent}>Set New Content</button>
-      </div>
       {editor && <TiptapEditor editor={editor} />}
     </div>
   )
