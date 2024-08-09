@@ -123,9 +123,6 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const menuRef = useRef<HTMLDivElement>(null)
   const tippyInstance = useRef<Instance | null>(null)
 
-  const shouldShow = useCallback(() => {
-    return true;
-  }, [editor])
 
 
   const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
@@ -173,7 +170,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           sticky: 'popper',
         }}
       >
-        <Toolbar.Wrapper shouldShowContent={shouldShow()} ref={menuRef}>
+        <Toolbar.Wrapper shouldShowContent={!!s3ObjectName} ref={menuRef}>
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
           {/* {nodeName == PdfBlock.name && } */}
           {!!s3ObjectName && <AllowShare

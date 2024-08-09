@@ -86,12 +86,13 @@ export const TiptapEditor = (props: { editor: Editor }) => {
         <Snackbar
           key={key}
           open={snackbar.open}
-          autoHideDuration={3000}
+          autoHideDuration={200000}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           TransitionComponent={Slide}
           TransitionProps={{ dir: "up" }}
+          onClose={hideSnackbar}
         >
-          <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          <Alert onClose={hideSnackbar} icon={snackbar.icon} severity={snackbar.severity} sx={{ width: '100%' }}>
             {snackbar.message}
           </Alert>
         </Snackbar>
