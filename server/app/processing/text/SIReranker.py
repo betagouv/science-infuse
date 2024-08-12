@@ -1,8 +1,13 @@
 from typing import List
 from transformers import AutoModelForSequenceClassification
-from schemas import ChunkWithScore, DocumentSearchResult
+from schemas import ChunkWithScore, DocumentSearchResult, RerankTextQuery
 import numpy as np
+from pydantic import BaseModel
 
+class TextWithScore(BaseModel):
+    text: str
+    score: float
+    
 class SIReranker:
     def __init__(self):
         self.model = AutoModelForSequenceClassification.from_pretrained(
@@ -13,6 +18,18 @@ class SIReranker:
 
         self.model.to('cuda') # or 'cpu' if no GPU is available
         self.model.eval()
+
+    def sort_raw_texts(self, query: RerankTextQuery) -> List[TextWithScore]:
+        pairs = [[query.query, text] for text in query.texts]
+        scores = self.model.predict(pairs)
+        
+        sorted_texts_with_scores = sorted(
+            [TextWithScore(text=text, score=score) for text, score in zip(query.texts, scores)],
+            key=lambda x: x.score,
+            reverse=True
+        )
+        
+        return sorted_texts_with_scores
 
     def sort_document_chunks(self, document_chunks: List[ChunkWithScore], query: str, alpha: float = 0.5) -> List[ChunkWithScore]:
         """

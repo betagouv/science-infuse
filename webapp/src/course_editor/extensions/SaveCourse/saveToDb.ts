@@ -16,6 +16,7 @@ export const saveBlocks = async (editorContent: JSONContent) => {
                 console.log(`Block ID: ${block.attrs.id}`)
                 console.log('Block Title:', blockTitle)
                 console.log('Block Content:', block.content)
+                console.log('Block attrs:', block.attrs)
                 console.log('Block blockKeyIdeas:', blockKeyIdeas)
 
                 try {

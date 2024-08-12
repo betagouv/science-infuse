@@ -7,7 +7,7 @@ import uvicorn
 from S3Storage import S3Storage
 from SIWeaviateClient import SIWeaviateClient
 from models import create_weaviate_schema
-from router import document, search, user_approved
+from router import document, search, user_approved, rerank
 import logging
 from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
@@ -61,9 +61,10 @@ async def options_route(request: Request):
             "Access-Control-Allow-Headers": "*",
         },
     )
+app.include_router(rerank.router, prefix="/rerank", tags=["rerank"])
 app.include_router(document.router, prefix="/document", tags=["document"])
 app.include_router(search.router, prefix="/search", tags=["search"])
-app.include_router(user_approved.router, prefix="/approve", tags=["search"])
+app.include_router(user_approved.router, prefix="/approve", tags=["approve"])
 
 
 @app.on_event("startup")
