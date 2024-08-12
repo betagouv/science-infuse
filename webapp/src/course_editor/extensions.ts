@@ -128,7 +128,6 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         Placeholder.configure({
             placeholder: (props) => {
                 const { node, pos } = props;
-                console.log("node.type.name",node.type.name)
                 if (node.type.name === 'heading') {
                     if (pos === 0) {
                         return 'Titre du cours';

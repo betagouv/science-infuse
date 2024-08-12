@@ -8,8 +8,6 @@ from search.search_chunks import search_chunks_grouped_by_document, search_chunk
 router = APIRouter()
 
 
-
-
 @router.post("/search_chunks_grouped_by_document", response_model=DocumentSearchResults)
 async def _search_chunks_grouped_by_document(query: SearchQuery):
     results = search_chunks_grouped_by_document(query)

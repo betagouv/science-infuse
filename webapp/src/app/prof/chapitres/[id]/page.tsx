@@ -31,6 +31,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
     console.log("EDITORRR", editor)
     if (editor && chapter) {
       const content = chapter.content as string;
+      document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;
       setContent(JSON.parse(content))

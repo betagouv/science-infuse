@@ -18,6 +18,11 @@ export interface APIClientFileUploadResponse {
   id: string
 }
 
+export interface TextWithScore {
+  text: string,
+  score: number
+}
+
 export type ChapterWithSkills = (Chapter & { skills: Skill[] }) | null;
 
 
@@ -31,6 +36,11 @@ class ApiClient {
         'Content-Type': 'application/json',
       },
     });
+  }
+
+  async getKeyIdeaAiReco(context: string): Promise<TextWithScore[]> {
+    const response = await this.axiosInstance.post<TextWithScore[]>(`/ai/completion/keyIdea`, {context});
+    return response.data;
   }
 
   async getChapter(chapterId: string): Promise<ChapterWithSkills> {
@@ -117,7 +127,7 @@ class ApiClient {
   }
 
   async autoComplete(context: string): Promise<string> {
-    const response = await this.axiosInstance.post<string>('/ai/completion', { context });
+    const response = await this.axiosInstance.post<string>('/ai/completion/text', { context });
     if (response.data) {
       return response.data
     }

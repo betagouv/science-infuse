@@ -8,7 +8,7 @@ from weaviate import WeaviateClient
 from typing import List, Dict, Optional, Tuple
 
 from SIWeaviateClient import SIWeaviateClient
-from processing.text.SIReranker import SIReranker
+from processing.text.SIReranker import SIReranker, TextWithScore
 from schemas import ChunkSearchResults, ChunkWithScore, DocumentChunkRegistry, DocumentSearchResult, DocumentSearchResults, MetadataRegistry, SearchQuery
 
 # only search in some properties
@@ -20,7 +20,6 @@ query_properties = ["text", "title"]
 alpha = 0.75
 
 reranker = SIReranker()
-
 
 def search_multi_documents(
     client: WeaviateClient,

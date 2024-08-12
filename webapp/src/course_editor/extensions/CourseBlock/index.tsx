@@ -13,12 +13,13 @@ import SkillsPicker from './SkillsPicker';
 import KeyIdeasPicker from './KeyIdeaPicker';
 import { KeyIdea } from '@prisma/client';
 
-
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     CourseBlockNode: {
       addCourseBlock: (blockId: string) => ReturnType;
       removeCourseBlock: (id: string) => ReturnType;
+      updateCourseBlockQuestions: (id: string, questions: Question[]) => ReturnType;
+      updateCourseBlockKeyIdeas: (id: string, keyIdeas: KeyIdea[]) => ReturnType;
     };
   }
   interface Node {
@@ -28,8 +29,8 @@ declare module "@tiptap/core" {
       keyIdeas: KeyIdea[];
     };
   }
-
 }
+
 
 
 const CourseBlockNode = Node.create({
@@ -57,17 +58,6 @@ const CourseBlockNode = Node.create({
         }),
       },
     }
-  },
-  onTransaction({ transaction }) {
-    transaction.steps.forEach((step) => {
-      step.getMap().forEach((oldStart: number, oldEnd: number, newStart: number, newEnd: number) => {
-        this.editor.state.doc.nodesBetween(newStart, newEnd, (node, pos: number) => {
-          if (node.type.name === 'courseBlock') {
-            // console.log(`CourseBlock ${node.attrs.id} was updated`, node.toJSON())
-          }
-        })
-      })
-    })
   },
 
   parseHTML() {
@@ -148,6 +138,49 @@ const CourseBlockNode = Node.create({
 
         return false
       },
+      updateCourseBlockQuestions: (id: string, questions: Question[]) => ({ tr, dispatch }) => {
+        const { doc } = tr
+        let nodePos = -1
+
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'courseBlock' && node.attrs.id === id) {
+            nodePos = pos
+            return false
+          }
+        })
+
+        if (nodePos > -1) {
+          tr.setNodeAttribute(nodePos, 'quizQuestions', questions)
+          if (dispatch) {
+            dispatch(tr)
+          }
+          return true
+        }
+
+        return false
+      },
+      updateCourseBlockKeyIdeas: (id: string, keyIdeas: KeyIdea[]) => ({ tr, dispatch }) => {
+        const { doc } = tr
+        let nodePos = -1
+
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'courseBlock' && node.attrs.id === id) {
+            nodePos = pos
+            return false
+          }
+        })
+
+        if (nodePos > -1) {
+          tr.setNodeAttribute(nodePos, 'keyIdeas', keyIdeas)
+          if (dispatch) {
+            dispatch(tr)
+          }
+          return true
+        }
+
+        return false
+      },
+
     }
   },
 
@@ -231,34 +264,65 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   };
 
   const [questions, setQuestions] = useState(node.attrs.quizQuestions);
+  const [selectedKeyIdeas, setSelectedKeyIdeas] = useState<KeyIdea[]>(node.attrs.keyIdeas)
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    // Sync React state with node attributes
     setQuestions(node.attrs.quizQuestions);
   }, [node.attrs.quizQuestions]);
 
+  useEffect(() => {
+    setSelectedKeyIdeas(node.attrs.keyIdeas);
+  }, [node.attrs.keyIdeas]);
+
+  // const updateAttribute = (key: string, value: any) => {
+  //   let nodePos = -1;
+  //   editor.state.doc.descendants((node, pos) => {
+  //     if (node.type.name === 'courseBlock' && node.attrs.id === node.attrs.id) {
+  //       nodePos = pos;
+  //       return false; // stop searching
+  //     }
+  //   });
+
+  //   console.log("NODEPOS", nodePos, key, value)
+  //   if (nodePos !== -1) {
+  //     const ok = editor.commands.command(({ tr }) => {
+  //       tr.setNodeAttribute(nodePos, key, value);
+  //       editor.view.dispatch(tr);
+  //       return true;
+  //     });
+  //     console.log("NODEPOS", ok, editor.getJSON().content[1].attrs)
+
+  //     console.log("Editor attributes updated at position:", nodePos);
+  //   } else {
+  //     console.log("CourseBlock node not found");
+  //   }
+
+  // }
+
   const updateQuestions = useCallback((newQuestions: Question[]) => {
     setQuestions(newQuestions);
-
-    editor.commands.updateAttributes(node.type.name, { quizQuestions: [...newQuestions] });
-  }, [editor, node.type.name]);
+    editor.commands.updateCourseBlockQuestions(node.attrs.id, newQuestions);
+  }, [editor, node.attrs.id]);
 
   const updateKeyIdeas = useCallback((newKeyIdeas: KeyIdea[]) => {
     setSelectedKeyIdeas(newKeyIdeas);
+    editor.commands.updateCourseBlockKeyIdeas(node.attrs.id, newKeyIdeas);
+  }, [editor, node.attrs.id]);
 
-    editor.commands.updateAttributes(node.type.name, { keyIdeas: [...newKeyIdeas] });
-  }, [editor, node.type.name]);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-
-  const [selectedKeyIdeas, setSelectedKeyIdeas] = useState<KeyIdea[]>(node.attrs.keyIdeas)
+  const getTitle = () => {
+    const firstElement = node.content.firstChild
+    return firstElement ? firstElement.textContent : ''
+  }
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map((q: Question) => q.question).join("")} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>
-      <KeyIdeasPicker
+      <MemoKeyIdeasPicker
+        context={getTitle()}
         className='mb-4 w-full'
         selectedKeyIdeas={selectedKeyIdeas}
         onSelectedKeyIdeas={updateKeyIdeas}
@@ -277,4 +341,5 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 }
 
 const MemoQuiz = memo(Quiz);
+const MemoKeyIdeasPicker = memo(KeyIdeasPicker);
 export default CourseBlockNode;

@@ -208,6 +208,10 @@ class ImportDocument(BaseModel):
     original_path: str
     
 
+class RerankTextQuery(BaseModel):
+    query: str
+    texts: List[str]
+
 class SearchQuery(BaseModel):
     query: str
     document_id: Optional[str] = None
