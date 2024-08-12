@@ -6,6 +6,7 @@ const SIMetadata = Extension.create({
   addStorage() {
     return {
       chapterId: "",
+      skills: [],
     }
   },
 

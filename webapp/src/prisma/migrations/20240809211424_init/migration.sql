@@ -3,7 +3,6 @@ CREATE TABLE "Chapter" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "themeId" TEXT,
-    "introduction" TEXT,
     "content" JSONB NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -29,6 +28,15 @@ CREATE TABLE "Skill" (
 );
 
 -- CreateTable
+CREATE TABLE "KeyIdea" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "blockId" TEXT,
+
+    CONSTRAINT "KeyIdea_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Tag" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -42,7 +50,6 @@ CREATE TABLE "Block" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" JSONB NOT NULL,
-    "bilan" TEXT,
     "chapterId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -224,6 +231,9 @@ ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_themeId_fkey" FOREIGN KEY ("themeI
 
 -- AddForeignKey
 ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KeyIdea" ADD CONSTRAINT "KeyIdea_blockId_fkey" FOREIGN KEY ("blockId") REFERENCES "Block"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Block" ADD CONSTRAINT "Block_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "Chapter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

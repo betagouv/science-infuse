@@ -1,7 +1,7 @@
 'use client';
 
 import { Editor, EditorContent, useEditor } from '@tiptap/react'
-import React, { useCallback, useMemo, useRef, useEffect } from 'react'
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react'
 import { EditorContext } from './context/EditorContext'
 import { TextMenu } from './extensions/BubbleMenu/TextMenu'
 import styled from '@emotion/styled'
@@ -9,8 +9,10 @@ import { getExtensions } from './extensions';
 import "./editor.scss"
 import { EMPTY_DOCUMENT } from '@/config';
 import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
-import { Alert, Snackbar, Slide } from '@mui/material';
+import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
 import { useSnackbar } from '@/app/SnackBarProvider';
+import Snackbar from './components/Snackbar';
+import { Skill } from '@prisma/client';
 
 const StyledEditor = styled.div`
 `
@@ -53,7 +55,6 @@ export const useTiptapEditor = () => {
 export const TiptapEditor = (props: { editor: Editor }) => {
 
   const { editor } = props;
-  const { snackbar, hideSnackbar } = useSnackbar();
   const menuContainerRef = useRef(null)
   const providerValue = useMemo(() => {
     return {
@@ -61,42 +62,51 @@ export const TiptapEditor = (props: { editor: Editor }) => {
     }
   }, [])
 
-  const [key, setKey] = React.useState(0);
+  const updateSkills = useCallback((newSkills: Skill[]) => {
+    editor.storage.simetadata.skills = [...newSkills];
+    setSelectedSkills(newSkills);
+  }, [editor]);
 
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
+
+  // save editor on ctrl+s press on whole page
   useEffect(() => {
-    if (snackbar.open) {
-      setKey(prevKey => prevKey + 1);
-    }
-  }, [snackbar.open, snackbar.message]);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        editor.commands.save(editor);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor]);
+
+
 
   return (
     <StyledEditor
       id="editor"
       className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}
     >
+      <SkillsPicker
+        selectedSkills={editor.storage.simetadata.skills}
+        onSelectedSkills={updateSkills}
+        className='mb-4' />
       <div className="flex h-full" ref={menuContainerRef}>
 
         <EditorContext.Provider value={providerValue}>
-          <EditorContent className="flex-1" editor={editor} style={{ minHeight: '100%' }} />
+          <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
           {editor && <TextMenu editor={editor} />}
           <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
 
         </EditorContext.Provider>
 
-        <Snackbar
-          key={key}
-          open={snackbar.open}
-          autoHideDuration={200000}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          TransitionComponent={Slide}
-          TransitionProps={{ dir: "up" }}
-          onClose={hideSnackbar}
-        >
-          <Alert onClose={hideSnackbar} icon={snackbar.icon} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
       </div>
+      <Snackbar />
     </StyledEditor>
   )
 }

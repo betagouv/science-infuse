@@ -34,6 +34,7 @@ import { IntroductionNode } from './extensions/CourseBlock/IntroductionNode'
 import { ReportNode } from './extensions/CourseBlock/ReportNode'
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import { SaveCourse } from './extensions/SaveCourse'
+import { TrailingNode } from './extensions/TrailingNode'
 
 
 const CustomDocument = Document.extend({
@@ -89,6 +90,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         TableCell,
         // CodeBlock,
         // Image,
+        TrailingNode,
         ImageBlock.configure({
             showSnackbar: showSnackbar,
         }),
