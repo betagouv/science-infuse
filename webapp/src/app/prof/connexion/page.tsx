@@ -7,12 +7,16 @@ import { Input } from "@codegouvfr/react-dsfr/Input";
 import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
+import { useSnackbar } from '@/app/SnackBarProvider';
+import Snackbar from '@/course_editor/components/Snackbar';
 
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
+
+    const { showSnackbar } = useSnackbar();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -23,8 +27,7 @@ export default function SignIn() {
         })
 
         if (result?.error) {
-            // Handle error
-            console.error(result.error)
+            showSnackbar('Échec de connexion. Veuillez vérifier vos identifiants.', 'error')
         } else {
             router.push("/prof") // Redirect to home page or dashboard
         }
@@ -70,23 +73,12 @@ export default function SignIn() {
                                 placeholder: "Password",
                             }}
                         />
-                        {/* <a href="#" className='w-fit'>Mot de passe oublié ?</a>
-                        <Checkbox
-                            options={[
-                                {
-                                    label: 'Se souvenir de moi',
-                                    nativeInputProps: {
-                                        name: 'checkboxes-1',
-                                        value: 'value1'
-                                    }
-                                }]}
-                        />
- */}
                         <Button type='submit'>Se connecter</Button>
                     </form>
                     <p>Vous n'avez pas de compte ? <a href="/prof/inscription">Créer un compte</a></p>
                 </div>
             </div>
+            <Snackbar />
         </div >
 
     );

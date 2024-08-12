@@ -22,6 +22,7 @@ import style from "./main.module.css";
 import { cx } from '@codegouvfr/react-dsfr/tools/cx';
 import { Follow } from "./Follow";
 import StartDsfr from "./StartDsfr";
+import Snackbar from "@/course_editor/components/Snackbar";
 
 export default function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");

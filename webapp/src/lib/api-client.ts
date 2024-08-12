@@ -1,4 +1,4 @@
-import { Block, File as DbFile, FileType } from '@prisma/client';
+import { Block, Chapter, File as DbFile, FileType, KeyIdea, Skill } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 
@@ -18,6 +18,9 @@ export interface APIClientFileUploadResponse {
   id: string
 }
 
+export type ChapterWithSkills = (Chapter & { skills: Skill[] }) | null;
+
+
 class ApiClient {
   private axiosInstance;
 
@@ -28,6 +31,11 @@ class ApiClient {
         'Content-Type': 'application/json',
       },
     });
+  }
+
+  async getChapter(chapterId: string): Promise<ChapterWithSkills> {
+    const response = await this.axiosInstance.get<ChapterWithSkills>(`/course/chapters/${chapterId}`);
+    return response.data;
   }
 
   async createBlock(data: CreateBlockRequest): Promise<Block> {
@@ -125,17 +133,29 @@ class ApiClient {
     return "";
   }
 
-  async saveBlock(blockId: string, title: string, content: any[]): Promise<boolean> {
-    const response = await this.axiosInstance.put(`/course/chapters/blocks/${blockId}`, { title: title, content: JSON.stringify(content) })
+  async saveBlock(blockId: string, title: string, content: any[], keyIdeas?: string[]): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/blocks/${blockId}`, {
+      title: title,
+      content: JSON.stringify(content),
+      keyIdeas: keyIdeas
+    })
     return response.data;
   }
 
-  async saveChapter(chapterId: string, title: string, content: JSONContent | string): Promise<boolean> {
-    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, { title: title, content: JSON.stringify(content) });
+  async saveChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[]): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, { title: title, content: JSON.stringify(content), skills });
     return response.data;
   }
 
+  async getSkills(): Promise<Skill[]> {
+    const response = await this.axiosInstance.get<Skill[]>(`/skills`);
+    return response.data;
+  }
 
+  async getKeyIdeas(): Promise<KeyIdea[]> {
+    const response = await this.axiosInstance.get<KeyIdea[]>(`/keyIdeas`);
+    return response.data;
+  }
 
 }
 

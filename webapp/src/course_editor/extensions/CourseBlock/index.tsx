@@ -9,6 +9,9 @@ import { keymap } from '@tiptap/pm/keymap'
 import Quiz, { Question } from './Quiz';
 import { useState } from '@preact-signals/safe-react/react';
 import { Node as PMNode } from '@tiptap/pm/model'
+import SkillsPicker from './SkillsPicker';
+import KeyIdeasPicker from './KeyIdeaPicker';
+import { KeyIdea } from '@prisma/client';
 
 
 declare module "@tiptap/core" {
@@ -21,7 +24,8 @@ declare module "@tiptap/core" {
   interface Node {
     attrs: {
       id?: string;
-      quizQuestions: Question[]
+      quizQuestions: Question[];
+      keyIdeas: KeyIdea[];
     };
   }
 
@@ -43,6 +47,13 @@ const CourseBlockNode = Node.create({
         parseHTML: element => JSON.parse(element.getAttribute('data-quizQuestions') || '[]'),
         renderHTML: attributes => ({
           'data-quizQuestions': JSON.stringify(attributes.quizQuestions),
+        }),
+      },
+      keyIdeas: {
+        default: [],
+        parseHTML: element => JSON.parse(element.getAttribute('data-keyIdeas') || '[]'),
+        renderHTML: attributes => ({
+          'data-keyIdeas': JSON.stringify(attributes.keyIdeas),
         }),
       },
     }
@@ -233,11 +244,25 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
     editor.commands.updateAttributes(node.type.name, { quizQuestions: [...newQuestions] });
   }, [editor, node.type.name]);
 
+  const updateKeyIdeas = useCallback((newKeyIdeas: KeyIdea[]) => {
+    setSelectedKeyIdeas(newKeyIdeas);
+
+    editor.commands.updateAttributes(node.type.name, { keyIdeas: [...newKeyIdeas] });
+  }, [editor, node.type.name]);
+
   const parentRef = useRef<HTMLDivElement>(null);
+
+
+  const [selectedKeyIdeas, setSelectedKeyIdeas] = useState<KeyIdea[]>(node.attrs.keyIdeas)
 
   return (
     <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} key={node.attrs.quizQuestions.map((q: Question) => q.question).join("")} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
-      <span className="delete-course-block absolute top-4 right-4 cursor-pointer" onClick={handleDelete}>❌</span>
+      <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>
+      <KeyIdeasPicker
+        className='mb-4 w-full'
+        selectedKeyIdeas={selectedKeyIdeas}
+        onSelectedKeyIdeas={updateKeyIdeas}
+      />
       <NodeViewContent className="content" />
       <MemoQuiz
         parentRef={parentRef}

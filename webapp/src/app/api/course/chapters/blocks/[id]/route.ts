@@ -45,8 +45,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { title, content } = await request.json();
-    console.log("SAVE BLOCKKKKK", title, "\n", content)
+    const { title, content, keyIdeas } = await request.json();
+    console.log("SAVE BLOCKKKKK", title, "\n", content, "\n", keyIdeas)
 
     const updatedBlock = await prisma.block.update({
       where: {
@@ -56,6 +56,10 @@ export async function PUT(
       data: {
         title,
         content,
+        keyIdeas: {
+          set: keyIdeas.map((id: string) => ({ id })),
+        },
+
       },
     });
 

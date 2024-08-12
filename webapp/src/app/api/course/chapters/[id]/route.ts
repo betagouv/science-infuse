@@ -20,6 +20,9 @@ export async function GET(
         id: params.id,
         userId: session.user.id,
       },
+      include: {
+        skills: true
+      }
     });
 
     if (!chapter) {
@@ -44,7 +47,7 @@ export async function PUT(
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
       }
   
-      const { title, content } = await request.json();
+      const { title, content, skills } = await request.json();
   
       const updatedChapter = await prisma.chapter.update({
         where: {
@@ -54,6 +57,9 @@ export async function PUT(
         data: {
           title,
           content,
+          skills: {
+            set: skills.map((id: string) => ({ id })),
+          },  
         },
       });
   

@@ -3,6 +3,7 @@ import { Extension } from '@tiptap/core';
 import { Editor } from '@tiptap/core';
 import axios from 'axios';
 import { handleSave } from './saveToDb';
+import { Skill } from '@prisma/client';
 
 
 declare module "@tiptap/core" {
@@ -21,20 +22,21 @@ export const SaveCourse = Extension.create({
             showSnackbar: (message: string, severity: TSeverity) => { },
         };
     },
-    addKeyboardShortcuts() {
-        return {
-            'Mod-s': () => this.editor.commands.save(this.editor),
-        };
-    },
+    // addKeyboardShortcuts() {
+    //     return {
+    //         'Mod-s': () => this.editor.commands.save(this.editor),
+    //     };
+    // },
 
     addCommands() {
         return {
             save: (editor: Editor) =>
                 () => {
                     const chapterId = editor.storage.simetadata.chapterId;
+                    const skills = (editor.storage.simetadata.skills || []).map((b: Skill) => b.id);
                     const courseTitle = editor?.state.doc.firstChild?.textContent || "-";
-                    handleSave(editor, chapterId, courseTitle, editor.getJSON())
-                        .then(({message, severity}) => {
+                    handleSave(editor, chapterId, courseTitle, editor.getJSON(), skills)
+                        .then(({ message, severity }) => {
                             this.options.showSnackbar(message, severity);
                         })
                     return true;
