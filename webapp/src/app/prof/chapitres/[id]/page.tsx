@@ -28,14 +28,15 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
   useEffect(() => {
-    console.log("EDITORRR", editor)
     if (editor && chapter) {
-      const content = chapter.content as string;
+      const content = JSON.parse(chapter.content as string);
+      console.log("EDITORRR", editor, content)
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;
       editor.storage.simetadata.educationLevels = chapter.educationLevels;
-      setContent(JSON.parse(content))
+      // editor.storage.content.comments = content.storage.comments;
+      setContent(content)
 
     }
   }, [editor, chapter])
