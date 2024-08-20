@@ -36,7 +36,7 @@ export const AutocompleteExtension = Node.create<{
         return {
             applySuggestionKeys: ['Tab', 'ArrowRight'],
             suggestionDebounce: 1000,
-            previousTextLength: 4000,
+            previousTextLength: 1000,
             getSuggestions: async () => null,
         };
     },

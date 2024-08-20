@@ -1,4 +1,4 @@
-import { Block, Chapter, File as DbFile, FileType, KeyIdea, Skill } from '@prisma/client';
+import { Activity, Block, Chapter, File as DbFile, EducationLevel, FileType, KeyIdea, Skill, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 
@@ -23,7 +23,10 @@ export interface TextWithScore {
   score: number
 }
 
-export type ChapterWithSkills = (Chapter & { skills: Skill[] }) | null;
+export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], tags: Tag[] }
+
+export type ChapterWithoutBlocks = (Chapter & { skills: Skill[], educationLevels: EducationLevel[] }) | null;
+export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 
 
 class ApiClient {
@@ -39,12 +42,12 @@ class ApiClient {
   }
 
   async getKeyIdeaAiReco(context: string): Promise<TextWithScore[]> {
-    const response = await this.axiosInstance.post<TextWithScore[]>(`/ai/completion/keyIdea`, {context});
+    const response = await this.axiosInstance.post<TextWithScore[]>(`/ai/completion/keyIdea`, { context });
     return response.data;
   }
 
-  async getChapter(chapterId: string): Promise<ChapterWithSkills> {
-    const response = await this.axiosInstance.get<ChapterWithSkills>(`/course/chapters/${chapterId}`);
+  async getChapter(chapterId: string): Promise<ChapterWithoutBlocks> {
+    const response = await this.axiosInstance.get<ChapterWithoutBlocks>(`/course/chapters/${chapterId}`);
     return response.data;
   }
 
@@ -152,8 +155,13 @@ class ApiClient {
     return response.data;
   }
 
-  async saveChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[]): Promise<boolean> {
-    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, { title: title, content: JSON.stringify(content), skills });
+  async saveChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[], educationLevels?: EducationLevel[]): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, {
+      title: title,
+      content: JSON.stringify(content),
+      skills,
+      educationLevels
+    });
     return response.data;
   }
 
@@ -167,6 +175,10 @@ class ApiClient {
     return response.data;
   }
 
+  async getEducationLevels(): Promise<EducationLevel[]> {
+    const response = await this.axiosInstance.get<EducationLevel[]>(`/educationLevel`);
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

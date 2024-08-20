@@ -21,7 +21,8 @@ export async function GET(
         userId: session.user.id,
       },
       include: {
-        skills: true
+        skills: true,
+        educationLevels: true
       }
     });
 
@@ -37,35 +38,38 @@ export async function GET(
 }
 
 export async function PUT(
-    request: Request,
-    { params }: { params: { id: string } }
-  ) {
-    try {
-      const session = await getServerSession(authOptions);
-  
-      if (!session || !session.user) {
-        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-      }
-  
-      const { title, content, skills } = await request.json();
-  
-      const updatedChapter = await prisma.chapter.update({
-        where: {
-          id: params.id,
-          userId: session.user.id,
-        },
-        data: {
-          title,
-          content,
-          skills: {
-            set: skills.map((id: string) => ({ id })),
-          },  
-        },
-      });
-  
-      return NextResponse.json(updatedChapter);
-    } catch (error) {
-      console.error('Error updating course chapter:', error);
-      return NextResponse.json({ error: 'Failed to update course chapter' }, { status: 500 });
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+
+    const { title, content, skills, educationLevels } = await request.json();
+    console.log("SAVE CHAPTER educationLevels", educationLevels)
+    const updatedChapter = await prisma.chapter.update({
+      where: {
+        id: params.id,
+        userId: session.user.id,
+      },
+      data: {
+        title,
+        content,
+        skills: {
+          set: skills.map((id: string) => ({ id })),
+        },
+        educationLevels: {
+          set: educationLevels.map((id: string) => ({ id })),
+        },
+      },
+    });
+
+    return NextResponse.json(updatedChapter);
+  } catch (error) {
+    console.error('Error updating course chapter:', error);
+    return NextResponse.json({ error: 'Failed to update course chapter' }, { status: 500 });
   }
+}

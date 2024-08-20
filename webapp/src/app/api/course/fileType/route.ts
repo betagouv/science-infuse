@@ -17,7 +17,7 @@ export async function GET(
     const fileTypes = await prisma.fileType.findMany();
 
     if (!fileTypes) {
-      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+      return NextResponse.json({ error: 'fileTypes not found' }, { status: 404 });
     }
 
     return NextResponse.json(fileTypes);

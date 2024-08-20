@@ -13,12 +13,12 @@ import { flushSync } from 'react-dom';
 
 interface KeyIdeasPickerProps {
     className?: string;
-    context?: string;
+    getContext?: () => string;
     selectedKeyIdeas: KeyIdea[];
     onSelectedKeyIdeas: (newKeyIdeas: KeyIdea[]) => void;
 }
 
-export default function KeyIdeasPicker({ className, context, selectedKeyIdeas, onSelectedKeyIdeas }: KeyIdeasPickerProps) {
+export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas, onSelectedKeyIdeas }: KeyIdeasPickerProps) {
     const [keyIdeas, setKeyIdeas] = useState<KeyIdea[]>([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -30,8 +30,9 @@ export default function KeyIdeasPicker({ className, context, selectedKeyIdeas, o
         fetchKeyIdeas();
     }, []);
 
-    const addRandomKeyIdea = async () => {
-        if (!context) return;
+    const generateAIKeyIdeas = async () => {
+        if (!getContext) return;
+        const context = getContext();
         setIsAiLoading(true);
 
         try {
@@ -70,6 +71,7 @@ export default function KeyIdeasPicker({ className, context, selectedKeyIdeas, o
                         const { key, ...tagProps } = getTagProps({ index });
                         return (
                             <Tooltip
+                                enterDelay={500}
                                 key={`${option.title}${index}`}
                                 title={option.title}>
                                 <Chip
@@ -84,15 +86,19 @@ export default function KeyIdeasPicker({ className, context, selectedKeyIdeas, o
                     <TextField {...params} label="Idée-clé" placeholder="Idée-clé" />
                 )}
             />
-            {context && <Button
-                variant="text"
-                className="h-[56px] w-[56px] min-w-[56px] p-0 ml-2"
-                color="primary"
-                onClick={addRandomKeyIdea}
-                disabled={isAiLoading}
-            >
-                {isAiLoading ? <CircularProgress size={24} /> : <AutoAwesomeIcon />}
-            </Button>}
+            <Tooltip
+                enterDelay={500}
+                title={"Générer automatiquement"}>
+                <Button
+                    variant="text"
+                    className="h-[56px] w-[56px] min-w-[56px] p-0 ml-2"
+                    color="primary"
+                    onClick={generateAIKeyIdeas}
+                    disabled={isAiLoading}
+                >
+                    {isAiLoading ? <CircularProgress size={24} /> : <AutoAwesomeIcon />}
+                </Button>
+            </Tooltip>
         </div>
     );
 }

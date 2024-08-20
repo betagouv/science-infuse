@@ -249,6 +249,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       const $start = doc.resolve(nodePos);
       const $end = doc.resolve(nodePos + node.nodeSize);
       const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
+      console.log("CONTEXT", domElement)
 
       // Extract text content
       text = doc.textBetween($start.pos, $end.pos);
@@ -275,31 +276,6 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
     setSelectedKeyIdeas(node.attrs.keyIdeas);
   }, [node.attrs.keyIdeas]);
 
-  // const updateAttribute = (key: string, value: any) => {
-  //   let nodePos = -1;
-  //   editor.state.doc.descendants((node, pos) => {
-  //     if (node.type.name === 'courseBlock' && node.attrs.id === node.attrs.id) {
-  //       nodePos = pos;
-  //       return false; // stop searching
-  //     }
-  //   });
-
-  //   console.log("NODEPOS", nodePos, key, value)
-  //   if (nodePos !== -1) {
-  //     const ok = editor.commands.command(({ tr }) => {
-  //       tr.setNodeAttribute(nodePos, key, value);
-  //       editor.view.dispatch(tr);
-  //       return true;
-  //     });
-  //     console.log("NODEPOS", ok, editor.getJSON().content[1].attrs)
-
-  //     console.log("Editor attributes updated at position:", nodePos);
-  //   } else {
-  //     console.log("CourseBlock node not found");
-  //   }
-
-  // }
-
   const updateQuestions = useCallback((newQuestions: Question[]) => {
     setQuestions(newQuestions);
     editor.commands.updateCourseBlockQuestions(node.attrs.id, newQuestions);
@@ -322,7 +298,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
     <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
       <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>
       <MemoKeyIdeasPicker
-        context={getTitle()}
+        getContext={getCourseBlockText}
         className='mb-4 w-full'
         selectedKeyIdeas={selectedKeyIdeas}
         onSelectedKeyIdeas={updateKeyIdeas}
@@ -334,7 +310,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         setQuestions={updateQuestions}
         isExpanded={isExpanded}
         setIsExpanded={setIsExpanded}
-        context={getCourseBlockText()}
+        getContext={getCourseBlockText}
       />
     </NodeViewWrapper>
   )

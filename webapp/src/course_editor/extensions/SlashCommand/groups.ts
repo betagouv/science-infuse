@@ -13,11 +13,11 @@ export const GROUPS: Group[] = [
         description: 'Search and insert an image',
         action: async editor => {
           const newBlock = await apiClient.createBlock({
-            title: `New Group ${Math.random()}`,
+            title: `Nouveau Chapitre`,
             content: '[]',
             chapterId: editor.storage.simetadata.chapterId,
           })
-          editor.chain().focus().addCourseBlock(newBlock.id).run()
+          editor.chain().focus().setParagraph().insertContent('<p>&nbsp</p>').addCourseBlock(newBlock.id).run()
         },
         shouldBeHidden: editor => {
           return editor.state.selection.$from.depth > 1

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<string | 
             model: 'llama3.1:8b',
             stream: false,
             prompt: `Act as a completion assistant. I will give you a start of text, and you will answer with the continuation of the sentence without adding extra context. Do not repeat the sentence I give you. Only continue from where it stops. If the last word is cut, just complete it without adding any additional explanation or content.
-  
+  For example if i give you '''i love my ca''' you answer '''ts''' to form '''i love my cats'''
   Text to complete:
   \`\`\`
   ${context}

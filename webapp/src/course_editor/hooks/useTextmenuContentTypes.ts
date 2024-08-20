@@ -51,6 +51,15 @@ export const useTextmenuContentTypes = (editor: Editor) => {
         type: 'option',
       },
       {
+        icon: 'Heading4',
+        onClick: () => editor.chain().focus().lift('taskItem').liftListItem('listItem').setHeading({ level: 4 }).run(),
+        id: 'heading4',
+        disabled: () => !editor.can().setHeading({ level: 4 }),
+        isActive: () => editor.isActive('heading', { level: 4 }),
+        label: 'Titre 4',
+        type: 'option',
+      },
+      {
         type: 'category',
         label: 'Listes',
         id: 'lists',
