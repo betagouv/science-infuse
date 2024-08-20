@@ -5,12 +5,12 @@ import { TiptapEditor, useTiptapEditor } from '@/course_editor';
 import { Chapter } from '@prisma/client';
 import { Editor, JSONContent } from '@tiptap/react';
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
-import { apiClient, ChapterWithSkills } from '@/lib/api-client';
+import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
 
 
 
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
-  const [chapter, setChapter] = useState<ChapterWithSkills | null>(null);
+  const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
 
 
   useEffect(() => {
@@ -34,6 +34,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;
+      editor.storage.simetadata.educationLevels = chapter.educationLevels;
       setContent(JSON.parse(content))
 
     }

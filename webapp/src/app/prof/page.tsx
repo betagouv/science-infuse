@@ -9,6 +9,9 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { useSession } from "next-auth/react";
 import { EMPTY_DOCUMENT } from "@/config";
+import { ChapterWithBlock } from "@/lib/api-client";
+import { getChaptersWithBlocks } from "@/lib/utils/db";
+import Dashboard from "./components/Table";
 
 export default async function ProfDashboard() {
   const session = await getServerSession(authOptions);
@@ -43,27 +46,13 @@ export default async function ProfDashboard() {
         where: { id: chapterId },
       });
     }
-    // Fetch and return the updated list of chapters
-    return await prisma.chapter.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+
+    return await getChaptersWithBlocks(session.user.id)
   }
 
 
   
-  const chapters = await prisma.chapter.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  const chapters = await getChaptersWithBlocks(session.user.id);
 
   const blocks = await prisma.block.findMany({
     where: {
@@ -75,7 +64,6 @@ export default async function ProfDashboard() {
   });
 
   return (
-
     <ProfDashboardContent
       initialChapters={chapters}
       initialBlocks={blocks}
@@ -84,3 +72,4 @@ export default async function ProfDashboard() {
       user={session.user} />
   )
 }
+

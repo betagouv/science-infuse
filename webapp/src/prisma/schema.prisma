@@ -9,18 +9,19 @@ datasource db {
 
 // course >>>
 model Chapter {
-  id        String   @id @default(cuid())
-  title     String
-  themeId   String?
-  theme     Theme?   @relation(fields: [themeId], references: [id])
-  content   Json // TipTap output
-  skills    Skill[]
-  tags      Tag[]
-  blocks    Block[]
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String           @id @default(cuid())
+  title           String
+  themeId         String?
+  theme           Theme?           @relation(fields: [themeId], references: [id])
+  content         Json // TipTap output
+  skills          Skill[]
+  tags            Tag[]
+  blocks          Block[]
+  educationLevels EducationLevel[]
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model Theme {
@@ -33,13 +34,16 @@ model Skill {
   id       String    @id @default(cuid())
   title    String
   chapters Chapter[]
+
+  @@unique([title])
 }
 
 model KeyIdea {
-  id      String  @id @default(cuid())
-  title   String
-  Block   Block?  @relation(fields: [blockId], references: [id])
-  blockId String?
+  id     String  @id @default(cuid())
+  title  String
+  blocks Block[]
+
+  @@unique([title])
 }
 
 model Tag {
@@ -49,22 +53,23 @@ model Tag {
   chapters    Chapter[]
   blocks      Block[]
   activities  Activity[]
+
+  @@unique([title])
 }
 
 model Block {
-  id                String             @id @default(cuid())
-  title             String
-  tags              Tag[]
-  keyIdeas          KeyIdea[]
-  activities        Activity[]
-  educationalLevels EducationalLevel[]
-  content           Json // TipTap output
-  chapterId         String
-  chapter           Chapter            @relation(fields: [chapterId], references: [id])
-  userId            String
-  user              User               @relation(fields: [userId], references: [id])
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id         String     @id @default(cuid())
+  title      String
+  tags       Tag[]
+  keyIdeas   KeyIdea[]
+  activities Activity[]
+  content    Json // TipTap output
+  chapterId  String
+  chapter    Chapter    @relation(fields: [chapterId], references: [id])
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
 model Activity {
@@ -80,10 +85,13 @@ model Activity {
   updatedAt DateTime @updatedAt
 }
 
-model EducationalLevel {
-  id     String  @id @default(cuid())
-  name   String
-  blocks Block[]
+model EducationLevel {
+  id        String   @id @default(cuid())
+  name      String
+  Chapter   Chapter? @relation(fields: [chapterId], references: [id])
+  chapterId String?
+
+  @@unique([name])
 }
 
 // course <<<

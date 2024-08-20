@@ -2,34 +2,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Grid,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import { Block, Chapter, User } from '@prisma/client';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
+
+import { Block, User } from '@prisma/client';
+import { ChapterWithBlock } from '@/lib/api-client';
+import ChaptersTable from './components/Table';
 import { signOut } from 'next-auth/react';
 
 interface ProfDashboardContentProps {
-  initialChapters: Chapter[];
+  initialChapters: ChapterWithBlock[];
   initialBlocks: Block[];
   createChapter: () => Promise<string>;
-  deleteChapter: (chapterId: string) => Promise<Chapter[]>;
+  deleteChapter: (chapterId: string) => Promise<ChapterWithBlock[]>;
   user?: User;
 }
+
 
 export default function ProfDashboardContent({ initialChapters, initialBlocks, user, createChapter, deleteChapter }: ProfDashboardContentProps) {
   const [chapters, setChapters] = useState(initialChapters);
@@ -82,124 +69,10 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
   };
 
   return (
-    <>
-      <Toolbar>
-        <Typography variant="h6">Dashboard</Typography>
-      </Toolbar>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8} lg={9}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Typography variant="h6" gutterBottom>
-                Mes chapitres
-              </Typography>
-              <List>
-                {chapters.map((chapter) => (
-                  <ListItem key={chapter.id}>
-                    <ListItemText primary={chapter.title} />
-                    <Button onClick={() => window.open(`/prof/chapitres/${chapter.id}`, '_blank')}>
-                      Modifier
-                    </Button>
-                    <Button onClick={() => handleDeleteChapter(chapter.id)}>
-                      Supprimer
-                    </Button>
-                  </ListItem>
-                ))}
-              </List>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleCreateChapter}
-              >
-                Créer un nouveau chapitre
-              </Button>
-            </Paper>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Typography variant="h6" gutterBottom>
-                Mes blocs
-              </Typography>
-              <List>
-                {blocks.map((block) => (
-                  <ListItem key={block.id}>
-                    <ListItemText primary={block.title} />
-                    {/* <Button onClick={() => window.open(`/prof/chapitres/${block.id}`, '_blank')}>
-                      Modifier
-                    </Button> */}
-                    {/* <Button onClick={() => handleDeleteChapter(block.id)}>
-                      Supprimer
-                    </Button> */}
-                  </ListItem>
-                ))}
-              </List>
-              <Button
-                variant="contained"
-                color="primary"
-              // onClick={handleCreateChapter}
-              >
-                Créer un nouveau Bloc
-              </Button>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4} lg={3}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                height: 240,
-              }}
-            >
-              <Typography variant="h6" gutterBottom>
-                Mon Compte
-              </Typography>
-              <Button variant="outlined" onClick={() => setOpenDialog(true)}>
-                Modifier
-              </Button>
-              <Button variant="outlined" onClick={async () => await signOut()}>
-                Déconnexion
-              </Button>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Mettre à jour le compte</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            type="text"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Annuler</Button>
-          <Button onClick={handleUpdateAccount}>Mettre à jour</Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <div>
+      <button onClick={() => signOut()}>Disconnect</button>
+      <button onClick={handleCreateChapter}>Nouveau chapitre</button>
+      <ChaptersTable chapters={chapters} />
+    </div>
   );
 }

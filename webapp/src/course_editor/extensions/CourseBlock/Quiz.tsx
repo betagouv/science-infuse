@@ -25,8 +25,8 @@ export interface Question {
     options: { answer: string; correct: boolean }[]
 }
 
-const Quiz = (props: { parentRef: React.RefObject<HTMLElement>, context: string, questions: Question[], setQuestions: (questions: Question[]) => void, isExpanded: boolean, setIsExpanded: React.Dispatch<React.SetStateAction<boolean>> }) => {
-    const { questions, setQuestions } = props;
+const Quiz = (props: { parentRef: React.RefObject<HTMLElement>, getContext: () => string, questions: Question[], setQuestions: (questions: Question[]) => void, isExpanded: boolean, setIsExpanded: React.Dispatch<React.SetStateAction<boolean>> }) => {
+    const { getContext, questions, setQuestions } = props;
     const [isGenerating, setIsGenerating] = useState(false);
     const { isExpanded, setIsExpanded } = props;
     const { showSnackbar } = useSnackbar();
@@ -47,11 +47,15 @@ const Quiz = (props: { parentRef: React.RefObject<HTMLElement>, context: string,
     }
 
     const generateQuiz = async () => {
+        if (!getContext)
+            return;
         props.parentRef?.current && props.parentRef.current.classList.add('ai-loading')
         props.parentRef?.current && props.parentRef.current.querySelectorAll('.node-pdf').forEach(el => el.classList.add('ai-loading'))
+
         setIsGenerating(true);
+        const context = getContext();
         try {
-            const quiz = await apiClient.generateQuiz(props.context);
+            const quiz = await apiClient.generateQuiz(context);
             setQuestions(JSON.parse(quiz));
             setIsExpanded(true);
             showSnackbar(

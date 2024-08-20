@@ -12,7 +12,8 @@ import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
 import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from './components/Snackbar';
-import { Skill } from '@prisma/client';
+import { EducationLevel, Skill } from '@prisma/client';
+import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
 
 const StyledEditor = styled.div`
 `
@@ -62,12 +63,20 @@ export const TiptapEditor = (props: { editor: Editor }) => {
     }
   }, [])
 
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
+  const [selectedEducationLevels, setSelectedEducationLevels] = useState<EducationLevel[]>(editor.storage.simetadata.educationLevels)
+
   const updateSkills = useCallback((newSkills: Skill[]) => {
     editor.storage.simetadata.skills = [...newSkills];
     setSelectedSkills(newSkills);
   }, [editor]);
 
-  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
+  const updateEducationLevel = useCallback((newEducationLevel: EducationLevel[]) => {
+    console.log("newEducationLevel", newEducationLevel)
+    editor.storage.simetadata.educationLevels = [...newEducationLevel];
+    setSelectedEducationLevels(newEducationLevel);
+  }, [editor]);
+
 
   // save editor on ctrl+s press on whole page
   useEffect(() => {
@@ -92,10 +101,17 @@ export const TiptapEditor = (props: { editor: Editor }) => {
       id="editor"
       className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}
     >
+
       <SkillsPicker
         selectedSkills={editor.storage.simetadata.skills}
         onSelectedSkills={updateSkills}
         className='mb-4' />
+
+      <EducationLevelPicker
+        selectedEducationLevels={editor.storage.simetadata.educationLevels}
+        onSelectedEducationLevels={updateEducationLevel}
+        className='mb-4' />
+
       <div className="flex h-full" ref={menuContainerRef}>
 
         <EditorContext.Provider value={providerValue}>
