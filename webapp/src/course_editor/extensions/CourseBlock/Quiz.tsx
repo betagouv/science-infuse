@@ -205,6 +205,7 @@ const Quiz = (props: { parentRef: React.RefObject<HTMLElement>, getContext: () =
                                     <Box className="flex items-center justify-between mb-4">
                                         <TextField
                                             fullWidth
+                                            multiline
                                             variant="outlined"
                                             label={`Question ${questionIndex + 1}`}
                                             value={question.question}

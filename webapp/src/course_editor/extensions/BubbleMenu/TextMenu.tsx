@@ -69,6 +69,10 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
           <Icon name="Code" />
         </MemoButton>
 
+        <MemoButton tooltip="Commenter" tooltipShortcut={['Mod', 'M']} onClick={commands.onComment} active={states.isCode}>
+          <Icon name="MessageSquareText" />
+        </MemoButton>
+
         {/* text color */}
         <Popover.Root>
           <Popover.Trigger asChild>
