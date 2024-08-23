@@ -10,6 +10,7 @@ import { ColorPicker } from '@/course_editor/panels/Colorpicker'
 import { FontSizePicker } from './FontSizePicker'
 import { ContentTypePicker } from './ContentTypePicker'
 import { useTextmenuContentTypes } from '@/course_editor/hooks/useTextmenuContentTypes'
+import CommentView from './CommentView'
 
 // We memorize the button so each button is not rerendered
 // on every editor state change
@@ -26,10 +27,11 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
   const commands = useTextmenuCommands(editor)
   const states = useTextmenuStates(editor)
   const blockOptions = useTextmenuContentTypes(editor)
+  const { currentMessage } = useTextmenuStates(editor);
 
   return (
     <BubbleMenu
-      tippyOptions={{ popperOptions: { placement: 'top-start' }, zIndex: 99 }}
+      tippyOptions={{ popperOptions: { placement: 'top-start' }, zIndex: 999 }}
       editor={editor}
       pluginKey="textMenu"
       shouldShow={states.shouldShow}
@@ -69,9 +71,6 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
           <Icon name="Code" />
         </MemoButton>
 
-        <MemoButton tooltip="Commenter" tooltipShortcut={['Mod', 'M']} onClick={commands.onComment} active={states.isCode}>
-          <Icon name="MessageSquareText" />
-        </MemoButton>
 
         {/* text color */}
         <Popover.Root>
@@ -109,7 +108,25 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
           </Popover.Content>
         </Popover.Root>
 
+        {/* comments */}
+        <Popover.Root>
+          <Popover.Trigger asChild>
+            <MemoButton active={false} tooltip="Commenter">
+              <div className="flex relative">
+                <Icon name="MessageSquareText" />
+                {/* {currentMessage && <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{JSON.parse(currentMessage.attrs.comment).comments.length}</span>} */}
+              </div>
+            </MemoButton>
+          </Popover.Trigger>
+          <Popover.Content side="top" sideOffset={8} asChild>
+            <Surface className="p-1 max-w-[30rem]">
+              <CommentView editor={editor} />
+            </Surface>
+          </Popover.Content>
+        </Popover.Root>
+
       </Toolbar.Wrapper>
+
     </BubbleMenu>
   )
 }

@@ -7,7 +7,7 @@ export const useTextmenuCommands = (editor: Editor) => {
   const onStrike = useCallback(() => editor.chain().focus().toggleStrike().run(), [editor])
   const onUnderline = useCallback(() => editor.chain().focus().toggleUnderline().run(), [editor])
   const onCode = useCallback(() => editor.chain().focus().toggleCode().run(), [editor])
-  const onComment = useCallback(() => editor.chain().focus().setComment("[]").run(), [editor])
+  const onComment = useCallback(() => editor.chain().focus().setThreadId("[]").run(), [editor])
   const onCodeBlock = useCallback(() => editor.chain().focus().toggleCodeBlock().run(), [editor])
 
   const onAlignLeft = useCallback(() => editor.chain().focus().setTextAlign('left').run(), [editor])

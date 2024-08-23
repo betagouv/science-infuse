@@ -1,4 +1,4 @@
-import { Activity, Block, Chapter, File as DbFile, EducationLevel, FileType, KeyIdea, Skill, Tag } from '@prisma/client';
+import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, EducationLevel, FileType, KeyIdea, Skill, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 
@@ -7,6 +7,16 @@ interface CreateBlockRequest {
   content: string;
   chapterId: string;
 }
+
+interface CreateThreadRequest {
+  chapterId: string;
+}
+
+interface CreateMessageRequest {
+  chapterId: string;
+  message: string;
+}
+
 export interface FileUploadResponse {
   s3ObjectName: string;
   message: string;
@@ -24,6 +34,8 @@ export interface TextWithScore {
 }
 
 export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], tags: Tag[] }
+export type CommentWithUserEmail = Comment & { user: { email: string } }
+export type FullCommentThread = CommentThread & { comments: CommentWithUserEmail[] }
 
 export type ChapterWithoutBlocks = (Chapter & { skills: Skill[], educationLevels: EducationLevel[] }) | null;
 export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
@@ -41,6 +53,12 @@ class ApiClient {
     });
   }
 
+
+  async getThread(threadId: string): Promise<FullCommentThread> {
+    const response = await this.axiosInstance.get<FullCommentThread>(`/comments/thread/${threadId}`);
+    return response.data;
+  }
+
   async getKeyIdeaAiReco(context: string): Promise<TextWithScore[]> {
     const response = await this.axiosInstance.post<TextWithScore[]>(`/ai/completion/keyIdea`, { context });
     return response.data;
@@ -53,6 +71,16 @@ class ApiClient {
 
   async createBlock(data: CreateBlockRequest): Promise<Block> {
     const response = await this.axiosInstance.post<Block>('/course/chapters/blocks', data);
+    return response.data;
+  }
+
+  async createThread(data: CreateThreadRequest): Promise<CommentThread> {
+    const response = await this.axiosInstance.post<CommentThread>('/comments/thread', data);
+    return response.data;
+  }
+
+  async createMessage(threadId: string, data: CreateMessageRequest): Promise<CommentThread> {
+    const response = await this.axiosInstance.post<CommentThread>(`/comments/thread/${threadId}`, data);
     return response.data;
   }
 

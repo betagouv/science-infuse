@@ -12,7 +12,7 @@ declare module '@tiptap/core' {
             /**
              * Set a comment mark
              */
-            setComment: (comment: string) => ReturnType,
+            setThreadId: (comment: string) => ReturnType,
             /**
              * Toggle a comment mark
              */
@@ -20,7 +20,7 @@ declare module '@tiptap/core' {
             /**
              * Unset a comment mark
              */
-            unsetComment: () => ReturnType,
+            unsetThreadId: () => ReturnType,
         }
     }
 }
@@ -36,10 +36,10 @@ const Comments = Mark.create<CommentOptions>({
 
     addAttributes() {
         return {
-            comment: {
+            threadId: {
                 default: null,
-                parseHTML: (el) => (el as HTMLSpanElement).getAttribute('data-comment'),
-                renderHTML: (attrs) => ({ 'data-comment': attrs.comment }),
+                parseHTML: (el) => (el as HTMLSpanElement).getAttribute('data-threadId'),
+                renderHTML: (attrs) => ({ 'data-threadId': attrs.threadId }),
             },
         };
     },
@@ -47,8 +47,8 @@ const Comments = Mark.create<CommentOptions>({
     parseHTML() {
         return [
             {
-                tag: 'span[data-comment]',
-                getAttrs: (el) => !!(el as HTMLSpanElement).getAttribute('data-comment')?.trim() && null,
+                tag: 'span[data-threadId]',
+                getAttrs: (el) => !!(el as HTMLSpanElement).getAttribute('data-threadId')?.trim() && null,
             },
         ];
     },
@@ -59,9 +59,9 @@ const Comments = Mark.create<CommentOptions>({
 
     addCommands() {
         return {
-            setComment: (comment: string) => ({ commands }) => commands.setMark('comment', { comment }),
+            setThreadId: (threadId: string) => ({ commands }) => commands.setMark('comment', { threadId }),
             toggleComment: () => ({ commands }) => commands.toggleMark('comment'),
-            unsetComment: () => ({ commands }) => commands.unsetMark('comment'),
+            unsetThreadId: () => ({ commands }) => commands.unsetMark('comment'),
         };
     },
 

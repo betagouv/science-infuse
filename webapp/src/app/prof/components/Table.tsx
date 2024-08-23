@@ -65,8 +65,7 @@ const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
 }
 
 const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
-  const [open, setOpen] = useState(true);
-  console.log("CHAPTER", chapter)
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -119,10 +118,10 @@ const ChaptersTable = ({ chapters }: { chapters: ChapterWithBlock[] }) => {
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Title</TableCell>
-            <TableCell>Skills</TableCell>
-            <TableCell>Education Levels</TableCell>
-            <TableCell>Last Updated</TableCell>
+            <TableCell>Titre</TableCell>
+            <TableCell>Compétences</TableCell>
+            <TableCell>Niveaux d'éducation</TableCell>
+            <TableCell>Dernière mise à jour</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
