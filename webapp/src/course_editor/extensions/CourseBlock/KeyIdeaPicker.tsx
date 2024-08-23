@@ -9,7 +9,6 @@ import Button from '@mui/material/Button';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Tooltip } from '@mui/material';
-import { flushSync } from 'react-dom';
 
 interface KeyIdeasPickerProps {
     className?: string;
@@ -42,10 +41,13 @@ export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas
             const threshold = firstScore * 0.6;
             const newKeyIdeas = response
                 .filter(item => item.score >= threshold)
-                .map(item => item.text);
+                .map(item => item.text)
 
             if (newKeyIdeas.length > 0) {
-                onSelectedKeyIdeas([...keyIdeas.filter(ki => newKeyIdeas.includes(ki.title))]);
+                onSelectedKeyIdeas([...keyIdeas
+                    .filter(ki => newKeyIdeas.includes(ki.title))
+                    .slice(0,5)
+                ]);
             }
         } catch (error) {
             console.error('Error fetching AI key idea:', error);

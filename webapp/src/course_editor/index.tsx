@@ -14,7 +14,7 @@ import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from './components/Snackbar';
 import { EducationLevel, Skill } from '@prisma/client';
 import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
-import BubbleAddComment from './extensions/BubbleMenu/AddComment';
+import CommentView from './extensions/BubbleMenu/CommentView';
 
 const StyledEditor = styled.div`
 `
@@ -119,7 +119,6 @@ export const TiptapEditor = (props: { editor: Editor }) => {
           <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
           {editor && <TextMenu editor={editor} />}
           <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
-          <BubbleAddComment editor={editor} />
         </EditorContext.Provider>
 
       </div>

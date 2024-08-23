@@ -53,6 +53,8 @@ export const useTextmenuStates = (editor: Editor) => {
     currentHighlight: editor.getAttributes('highlight')?.color || undefined,
     currentFont: editor.getAttributes('textStyle')?.fontFamily || undefined,
     currentSize: editor.getAttributes('textStyle')?.fontSize || undefined,
+    currentMessage: editor.view.state.doc.resolve(editor.view.state.selection.$from.pos + 1).marks().filter(mark => mark.type.name == 'comment').pop(),
+    currentThreadId: editor.view.state.doc.resolve(editor.view.state.selection.$from.pos + 1).marks().filter(mark => mark.type.name == 'comment').pop()?.attrs?.threadId,
     shouldShow,
   }
 }
