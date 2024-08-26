@@ -105,7 +105,7 @@ const Search: React.FC = () => {
         <p>Une erreur s'est produite lors de la recherche.</p>
 
       ) : results ? (
-        <div className="container flex flex-wrap gap-4">
+        <div className="container flex flex-wrap gap-4 overflow-x-clip">
           {groupByDocument.value ? (
             (results as DocumentSearchResults).documents.sort((a, b) => b.max_score - a.max_score).map((result) => (
               <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
@@ -113,7 +113,6 @@ const Search: React.FC = () => {
           ) : (
             <Masonry columns={2} spacing={2}>
               {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
-              // {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
                 <Item key={index}>
                   <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
                 </Item>
