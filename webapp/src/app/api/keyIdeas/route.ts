@@ -8,6 +8,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(keyIdeas)
     } catch (error) {
         console.error('Error reading file:', error);
-        return NextResponse.json({ error: 'Image not found' }, { status: 404 });
+        return NextResponse.json({ error: error }, { status: 404 });
     }
 }
