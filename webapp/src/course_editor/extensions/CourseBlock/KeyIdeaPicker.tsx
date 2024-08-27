@@ -18,7 +18,7 @@ interface KeyIdeasPickerProps {
 }
 
 export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas, onSelectedKeyIdeas }: KeyIdeasPickerProps) {
-    const [keyIdeas, setKeyIdeas] = useState<KeyIdea[]>([]);
+    const [keyIdeas, setKeyIdeas] = useState<KeyIdea[]>(selectedKeyIdeas);
     const [isAiLoading, setIsAiLoading] = useState(false);
 
     useEffect(() => {
@@ -35,19 +35,21 @@ export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas
         setIsAiLoading(true);
 
         try {
-            // Call a fake AI route
             const response = await apiClient.getKeyIdeaAiReco(context);
-            const firstScore = response[0]?.score || 0;
+            const firstScore = response.sort((a, b) => b.score - a.score)[0]?.score || 0;
             const threshold = firstScore * 0.6;
             const newKeyIdeas = response
                 .filter(item => item.score >= threshold)
                 .map(item => item.text)
 
             if (newKeyIdeas.length > 0) {
-                onSelectedKeyIdeas([...keyIdeas
-                    .filter(ki => newKeyIdeas.includes(ki.title))
-                    .slice(0,5)
-                ]);
+                onSelectedKeyIdeas(newKeyIdeas.map(newKi =>
+                    keyIdeas
+                        .find(ki => newKi === ki.title) || { id: '', title: newKi })
+                    .filter((ki): ki is KeyIdea => ki !== undefined)
+                    .slice(0, 5)
+                )
+
             }
         } catch (error) {
             console.error('Error fetching AI key idea:', error);
@@ -62,7 +64,8 @@ export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas
                 multiple
                 className="w-[calc(100%-4rem)] flex-grow"
                 id="keyIdeas"
-                value={keyIdeas.filter(ki => selectedKeyIdeas.find(ski => ski.id === ki.id))}
+                value={selectedKeyIdeas}
+                // value={keyIdeas.filter(ki => selectedKeyIdeas.find(ski => ski.id === ki.id))}
                 onChange={(event, newValue) => {
                     onSelectedKeyIdeas(newValue);
                 }}

@@ -45,10 +45,7 @@ export const AutocompleteExtension = Node.create<{
         const pluginKey = new PluginKey<{ decorations: DecorationSet; suggestion: string | null }>('suggestion');
 
         const getSuggestion = debounce(async (previousText: string, cb: (suggestion: string | null) => void) => {
-            // await new Promise(resolve => setTimeout(resolve, 2000))
             apiClient.autoComplete(previousText).then(completion => cb(completion))
-            //   const suggestion = await this.options.getSuggestions(previousText);
-            //   cb(suggestion);
         }, this.options.suggestionDebounce);
 
         const { applySuggestionKeys } = this.options;
