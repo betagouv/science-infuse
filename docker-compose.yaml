@@ -74,6 +74,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"  # Expose PostgreSQL default port
+    networks:
+      default:
+        aliases:
+          - postgresql
+
     volumes:
       - ./postgresql_data:/var/lib/postgresql/data  # Persistent data volume
 

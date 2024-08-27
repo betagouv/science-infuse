@@ -5,7 +5,9 @@ const nextConfig = {
   // swcMinify: true,
   experimental: {
     swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
+    appDir: true,
   },
+  output: 'standalone',
   env: {
     NEXT_PUBLIC_S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
     NEXT_PUBLIC_S3_SECRET_KEY: process.env.S3_SECRET_KEY,
