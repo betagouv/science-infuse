@@ -47,8 +47,8 @@ const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
                   <div className="flex flex-nowrap max-w-[30rem] overflow-auto gap-1">
                     {
                       block.keyIdeas.map((keyIdea, index) => (
-                        <Tooltip title={keyIdea.title}>
-                          <Chip key={index} label={keyIdea.title} className='max-w-48' size="small" />
+                        <Tooltip key={index} title={keyIdea.title}>
+                          <Chip label={keyIdea.title} className='max-w-48' size="small" />
                         </Tooltip>
                       ))
                     }
