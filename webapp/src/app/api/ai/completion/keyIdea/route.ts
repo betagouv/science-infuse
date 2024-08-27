@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-
+export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest): Promise<NextResponse<TextWithScore[] | { error: string }>> {
     try {
         const { context } = await request.json()
