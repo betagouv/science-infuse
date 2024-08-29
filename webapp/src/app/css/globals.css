@@ -16,6 +16,10 @@
 }
 
 
+header.fr-header .fr-header__menu {
+	box-shadow: none;
+}	
+
 
 /* ------ */
 

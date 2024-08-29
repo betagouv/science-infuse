@@ -8,11 +8,8 @@ import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { defaultColorScheme } from "./defaultColorScheme";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
-import { Header } from "@codegouvfr/react-dsfr/Header";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { headerFooterDisplayItem, addDisplayTranslations } from "@codegouvfr/react-dsfr/Display";
-import { fr } from "@codegouvfr/react-dsfr";
-import { Navigation } from "./Navigation";
 import Link from "next/link";
 import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "./consentManagement";
 import { ClientFooterItem } from "../ui/ClientFooterItem";
@@ -20,12 +17,17 @@ import { headers } from "next/headers";
 import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
 import style from "./main.module.css";
 import { cx } from '@codegouvfr/react-dsfr/tools/cx';
-import { Follow } from "./Follow";
 import StartDsfr from "./StartDsfr";
-import Snackbar from "@/course_editor/components/Snackbar";
+import SIFooter from "@/components/SIFooter";
+import SIHeader from "@/components/header/SIHeader";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/authOptions";
 
-export default function RootLayout({ children }: { children: JSX.Element; }) {
+export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");
+  const session = await getServerSession(authOptions);
+  const user = session?.user
+
   let nonce: string | undefined;
   if (csp) {
     nonce = getScriptNonceFromHeader(csp);
@@ -63,29 +65,11 @@ export default function RootLayout({ children }: { children: JSX.Element; }) {
             <ConsentBannerAndConsentManagement />
             <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
               <MuiDsfrThemeProvider>
-                <Header
-                  brandTop={<>INTITULE<br />OFFICIEL</>}
-                  serviceTitle="Science Infuse"
-                  homeLinkProps={{
-                    "href": "/",
-                    "title": "Accueil - Science Infuse"
-                  }}
-                  quickAccessItems={[
-                    headerFooterDisplayItem,
-                    {
-                      iconId: "ri-mail-line",
-                      linkProps: {
-                        href: `mailto:${"joseph.garrone@code.gouv.fr"}`,
-                      },
-                      text: "Nous contacter",
-                    },
-                  ]}
-                  navigation={<Navigation />}
-                />
+                <SIHeader session={session} />
                 <div className={cx(style.container)}>
                   {children}
                 </div>
-                {/* <Follow /> */}
+                <SIFooter />
                 <Footer
                   accessibility="fully compliant"
                   contentDescription={`
