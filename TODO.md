@@ -3,7 +3,11 @@
 - [ ] make a readme explaining: 
     - [ ] how to setup the project
     - [ ] how to export and import data to weaviate
-- [ ] 
+- [ ] pour le pdf image ... possibilite d'ajouter la source (obligatoire)
+- [ ] pour les chapitres: les faire recherchable: v1) sur titre v2) vectorielle
+
+
+statistiques integration https://plausible.io/
 
 
 

@@ -1,0 +1,37 @@
+import { Suspense } from 'react'
+import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display"
+import Header from "@codegouvfr/react-dsfr/Header"
+import { Navigation } from "./Navigation"
+import { Session } from 'next-auth'
+import { styled } from '@mui/material'
+
+interface ClientHeaderProps {
+  session: Session | null;
+}
+export default function ClientHeader({ session }: ClientHeaderProps) {
+  console.log("SESSION", session)
+
+  return (
+    <Header
+      className="bg-[#6beaf8]"
+      brandTop={<>RÉPUBLIQUE
+        <br />FRANÇAISE</>}
+      operatorLogo={{
+        alt: 'logo science infuse',
+        imgUrl: '/images/science_infuse_logo.svg',
+        orientation: 'horizontal'
+      }}
+      homeLinkProps={{
+        "href": "/",
+        "title": "Accueil - Science Infuse"
+      }}
+      // onSearchButtonClick={function () { }}
+      // quickAccessItems={[
+      //   headerFooterDisplayItem,
+      // ]}
+      serviceTitle="Science Infuse"
+      serviceTagline="Création de cours pour les enseignants de SVT au collège"
+      navigation={<Navigation />}
+    />
+  )
+}

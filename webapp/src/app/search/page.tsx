@@ -55,77 +55,82 @@ const Search: React.FC = () => {
   };
 
   return (
-    <div className="py-8 flex flex-col gap-4 px-4 md:px-0">
-      <Typography variant="h1" gutterBottom>Rechercher des médias</Typography>
+    <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+      <div className="fr-col-12 fr-col-md-6 main-content-item">
 
-      <div className="flex flex-col gap-4">
-        <ToggleSwitch
-          inputTitle="the-title"
-          showCheckedHint={false}
-          checked={groupByDocument.value}
-          onChange={() => {
-            groupByDocument.value = !groupByDocument.value;
-            handleSearch();
-          }}
-          label="Grouper la recherche par document"
-          labelPosition="right"
-        />
+        <div className="py-8 flex flex-col gap-4 px-4 md:px-0">
+          <Typography variant="h1" gutterBottom>Rechercher des médias</Typography>
 
-        <SearchBar
-          big
-          onButtonClick={handleSearch}
-          renderInput={({ className, id, placeholder, type }) => (
-            <input
-              ref={setInputElement}
-              className={className}
-              id={id}
-              placeholder={placeholder}
-              type={type}
-              value={query}
-              onChange={event => setQuery(event.currentTarget.value)}
-              onKeyDown={event => {
-                if (event.key === "Enter") {
-                  handleSearch();
-                } else if (event.key === "Escape") {
-                  assert(inputElement !== null);
-                  inputElement.blur();
-                }
+          <div className="flex flex-col gap-4">
+            <ToggleSwitch
+              inputTitle="the-title"
+              showCheckedHint={false}
+              checked={groupByDocument.value}
+              onChange={() => {
+                groupByDocument.value = !groupByDocument.value;
+                handleSearch();
               }}
+              label="Grouper la recherche par document"
+              labelPosition="right"
             />
-          )}
-        />
-        <FilterMenu />
-      </div>
 
-      {isLoading ? (
-        <div className="h-40 w-full flex items-center justify-center">
-          <CircularProgress className="ml-2" />
-        </div>
-      ) : isError ? (
-        <p>Une erreur s'est produite lors de la recherche.</p>
+            <SearchBar
+              big
+              onButtonClick={handleSearch}
+              renderInput={({ className, id, placeholder, type }) => (
+                <input
+                  ref={setInputElement}
+                  className={className}
+                  id={id}
+                  placeholder={placeholder}
+                  type={type}
+                  value={query}
+                  onChange={event => setQuery(event.currentTarget.value)}
+                  onKeyDown={event => {
+                    if (event.key === "Enter") {
+                      handleSearch();
+                    } else if (event.key === "Escape") {
+                      assert(inputElement !== null);
+                      inputElement.blur();
+                    }
+                  }}
+                />
+              )}
+            />
+            <FilterMenu />
+          </div>
 
-      ) : results ? (
-        <div className="container flex flex-wrap gap-4 overflow-x-clip">
-          {groupByDocument.value ? (
-            (results as DocumentSearchResults).documents.sort((a, b) => b.max_score - a.max_score).map((result) => (
-              <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
-            ))
+          {isLoading ? (
+            <div className="h-40 w-full flex items-center justify-center">
+              <CircularProgress className="ml-2" />
+            </div>
+          ) : isError ? (
+            <p>Une erreur s'est produite lors de la recherche.</p>
+
+          ) : results ? (
+            <div className="container flex flex-wrap gap-4 overflow-x-clip">
+              {groupByDocument.value ? (
+                (results as DocumentSearchResults).documents.sort((a, b) => b.max_score - a.max_score).map((result) => (
+                  <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
+                ))
+              ) : (
+                <Masonry columns={2} spacing={2}>
+                  {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
+                    <Item key={index}>
+                      <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
+                    </Item>
+                  ))}
+                </Masonry>
+              )}
+            </div>
           ) : (
-            <Masonry columns={2} spacing={2}>
-              {(results as ChunkSearchResults).chunks.sort((a, b) => b.score - a.score).map((result, index) => (
-                <Item key={index}>
-                  <ChunkRenderer key={result.uuid} chunk={result} searchWords={searchWords} />
-                </Item>
-              ))}
-            </Masonry>
+            <div className="h-40 w-full flex items-center justify-center">
+              <p>Aucun résultat trouvé.</p>
+            </div>
           )}
+          <SIPagination pageCount={results?.page_count} />
         </div>
-      ) : (
-        <div className="h-40 w-full flex items-center justify-center">
-          <p>Aucun résultat trouvé.</p>
-        </div>
-      )}
-      <SIPagination pageCount={results?.page_count} />
+      </div>
     </div>
   );
 };
