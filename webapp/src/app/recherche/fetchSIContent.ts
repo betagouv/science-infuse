@@ -4,7 +4,7 @@ import { QueryFunction } from "@tanstack/react-query";
 
 type SearchResultType = DocumentSearchResults | ChunkSearchResults;
 
-export const fetchSIContent: QueryFunction<SearchResultType, [string, string, boolean, string[], number, number]> = async ({ queryKey }) => {
+export const fetchSIContent: QueryFunction<SearchResultType, [string, string, boolean, string[] | null, number, number]> = async ({ queryKey }) => {
   const [_, query, isGrouped, mediaTypes, pageNumber, pageSize] = queryKey;
   if (!query) return [];
 
@@ -19,7 +19,7 @@ export const fetchSIContent: QueryFunction<SearchResultType, [string, string, bo
     },
     body: JSON.stringify({
       query,
-      media_types: mediaTypes.length > 0 ? mediaTypes : null,
+      media_types: mediaTypes?.length ? mediaTypes : null,
       page_number: pageNumber,
       page_size: pageSize
     }),

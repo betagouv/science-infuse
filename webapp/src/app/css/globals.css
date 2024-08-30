@@ -8,7 +8,7 @@
 }
 
 .highlightSearch {
-    background-color: #ce70cc;
+    background-color: #6beaf8;
 }
 
 .autocomplete-suggestion {
@@ -16,6 +16,19 @@
 }
 
 
+/* header */
+header.fr-header {
+	filter: none;
+}
+
+.fr-header__menu {
+	width: calc(100% - 4rem) !important;
+}
+
+.fr-header__menu,
+.fr-header__body {
+	background-color: #6beaf8 !important;
+}
 header.fr-header .fr-header__menu {
 	box-shadow: none;
 }	

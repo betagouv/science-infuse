@@ -6,7 +6,7 @@ import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import { useDebounce } from 'use-debounce';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchSIContent } from '@/app/search/fetchSIContent';
+import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 
 
 const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {
