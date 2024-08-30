@@ -9,7 +9,7 @@ import { Button } from '@mui/material';
 import { VideoNodeProps } from './VideoNode';
 import { useDebounce } from 'use-debounce';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchSIContent } from '@/app/search/fetchSIContent';
+import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 
 
 const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => {

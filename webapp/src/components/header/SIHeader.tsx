@@ -13,7 +13,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
 
   return (
     <Header
-      className="bg-[#6beaf8]"
+      className=""
       brandTop={<>RÉPUBLIQUE
         <br />FRANÇAISE</>}
       operatorLogo={{
@@ -25,10 +25,6 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         "href": "/",
         "title": "Accueil - Science Infuse"
       }}
-      // onSearchButtonClick={function () { }}
-      // quickAccessItems={[
-      //   headerFooterDisplayItem,
-      // ]}
       serviceTitle="Science Infuse"
       serviceTagline="Création de cours pour les enseignants de SVT au collège"
       navigation={<Navigation />}

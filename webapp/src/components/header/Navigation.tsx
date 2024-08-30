@@ -1,16 +1,18 @@
 "use client";
 
 import { MainNavigation } from "@codegouvfr/react-dsfr/MainNavigation";
-import { useSelectedLayoutSegment } from "next/navigation";
+import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useSession } from "next-auth/react";
-import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
 import { styled } from "@mui/material";
+import SearchBar from "../search/SearchBar";
 
 
 export function Navigation() {
 
 	const { data: session } = useSession();
 	const user = session?.user;
+	const pathname = usePathname();
+	console.log("pathname", pathname)
 
 	const segment = useSelectedLayoutSegment();
 	if (!user) return ""
@@ -29,39 +31,20 @@ export function Navigation() {
 								linkProps: {
 									href: '#'
 								},
-								text: 'Lien de navigation'
+								text: `La planète Terre, l'environnement et l'action humaine`
 							},
 							{
 								linkProps: {
 									href: '#'
 								},
-								text: 'Lien de navigation'
+								text: `Le vivant et son évolution`
 							},
 							{
 								linkProps: {
 									href: '#'
 								},
-								text: 'Lien de navigation'
+								text: `Le corps humain et la santé`
 							},
-							{
-								isActive: true,
-								linkProps: {
-									href: '#'
-								},
-								text: 'Lien de navigation'
-							},
-							{
-								linkProps: {
-									href: '#'
-								},
-								text: 'Lien de navigation'
-							},
-							{
-								linkProps: {
-									href: '#'
-								},
-								text: 'Lien de navigation'
-							}
 						],
 
 					},
@@ -74,7 +57,11 @@ export function Navigation() {
 					}
 				]}
 			/>
-			<SearchBar onButtonClick={function noRefCheck() { }} />
+			{pathname != "/" &&
+				<div className="absolute right-24 max-w-[30rem]">
+					<SearchBar />
+				</div>
+			}
 		</div>
 	);
 
