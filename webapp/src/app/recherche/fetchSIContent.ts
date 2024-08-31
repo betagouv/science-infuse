@@ -8,9 +8,10 @@ export const fetchSIContent: QueryFunction<SearchResultType, [string, string, bo
   const [_, query, isGrouped, mediaTypes, pageNumber, pageSize] = queryKey;
   if (!query) return [];
 
-  const endpoint = isGrouped
-    ? `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`
-    : `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`;
+  const endpoint = `/api/search`;
+  // const endpoint = isGrouped
+  //   ? `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`
+  //   : `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`;
 
   const response = await fetch(endpoint, {
     method: 'POST',

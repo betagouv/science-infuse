@@ -31,7 +31,7 @@ const RenderChunkPreview = (props: { chunk: ChunkWithScoreUnion, searchWords: st
 const getTitleLink = (searchResult: DocumentSearchResult) => {
     try {
         console.log("DEBUG", searchResult.chunks[0].metadata)
-        const documentUuid = searchResult.chunks[0]?.document?.uuid;
+        const documentUuid = searchResult.chunks[0]?.document?.id;
         if (searchResult.chunks[0]?.document?.s3_object_name.endsWith('pdf'))
             return `/pdf/${documentUuid}/1}`
     } catch (error) {
@@ -58,7 +58,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
             }
             titleAs="h3"
             desc={<>
-                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview key={chunk.uuid} chunk={chunk} searchWords={searchWords} />)}
+                {searchResult.chunks.sort((a, b) => b.score - a.score).map(chunk => <RenderChunkPreview key={chunk.id} chunk={chunk} searchWords={searchWords} />)}
             </>}
             footer={
                 <button className="fr-btn fr-btn--secondary">Rechercher dans ce document</button>
