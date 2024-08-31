@@ -1,4 +1,3 @@
-from SIWeaviateClient import SIWeaviateClient
 from schemas import Document, WebsiteExperienceChunk, WebsiteExperienceMetadata
 
 from playwright.sync_api import sync_playwright, Page, Playwright, Browser

@@ -5,7 +5,6 @@ import io
 import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
-from SIWeaviateClient import SIWeaviateClient
 from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator

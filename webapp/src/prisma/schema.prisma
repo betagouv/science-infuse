@@ -1,12 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
-
+// vector db with Document DocumentChunk and DocumentChunkMetadata created inside pgvector/pgvector-setup.ts with `npm run db:init-pgvector`
 model CommentThread {
   id        String    @id @default(cuid())
   comments  Comment[]
@@ -138,10 +140,10 @@ model FileType {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String     @id @default(cuid())
   firstName     String?
   lastName      String?
-  email         String?         @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
   password      String?

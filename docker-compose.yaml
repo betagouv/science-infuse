@@ -68,7 +68,8 @@ services:
       - ./documents:/usr/share/nginx/html/documents
 
   postgresql:
-    image: postgres
+    image: pgvector/pgvector:0.7.0-pg15
+    shm_size: 2g
     restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

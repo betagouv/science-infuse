@@ -212,6 +212,9 @@ class RerankTextQuery(BaseModel):
     query: str
     texts: List[str]
 
+class EmbeddingQuery(BaseModel):
+    text: str
+
 class SearchQuery(BaseModel):
     query: str
     document_id: Optional[str] = None

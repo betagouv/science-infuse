@@ -48,13 +48,15 @@ with SIWeaviateClient() as client:
 
 ## restore data
 ```python
-client.collections.delete("Document")
-client.collections.delete("DocumentChunk")
-result = client.backup.restore(
-    backup_id="my-backup-id",
-    backend="filesystem",
-    wait_for_completion=True,
-)
+from SIWeaviateClient import SIWeaviateClient
+with SIWeaviateClient() as client:
+    client.collections.delete("Document")
+    client.collections.delete("DocumentChunk")
+    result = client.backup.restore(
+        backup_id="backup-30-august",
+        backend="filesystem",
+        wait_for_completion=True,
+    )
 ```
 
 ### NOTES

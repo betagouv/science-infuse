@@ -6,7 +6,6 @@ import io
 import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
-from SIWeaviateClient import SIWeaviateClient
 from S3Storage import S3Storage
 from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from processing.text.SISurya import SISurya
