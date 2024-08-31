@@ -12,8 +12,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
         })
         const embedding = embeddingResponse.data
 
-        const result = await searchDocumentChunks(embedding)
-        return NextResponse.json({ result })
+        const chunks = await searchDocumentChunks(embedding)
+        return NextResponse.json({ page_count: 1, chunks })
 
 
         // if (response.data && response.data.response) {

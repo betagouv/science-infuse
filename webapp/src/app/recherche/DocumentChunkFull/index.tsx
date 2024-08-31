@@ -86,7 +86,7 @@ const BuildCardEnd = (props: { end?: React.ReactNode, downloadLink?: string, sta
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
-            <div className="flex self-end gap-4">
+            <div className="flex self-end gap-4 ml-auto">
                 <Star starred={props.starred} />
                 {
                     props.downloadLink && <button
@@ -113,7 +113,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
             `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
             {
                 approve: true,
-                uuid: chunk.uuid,
+                uuid: chunk.id,
             }
         );
         setIsApproved(true)
@@ -124,7 +124,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
             `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
             {
                 approve: false,
-                uuid: chunk.uuid,
+                uuid: chunk.id,
             }
         );
         setIsApproved(false)
@@ -173,7 +173,7 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
             chunk={chunk}
             title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
             linkProps={{
-                href: `/pdf/${chunk.document.uuid}/${chunk.metadata.page_number}`,
+                href: `/pdf/${chunk.document.id}/${chunk.metadata.page_number}`,
                 target: "_blank",
             }}
             end={<BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />}
@@ -224,7 +224,7 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
             end={<BuildCardEnd
                 end={
                     <div className="flex">
-                        <a className="m-0" href={`/pdf/${chunk.document.uuid}/${chunk.metadata.page_number}`} target="_blank">source</a>
+                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.page_number}`} target="_blank">source</a>
                     </div>
                 }
                 starred={false}
