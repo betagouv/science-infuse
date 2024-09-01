@@ -8,7 +8,7 @@ import MediaTypePicker from "./MediaType";
 import FileUploader from "./FileUploader";
 
 export enum UploadStep {
-    CHOOSE_MEDIA_TYPE = "step_choose_media_type",
+    CHOOSE_MEDIA_TYPE = "step_choose_mediaType",
     UPLOAD_MEDIA = "step_upload_media",
 }
 

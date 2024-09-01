@@ -7,8 +7,47 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [vector]
+  // extensions = [pgvector(map: "vector", schema: "extensions")]  // Add the pgvector extension
 }
+
 // vector db with Document DocumentChunk and DocumentChunkMetadata created inside pgvector/pgvector-setup.ts with `npm run db:init-pgvector`
+model Document {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  s3ObjectName String
+  originalPath  String
+  publicPath    String?
+  mediaName     String
+  documentChunks DocumentChunk[]
+}
+
+model DocumentChunk {
+  id                String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text              String
+  textEmbedding    Unsupported("vector(768)")?
+  title             String
+  mediaType        String
+  documentId       String                      @db.Uuid
+  document          Document                    @relation(fields: [documentId], references: [id])
+  documentChunkMeta DocumentChunkMeta?
+}
+
+model DocumentChunkMeta {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  s3ObjectName      String?
+  pageNumber        Int?
+  bbox              Json?
+  type              String?
+  start             Float?
+  end               Float?
+  question          String?
+  answer            String?
+  url               String?
+  documentChunkId String        @unique @db.Uuid
+  documentChunk     DocumentChunk @relation(fields: [documentChunkId], references: [id])
+}
+
+// END VECTOR DB
+
 model CommentThread {
   id        String    @id @default(cuid())
   comments  Comment[]

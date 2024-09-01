@@ -43,7 +43,7 @@ const Search: React.FC = () => {
 
   const activeTypes = TabMediaTypeMap[selectedTabType.value] || [];
   const chunks = results && (results as ChunkSearchResults).chunks
-    ? (results as ChunkSearchResults).chunks.filter(chunk => activeTypes.includes(chunk.media_type as MediaType))
+    ? (results as ChunkSearchResults).chunks.filter(chunk => activeTypes.includes(chunk.mediaType as MediaType))
     : [];
 
   const resultPerPage = 10
@@ -120,7 +120,7 @@ const DocumentResults: React.FC<{ results: DocumentSearchResults, searchWords: s
     {results.documents
       .sort((a, b) => b.max_score - a.max_score)
       .map((result) => (
-        <DocumentCardWithChunks key={result.document_id} searchResult={result} searchWords={searchWords} />
+        <DocumentCardWithChunks key={result.documentId} searchResult={result} searchWords={searchWords} />
       ))}
   </div>
 );

@@ -32,8 +32,6 @@ export const ColumnsMediaTypeMap: Record<TabType, number> = {
     [TabType.Others]: 2,
 }
 
-console.log("TabMediaTypeMap", TabMediaTypeMap)
-
 // Define an interface for tab items
 interface TabItem {
     tabId: TabType;
@@ -78,7 +76,7 @@ const StyledTabs = styled.div`
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
 const TabsComponent = (props: { chunks: ChunkWithScoreUnion[] }) => {
-    const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[]) => chunks.filter(c => mediaTypes.includes(c.media_type)).length;
+    const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[]) => chunks.filter(c => mediaTypes.includes(c.mediaType)).length;
 
 
     const tabs: TabItem[] = [

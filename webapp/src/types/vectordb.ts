@@ -25,7 +25,7 @@ export interface BaseDocumentChunk<T extends MediaType> {
   text: string;
   title: string;
   document: Document,
-  media_type: T;
+  mediaType: T;
   user_approved?: boolean;
   user_disapproved?: boolean;
   metadata: MetadataType<T>;
@@ -37,17 +37,17 @@ export interface VideoTranscriptMetadata {
 }
 
 export interface RawImageMetadata {
-  public_path: string;
+  publicPath: string;
 }
 
 export interface PdfImageMetadata {
-  s3_object_name: string;
-  page_number: number;
+  s3ObjectName: string;
+  pageNumber: number;
   bbox: BoundingBox;
 }
 
 export interface PdfTextMetadata {
-  page_number: number;
+  pageNumber: number;
   bbox: BoundingBox;
 }
 
@@ -89,23 +89,23 @@ export interface ChunkWithScore<T extends MediaType> extends BaseDocumentChunk<T
 }
 
 export type ChunkWithScoreUnion =
-  | (ChunkWithScore<"pdf_image"> & { media_type: "pdf_image" })
-  | (ChunkWithScore<"raw_image"> & { media_type: "raw_image" })
-  | (ChunkWithScore<"pdf_text"> & { media_type: "pdf_text" })
-  | (ChunkWithScore<"video_transcript"> & { media_type: "video_transcript" })
-  | (ChunkWithScore<"website_qa"> & { media_type: "website_qa" })
-  | (ChunkWithScore<"website_experience"> & { media_type: "website_experience" })
+  | (ChunkWithScore<"pdf_image"> & { mediaType: "pdf_image" })
+  | (ChunkWithScore<"raw_image"> & { mediaType: "raw_image" })
+  | (ChunkWithScore<"pdf_text"> & { mediaType: "pdf_text" })
+  | (ChunkWithScore<"video_transcript"> & { mediaType: "video_transcript" })
+  | (ChunkWithScore<"website_qa"> & { mediaType: "website_qa" })
+  | (ChunkWithScore<"website_experience"> & { mediaType: "website_experience" })
 
 
 export interface Document {
   id: string;
-  document_id: string;
-  public_path: string;
-  original_path: string;
-  s3_object_name: string;
+  documentId: string;
+  publicPath: string;
+  originalPath: string;
+  s3ObjectName: string;
   user_approved?: boolean;
   user_disapproved?: boolean;
-  media_name: string;
+  mediaName: string;
 }
 export interface DocumentWithChunks extends Document {
   chunks: DocumentChunk[];
@@ -113,10 +113,10 @@ export interface DocumentWithChunks extends Document {
 
 export interface DocumentSearchResult {
   id: string;
-  document_id: string;
-  public_path: string;
-  original_path: string;
-  media_name: string;
+  documentId: string;
+  publicPath: string;
+  originalPath: string;
+  mediaName: string;
   max_score: number;
   min_score: number;
   chunks: ChunkWithScoreUnion[];
@@ -146,21 +146,21 @@ export const isTextChunk = (chunk: ChunkWithScoreUnion) => {
 }
 
 export const isPdfImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_image"> => {
-  return chunk.media_type == "pdf_image";
+  return chunk.mediaType == "pdf_image";
 }
 
 export const isPdfTextChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_text"> => {
-  return chunk.media_type === "pdf_text";
+  return chunk.mediaType === "pdf_text";
 }
 
 export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"video_transcript"> {
-  return chunk.media_type === "video_transcript";
+  return chunk.mediaType === "video_transcript";
 }
 
 export function isWebsiteQAChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_qa"> {
-  return chunk.media_type === "website_qa";
+  return chunk.mediaType === "website_qa";
 }
 
 export function isWebsiteExperienceChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_experience"> {
-  return chunk.media_type === "website_experience";
+  return chunk.mediaType === "website_experience";
 }

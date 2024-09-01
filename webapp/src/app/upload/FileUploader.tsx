@@ -26,8 +26,8 @@ const FileUploader = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("media_type", mediaType.value);
-        formData.append("public_path", publicPath);
+        formData.append("mediaType", mediaType.value);
+        formData.append("publicPath", publicPath);
 
         try {
             const response = await axios.post(
