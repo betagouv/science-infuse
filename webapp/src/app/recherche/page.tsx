@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
+import { useQuery } from "@tanstack/react-query";
+import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { CircularProgress } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import { ChunkSearchResults, DocumentSearchResults, MediaType } from "@/types/vectordb";
+import { ChunkSearchResults, ChunkWithScoreUnion, DocumentSearchResults, MediaType } from "@/types/vectordb";
 import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
 import DocumentCardWithChunks from "./DocumentCardWithChunks";
@@ -13,9 +13,9 @@ import ChunkRenderer from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
 import { DEFAULT_PAGE_NUMBER } from "@/config";
-import SIPagination, { pageNumber } from "./SIPagination";
 import { fetchSIContent } from "./fetchSIContent";
 import Tabs, { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap } from "./Tabs";
+import { useEffect, useState } from "@preact-signals/safe-react/react";
 
 const Item = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -27,28 +27,31 @@ const Item = styled('div')(({ theme }) => ({
 
 const groupByDocument = signal<boolean>(false);
 
+// const pageNumber = signal<number>(1)
+
 const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get('query') || "";
   const searchWords = getSearchWords(query);
-  // const queryClient = useQueryClient();
+  const [pageNumber, setPageNumber] = useState(1);
 
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search', query, groupByDocument.value, null, pageNumber.value, DEFAULT_PAGE_NUMBER] as const,
+    queryKey: ['search', query, groupByDocument.value, null, 0, DEFAULT_PAGE_NUMBER] as const,
     queryFn: fetchSIContent,
     enabled: !!query,
   });
 
-  const renderSearchResults = () => {
-    if (isLoading) return <LoadingIndicator />;
-    if (isError) return <ErrorMessage />;
-    if (!results) return <NoResultsMessage />;
+  const activeTypes = TabMediaTypeMap[selectedTabType.value] || [];
+  const chunks = results && (results as ChunkSearchResults).chunks
+    ? (results as ChunkSearchResults).chunks.filter(chunk => activeTypes.includes(chunk.media_type as MediaType))
+    : [];
 
-    return <ChunkResults results={results as ChunkSearchResults} searchWords={searchWords} />;
-    // return groupByDocument.value
-    //   ? <DocumentResults results={results as DocumentSearchResults} searchWords={searchWords} />
-    //   : <ChunkResults results={results as ChunkSearchResults} searchWords={searchWords} />;
-  };
+  const resultPerPage = 10
+  console.log("PaginationComponent newPageNumber", pageNumber, chunks)
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [activeTypes])
 
   return (
     <div className="w-full fr-grid-row fr-grid-row--center">
@@ -56,8 +59,31 @@ const Search: React.FC = () => {
         <div className="py-16 flex flex-col gap-8 md:px-0">
           <SearchHeader query={query} />
           <Tabs chunks={(results as ChunkSearchResults)?.chunks || []} />
-          {renderSearchResults()}
-          <SIPagination pageCount={results?.page_count} />
+          {isLoading && <LoadingIndicator />}
+          {isError && <ErrorMessage />}
+          {!isLoading && !isError && !results && <NoResultsMessage />}
+          {!isLoading && !isError && results &&
+            <ChunkResults
+              // chunks={chunks}
+              chunks={chunks.slice((pageNumber-1) * resultPerPage, pageNumber * resultPerPage + resultPerPage)}
+              searchWords={searchWords}
+            />}
+
+          <Pagination
+            className="[&_ul]:justify-around"
+            // count={100}
+            count={Math.max(1, Math.ceil(chunks.length / resultPerPage))}
+            defaultPage={Math.max(pageNumber, 1)}
+            getPageLinkProps={(newPageNumber: number) => ({
+              onClick: (e) => {
+                e.preventDefault();
+                console.log("PaginationComponent newPageNumber", newPageNumber)
+                setPageNumber(newPageNumber)
+              },
+              href: ``,
+            })}
+            showFirstLast
+          />
         </div>
       </div>
     </div>
@@ -99,13 +125,12 @@ const DocumentResults: React.FC<{ results: DocumentSearchResults, searchWords: s
   </div>
 );
 
-const ChunkResults: React.FC<{ results: ChunkSearchResults, searchWords: string[] }> = ({ results, searchWords }) => {
-  const activeTypes = TabMediaTypeMap[selectedTabType.value] || [];
+const ChunkResults: React.FC<{ chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ chunks, searchWords }) => {
+
   return (
     <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
-      {results.chunks
+      {chunks
         .sort((a, b) => b.score - a.score)
-        .filter(chunk => activeTypes.includes(chunk.media_type as MediaType))
         .map((result, index) => (
           <Item key={index}>
             <ChunkRenderer chunk={result} searchWords={searchWords} />

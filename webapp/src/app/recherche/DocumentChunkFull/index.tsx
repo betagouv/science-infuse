@@ -162,10 +162,11 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
 };
 
 export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => {
-    const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
-    if (chunk.title) {
-        path.push(...chunk.title.toLowerCase().split('>'))
-    }
+    const path = chunk.title.toLowerCase().split('>');
+    // const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
+    // if (chunk.title) {
+    //     path.push(...chunk.title.toLowerCase().split('>'))
+    // }
 
     return (
         <BaseCard

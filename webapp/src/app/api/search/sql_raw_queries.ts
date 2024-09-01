@@ -35,6 +35,7 @@ export async function searchDocumentChunks(embedding: number[]) {
   LEFT JOIN "DocumentChunkMeta" ON "DocumentChunk"."id" = "DocumentChunkMeta"."document_chunk_id"
   LEFT JOIN "Document" ON "Document"."id" = "DocumentChunk"."document_id"
   -- WHERE "media_type" = 'pdf_image'
+  WHERE 1 - (text_embedding <=> ${embedding}::vector) > 0.21
   ORDER BY score DESC 
   LIMIT 1000
 `;
