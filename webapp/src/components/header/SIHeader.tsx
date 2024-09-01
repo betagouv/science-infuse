@@ -9,7 +9,6 @@ interface ClientHeaderProps {
   session: Session | null;
 }
 export default function ClientHeader({ session }: ClientHeaderProps) {
-  console.log("SESSION", session)
 
   return (
     <Header

@@ -32,7 +32,7 @@ const getTitleLink = (searchResult: DocumentSearchResult) => {
     try {
         console.log("DEBUG", searchResult.chunks[0].metadata)
         const documentUuid = searchResult.chunks[0]?.document?.id;
-        if (searchResult.chunks[0]?.document?.s3_object_name.endsWith('pdf'))
+        if (searchResult.chunks[0]?.document?.s3ObjectName.endsWith('pdf'))
             return `/pdf/${documentUuid}/1}`
     } catch (error) {
     }
@@ -47,12 +47,12 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
         <Card
             className="grid-item flex flex-col items-center justify-center w-full h-full"
             title={<a target="_blank" href={getTitleLink(props.searchResult)}>
-                {/* title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.public_path}`}> */}
+                {/* title={<a target="_blank" href={`${NEXT_PUBLIC_FILE_SERVER_URL}${searchResult.publicPath}`}> */}
                 <Highlighter
                     highlightClassName="highlightSearch"
                     searchWords={searchWords}
                     autoEscape={true}
-                    textToHighlight={searchResult.media_name}
+                    textToHighlight={searchResult.mediaName}
                 />
             </a>
             }
@@ -80,7 +80,7 @@ export default (props: { searchResult: DocumentSearchResult, searchWords: string
                     </li>
                     {/* display chunk types list */}
                     <li>
-                        {Array.from(new Set(searchResult.chunks.map((chunk) => chunk.media_type))).map(type =>
+                        {Array.from(new Set(searchResult.chunks.map((chunk) => chunk.mediaType))).map(type =>
                             <Badge key={type} small>
                                 {type}
                             </Badge>

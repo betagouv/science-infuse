@@ -46,12 +46,12 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
       <Masonry columns={2} spacing={2}>
         {results != undefined && (results as ChunkSearchResultsWithType<"video_transcript">).chunks.map((chunk, index) => {
           const duration = Math.floor(chunk.metadata.end - chunk.metadata.start);
-          const videoUrl = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`;
+          const videoUrl = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`;
           return (
             <div key={index} className="rounded-lg overflow-hidden shadow-lg bg-white">
               <div className="flex flex-col p-4">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                  {chunk.document.media_name}
+                  {chunk.document.mediaName}
                   <span className="ml-2 text-sm font-normal text-gray-500">
                     ({duration} {duration > 1 ? "secondes" : "seconde"})
                   </span>
@@ -65,12 +65,12 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
                   variant="contained"
                   color="primary"
                   onClick={() => {
-                    console.log('Button clicked for video:', chunk.document.media_name);
+                    console.log('Button clicked for video:', chunk.document.mediaName);
                     insertVideo({
                       startOffset: chunk.metadata.start,
                       endOffset: chunk.metadata.end,
                       videoUrl: videoUrl,
-                      videoTitle: chunk.document.media_name
+                      videoTitle: chunk.document.mediaName
                     });
                   }}
                 >

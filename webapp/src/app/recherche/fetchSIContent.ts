@@ -20,8 +20,8 @@ export const fetchSIContent: QueryFunction<SearchResultType, [string, string, bo
     },
     body: JSON.stringify({
       query,
-      media_types: mediaTypes?.length ? mediaTypes : null,
-      page_number: pageNumber,
+      mediaTypes: mediaTypes?.length ? mediaTypes : null,
+      pageNumber: pageNumber,
       page_size: pageSize
     }),
   });

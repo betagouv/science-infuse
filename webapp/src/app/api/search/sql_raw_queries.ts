@@ -12,7 +12,7 @@ export async function searchDocumentChunks(embedding: number[]) {
   //   SELECT string_agg(column_name, ', ') as columns
   //   FROM information_schema.columns
   //   WHERE table_name = 'DocumentChunk'
-  //     AND column_name != 'text_embedding'
+  //     AND column_name != 'textEmbedding'
   // `;
 
   // const columns = columnsQuery[0].columns.split(', ')
@@ -26,16 +26,16 @@ export async function searchDocumentChunks(embedding: number[]) {
   // ${Prisma.raw(columns)}, // NOTE:, to make dynamic, could replace |"documentId", "text", "title", "mediaType",| with this
   const data = await prisma.$queryRaw`
   SELECT
-    "text", "title", "media_type",
+    "text", "title", "mediaType",
     "DocumentChunk"."id" as "id",
     to_json("DocumentChunkMeta".*) "metadata",
     to_json("Document".*) "document",
-    1 - (text_embedding <=> ${embedding}::vector) AS score 
+    1 - ("textEmbedding" <=> ${embedding}::vector) AS score 
   FROM "DocumentChunk" 
-  LEFT JOIN "DocumentChunkMeta" ON "DocumentChunk"."id" = "DocumentChunkMeta"."document_chunk_id"
-  LEFT JOIN "Document" ON "Document"."id" = "DocumentChunk"."document_id"
-  -- WHERE "media_type" = 'pdf_image'
-  WHERE 1 - (text_embedding <=> ${embedding}::vector) > 0.21
+  LEFT JOIN "DocumentChunkMeta" ON "DocumentChunk"."id" = "DocumentChunkMeta"."documentChunkId"
+  LEFT JOIN "Document" ON "Document"."id" = "DocumentChunk"."documentId"
+  -- WHERE "mediaType" = 'pdf_image'
+  WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.21
   ORDER BY score DESC 
   LIMIT 1000
 `;

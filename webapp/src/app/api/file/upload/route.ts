@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'No file file provided' }, { status: 400 });
     }
     
-    console.log("SESSION USER", user)
 
     const buffer = await file.arrayBuffer();
     const mimeType = file.type

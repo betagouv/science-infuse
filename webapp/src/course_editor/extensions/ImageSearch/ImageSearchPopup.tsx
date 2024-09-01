@@ -50,7 +50,7 @@ const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
       />
       <Masonry columns={2} spacing={2}>
         {results != undefined && (results as ChunkSearchResultsWithType<"pdf_image">).chunks.map((chunk, index) => {
-          const image = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`;
+          const image = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`;
           return (
             <div key={index} className="masonry-item">
               <img

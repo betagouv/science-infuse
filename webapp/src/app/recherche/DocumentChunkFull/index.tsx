@@ -163,7 +163,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
 
 export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => {
     const path = chunk.title.toLowerCase().split('>');
-    // const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
+    // const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
     // if (chunk.title) {
     //     path.push(...chunk.title.toLowerCase().split('>'))
     // }
@@ -172,9 +172,9 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
         <BaseCard
             groupedInDocument={groupedInDocument}
             chunk={chunk}
-            title={groupedInDocument ? `page ${chunk.metadata.page_number}` : `${chunk.document.media_name} - page ${chunk.metadata.page_number}`}
+            title={groupedInDocument ? `page ${chunk.metadata.pageNumber}` : `${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
             linkProps={{
-                href: `/pdf/${chunk.document.id}/${chunk.metadata.page_number}`,
+                href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
                 target: "_blank",
             }}
             end={<BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />}
@@ -210,7 +210,7 @@ a {
 }
 `
 export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => {
-    const path = chunk.document.original_path.split('ftp-data')[1]?.split('/') || chunk.document.original_path.split('/')
+    const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
     if (chunk.title) {
         path.push(...chunk.title.toLowerCase().split('>'))
     }
@@ -221,15 +221,15 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
             // desc="Lorem ipsum dolor sit amet, consectetur adipiscing, incididunt, ut labore et dolore magna aliqua. Vitae sapien pellentesque habitant morbi tristique senectus et"
             // enlargeLink
             imageAlt={chunk.text}
-            imageUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`}
+            imageUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
             end={<BuildCardEnd
                 end={
                     <div className="flex">
-                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.page_number}`} target="_blank">source</a>
+                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
                     </div>
                 }
                 starred={false}
-                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3_object_name}`}
+                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
             />}
             size="medium"
             title=""
@@ -247,17 +247,17 @@ export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, 
             chunk={chunk}
             title={chunk.title}
             linkProps={{
-                href: chunk.document.original_path,
+                href: chunk.document.originalPath,
                 target: "_blank",
             }}
         >
             <div>
                 <VideoPlayer
-                    videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3_object_name}`}
+                    videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
                     startOffset={chunk.metadata.start}
                     endOffset={chunk.metadata.end}
                 />
-                <div className="mt-4">
+                <div className="mt-4 flex gap-4">
                     {chunk.text.length < 200 ? <Highlighter
                         highlightClassName="highlightSearch"
                         searchWords={searchWords}
@@ -313,7 +313,7 @@ export const RenderWebsiteQAChunk: React.FC<{ groupedInDocument?: boolean, chunk
             chunk={chunk}
             title={chunk.title}
             linkProps={{
-                href: chunk.document.original_path,
+                href: chunk.document.originalPath,
                 target: "_blank",
             }}
             badgeText="Question Réponse"
@@ -355,7 +355,7 @@ export const RenderWebsiteExperienceChunk: React.FC<{ groupedInDocument?: boolea
         chunk={chunk}
         title={chunk.title}
         linkProps={{
-            href: chunk.document.original_path,
+            href: chunk.document.originalPath,
             target: "_blank",
         }}
         badgeText={`Web/${chunk.metadata.type}`}
