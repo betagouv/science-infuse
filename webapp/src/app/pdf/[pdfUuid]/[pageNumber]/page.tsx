@@ -26,6 +26,6 @@ export default function PdfPage({
             })
     }, [pdfUuid])
 
-    return url ? <RenderPdf pdfUrl={url} pdfUuid={pdfUuid} defaultPage={parseInt(pageNumber as string)} /> : "loading"
+    return url ? <RenderPdf pdfUrl={url} pdfUuid={pdfUuid} defaultPage={parseInt(pageNumber as string)} /> : <></>
 
 }

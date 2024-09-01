@@ -1,9 +1,8 @@
 "use client"
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
-import { useEffect } from "@preact-signals/safe-react/react";
 import axios from "axios";
 import { useState } from "react";
-import { Button, IconButton, Typography, Box, CircularProgress, TextField } from '@mui/material';
+import { IconButton, Typography, Box, CircularProgress, TextField } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { QueryFunction, useQuery } from "@tanstack/react-query";
 import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
@@ -38,18 +37,20 @@ interface SideMenuItemProps {
 }
 
 
-const convertTOCToSideMenuItems = (tocItems: TOCItem[], setPage: (page: number) => void): SideMenuItemProps[] => {
+const convertTOCToSideMenuItems = (tocItems: TOCItem[], activePage: number, setPage: (page: number) => void): SideMenuItemProps[] => {
     return tocItems.map(item => ({
         text: <div className="flex w-full justify-between">
             <span>{item.text.charAt(0).toUpperCase() + item.text.slice(1).toLowerCase().replaceAll("\\", '')}</span>
             {item.page !== 0 && <span className="ml-2 text-gray-500">{item.page}</span>}
         </div>,
+        isActive: item.page == activePage || (item.items || []).some(i => i.page <= activePage) && (item.items || []).some(i => i.page >= activePage),
+        expandedByDefault: item.page == activePage || (item.items || []).some(i => i.page <= activePage) && (item.items || []).some(i => i.page >= activePage),
         linkProps: {
             href: "#",
             onClick: () => { console.log("TEST", item.page); item.page && setPage(item.page) },
             target: "_self"
         },
-        ...(item.items && { items: convertTOCToSideMenuItems(item.items, setPage) })
+        ...(item.items && { items: convertTOCToSideMenuItems(item.items, activePage, setPage) })
     }));
 };
 
@@ -118,23 +119,27 @@ const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number
     return (
 
         <div className="flex flex-row mt-8 justify-center">
-            {toc && <div
+            <div
                 className="container"
                 style={{
-                    width: 400
+                    width: 400,
                 }}
             >
-                <SideMenu
+                {!toc && <div className="flex justify-center items-center flex-col gap-2">
+                    <span className="text-lg font-bold">Chargement du pdf en cours</span>
+                    <CircularProgress className="ml-2" />
+                </div>
+                }
+                {toc && <SideMenu
                     sticky={true}
                     align="left"
-                    burgerMenuButtonText="Dans cette rubrique"
                     // @ts-ignore
-                    items={convertTOCToSideMenuItems(toc.items, (page) => { setPageNumber(page); setInputValue(page.toString()) })}
+                    items={convertTOCToSideMenuItems(toc.items, pageNumber, (page) => { setPageNumber(page); setInputValue(page.toString()) })}
                     title="Table des matières"
-                />
+                />}
 
             </div>
-            }
+
             <Box className="py-8 flex flex-col items-center gap-4 px-4 md:px-0 min-h-screen">
                 <Document
                     file={props.pdfUrl}
