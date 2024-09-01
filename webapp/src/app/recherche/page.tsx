@@ -16,8 +16,9 @@ import { DEFAULT_PAGE_NUMBER } from "@/config";
 import { fetchSIContent } from "./fetchSIContent";
 import Tabs, { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap } from "./Tabs";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
+import Snackbar from "@/course_editor/components/Snackbar";
 
-const Item = styled('div')(({ theme }) => ({
+export const MasonaryItem = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(0.5),
@@ -64,8 +65,7 @@ const Search: React.FC = () => {
           {!isLoading && !isError && !results && <NoResultsMessage />}
           {!isLoading && !isError && results &&
             <ChunkResults
-              // chunks={chunks}
-              chunks={chunks.slice((pageNumber-1) * resultPerPage, pageNumber * resultPerPage + resultPerPage)}
+              chunks={chunks.slice((pageNumber-1) * resultPerPage, pageNumber * resultPerPage)}
               searchWords={searchWords}
             />}
 
@@ -86,6 +86,7 @@ const Search: React.FC = () => {
           />
         </div>
       </div>
+      <Snackbar />
     </div>
   );
 };
@@ -132,9 +133,9 @@ const ChunkResults: React.FC<{ chunks: ChunkWithScoreUnion[], searchWords: strin
       {chunks
         .sort((a, b) => b.score - a.score)
         .map((result, index) => (
-          <Item key={index}>
+          <MasonaryItem key={index}>
             <ChunkRenderer chunk={result} searchWords={searchWords} />
-          </Item>
+          </MasonaryItem>
         ))}
     </Masonry>
   )

@@ -7,46 +7,62 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [vector]
-  // extensions = [pgvector(map: "vector", schema: "extensions")]  // Add the pgvector extension
 }
 
-// vector db with Document DocumentChunk and DocumentChunkMetadata created inside pgvector/pgvector-setup.ts with `npm run db:init-pgvector`
+// INDEXED DOCUMENTS / VECTOR DB;  pgvector/pgvector-setup.ts will create the index (since not supported by prisma yet) `npm run db:init-pgvector`
 model Document {
   id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  s3ObjectName String
-  originalPath  String
-  publicPath    String?
-  mediaName     String
+  s3ObjectName   String
+  originalPath   String
+  publicPath     String?
+  mediaName      String
   documentChunks DocumentChunk[]
 }
 
 model DocumentChunk {
-  id                String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  text              String
-  textEmbedding    Unsupported("vector(768)")?
-  title             String
-  mediaType        String
-  documentId       String                      @db.Uuid
-  document          Document                    @relation(fields: [documentId], references: [id])
-  documentChunkMeta DocumentChunkMeta?
+  id                   String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text                 String
+  textEmbedding        Unsupported("vector(768)")?
+  title                String
+  mediaType            String
+  documentId           String                      @db.Uuid
+  document             Document                    @relation(fields: [documentId], references: [id])
+  metadata             DocumentChunkMeta?
+  starredDocumentChunk StarredDocumentChunk[]
 }
 
 model DocumentChunkMeta {
-  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  s3ObjectName      String?
-  pageNumber        Int?
-  bbox              Json?
-  type              String?
-  start             Float?
-  end               Float?
-  question          String?
-  answer            String?
-  url               String?
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  start           Float?
+  end             Float?
+  s3ObjectName    String?
+  pageNumber      Int?
+  bbox            Json?
+  question        String?
+  answer          String?
+  type            String?
+  title           String?
+  description     String?
+  url             String?
   documentChunkId String        @unique @db.Uuid
-  documentChunk     DocumentChunk @relation(fields: [documentChunkId], references: [id])
+  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id])
 }
 
-// END VECTOR DB
+// STARREDDOCUMENTCHUNK
+model StarredDocumentChunk {
+  id              String        @id @default(cuid())
+  keyword         String
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  documentChunkId String        @db.Uuid
+  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, documentChunkId, keyword]) // Ensure a user can star a DocumentChunk with a specific keyword only once
+}
+
+// COMMENTS
 
 model CommentThread {
   id        String    @id @default(cuid())
@@ -68,7 +84,7 @@ model Comment {
   updatedAt       DateTime       @updatedAt
 }
 
-// course >>>
+// COURSE >>>
 model Chapter {
   id              String           @id @default(cuid())
   title           String
@@ -156,7 +172,8 @@ model EducationLevel {
   @@unique([name])
 }
 
-// course <<<
+// USER FILES
+
 model File {
   id           String     @id @default(cuid())
   description  String
@@ -178,11 +195,12 @@ model FileType {
   fileId String?
 }
 
+// USERS
 model User {
-  id            String     @id @default(cuid())
+  id            String                 @id @default(cuid())
   firstName     String?
   lastName      String?
-  email         String?    @unique
+  email         String?                @unique
   emailVerified DateTime?
   image         String?
   password      String?
@@ -193,6 +211,7 @@ model User {
   blocks        Block[]
   activities    Activity[]
   Comment       Comment[]
+  starred       StarredDocumentChunk[]
 }
 
 model Account {

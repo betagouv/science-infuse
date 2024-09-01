@@ -26,8 +26,7 @@ export interface BaseDocumentChunk<T extends MediaType> {
   title: string;
   document: Document,
   mediaType: T;
-  user_approved?: boolean;
-  user_disapproved?: boolean;
+  user_starred?: boolean;
   metadata: MetadataType<T>;
 }
 

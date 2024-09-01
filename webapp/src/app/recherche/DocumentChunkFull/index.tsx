@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";
@@ -14,14 +14,11 @@ import axios from "axios";
 import { useCollapse } from 'react-collapsed'
 import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import BreadcrumbNoLink from "@/ui/BreadcrumbNoLink";
+import { apiClient } from "@/lib/api-client";
+import { useSnackbar } from "@/app/SnackBarProvider";
+import { useSearchParams } from "next/navigation";
 
 // Types
-type UserApprovalButtonsProps = {
-    onApprove: () => void;
-    onDisapprove: () => void;
-    userApproved: boolean;
-    userDisapproved: boolean;
-};
 
 type BaseCardProps = {
     chunk: ChunkWithScoreUnion;
@@ -43,51 +40,51 @@ type ChunkRendererProps = {
     searchWords: string[];
 };
 
-// New component for user approval
-export const UserApprovalButtons: React.FC<UserApprovalButtonsProps> = ({ userApproved, userDisapproved, onApprove, onDisapprove }) => {
-    console.log("UserApprovalButtons", userApproved, userDisapproved)
-    return (
-        <div className="absolute bottom-2 right-2 flex gap-2">
-            <Button
-                style={{ color: userApproved ? "green" : "gray" }}
-                onClick={onApprove}
-                iconId="ri-thumb-up-fill"
-                title="Disapprove"
-                priority="tertiary no outline"
-            />
-            <Button
-                style={{ color: userDisapproved ? "red" : "gray" }}
-                onClick={onDisapprove}
-                iconId="ri-thumb-down-fill"
-                title="Disapprove"
-                priority="tertiary no outline"
-            />
-        </div>
-    );
-}
-
 export const getColorFromScore = (score: number) => {
     const clampedScore = Math.max(0, Math.min(1, score));
     const hue = clampedScore * 120;
     return `hsl(${hue}, 100%, 50%)`;
 }
 
-const Star = (props: { starred: boolean }) => {
+const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
+    const [starred, setStarred] = useState(props.starred);
+    const { showSnackbar } = useSnackbar();
+
+    const starDocumentChunk = async () => {
+        await apiClient.starDocumentChunk({ documentChunkId: props.chunkId, keyword: props.query })
+        setStarred(true);
+        showSnackbar(
+            <p className="m-0">Favori ajouté avec succès</p>,
+            'success'
+        )
+    }
+
+    const unStarDocumentChunk = async () => {
+        await apiClient.unStarDocumentChunk({ documentChunkId: props.chunkId })
+        setStarred(false);
+        showSnackbar(
+            <p className="m-0">Favori supprimé avec succès</p>,
+            'success'
+        )
+
+    }
     return <Tooltip title={props.starred ? "Supprimer des favoris" : "Ajouter aux favoris"}>
-        {props.starred ? <svg className="cursor-pointer" width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {starred ? <svg onClick={unStarDocumentChunk} className="cursor-pointer" width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26Z" fill="#161616" />
-        </svg> : <svg className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        </svg> : <svg onClick={starDocumentChunk} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5ZM11.9999 5.275L9.96191 9.695L5.12891 10.267L8.70191 13.572L7.75291 18.345L11.9999 15.968L16.2469 18.345L15.2979 13.572L18.8709 10.267L14.0379 9.694L11.9999 5.275Z" fill="#161616" />
         </svg>}
     </Tooltip>
 }
 
-const BuildCardEnd = (props: { end?: React.ReactNode, downloadLink?: string, starred: boolean }) => {
+const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean }) => {
+    const searchParams = useSearchParams();
+    const query = searchParams.get('query') || "";
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
             <div className="flex self-end gap-4 ml-auto">
-                <Star starred={props.starred} />
+                <Star query={query} chunkId={props.chunk.id} starred={props.starred} />
                 {
                     props.downloadLink && <button
                         onClick={() => window.open(props.downloadLink, '_blank')}
@@ -105,31 +102,6 @@ const BuildCardEnd = (props: { end?: React.ReactNode, downloadLink?: string, sta
 
 // Base Card component
 export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkProps, chunk, badgeText, badgeSeverity = "new" }) => {
-    const [isApproved, setIsApproved] = useState<boolean>(!!chunk.user_approved);
-    const [isDisApproved, setIsDisApproved] = useState<boolean>(!!chunk.user_disapproved);
-
-    const handleApprove = async () => {
-        await axios.post(
-            `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
-            {
-                approve: true,
-                uuid: chunk.id,
-            }
-        );
-        setIsApproved(true)
-        setIsDisApproved(false)
-    };
-    const handleDisapprove = async () => {
-        await axios.post(
-            `${NEXT_PUBLIC_SERVER_URL}/approve/document_chunk`,
-            {
-                approve: false,
-                uuid: chunk.id,
-            }
-        );
-        setIsApproved(false)
-        setIsDisApproved(true)
-    };
 
     return (
         <div className="relative">
@@ -145,7 +117,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
                 //         {badgeText && <li><Badge severity={badgeSeverity}>{badgeText}</Badge></li>}
                 //     </ul>
                 // }
-                end={<BuildCardEnd end={end} starred={false} />}
+                end={<BuildCardEnd chunk={chunk} end={end} starred={!!chunk?.user_starred} />}
                 desc={
                     <div className="relative">
                         {children}
@@ -156,7 +128,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
                 title={title}
                 titleAs="h3"
             />
-            {/* <UserApprovalButtons userApproved={isApproved} userDisapproved={isDisApproved} onApprove={handleApprove} onDisapprove={handleDisapprove} /> */}
         </div>
     );
 };
@@ -223,12 +194,13 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
             imageAlt={chunk.text}
             imageUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
             end={<BuildCardEnd
+                chunk={chunk}
                 end={
                     <div className="flex">
                         <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
                     </div>
                 }
-                starred={false}
+                starred={!!chunk?.user_starred}
                 downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
             />}
             size="medium"
@@ -241,13 +213,17 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
 
 export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse()
+    let originalPath = chunk.document.originalPath;
+    if (originalPath.includes("youtube")) {
+        originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
+    }
     return (
         <BaseCard
             groupedInDocument={groupedInDocument}
             chunk={chunk}
             title={chunk.title}
             linkProps={{
-                href: chunk.document.originalPath,
+                href: originalPath,
                 target: "_blank",
             }}
         >
@@ -376,7 +352,7 @@ export const RenderWebsiteExperienceChunk: React.FC<{ groupedInDocument?: boolea
     </BaseCard>
 );
 
-const ChunkRenderer: React.FC<ChunkRendererProps> = ({ groupedInDocument, chunk, searchWords }) => {
+export const ChunkRenderer: React.FC<ChunkRendererProps> = ({ groupedInDocument, chunk, searchWords }) => {
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard groupedInDocument={groupedInDocument} chunk={chunk} />;
     if (isPdfTextChunk(chunk)) return <RenderPdfTextCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
     if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
