@@ -1,6 +1,15 @@
-import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, EducationLevel, FileType, KeyIdea, Skill, Tag } from '@prisma/client';
+import { ChunkWithScoreUnion } from '@/types/vectordb';
+import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, Skill, StarredDocumentChunk, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
+
+interface StarDocumentChunkRequest {
+  documentChunkId: string;
+  keyword: string;
+}
+interface UnStarDocumentChunkRequest {
+  documentChunkId: string;
+}
 
 interface CreateBlockRequest {
   title: string;
@@ -74,6 +83,20 @@ class ApiClient {
     return response.data;
   }
 
+  async getStarDocumentChunk(): Promise<{ [key: string]: ChunkWithScoreUnion[] }> {
+    const response = await this.axiosInstance.get<{ [key: string]: ChunkWithScoreUnion[] }>('/starDocumentChunk');
+    return response.data;
+  }
+
+  async starDocumentChunk(data: StarDocumentChunkRequest): Promise<boolean> {
+    const response = await this.axiosInstance.post<boolean>('/starDocumentChunk', data);
+    return response.data;
+  }
+
+  async unStarDocumentChunk(data: UnStarDocumentChunkRequest): Promise<boolean> {
+    const response = await this.axiosInstance.delete<boolean>('/starDocumentChunk', { data });
+    return response.data;
+  }
   async createThread(data: CreateThreadRequest): Promise<CommentThread> {
     const response = await this.axiosInstance.post<CommentThread>('/comments/thread', data);
     return response.data;

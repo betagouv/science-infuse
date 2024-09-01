@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 
 
 
-export async function searchDocumentChunks(embedding: number[]) {
+export async function searchDocumentChunks(userId: string, embedding: number[]) {
   const startTime = performance.now();
 
 
@@ -26,18 +26,27 @@ export async function searchDocumentChunks(embedding: number[]) {
   // ${Prisma.raw(columns)}, // NOTE:, to make dynamic, could replace |"documentId", "text", "title", "mediaType",| with this
   const data = await prisma.$queryRaw`
   SELECT
-    "text", "title", "mediaType",
+    "DocumentChunk"."text",
+    "DocumentChunk"."title",
+    "DocumentChunk"."mediaType",
     "DocumentChunk"."id" as "id",
-    to_json("DocumentChunkMeta".*) "metadata",
-    to_json("Document".*) "document",
-    1 - ("textEmbedding" <=> ${embedding}::vector) AS score 
-  FROM "DocumentChunk" 
+    to_json("DocumentChunkMeta".*) as "metadata",
+    to_json("Document".*) as "document",
+    1 - ("textEmbedding" <=> ${embedding}::vector) as score,
+    CASE 
+      WHEN "StarredDocumentChunk"."id" IS NOT NULL THEN true 
+      ELSE false 
+    END as "user_starred"
+  FROM "DocumentChunk"
   LEFT JOIN "DocumentChunkMeta" ON "DocumentChunk"."id" = "DocumentChunkMeta"."documentChunkId"
   LEFT JOIN "Document" ON "Document"."id" = "DocumentChunk"."documentId"
-  -- WHERE "mediaType" = 'pdf_image'
+  LEFT JOIN "StarredDocumentChunk" 
+    ON "DocumentChunk"."id" = "StarredDocumentChunk"."documentChunkId"
+    AND "StarredDocumentChunk"."userId" = ${userId}
   WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.21
-  ORDER BY score DESC 
+  ORDER BY score DESC
   LIMIT 1000
+
 `;
   const endTime = performance.now();
   const executionTime = endTime - startTime;
