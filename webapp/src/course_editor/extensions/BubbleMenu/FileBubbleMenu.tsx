@@ -14,6 +14,7 @@ import { ImageBlock } from '../ImageBlock';
 import PdfBlock from '../PdfBlock/PdfBlock';
 import getRenderContainer from '@/lib/utils/getRenderContainer';
 import FileTypePicker from './FileTypePicker';
+import VideoSearch from '../VideoSearch';
 
 const ImageOptions = (props: { editor: Editor }) => {
   const { editor } = props;
@@ -170,7 +171,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           sticky: 'popper',
         }}
       >
-        <Toolbar.Wrapper shouldShowContent={!!s3ObjectName} ref={menuRef}>
+        <Toolbar.Wrapper shouldShowContent={[ImageBlock.name, VideoSearch.name].includes(nodeName)} ref={menuRef}>
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
           {/* {nodeName == PdfBlock.name && } */}
           {!!s3ObjectName && <AllowShare

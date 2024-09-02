@@ -18,7 +18,7 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
   const [debouncedQuery] = useDebounce(query, 500);
 
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search', debouncedQuery, false, ["video_transcript"], 1, 10] as const,
+    queryKey: [debouncedQuery, ["video_transcript"], 10] as const,
     queryFn: fetchSIContent,
     enabled: !!debouncedQuery,
   },);

@@ -1,9 +1,10 @@
 import { Prisma } from '@prisma/client'
 import prisma from "@/lib/prisma"
+import { QueryRequest } from '@/lib/api-client';
 
 
 
-export async function searchDocumentChunks(userId: string, embedding: number[]) {
+export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
   const startTime = performance.now();
 
 
@@ -43,9 +44,13 @@ export async function searchDocumentChunks(userId: string, embedding: number[]) 
   LEFT JOIN "StarredDocumentChunk" 
     ON "DocumentChunk"."id" = "StarredDocumentChunk"."documentChunkId"
     AND "StarredDocumentChunk"."userId" = ${userId}
+  -- add a threshold, discard results bellow 0.21 score (considered not relevent). Might need to find a sweet spot
   WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.21
+  -- filter by media type if specified in search params
+    ${params.mediaTypes ? Prisma.sql`AND "DocumentChunk"."mediaType" = ANY(${params.mediaTypes}::text[])` : Prisma.empty}
   ORDER BY score DESC
-  LIMIT 1000
+  -- limit result to 1000
+  LIMIT ${Math.min(params.limit || 1000, 1000)}
 
 `;
   const endTime = performance.now();

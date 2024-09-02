@@ -25,7 +25,7 @@ export default async function ProfDashboard() {
     if (!session) return "";
     const newChapter = await prisma.chapter.create({
       data: {
-        title: 'New Chapter',
+        title: 'Chapitre sans titre',
         content: JSON.stringify(EMPTY_DOCUMENT),
         userId: session.user.id,
       },

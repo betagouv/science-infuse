@@ -26,7 +26,6 @@ export const MasonaryItem = styled('div')(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const groupByDocument = signal<boolean>(false);
 
 // const pageNumber = signal<number>(1)
 
@@ -37,7 +36,7 @@ const Search: React.FC = () => {
   const [pageNumber, setPageNumber] = useState(1);
 
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search', query, groupByDocument.value, null, 0, DEFAULT_PAGE_NUMBER] as const,
+    queryKey: [query, undefined, 1000] as const,
     queryFn: fetchSIContent,
     enabled: !!query,
   });

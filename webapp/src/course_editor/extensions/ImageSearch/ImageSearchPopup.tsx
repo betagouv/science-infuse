@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
-import axios from 'axios';
-import { ChunkSearchResults, ChunkSearchResultsWithType, ChunkWithScore, ChunkWithScoreUnion, MediaType, MediaTypes } from '@/types/vectordb';
+import { ChunkSearchResultsWithType } from '@/types/vectordb';
 import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import { useDebounce } from 'use-debounce';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 
 
@@ -14,14 +13,8 @@ const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 500);
 
-  const queryClient = useQueryClient();
-
-  const handleSearch = () => {
-    queryClient.invalidateQueries({ queryKey: ['search'] });
-  };
-
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search', debouncedQuery, false, ["pdf_image"], 1, 10] as const,
+    queryKey: [debouncedQuery, ["pdf_image"], 10] as const,
     queryFn: fetchSIContent,
     enabled: !!debouncedQuery,
   },);

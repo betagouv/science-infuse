@@ -24,11 +24,11 @@ const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
   const blocks = chapter.blocks;
   const chapterBlockIds = JSON.parse((chapter.content as string)).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
 
-  return <Box sx={{ margin: 1 }}>
+  return <Box sx={{ margin: 1, marginLeft: 8 }}>
     <Table size="small" aria-label="blocks">
       <TableHead>
         <TableRow>
-          <TableCell>Title</TableCell>
+          <TableCell>Titre du bloc</TableCell>
           <TableCell>Compétences</TableCell>
         </TableRow>
       </TableHead>
@@ -44,7 +44,7 @@ const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
                   {block.title}
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-nowrap max-w-[30rem] overflow-auto gap-1">
+                  <div className="flex flex-nowrap max-w-[35rem] overflow-auto gap-1">
                     {
                       block.keyIdeas.map((keyIdea, index) => (
                         <Tooltip key={index} title={keyIdea.title}>
@@ -80,7 +80,7 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row" className='min-w-36'>
-          <Link className='flex ' target="_blank" href={`/prof/chapitres/${chapter.id}`}>
+          <Link className='flex w-fit' target="_blank" href={`/prof/chapitres/${chapter.id}`}>
             {chapter.title}
           </Link>
         </TableCell>

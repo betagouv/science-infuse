@@ -1,11 +1,12 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
+import { QueryRequest } from "@/lib/api-client";
 import { ChunkSearchResults, DocumentSearchResults } from "@/types/vectordb";
 import { QueryFunction } from "@tanstack/react-query";
 
 type SearchResultType = DocumentSearchResults | ChunkSearchResults;
 
-export const fetchSIContent: QueryFunction<SearchResultType, [string, string, boolean, string[] | null, number, number]> = async ({ queryKey }) => {
-  const [_, query, isGrouped, mediaTypes, pageNumber, pageSize] = queryKey;
+export const fetchSIContent: QueryFunction<SearchResultType, [string, string[] | undefined, number | undefined]> = async ({ queryKey }) => {
+  const [query, mediaTypes, limit] = queryKey;
   if (!query) return [];
 
   const endpoint = `/api/search`;
@@ -13,17 +14,17 @@ export const fetchSIContent: QueryFunction<SearchResultType, [string, string, bo
   //   ? `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks_grouped_by_document`
   //   : `${NEXT_PUBLIC_SERVER_URL}/search/search_chunks`;
 
+  const queryData: QueryRequest = {
+    query,
+    mediaTypes: mediaTypes,
+    limit,
+  }
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query,
-      mediaTypes: mediaTypes?.length ? mediaTypes : null,
-      pageNumber: pageNumber,
-      page_size: pageSize
-    }),
+    body: JSON.stringify(queryData),
   });
 
   if (!response.ok) {

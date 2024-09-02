@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Tooltip } from '@mui/material';
+import { useSnackbar } from '@/app/SnackBarProvider';
 
 interface KeyIdeasPickerProps {
     className?: string;
@@ -20,6 +21,7 @@ interface KeyIdeasPickerProps {
 export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas, onSelectedKeyIdeas }: KeyIdeasPickerProps) {
     const [keyIdeas, setKeyIdeas] = useState<KeyIdea[]>(selectedKeyIdeas);
     const [isAiLoading, setIsAiLoading] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
         const fetchKeyIdeas = async () => {
@@ -32,6 +34,12 @@ export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas
     const generateAIKeyIdeas = async () => {
         if (!getContext) return;
         const context = getContext();
+        if (!context) {
+            return showSnackbar(
+                <p className="m-0">Impossible de générer les idées clés <br /> <b>veuillez réessayer</b>.</p>,
+                'error'
+            )
+        }
         setIsAiLoading(true);
 
         try {
@@ -40,6 +48,7 @@ export default function KeyIdeasPicker({ className, getContext, selectedKeyIdeas
             const threshold = firstScore * 0.6;
             const newKeyIdeas = response
                 .filter(item => item.score >= threshold)
+                .filter(item => item.score >= 0.3)
                 .map(item => item.text)
 
             if (newKeyIdeas.length > 0) {

@@ -3,6 +3,11 @@ import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, Docum
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 
+export interface QueryRequest {
+  query: string,
+  mediaTypes?: string[],
+  limit?: number
+}
 interface StarDocumentChunkRequest {
   documentChunkId: string;
   keyword: string;
