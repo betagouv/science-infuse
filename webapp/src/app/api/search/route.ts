@@ -5,6 +5,7 @@ import { searchDocumentChunks } from "./sql_raw_queries";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/authOptions";
+import { QueryRequest } from "@/lib/api-client";
 
 
 export async function POST(request: NextRequest): Promise<NextResponse<any | { error: string }>> {
@@ -15,13 +16,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
     }
 
     try {
-        const { query } = await request.json()
+        const params = await request.json() as QueryRequest;
+        console.log("PARAMS, ", params)
         const embeddingResponse = await axios.post(`${NEXT_PUBLIC_SERVER_URL}/embedding/`, {
-            text: query
+            text: params.query
         })
         const embedding = embeddingResponse.data
 
-        const chunks = await searchDocumentChunks(user.id, embedding)
+        const chunks = await searchDocumentChunks(user.id, embedding, params)
         return NextResponse.json({ page_count: 1, chunks })
 
 

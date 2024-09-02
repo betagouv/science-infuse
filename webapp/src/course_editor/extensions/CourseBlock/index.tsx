@@ -249,7 +249,6 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       const $start = doc.resolve(nodePos);
       const $end = doc.resolve(nodePos + node.nodeSize);
       const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
-      console.log("CONTEXT", domElement)
 
       // Extract text content
       text = doc.textBetween($start.pos, $end.pos);

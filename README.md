@@ -1,13 +1,10 @@
 ## Docker compose services
-### weaviate
-Weaviate is an open source vector search engine that allows you to store data objects and query them by semantic meaning. It uses machine learning models to create vector embeddings of your data and can find similar objects based on their vector representations.
+### postgres
+using postgres as a SQL database, and as a vector database using pgvector
 
 ### t2v-custom
+TODO: remove
 text-to-vec, custom embeddings model (solon) to create vector embeddings of the text of the database
-
-
-### weaviate-console
-Run weaviate console to query data using GraphQL (debugging purpose)
 
 ### nginx
 used as an efficient way to serve stored files in folder documents (raw documents indexed by weaviate)
@@ -16,6 +13,7 @@ used as an efficient way to serve stored files in folder documents (raw document
 A NextJS client to query the database
 
 ### server *
+TODO: becomes processing
 A Python3 / FastAPI server to handle database queries
 
 
