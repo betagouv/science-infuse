@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL } from "@/config";
@@ -17,9 +17,49 @@ import BreadcrumbNoLink from "@/ui/BreadcrumbNoLink";
 import { apiClient } from "@/lib/api-client";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { useSearchParams } from "next/navigation";
+import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
+
+const StyledCardWithoutTitle = styled(Card)`
+.fr-card__content {
+    padding: 1rem;
+    padding-top: 0;
+}
+
+.fr-card__title {
+    display: none;
+}
+`
+
+const StyledGroupedVideoCard = styled(StyledCardWithoutTitle)`
+.fr-card__body,
+.fr-card__content,
+.fr-card__desc,
+.fr-card__start {
+    margin: 0;
+    padding: 0;
+};
+
+.fr-card__end {
+    padding: 1rem;
+}
+
+.fr-card__body {
+    overflow: hidden;
+}
+
+`
+
+const StyledImageCard = styled(StyledCardWithoutTitle)`
+a {
+    filter: none;
+}
+.fr-responsive-img {
+    object-fit: contain;
+    background-color: #f6f6f6;
+}
+`
 
 // Types
-
 type BaseCardProps = {
     chunk: ChunkWithScoreUnion;
     children: React.ReactNode;
@@ -30,13 +70,11 @@ type BaseCardProps = {
         target: string;
     };
     badgeText?: string;
-    groupedInDocument?: boolean;
     badgeSeverity?: "new" | "info" | "success" | "warning" | "error";
 };
 
 type ChunkRendererProps = {
     chunk: ChunkWithScoreUnion;
-    groupedInDocument?: boolean;
     searchWords: string[];
 };
 
@@ -77,14 +115,14 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     </Tooltip>
 }
 
-const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean }) => {
+const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
             <div className="flex self-end gap-4 ml-auto">
-                <Star query={query} chunkId={props.chunk.id} starred={props.starred} />
+                {props.starred != undefined && <Star key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
                 {
                     props.downloadLink && <button
                         onClick={() => window.open(props.downloadLink, '_blank')}
@@ -110,13 +148,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
                 background
                 border
                 className="text-left"
-                // endDetail={"test"}
-                // start={
-                //     <ul className="fr-badges-group">
-                //         <li><Badge style={{ borderLeft: `4px solid ${getColorFromScore(chunk.score)}` }}>score: {(chunk.score * 100).toFixed(0)}%</Badge> </li>
-                //         {badgeText && <li><Badge severity={badgeSeverity}>{badgeText}</Badge></li>}
-                //     </ul>
-                // }
+
                 end={<BuildCardEnd chunk={chunk} end={end} starred={!!chunk?.user_starred} />}
                 desc={
                     <div className="relative">
@@ -132,18 +164,14 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
     );
 };
 
-export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk, groupedInDocument }) => {
+export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => {
     const path = chunk.title.toLowerCase().split('>');
-    // const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
-    // if (chunk.title) {
-    //     path.push(...chunk.title.toLowerCase().split('>'))
-    // }
 
     return (
         <BaseCard
-            groupedInDocument={groupedInDocument}
+
             chunk={chunk}
-            title={groupedInDocument ? `page ${chunk.metadata.pageNumber}` : `${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
+            title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
             linkProps={{
                 href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
                 target: "_blank",
@@ -162,25 +190,8 @@ export const RenderPdfTextCard: React.FC<{ groupedInDocument?: boolean, searchWo
     )
 };
 
-const StyledImageCard = styled(Card)`
-a {
-    filter: none;
-}
-.fr-responsive-img {
-    object-fit: contain;
-    background-color: #f6f6f6;
-}
 
-.fr-card__content {
-    padding: 1rem;
-    padding-top: 0;
-}
-
-.fr-card__title {
-    display: none;
-}
-`
-export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk, groupedInDocument }) => {
+export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk }) => {
     const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
     if (chunk.title) {
         path.push(...chunk.title.toLowerCase().split('>'))
@@ -189,8 +200,6 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
         <StyledImageCard
             background
             border
-            // desc="Lorem ipsum dolor sit amet, consectetur adipiscing, incididunt, ut labore et dolore magna aliqua. Vitae sapien pellentesque habitant morbi tristique senectus et"
-            // enlargeLink
             imageAlt={chunk.text}
             imageUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
             end={<BuildCardEnd
@@ -211,7 +220,42 @@ export const RenderPdfImageCard: React.FC<{ groupedInDocument?: boolean, chunk: 
     )
 };
 
-export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
+export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; searchWords: string[] }> = ({ video, searchWords }) => {
+    const firstChunk = video.items[0];
+    const url = `${NEXT_PUBLIC_SERVER_URL}/s3/${firstChunk.document.s3ObjectName}`
+    let originalPath = firstChunk.document.originalPath;
+    const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(undefined)
+    if (originalPath.includes("youtube") && selectedChunk) {
+        originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(selectedChunk.metadata.start)}`
+    }
+
+    return (
+        <StyledGroupedVideoCard
+            end={<BuildCardEnd
+                chunk={selectedChunk || video.items[0]}
+                end={
+                    <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{firstChunk.title}</a>
+                        <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p>
+                    </div>
+                }
+                starred={selectedChunk ? selectedChunk.user_starred : undefined}
+                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${firstChunk.document.s3ObjectName}`}
+            />}
+            desc={
+                <VideoPlayerHotSpots
+                    videoUrl={url}
+                    selectedChunk={selectedChunk}
+                    onChunkSelected={(_chunk) => setSelectedChunk(_chunk)}
+                    chunks={video.items}
+                />
+            }
+            size="medium"
+            title=""
+        />
+    )
+}
+export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse()
     let originalPath = chunk.document.originalPath;
     if (originalPath.includes("youtube")) {
@@ -219,7 +263,6 @@ export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, 
     }
     return (
         <BaseCard
-            groupedInDocument={groupedInDocument}
             chunk={chunk}
             title={chunk.title}
             linkProps={{
@@ -279,13 +322,13 @@ export const RenderVideoTranscriptCard: React.FC<{ groupedInDocument?: boolean, 
     )
 };
 
-export const RenderWebsiteQAChunk: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => {
+export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);
     const answerParts = chunk.metadata.answer.split("\n");
 
     return (
         <BaseCard
-            groupedInDocument={groupedInDocument}
+
             chunk={chunk}
             title={chunk.title}
             linkProps={{
@@ -325,9 +368,9 @@ export const RenderWebsiteQAChunk: React.FC<{ groupedInDocument?: boolean, chunk
     );
 };
 
-export const RenderWebsiteExperienceChunk: React.FC<{ groupedInDocument?: boolean, chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ groupedInDocument, chunk, searchWords }) => (
+export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ chunk, searchWords }) => (
     <BaseCard
-        groupedInDocument={groupedInDocument}
+
         chunk={chunk}
         title={chunk.title}
         linkProps={{
@@ -352,12 +395,12 @@ export const RenderWebsiteExperienceChunk: React.FC<{ groupedInDocument?: boolea
     </BaseCard>
 );
 
-export const ChunkRenderer: React.FC<ChunkRendererProps> = ({ groupedInDocument, chunk, searchWords }) => {
-    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard groupedInDocument={groupedInDocument} chunk={chunk} />;
-    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
-    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk groupedInDocument={groupedInDocument} chunk={chunk} searchWords={searchWords} />;
+export const ChunkRenderer: React.FC<ChunkRendererProps> = ({ chunk, searchWords }) => {
+    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard chunk={chunk} />;
+    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard chunk={chunk} searchWords={searchWords} />;
+    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk chunk={chunk} searchWords={searchWords} />;
     return null;
 };
 

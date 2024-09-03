@@ -6,8 +6,8 @@ import { QueryRequest } from '@/lib/api-client';
 
 export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
   const startTime = performance.now();
-
-
+  
+  
   // // First, get all column names except the vector column
   // const columnsQuery = await prisma.$queryRaw<[{ columns: string }]>`
   //   SELECT string_agg(column_name, ', ') as columns
@@ -15,17 +15,18 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
   //   WHERE table_name = 'DocumentChunk'
   //     AND column_name != 'textEmbedding'
   // `;
-
+  
   // const columns = columnsQuery[0].columns.split(', ')
   //   // .filter(c => c.toLocaleLowerCase() != "documentid")
   //   .filter(c => c != "id")
   //   .map(c => `"${c}"`)
   //   .join(", ");
   // console.log("COLUMNS==========", columns)
-
+  
   // Now use these columns in the main query
   // ${Prisma.raw(columns)}, // NOTE:, to make dynamic, could replace |"documentId", "text", "title", "mediaType",| with this
-  const data = await prisma.$queryRaw`
+
+const data = await prisma.$queryRaw`
   SELECT
     "DocumentChunk"."text",
     "DocumentChunk"."title",
