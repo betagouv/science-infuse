@@ -87,6 +87,13 @@ export interface ChunkWithScore<T extends MediaType> extends BaseDocumentChunk<T
   score: number;
 }
 
+// video_transcript chunks grouped by document
+export interface GroupedVideo {
+  documentId: string;
+  items: ChunkWithScore<"video_transcript">[];
+  maxScore: number;
+}[]
+
 export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_image"> & { mediaType: "pdf_image" })
   | (ChunkWithScore<"raw_image"> & { mediaType: "raw_image" })

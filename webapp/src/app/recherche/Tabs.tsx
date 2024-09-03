@@ -5,7 +5,7 @@ import { signal } from "@preact/signals-react";
 import { useState } from "react";
 
 // Define an enum for tab types
-enum TabType {
+export enum TabType {
     Chapters = "chapters",
     Documents = "documents",
     Pictures = "pictures",
