@@ -1,9 +1,7 @@
-import { Suspense } from 'react'
-import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display"
 import Header from "@codegouvfr/react-dsfr/Header"
 import { Navigation } from "./Navigation"
 import { Session } from 'next-auth'
-import { styled } from '@mui/material'
+import ConnectedHeader from "./ConnectedHeader";
 
 interface ClientHeaderProps {
   session: Session | null;
@@ -20,6 +18,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         imgUrl: '/images/science_infuse_logo.svg',
         orientation: 'horizontal'
       }}
+      quickAccessItems={[<ConnectedHeader />]}
       homeLinkProps={{
         "href": "/",
         "title": "Accueil - Science Infuse"

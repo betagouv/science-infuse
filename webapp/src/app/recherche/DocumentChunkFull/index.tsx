@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { Card } from "@codegouvfr/react-dsfr/Card";
 import { ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
@@ -322,6 +323,18 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
     )
 };
 
+
+function getDomain(input:string) {
+    try {
+      const url = new URL(input);
+      return url.hostname;
+    } catch (error) {
+      const match = input.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+      return match ? match[1] : null;
+    }
+  }
+  
+
 export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);
     const answerParts = chunk.metadata.answer.split("\n");
@@ -352,15 +365,50 @@ export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa"
                 </Button>
                 <Collapse in={expanded}>
                     {answerParts.map((answer, index) => (
-                        <div key={index} className={answer.startsWith('```') && answer.endsWith('```') ? "bg-gray-50 p-4 text-left" : "text-left px-4"}>
-                            <Highlighter
-                                highlightClassName="highlightSearch"
-                                searchWords={searchWords}
-                                autoEscape={false}
-                                textToHighlight={answer.startsWith('```') ? answer.slice(3, -3) : answer}
-                                findChunks={findNormalizedChunks}
-                            />
+                        <div key={index} className={"text-left px-4 my-4"}>
+                            {answer.startsWith('```') && answer.endsWith('```') ?
+                                (
+                                    <Quote
+                                        className="overflow-hidden"
+                                        // author="Auteur"
+                                        source={answerParts[index + 1].startsWith('http') ? <a className="w-fit text-ellipsis" href={answerParts[index + 1]} target="_blank">{getDomain(answerParts[index + 1])}</a> : undefined}
+                                        size="medium"
+                                        text={
+                                            <Highlighter
+                                                highlightClassName="highlightSearch"
+                                                searchWords={searchWords}
+                                                autoEscape={false}
+                                                textToHighlight={answer.startsWith('```') ? answer.slice(3, -3) : answer}
+                                                findChunks={findNormalizedChunks}
+                                            />
+
+                                        }
+                                    />
+                                )
+                                :
+                                (
+                                    (index > 1 && answerParts[index].startsWith('http') && answerParts[index - 1].startsWith('```')) ?
+                                        <></>
+                                        :
+                                        <Highlighter
+                                            highlightClassName="highlightSearch"
+                                            searchWords={searchWords}
+                                            autoEscape={false}
+                                            textToHighlight={answer.startsWith('```') ? answer.slice(3, -3) : answer}
+                                            findChunks={findNormalizedChunks}
+                                        />
+                                )
+                            }
                         </div>
+                        // <div key={index} className={answer.startsWith('```') && answer.endsWith('```') ? "bg-gray-300 rounded-xl my-4 p-4 text-left" : "text-left px-4"}>
+                        //     <Highlighter
+                        //         highlightClassName="highlightSearch"
+                        //         searchWords={searchWords}
+                        //         autoEscape={false}
+                        //         textToHighlight={answer.startsWith('```') ? answer.slice(3, -3) : answer}
+                        //         findChunks={findNormalizedChunks}
+                        //     />
+                        // </div>
                     ))}
                 </Collapse>
             </div>

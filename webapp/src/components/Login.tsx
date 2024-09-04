@@ -25,7 +25,7 @@ export default () => {
         if (result?.error) {
             showSnackbar('Échec de connexion. Veuillez vérifier vos identifiants.', 'error')
         } else {
-            router.push("/prof") // Redirect to home page or dashboard
+            router.push("/") // Redirect to home page or dashboard
         }
     }
 

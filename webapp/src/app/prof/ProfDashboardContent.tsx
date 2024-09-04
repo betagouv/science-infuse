@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { Block, User } from '@prisma/client';
 import { ChapterWithBlock } from '@/lib/api-client';
 import ChaptersTable from './components/Table';
-import { signOut } from 'next-auth/react';
 import Button from '@codegouvfr/react-dsfr/Button';
 
 interface ProfDashboardContentProps {
@@ -73,9 +72,6 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
     <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
       <div className='flex flex-col fr-col-12 fr-col-md-10 main-content-item my-24 gap-8'>
         <div className="flex gap-4">
-        <Button priority='secondary' onClick={() => signOut()} >
-          Me déconnecter
-        </Button>
         <Button priority='secondary' onClick={handleCreateChapter}>
           Nouveau chapitre
         </Button>
