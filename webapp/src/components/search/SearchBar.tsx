@@ -17,7 +17,7 @@ box-shadow: inset 0 -2px 0 0 var(--border-action-high-blue-france);
 }
 `
 
-export default () => {
+export default (props: { autoFocus?: boolean }) => {
     const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -51,6 +51,7 @@ export default () => {
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (
                 <input
+                    autoFocus={props?.autoFocus || false}
                     ref={setInputElement}
                     className={className}
                     id={id}

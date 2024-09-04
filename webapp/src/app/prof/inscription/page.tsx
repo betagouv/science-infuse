@@ -19,35 +19,36 @@ export default function Inscription() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError("")
-    
+
         try {
-          const response = await fetch("/api/auth/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, firstName, lastName }),
-          })
-    
-          if (response.ok) {
-            router.push("/prof/connexion") // Redirect to sign-in page after successful registration
-          } else {
-            const data = await response.json()
-            setError(data.error || "Registration failed")
-          }
+            const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, firstName, lastName }),
+            })
+
+            if (response.ok) {
+                router.push("/prof/connexion") // Redirect to sign-in page after successful registration
+            } else {
+                const data = await response.json()
+                setError(data.error || "Registration failed")
+            }
         } catch (error) {
-          setError("An error occurred during registration")
+            setError("An error occurred during registration")
         }
-      }
+    }
 
     return (
-        <div>
-            <Breadcrumb 
-                segments={[]}
-                homeLinkProps={{
-                    href: '/'
-                }} 
-                currentPageLabel={"Inscription"}
-            />
-            <div className="md:p-16 p-8 w-full md:max-w-[700px] mx-auto bg-[--background-default-grey-hover]">
+        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+            <div className="fr-col-12 fr-col-md-6 main-content-item my-24">
+
+                <Breadcrumb
+                    segments={[]}
+                    homeLinkProps={{
+                        href: '/'
+                    }}
+                    currentPageLabel={"Inscription"}
+                />
                 <div className='flex flex-col gap-4'>
                     <h1>Inscription à Science Infuse</h1>
 

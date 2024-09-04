@@ -50,7 +50,7 @@ export function Navigation() {
 					},
 					{
 						linkProps: {
-							href: '#',
+							href: '/prof/mes-cours',
 							target: '_self'
 						},
 						text: 'Création de cours'
