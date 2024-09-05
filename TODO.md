@@ -3,11 +3,16 @@
 - [ ] make a readme explaining: 
     - [ ] how to setup the project
     - [ ] how to export and import data to weaviate
+
+
+
+- [ ] faire en bdd le champ status du cours (par defaut c'est draft)
 - [ ] pour le pdf image ... possibilite d'ajouter la source (obligatoire)
+<!-- - [ ] Bien mettre les sources partout -->
 - [ ] pour les chapitres: les faire recherchable: v1) sur titre v2) vectorielle
-
-
-statistiques integration https://plausible.io/
+- [ ] Integration matomo
+- [ ] Revue decouverte -> pas telechargable
+- [ ] http://localhost:3000/prof/parametres -> ajouter nom etablissmeent
 
 
 

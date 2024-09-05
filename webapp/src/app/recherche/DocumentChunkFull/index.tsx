@@ -257,83 +257,57 @@ export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; s
     )
 }
 export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => {
-    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse()
     let originalPath = chunk.document.originalPath;
+    const url = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`
     if (originalPath.includes("youtube")) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
     }
     return (
-        <BaseCard
-            chunk={chunk}
-            title={chunk.title}
-            linkProps={{
-                href: originalPath,
-                target: "_blank",
-            }}
-        >
-            <div>
-                <VideoPlayer
-                    videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
-                    startOffset={chunk.metadata.start}
-                    endOffset={chunk.metadata.end}
+        <StyledGroupedVideoCard
+            end={<BuildCardEnd
+                chunk={chunk}
+                end={
+                    <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{chunk.title}</a>
+                        {/* <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p> */}
+                    </div>
+                }
+                starred={chunk.user_starred}
+                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+            />}
+            desc={
+                <VideoPlayerHotSpots
+                    videoUrl={url}
+                    selectedChunk={chunk}
+                    onChunkSelected={() => {}}
+                    chunks={[chunk]}
                 />
-                <div className="mt-4 flex gap-4">
-                    {chunk.text.length < 200 ? <Highlighter
-                        highlightClassName="highlightSearch"
-                        searchWords={searchWords}
-                        autoEscape={false}
-                        textToHighlight={chunk.text.slice(0, 100)}
-                        findChunks={findNormalizedChunks}
-                    />
-                        : <>
-                            <div className="absolute text-left">
-                                <Highlighter
-                                    highlightClassName="highlightSearch"
-                                    searchWords={searchWords}
-                                    autoEscape={false}
-                                    textToHighlight={`${chunk.text.slice(0, 100)}...`}
-                                    findChunks={findNormalizedChunks}
-                                />
-                            </div>
-                            <div
-                                className="text-left"
-                                {...getCollapseProps({ style: { margin: 0 } })}
-                            >
-                                <Highlighter
-                                    highlightClassName="highlightSearch"
-                                    searchWords={searchWords}
-                                    autoEscape={false}
-                                    textToHighlight={chunk.text}
-                                    findChunks={findNormalizedChunks}
-                                />
-                            </div>
-                        </>
-                    }
+            }
+            size="medium"
+            title=""
+        />
 
-                </div>
-                <Button
-                    priority="secondary"
-                    {...getToggleProps({ style: { display: 'block', marginTop: isExpanded ? '1rem' : '5rem' } })}
-                >
-                    {isExpanded ? 'Cliquer pour réduire' : 'Lire la suite ?'}
-                </Button>
-
-            </div>
-        </BaseCard >
+        // <VideoPlayerHotSpots
+        //     // <VideoPlayer
+        //     selectedChunk={chunk}
+        //     onChunkSelected={() => {}}
+        //     videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+        //     chunks={[chunk]}
+        // />
     )
 };
 
 
-function getDomain(input:string) {
+function getDomain(input: string) {
     try {
-      const url = new URL(input);
-      return url.hostname;
+        const url = new URL(input);
+        return url.hostname;
     } catch (error) {
-      const match = input.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
-      return match ? match[1] : null;
+        const match = input.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+        return match ? match[1] : null;
     }
-  }
-  
+}
+
 
 export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);

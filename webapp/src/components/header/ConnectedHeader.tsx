@@ -26,6 +26,7 @@ const Arrow = (props: { active: boolean }) => (
     </svg>)
 
 const StyledButton = styled(Button)`
+color: black !important;
 &.fr-btn.si-custom {
     padding: 0.5rem 1rem !important;
     margin: 0 !important;
@@ -93,7 +94,7 @@ export default () => {
                         {[
                             { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                             { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
-                            { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/mon-compte" }
+                            { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" }
                         ].map((item, index) => (
                             <button
                                 onClick={() => {
