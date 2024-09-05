@@ -2,13 +2,10 @@
 
 import { Accordion } from "@codegouvfr/react-dsfr/Accordion";
 import { apiClient } from '@/lib/api-client';
-import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { StarredDocumentChunk } from '@prisma/client';
 import ChunkRenderer from '@/app/recherche/DocumentChunkFull';
 import { getSearchWords } from '@/app/recherche/text-highlighter';
 import Masonry from '@mui/lab/Masonry';
-import { ColumnsMediaTypeMap } from '@/app/recherche/Tabs';
 import { MasonaryItem } from '@/app/recherche/page';
 import styled from "@emotion/styled";
 import { CircularProgress } from "@mui/material";
@@ -42,7 +39,7 @@ export default function StarredDocumentChunks() {
                         Object.entries(starredDocumentChunks || {}).map(([keyword, chunks]) => (
                             <div key={keyword} className="mb-6">
                                 <StyledAccordion
-                                    defaultExpanded={true}
+                                    defaultExpanded={false}
                                     label={<span className="text-2xl font-bold text-left text-black">Mot clé “{keyword}” : {chunks.length} élément{chunks.length > 1 ? 's' : ''}</span>}
                                 >
 

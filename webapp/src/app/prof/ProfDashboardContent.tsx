@@ -4,10 +4,11 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
 
-import { Block, User } from '@prisma/client';
+import { Block } from '@prisma/client';
 import { ChapterWithBlock } from '@/lib/api-client';
 import ChaptersTable from './components/Table';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { User } from 'next-auth';
 
 interface ProfDashboardContentProps {
   initialChapters: ChapterWithBlock[];
