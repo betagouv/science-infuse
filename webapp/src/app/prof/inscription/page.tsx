@@ -28,7 +28,7 @@ export default function Inscription() {
             })
 
             if (response.ok) {
-                router.push("/prof/connexion") // Redirect to sign-in page after successful registration
+                router.push("/") // Redirect to sign-in page after successful registration
             } else {
                 const data = await response.json()
                 setError(data.error || "Registration failed")
@@ -106,7 +106,7 @@ export default function Inscription() {
                         />
                         <Button type="submit">S'inscrire</Button>
                     </form>
-                    <p>Vous avez déjà un compte ? <a href="/prof/connexion">Se connecter</a></p>
+                    <p>Vous avez déjà un compte ? <a href="/">Se connecter</a></p>
                 </div>
             </div>
         </div>

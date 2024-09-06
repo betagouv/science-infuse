@@ -11,7 +11,7 @@ datasource db {
 
 // INDEXED DOCUMENTS / VECTOR DB;  pgvector/pgvector-setup.ts will create the index (since not supported by prisma yet) `npm run db:init-pgvector`
 model Document {
-  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id             String          @id @default(cuid()) @db.Uuid
   s3ObjectName   String
   originalPath   String
   publicPath     String?
@@ -20,7 +20,7 @@ model Document {
 }
 
 model DocumentChunk {
-  id                   String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                   String                      @id @default(cuid()) @db.Uuid
   text                 String
   textEmbedding        Unsupported("vector(768)")?
   title                String
@@ -32,7 +32,7 @@ model DocumentChunk {
 }
 
 model DocumentChunkMeta {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id              String        @id @default(cuid()) @db.Uuid
   start           Float?
   end             Float?
   s3ObjectName    String?
@@ -85,8 +85,16 @@ model Comment {
 }
 
 // COURSE >>>
+
+enum ChapterStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+}
+
 model Chapter {
   id              String           @id @default(cuid())
+  status          ChapterStatus    @default(DRAFT)
   title           String
   themeId         String?
   theme           Theme?           @relation(fields: [themeId], references: [id])
