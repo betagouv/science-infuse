@@ -10,11 +10,12 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
             createdAt: 'desc',
         },
         include: {
+            commentThread: true,
             blocks: {
                 include: {
                     keyIdeas: true,
                     activities: true,
-                    tags: true
+                    tags: true,
                 }
             },
             skills: true,

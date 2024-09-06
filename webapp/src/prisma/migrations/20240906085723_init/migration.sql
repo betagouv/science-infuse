@@ -1,9 +1,12 @@
 -- CreateExtension
 CREATE EXTENSION IF NOT EXISTS "vector";
 
+-- CreateEnum
+CREATE TYPE "ChapterStatus" AS ENUM ('DRAFT', 'REVIEW', 'PUBLISHED');
+
 -- CreateTable
 CREATE TABLE "Document" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" UUID NOT NULL,
     "s3ObjectName" TEXT NOT NULL,
     "originalPath" TEXT NOT NULL,
     "publicPath" TEXT,
@@ -14,7 +17,7 @@ CREATE TABLE "Document" (
 
 -- CreateTable
 CREATE TABLE "DocumentChunk" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" UUID NOT NULL,
     "text" TEXT NOT NULL,
     "textEmbedding" vector(768),
     "title" TEXT NOT NULL,
@@ -26,7 +29,7 @@ CREATE TABLE "DocumentChunk" (
 
 -- CreateTable
 CREATE TABLE "DocumentChunkMeta" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" UUID NOT NULL,
     "start" DOUBLE PRECISION,
     "end" DOUBLE PRECISION,
     "s3ObjectName" TEXT,
@@ -80,6 +83,7 @@ CREATE TABLE "Comment" (
 -- CreateTable
 CREATE TABLE "Chapter" (
     "id" TEXT NOT NULL,
+    "status" "ChapterStatus" NOT NULL DEFAULT 'DRAFT',
     "title" TEXT NOT NULL,
     "themeId" TEXT,
     "content" JSONB NOT NULL,

@@ -18,6 +18,9 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { ChapterWithBlock, FullBlock } from '@/lib/api-client';
+import Badge from '@codegouvfr/react-dsfr/Badge';
+import { ChapterStatus } from '@prisma/client';
+import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
 
 
 const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
@@ -64,9 +67,20 @@ const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
 
 }
 
+const statusToSeverity = {
+  [ChapterStatus.DRAFT]: undefined,
+  [ChapterStatus.REVIEW]: "info",
+  [ChapterStatus.PUBLISHED]: "success",
+}
+
+const statusToText = {
+  [ChapterStatus.DRAFT]: "Brouillon",
+  [ChapterStatus.REVIEW]: "En cours de revue",
+  [ChapterStatus.PUBLISHED]: "Publié",
+}
+
 const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
   const [open, setOpen] = useState(false);
-
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -90,6 +104,11 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
               <Chip key={index} label={skill.title} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
             ))}
           </div>
+        </TableCell>
+        <TableCell className=''>
+          <Badge severity={statusToSeverity[chapter.status] as AlertProps.Severity}>
+            {statusToText[chapter.status]}
+          </Badge>
         </TableCell>
         <TableCell className='flex flex-wrap'>
           <div className="flex gap-1">
@@ -120,6 +139,7 @@ const ChaptersTable = ({ chapters }: { chapters: ChapterWithBlock[] }) => {
             <TableCell />
             <TableCell>Titre</TableCell>
             <TableCell>Compétences</TableCell>
+            <TableCell>Status</TableCell>
             <TableCell>Niveaux d'éducation</TableCell>
             <TableCell>Dernière mise à jour</TableCell>
           </TableRow>
