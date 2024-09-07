@@ -26,6 +26,7 @@ declare module '@tiptap/core' {
       setPdfBlock: (attributes: { src: string }) => ReturnType
       setPdfBlockAt: (attributes: { src: string; pos: number | Range }) => ReturnType
       setPdfBlockShared: (shared: boolean) => ReturnType
+      setFileShared: (shared: boolean) => ReturnType
       setPdfFromFile: (file: File,) => ReturnType
     }
 
@@ -89,6 +90,13 @@ const PdfBlock = Node.create<PdfBlockOptions>({
         parseHTML: element => element.getAttribute('data-s3ObjectName'),
         renderHTML: attributes => ({
           'data-s3ObjectName': attributes.s3ObjectName,
+        }),
+      },
+      fileSource: {
+        default: '',
+        parseHTML: element => element.getAttribute('data-fileSource'),
+        renderHTML: attributes => ({
+          'data-fileSource': attributes.fileSource,
         }),
       },
       fileTypes: {

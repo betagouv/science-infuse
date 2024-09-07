@@ -15,6 +15,7 @@ import PdfBlock from '../PdfBlock/PdfBlock';
 import getRenderContainer from '@/lib/utils/getRenderContainer';
 import FileTypePicker from './FileTypePicker';
 import VideoSearch from '../VideoSearch';
+import Input from '@codegouvfr/react-dsfr/Input';
 
 const ImageOptions = (props: { editor: Editor }) => {
   const { editor } = props;
@@ -120,6 +121,71 @@ const DeleteOption = (props: { editor: Editor }) => {
   );
 };
 
+const FileSourceOption = (props: { editor: Editor; onSubmit: (source: string) => void }) => {
+  const { editor } = props;
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
+  const originalSource = selectedNodeAttrs?.fileSource || "";
+  const fileSource = selectedNodeAttrs?.fileSource;
+
+
+  const [source, setSource] = useState(originalSource)
+
+  const handleOpenConfirmDialog = () => {
+    setOpenConfirmDialog(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+  };
+
+  const handleConfirmSource = () => {
+    props.onSubmit(source);
+    handleCloseConfirmDialog();
+  };
+
+  return (
+    <>
+      <Toolbar.Button
+        tooltip="Sources"
+        active={false}
+        onClick={handleOpenConfirmDialog}
+      >
+        <Icon className={fileSource ? '' : 'text-red-600'} name="Quote" />
+      </Toolbar.Button>
+      <Dialog
+        open={openConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Source du document
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Veuillez indiquer les sources du document.
+            <Input
+              nativeTextAreaProps={{
+                value: source,
+                onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setSource(e.target.value),
+                required: true,
+                placeholder: "Sources",
+              }}
+              label="Sources"
+              textArea
+            />
+          </DialogContentText>
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog}>Annuler</Button>
+          <Button onClick={handleConfirmSource} autoFocus>Confirmer</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
 export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const menuRef = useRef<HTMLDivElement>(null)
   const tippyInstance = useRef<Instance | null>(null)
@@ -132,14 +198,6 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const shared = selectedNodeAttrs?.shared;
   const nodeName = editor?.state?.selection?.node?.type?.name;
 
-
-  // useEffect(() => {
-  //   (async () => {
-  //     if (s3ObjectName) {
-  //       const isShared = await apiClient.isFileShared(s3ObjectName)
-  //     }
-  //   })()
-  // }, [s3ObjectName])
 
   const getReferenceClientRect = useCallback(() => {
     const renderContainer = getRenderContainer(editor, 'node-imageBlock')
@@ -171,9 +229,18 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           sticky: 'popper',
         }}
       >
-        <Toolbar.Wrapper shouldShowContent={[ImageBlock.name, VideoSearch.name].includes(nodeName)} ref={menuRef}>
+        <Toolbar.Wrapper shouldShowContent={[ImageBlock.name, VideoSearch.name, PdfBlock.name].includes(nodeName)} ref={menuRef}>
+
+
+
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
-          {/* {nodeName == PdfBlock.name && } */}
+
+          {!!s3ObjectName && <FileSourceOption onSubmit={(newSource: string) => {
+            editor.chain().focus(undefined, { scrollIntoView: false }).setFileSource(newSource).run()
+          }} editor={editor} />
+          }
+
+
           {!!s3ObjectName && <AllowShare
             value={shared}
             onChange={async function (isAllowed: boolean): Promise<void> {
@@ -181,14 +248,20 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
             }}
           />}
 
+
+
           {!!s3ObjectName && <FileTypePicker
             onChange={function (type: string): void {
               editor.chain().focus(undefined, { scrollIntoView: false }).setFileTypes([type]).run()
             }}
             value={fileTypes.length > 0 ? fileTypes[0] : undefined}
           />}
-          {!!s3ObjectName && <DeleteOption editor={editor} />
-          }
+
+
+          <Toolbar.Divider />
+
+          <DeleteOption editor={editor} />
+
         </Toolbar.Wrapper>
       </BaseBubbleMenu>
     </>
