@@ -11,7 +11,7 @@
 <!-- - [ ] Bien mettre les sources partout -->
 - [ ] pour les chapitres: les faire recherchable: v1) sur titre v2) vectorielle
 - [ ] Integration matomo
-- [ ] Revue decouverte -> pas telechargable
+- [x] Revue decouverte -> pas telechargable
 - [ ] http://localhost:3000/prof/parametres -> ajouter nom etablissmeent
 
 
