@@ -103,8 +103,11 @@ async def get_s3_url_from_uuid(document_uuid: str):
 @app.get("/s3/{s3_object_name:path}")
 async def s3_redirect(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
     print(f"Redirecting to: {s3_url}")
-    return RedirectResponse(s3_url, status_code=307)
-
+    response = RedirectResponse(s3_url, status_code=307)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 @app.get("/s3_url_pdf/{document_uuid:path}")
 async def get_s3_url(document_uuid: str, s3_url: str = Depends(get_s3_url_from_uuid)):

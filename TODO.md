@@ -6,8 +6,8 @@
 
 
 
-- [ ] faire en bdd le champ status du cours (par defaut c'est draft)
-- [ ] pour le pdf image ... possibilite d'ajouter la source (obligatoire)
+- [x] faire en bdd le champ status du cours (par defaut c'est draft)
+- [x] pour le pdf image ... possibilite d'ajouter la source (obligatoire)
 <!-- - [ ] Bien mettre les sources partout -->
 - [ ] pour les chapitres: les faire recherchable: v1) sur titre v2) vectorielle
 - [ ] Integration matomo

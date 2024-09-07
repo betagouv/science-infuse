@@ -20,6 +20,7 @@ declare module '@tiptap/core' {
       setImageBlockAlign: (align: 'left' | 'center' | 'right') => ReturnType
       setImageBlockWidth: (width: number) => ReturnType
       setFileShared: (shared: boolean) => ReturnType
+      setFileSource: (source: string) => ReturnType
       setFileTypes: (fileTypes: string[]) => ReturnType
       setImageFromFile: (file: File,) => ReturnType
     }
@@ -84,6 +85,13 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
         parseHTML: element => element.getAttribute('data-s3ObjectName'),
         renderHTML: attributes => ({
           'data-s3ObjectName': attributes.s3ObjectName,
+        }),
+      },
+      fileSource: {
+        default: '',
+        parseHTML: element => element.getAttribute('data-fileSource'),
+        renderHTML: attributes => ({
+          'data-fileSource': attributes.fileSource,
         }),
       },
       id: {
@@ -231,6 +239,26 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
           ({ commands }) =>
             commands.updateAttributes(this.name, { width: `${Math.max(0, Math.min(100, width))}%` }),
 
+      setFileSource:
+        source =>
+          ({ commands, editor, view }) => {
+            const selection = editor?.state?.selection;
+            const selectedNodeType = selection instanceof NodeSelection ? selection.node.type.name : undefined;
+            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
+              this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+              return true;
+            }
+            console.log("selectedNodeType", selectedNodeType)
+            commands.updateAttributes(selectedNodeType, { fileSource: source })
+            const s3ObjectName = editor.getAttributes(selectedNodeType).s3ObjectName
+            console.log("s3ObjectNames3ObjectNames3ObjectNames3ObjectName", s3ObjectName)
+            // apiClient.shareFile(s3ObjectName, shared).then(() => {
+            //   this.options.showSnackbar("Statut de partage mis à jour avec succès", "success");
+            // }).catch(() => {
+            //   this.options.showSnackbar("Échec de la mise à jour du statut de partage", "error");
+            // })
+            return true
+          },
       setFileShared:
         shared =>
           ({ commands, editor, view }) => {
