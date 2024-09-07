@@ -169,25 +169,74 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
     const path = chunk.title.toLowerCase().split('>');
 
     return (
-        <BaseCard
 
-            chunk={chunk}
-            title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
+        <Card
+            background
+            border
+            className="text-left"
+
+            end={
+                // <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
+                <BuildCardEnd
+                    chunk={chunk}
+                    end={
+                        <div className="flex">
+                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
+                        </div>
+                    }
+                    starred={!!chunk?.user_starred}
+                    downloadLink={chunk.document.originalPath.includes('RevueDecouverte') ? undefined : `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+                />
+            }
+            desc={
+                < div className="relative" >
+                    <Highlighter
+                        highlightClassName="highlightSearch"
+                        searchWords={searchWords}
+                        autoEscape={false}
+                        textToHighlight={chunk.text}
+                        findChunks={findNormalizedChunks}
+                    />
+                </div >
+            }
             linkProps={{
                 href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
                 target: "_blank",
             }}
-            end={<BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />}
-        >
+            size="medium"
+            title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
+            titleAs="h3"
+        />
+        // <BaseCard
+        //     chunk={chunk}
+        //     title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
+        //     linkProps={{
+        //         href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
+        //         target: "_blank",
+        //     }}
+        //     end={
+        //         // <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
+        //         <BuildCardEnd
+        //             chunk={chunk}
+        //             end={
+        //                 <div className="flex">
+        //                     <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
+        //                 </div>
+        //             }
+        //             starred={!!chunk?.user_starred}
+        //             downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+        //         />
+        //     }
+        // >
 
-            <Highlighter
-                highlightClassName="highlightSearch"
-                searchWords={searchWords}
-                autoEscape={false}
-                textToHighlight={chunk.text}
-                findChunks={findNormalizedChunks}
-            />
-        </BaseCard>
+        //     <Highlighter
+        //         highlightClassName="highlightSearch"
+        //         searchWords={searchWords}
+        //         autoEscape={false}
+        //         textToHighlight={chunk.text}
+        //         findChunks={findNormalizedChunks}
+        //     />
+        // </BaseCard>
     )
 };
 
@@ -279,7 +328,7 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
                 <VideoPlayerHotSpots
                     videoUrl={url}
                     selectedChunk={chunk}
-                    onChunkSelected={() => {}}
+                    onChunkSelected={() => { }}
                     chunks={[chunk]}
                 />
             }
