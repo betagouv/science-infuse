@@ -15,6 +15,7 @@ import Snackbar from './components/Snackbar';
 import { EducationLevel, Skill } from '@prisma/client';
 import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
 import CommentView from './extensions/BubbleMenu/CommentView';
+import Button from '@codegouvfr/react-dsfr/Button';
 
 const StyledEditor = styled.div`
 `
@@ -102,6 +103,28 @@ export const TiptapEditor = (props: { editor: Editor }) => {
       id="editor"
       className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}
     >
+
+      <Button onClick={() => {
+        fetch('/api/export/pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ html: editor.getHTML() }),
+        })
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'exported_document.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => console.error('Error:', error));
+      }}>EXPORT</Button>
 
       <SkillsPicker
         selectedSkills={editor.storage.simetadata.skills}

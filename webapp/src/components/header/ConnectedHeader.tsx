@@ -18,7 +18,7 @@ const Arrow = (props: { active: boolean }) => (
         style={{ transform: props.active ? 'none' : 'rotate(180deg)' }}
     >
         <path
-            fill-rule="evenodd"
+            fillRule="evenodd"
             clip-rule="evenodd"
             d="M4.99999 2.21883L1.69999 5.51883L0.757324 4.57616L4.99999 0.333496L9.24266 4.57616L8.29999 5.51883L4.99999 2.21883Z"
             fill="black"
