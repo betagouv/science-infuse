@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import ChunkRenderer from '@/app/recherche/DocumentChunkFull';
 import { getSearchWords } from '@/app/recherche/text-highlighter';
 import Masonry from '@mui/lab/Masonry';
-import { MasonaryItem } from '@/app/recherche/page';
 import styled from "@emotion/styled";
 import { CircularProgress } from "@mui/material";
+import { MasonaryItem } from "@/components/MasonaryItem";
 
 
 const StyledAccordion = styled(Accordion)`

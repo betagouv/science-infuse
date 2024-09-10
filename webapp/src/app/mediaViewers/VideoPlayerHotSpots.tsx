@@ -91,7 +91,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                         const selected = chunkId == selectedChunk?.id;
                         const starred = !!chunk.user_starred;
                         return (
-                            <Tooltip title={`${text}`}>
+                            <Tooltip key={chunk.id} title={`${text}`}>
                                 <div
                                     key={index}
                                     className={`absolute top-[2.5px] w-2 h-2 rounded-full transform -translate-y-1/2 cursor-pointer`}
