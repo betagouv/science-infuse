@@ -185,7 +185,7 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
                         </div>
                     }
                     starred={!!chunk?.user_starred}
-                    downloadLink={chunk.document.originalPath.includes('RevueDecouverte') ? undefined : `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+                    downloadLink={chunk.document.originalPath.includes('RevueDecouverte') ? undefined : `/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
                 />
             }
             desc={
@@ -224,7 +224,7 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
         //                 </div>
         //             }
         //             starred={!!chunk?.user_starred}
-        //             downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+        //             downloadLink={`/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
         //         />
         //     }
         // >
@@ -251,7 +251,7 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
             background
             border
             imageAlt={chunk.text}
-            imageUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
+            imageUrl={`/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
             end={<BuildCardEnd
                 chunk={chunk}
                 end={
@@ -260,7 +260,7 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
                     </div>
                 }
                 starred={!!chunk?.user_starred}
-                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.metadata.s3ObjectName}`}
+                downloadLink={`/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
             />}
             size="medium"
             title=""
@@ -272,7 +272,7 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
 
 export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; searchWords: string[] }> = ({ video, searchWords }) => {
     const firstChunk = video.items[0];
-    const url = `${NEXT_PUBLIC_SERVER_URL}/s3/${firstChunk.document.s3ObjectName}`
+    const url = `/api/s3/presigned_url/object_name/${firstChunk.document.s3ObjectName}`
     let originalPath = firstChunk.document.originalPath;
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(undefined)
     if (originalPath.includes("youtube") && selectedChunk) {
@@ -290,7 +290,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; s
                     </div>
                 }
                 starred={selectedChunk ? selectedChunk.user_starred : undefined}
-                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${firstChunk.document.s3ObjectName}`}
+                downloadLink={`/api/s3/presigned_url/object_name/${firstChunk.document.s3ObjectName}`}
             />}
             desc={
                 <VideoPlayerHotSpots
@@ -307,7 +307,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; s
 }
 export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     let originalPath = chunk.document.originalPath;
-    const url = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`
+    const url = `/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`
     if (originalPath.includes("youtube")) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
     }
@@ -322,7 +322,7 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
                     </div>
                 }
                 starred={chunk.user_starred}
-                downloadLink={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+                downloadLink={`/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
             />}
             desc={
                 <VideoPlayerHotSpots
@@ -340,7 +340,7 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
         //     // <VideoPlayer
         //     selectedChunk={chunk}
         //     onChunkSelected={() => {}}
-        //     videoUrl={`${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`}
+        //     videoUrl={`/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
         //     chunks={[chunk]}
         // />
     )

@@ -79,19 +79,21 @@ async function getDocumentToc(documentUuid: string): Promise<TableOfContents> {
     return createTocStructure(toc);
 }
 
-export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url)
-    const documentUuid = searchParams.get('document_uuid')
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    const id = params.id;
 
-    if (!documentUuid) {
+    if (!id) {
         return new Response('Missing document_uuid parameter', { status: 400 })
     }
 
     try {
-        const toc = await getDocumentToc(documentUuid);
+        const toc = await getDocumentToc(id);
         return NextResponse.json(toc)
     } catch (error) {
-        console.error('Error getting EducationLevel:', error);
-        return NextResponse.json({ error: 'Error getting EducationLevel' }, { status: 404 });
+        console.error('Error building table of contents:', error);
+        return NextResponse.json({ error: 'Error building table of contents' }, { status: 404 });
     }
 }

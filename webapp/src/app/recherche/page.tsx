@@ -156,7 +156,6 @@ const GroupedVideoChunkResults: React.FC<{ groupedVideos: GroupedVideo[], search
       {groupedVideos
         .slice()
         .map((video, index) => {
-          const url = `${NEXT_PUBLIC_SERVER_URL}/s3/${video.items[0].document.s3ObjectName}`
           return (
             <MasonaryItem key={index}>
               <RenderGroupedVideoTranscriptCard video={video} searchWords={searchWords} />

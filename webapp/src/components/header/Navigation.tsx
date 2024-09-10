@@ -12,7 +12,6 @@ export function Navigation() {
 	const { data: session } = useSession();
 	const user = session?.user;
 	const pathname = usePathname();
-	console.log("pathname", pathname)
 
 	const segment = useSelectedLayoutSegment();
 	if (!user) return ""
