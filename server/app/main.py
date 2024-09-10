@@ -6,8 +6,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
 from S3Storage import S3Storage
 from SIWeaviateClient import SIWeaviateClient
-from models import create_weaviate_schema
-from router import document, search, user_approved, rerank, embedding
+from router import rerank, embedding
 import logging
 from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
@@ -64,14 +63,10 @@ async def options_route(request: Request):
 
 app.include_router(embedding.router, prefix="/embedding", tags=["embedding"])
 app.include_router(rerank.router, prefix="/rerank", tags=["rerank"])
-app.include_router(document.router, prefix="/document", tags=["document"])
-app.include_router(search.router, prefix="/search", tags=["search"])
-app.include_router(user_approved.router, prefix="/approve", tags=["approve"])
 
 
 @app.on_event("startup")
 async def startup_event():
-    create_weaviate_schema(remove=False)
     redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
     # redis = aioredis.from_url(os.environ.get("REDIS_URL", "redis://redis:6379"))
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")

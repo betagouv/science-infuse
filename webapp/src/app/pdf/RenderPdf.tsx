@@ -10,22 +10,14 @@ import { Document, Page } from 'react-pdf';
 import { pdfjs } from "react-pdf";
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { TableOfContents, TOCItem } from "@/lib/types";
+import { apiClient } from "@/lib/api-client";
 
 // there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
     import.meta.url
 ).toString();
-
-interface TOCItem {
-    text: string;
-    page: number;
-    items?: TOCItem[];
-}
-
-interface TableOfContents {
-    items: TOCItem[];
-}
 
 interface SideMenuItemProps {
     text: React.ReactNode;
@@ -57,17 +49,8 @@ const convertTOCToSideMenuItems = (tocItems: TOCItem[], activePage: number, setP
 
 const fetchTableOfContents: QueryFunction<TableOfContents, [string, string]> = async ({ queryKey }) => {
     const [_, documentUuid] = queryKey;
-    const response = await axios.post(
-        `${NEXT_PUBLIC_SERVER_URL}/document/toc`,
-        {},  // empty body
-        {
-            params: { document_uuid: documentUuid },  // query parameters
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-    return response.data;
+    const toc = await apiClient.getDocumentToc(documentUuid);
+    return toc;
 };
 
 const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number }) => {

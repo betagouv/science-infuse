@@ -2,6 +2,7 @@ import { ChunkWithScoreUnion } from '@/types/vectordb';
 import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, Skill, StarredDocumentChunk, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
+import { TableOfContents } from './types';
 
 export interface QueryRequest {
   query: string,
@@ -67,6 +68,12 @@ class ApiClient {
     });
   }
 
+  
+
+  async getDocumentToc(documentUuid: string): Promise<TableOfContents> {
+    const response = await this.axiosInstance.get<TableOfContents>(`/document/toc?document_uuid=${documentUuid}`);
+    return response.data;
+  }
 
   async getThread(threadId: string): Promise<FullCommentThread> {
     const response = await this.axiosInstance.get<FullCommentThread>(`/comments/thread/${threadId}`);
