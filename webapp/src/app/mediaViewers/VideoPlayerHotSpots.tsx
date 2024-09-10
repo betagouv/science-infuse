@@ -82,6 +82,10 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                     </div>
                 )}
                 {chunks
+                    .sort((a,b) => b.score - a.score)
+                    // at least 4
+                    // and the best 20%
+                    // .slice(0, Math.max(4, Math.min(Math.floor(chunks.length * 0.2), chunks.length)))
                     .map((chunk, index) => {
                         const chunkId = chunk.id;
                         const start = chunk.metadata.start;
@@ -93,7 +97,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                         return (
                             <Tooltip key={chunk.id} title={`${text}`}>
                                 <div
-                                    key={index}
+                                    key={chunkId}
                                     className={`absolute top-[2.5px] w-2 h-2 rounded-full transform -translate-y-1/2 cursor-pointer`}
                                     style={{
                                         left: `${(start / duration) * 100}%`,
