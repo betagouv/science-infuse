@@ -1,9 +1,7 @@
 from fastapi import APIRouter
 from typing import List
 
-from search.search_chunks import reranker
-from processing.text.SIReranker import TextWithScore
-from schemas import EmbeddingQuery, RerankTextQuery
+from schemas import EmbeddingQuery
 from transformers import AutoTokenizer, AutoModel
 import torch
 

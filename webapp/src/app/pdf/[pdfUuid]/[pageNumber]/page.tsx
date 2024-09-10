@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import RenderPdf from "../../RenderPdf";
+import { apiClient } from "@/lib/api-client";
 
 
 
@@ -17,9 +18,9 @@ export default function PdfPage({
 
 
     useEffect(() => {
-        axios.get(`${NEXT_PUBLIC_SERVER_URL}/s3_url_pdf/${pdfUuid}`)
+        apiClient.getDocumentS3PresignedUrl(pdfUuid)
             .then(response => {
-                setUrl(response.data)
+                setUrl(response)
             })
             .catch(error => {
                 console.error('Error fetching PDF URL:', error)

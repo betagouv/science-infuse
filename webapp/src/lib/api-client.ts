@@ -1,4 +1,4 @@
-import { ChunkWithScoreUnion } from '@/types/vectordb';
+import { ChunkSearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
 import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, Skill, StarredDocumentChunk, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
@@ -70,8 +70,18 @@ class ApiClient {
 
   
 
-  async getDocumentToc(documentUuid: string): Promise<TableOfContents> {
-    const response = await this.axiosInstance.get<TableOfContents>(`/document/toc?document_uuid=${documentUuid}`);
+  async search(queryData: QueryRequest): Promise<ChunkSearchResults> {
+    const response = await this.axiosInstance.post<ChunkSearchResults>(`/search`, queryData);
+    return response.data;
+  }
+
+  async getDocumentToc(id: string): Promise<TableOfContents> {
+    const response = await this.axiosInstance.get<TableOfContents>(`/document/${id}/toc`);
+    return response.data;
+  }
+
+  async getDocumentS3PresignedUrl(id: string): Promise<string> {
+    const response = await this.axiosInstance.get<string>(`/s3/presigned_url/document/${id}`);
     return response.data;
   }
 
@@ -143,7 +153,7 @@ class ApiClient {
       if (response.data && response.data.s3ObjectName) {
         return {
           s3ObjectName: response.data.s3ObjectName,
-          url: `${process.env.NEXT_PUBLIC_SERVER_URL}/s3/${response.data.s3ObjectName}`,
+          url: `/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
           id: response.data.id,
         }
       } else {

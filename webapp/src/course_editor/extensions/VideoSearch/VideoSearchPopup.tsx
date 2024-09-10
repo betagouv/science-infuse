@@ -46,7 +46,7 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
       <Masonry columns={2} spacing={2}>
         {results != undefined && (results as ChunkSearchResultsWithType<"video_transcript">).chunks.map((chunk, index) => {
           const duration = Math.floor(chunk.metadata.end - chunk.metadata.start);
-          const videoUrl = `${NEXT_PUBLIC_SERVER_URL}/s3/${chunk.document.s3ObjectName}`;
+          const videoUrl = `/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`;
           return (
             <div key={index} className="rounded-lg overflow-hidden shadow-lg bg-white">
               <div className="flex flex-col p-4">

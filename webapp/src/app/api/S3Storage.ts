@@ -104,4 +104,3 @@ class S3Storage {
     }
 }
 export default new S3Storage()
-// export default S3Storage;
