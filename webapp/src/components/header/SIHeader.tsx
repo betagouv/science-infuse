@@ -18,7 +18,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         imgUrl: '/images/science_infuse_logo.svg',
         orientation: 'horizontal'
       }}
-      quickAccessItems={[<ConnectedHeader />]}
+      quickAccessItems={[<ConnectedHeader key="connected-header" />]}
       homeLinkProps={{
         "href": "/",
         "title": "Accueil - Science Infuse"

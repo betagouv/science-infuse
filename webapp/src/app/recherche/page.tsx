@@ -17,14 +17,7 @@ import Tabs, { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap, TabType } 
 import { useEffect, useState } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import VideoPlayerHotSpots from "../mediaViewers/VideoPlayerHotSpots";
-
-export const MasonaryItem = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(0.5),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+import { MasonaryItem } from "@/components/MasonaryItem";
 
 const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) => {
   // Group by documentId

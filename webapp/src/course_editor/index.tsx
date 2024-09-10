@@ -1,21 +1,21 @@
 'use client';
 
-import { Editor, EditorContent, useEditor } from '@tiptap/react'
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react'
-import { EditorContext } from './context/EditorContext'
-import { TextMenu } from './extensions/BubbleMenu/TextMenu'
-import styled from '@emotion/styled'
-import { getExtensions } from './extensions';
-import "./editor.scss"
-import { EMPTY_DOCUMENT } from '@/config';
-import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
-import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
 import { useSnackbar } from '@/app/SnackBarProvider';
-import Snackbar from './components/Snackbar';
-import { EducationLevel, Skill } from '@prisma/client';
-import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
-import CommentView from './extensions/BubbleMenu/CommentView';
+import { EMPTY_DOCUMENT } from '@/config';
 import Button from '@codegouvfr/react-dsfr/Button';
+import styled from '@emotion/styled';
+import { EducationLevel, Skill } from '@prisma/client';
+import { Editor, EditorContent, useEditor } from '@tiptap/react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Snackbar from './components/Snackbar';
+import { EditorContext } from './context/EditorContext';
+import "./editor.scss";
+import { getExtensions } from './extensions';
+import CommentView from './extensions/BubbleMenu/CommentView';
+import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
+import { TextMenu } from './extensions/BubbleMenu/TextMenu';
+import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
+import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
 
 const StyledEditor = styled.div`
 `

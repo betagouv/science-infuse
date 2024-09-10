@@ -124,6 +124,7 @@ const DeleteOption = (props: { editor: Editor }) => {
 const FileSourceOption = (props: { editor: Editor; onSubmit: (source: string) => void }) => {
   const { editor } = props;
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  // @ts-ignore
   const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
   const originalSource = selectedNodeAttrs?.fileSource || "";
   const fileSource = selectedNodeAttrs?.fileSource;
