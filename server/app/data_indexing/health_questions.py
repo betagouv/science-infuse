@@ -4,14 +4,11 @@ import os
 from typing import List
 from urllib.parse import urljoin
 
-from weaviate import WeaviateClient
 sys.path.append(os.path.join(os.getcwd(), 'app'))
 
-from SIWeaviateClient import SIWeaviateClient
 from processing.CiteScienceQA import CiteScienceQA
 import os
-from weaviate.classes.query import Filter, GeoCoordinate, MetadataQuery, QueryReference 
-from playwright.sync_api import sync_playwright, Browser
+from playwright.sync_api import sync_playwright
 import concurrent.futures
 
 print(os.getcwd())
@@ -99,24 +96,25 @@ def get_qas_urls(playwright):
 
     return qas_urls
 
-def is_url_already_indexed(url, client: WeaviateClient):
-    documentChunk = client.collections.get("DocumentChunk")
-    response = documentChunk.query.fetch_objects(
-        filters=(
-            Filter.by_property("meta_url").equal(url)
-        ),
-        limit=1,
-        return_properties=[]
-    )
-    return len(response.objects) > 0
+def is_url_already_indexed(url):
+    return False
+    # documentChunk = client.collections.get("DocumentChunk")
+    # response = documentChunk.query.fetch_objects(
+    #     filters=(
+    #         Filter.by_property("meta_url").equal(url)
+    #     ),
+    #     limit=1,
+    #     return_properties=[]
+    # )
+    # return len(response.objects) > 0
 
-def process_single_qa(url, client):
+def process_single_qa(url):
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
-        if not is_url_already_indexed(url, client):
+        if not is_url_already_indexed(url):
             print("INDEXING ", url[-40:])
             try:
-                processor = CiteScienceQA(client, browser, url)
+                processor = CiteScienceQA(browser, url)
             except Exception as e:
                 print("ERROR", e)
         else:
@@ -125,16 +123,15 @@ def process_single_qa(url, client):
         browser.close()
 
 def main():
-    with SIWeaviateClient() as client:
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch()
-            urls = get_qas_urls(playwright)
-            browser.close()
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        urls = get_qas_urls(playwright)
+        browser.close()
 
-        # Use ThreadPoolExecutor to process URLs in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(process_single_qa, url, client) for url in urls]
-            concurrent.futures.wait(futures)
+    # Use ThreadPoolExecutor to process URLs in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(process_single_qa, url) for url in urls]
+        concurrent.futures.wait(futures)
 
 
 main()
