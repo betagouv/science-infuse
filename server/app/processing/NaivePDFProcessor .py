@@ -101,7 +101,7 @@ class NaivePDFProcessor(BaseDocumentProcessor):
                     y2=max(coordinates, key=lambda bbox: bbox.y2).y2
                 )
 
-                text_chunk = {"text": "", "page_number": chunk.metadata.page_number, "y_coordinate": y, "bbox": bbox}
+                text_chunk = {"text": "", "pageNumber": chunk.metadata.pageNumber, "y_coordinate": y, "bbox": bbox}
                 for subchunk in chunk.metadata.orig_elements:
                     if (self.is_not_only_space_and_number(subchunk.text)):
                         text_chunk["text"] += subchunk.text+"\n"
@@ -132,7 +132,7 @@ class NaivePDFProcessor(BaseDocumentProcessor):
                         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
                         # y = (image_coordinates.top_left.y + image_coordinates.bottom_left.y)/2
                         y = image_coordinates.top_left.y
-                        temp_images.append({"image": image, "page_number": page_num+1, "y_coordinate": y, 'bbox': {
+                        temp_images.append({"image": image, "pageNumber": page_num+1, "y_coordinate": y, 'bbox': {
                             "x0": image_coordinates.x0, 
                             "y0": image_coordinates.y0, 
                             "x1": image_coordinates.x1, 
@@ -160,13 +160,13 @@ class NaivePDFProcessor(BaseDocumentProcessor):
         ]
         
         
-        media_name =Path(self.pdf_path).stem
+        mediaName =Path(self.pdf_path).stem
 
         document = Document(
-            document_id=self.id,
-            public_path=self.absolute_path_to_local(local_pdf_path),
-            original_path=local_pdf_path,
-            media_name=media_name,
+            id=self.id,
+            publicPath=self.absolute_path_to_local(local_pdf_path),
+            originalPath=local_pdf_path,
+            mediaName=mediaName,
         )
         chunks = []
         for img in images_with_descriptions:
@@ -179,8 +179,8 @@ class NaivePDFProcessor(BaseDocumentProcessor):
                 text=img.get('description_fr'),
                 document=document,
                 metadata=PdfImageMetadata(
-                    public_path=self.absolute_path_to_local(image_path),
-                    page_number=img.get('page_number'),
+                    publicPath=self.absolute_path_to_local(image_path),
+                    pageNumber=img.get('pageNumber'),
                     bbox=BoundingBox(
                         x1=img.get('bbox',{}).get('x1', -1), 
                         y1=img.get('bbox',{}).get('x1', -1), 
@@ -195,7 +195,7 @@ class NaivePDFProcessor(BaseDocumentProcessor):
                 text=text.get('text'),
                 document=document,
                 metadata=PdfTextMetadata(
-                    page_number=text.get('page_number'),
+                    pageNumber=text.get('pageNumber'),
                     bbox=text.get('bbox')
                 )
             )

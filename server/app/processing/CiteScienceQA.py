@@ -20,10 +20,10 @@ class CiteScienceQA(BaseDocumentProcessor):
     """
     Process question answer from a page like : https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions/2020/01/calcium-et-maladie-de-forestier
     """
-    def __init__(self, client: WeaviateClient, browser: Browser, qa_url: str):
+    def __init__(self, browser: Browser, qa_url: str):
         self.browser = browser
         self.qa_url = qa_url
-        super().__init__(client)
+        super().__init__()
 
 
     def extract_document(self) -> Tuple[Document, List[WebsiteQAChunk]]:
@@ -56,10 +56,10 @@ class CiteScienceQA(BaseDocumentProcessor):
             answer = "\n".join(answer_parts)
             
             document = Document(
-                document_id=self.get_random_uuid(),
-                public_path=url,
-                original_path=url,
-                media_name=title,
+                id=self.get_random_uuid(),
+                publicPath=url,
+                originalPath=url,
+                mediaName=title,
             )
             chunk = WebsiteQAChunk(
                 chunk_id=self.id,

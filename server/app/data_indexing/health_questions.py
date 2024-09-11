@@ -49,7 +49,7 @@ print(os.getcwd())
 #     return qas_urls
 
 
-def get_qa_list_page_number(playwright):    
+def get_qa_list_pageNumber(playwright):    
     # go to the last page of the qa, and return the max number from the pagination
     browser = playwright.chromium.launch()
     page = browser.new_page()
@@ -82,16 +82,16 @@ def get_qa_list_from_page(url):
         print("ERROR process_page", e)
 
 
-def get_url_at_page(page_number: int):
-    return f"https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions?tx_questionssante_search%5Bpage%5D={page_number}#results-list"
+def get_url_at_page(pageNumber: int):
+    return f"https://www.cite-sciences.fr/fr/au-programme/lieux-ressources/cite-de-la-sante/une-question-en-sante/questions-sante/toutes-les-questions?tx_questionssante_search%5Bpage%5D={pageNumber}#results-list"
 
 def get_qas_urls(playwright):
-    page_number = get_qa_list_page_number(playwright)
-    print("PAGE NUM", page_number)
-    # page_number=20
+    pageNumber = get_qa_list_pageNumber(playwright)
+    print("PAGE NUM", pageNumber)
+    # pageNumber=20
     qas_urls = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(get_qa_list_from_page, get_url_at_page(page_index+1)) for page_index in range(page_number)]
+        futures = [executor.submit(get_qa_list_from_page, get_url_at_page(page_index+1)) for page_index in range(pageNumber)]
         concurrent.futures.wait(futures)
         results = [future.result() for future in futures]
         qas_urls.extend(itertools.chain(*results))

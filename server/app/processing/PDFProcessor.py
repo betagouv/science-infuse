@@ -22,7 +22,7 @@ logger = logging.getLogger()
 
 non_space_or_digit_pattern = re.compile(r'[^\s\d]')
 class PDFProcessor(BaseDocumentProcessor):
-    def __init__(self, client, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, s3: S3Storage, pdf_path: str, remove_after_upload_to_s3: bool=True):
+    def __init__(self, image_descriptor: SIImageDescription, translator: SITranslator, surya: SISurya, s3: S3Storage, pdf_path: str, remove_after_upload_to_s3: bool=True):
         self.pdf_path = pdf_path
         print("PDFProcessor pdf_path", pdf_path, flush=True)
         self.image_descriptor = image_descriptor
@@ -31,13 +31,13 @@ class PDFProcessor(BaseDocumentProcessor):
         self.s3 = s3
         self.remove_after_upload_to_s3 = remove_after_upload_to_s3
         
-        super().__init__(client)
+        super().__init__()
 
     def save_pdf_to_s3(self, pdf_path):
         filename = f"{self.id}.pdf"
-        s3_object_name = os.path.join('pdf', filename)
-        self.save_to_s3(self.s3, pdf_path, s3_object_name, remove=False)
-        return s3_object_name
+        s3ObjectName = os.path.join('pdf', filename)
+        self.save_to_s3(self.s3, pdf_path, s3ObjectName, remove=False)
+        return s3ObjectName
     
     def unstructured_coordinates_to_bbox(self, coordinates):
         if (not coordinates):
@@ -94,7 +94,7 @@ class PDFProcessor(BaseDocumentProcessor):
         return img
 
     def get_pdf_text_chunks(self, fitz_document: type[PdfDocument], document: Document):
-        images = [self.get_image_from_page(fitz_document, page_number) for page_number in range(len(fitz_document))]
+        images = [self.get_image_from_page(fitz_document, pageNumber) for pageNumber in range(len(fitz_document))]
         result_imgs, result_preds, result_labels = self.surya.process_images(images)
         current_title = ""
         current_subtitle = ""
@@ -127,7 +127,7 @@ class PDFProcessor(BaseDocumentProcessor):
                         text=text,
                         title=f"{current_title}{'>' + current_subtitle if current_subtitle else ''}",
                         metadata=PdfTextMetadata(
-                            page_number=page_index+1,
+                            pageNumber=page_index+1,
                             bbox=BoundingBox(
                                 x1=box.bbox[0], 
                                 y1=box.bbox[1], 
@@ -136,16 +136,7 @@ class PDFProcessor(BaseDocumentProcessor):
                             )
                         )
                     )
-                    chunks.append(chunk)
-                    
-                    print("pos      :", box.position)
-                    print("label    :", label)
-                    print("cur_title:", current_title)
-                    print("cur_subtitle:", current_subtitle)
-                    print("text     :", text)
-                    print("len text :", len(text))
-                    print("\n===================\n")
-                
+                    chunks.append(chunk)                
 
         return chunks
 
@@ -187,7 +178,7 @@ class PDFProcessor(BaseDocumentProcessor):
                         if (self.keep_image_based_on_size(width, height) and not self.is_single_color(pil_image)):
                             temp_images.append({
                                 "image": pil_image,
-                                "page_number": page_num + 1,
+                                "pageNumber": page_num + 1,
                                 'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1},
                                 'format': image_ext
                             })
@@ -202,16 +193,16 @@ class PDFProcessor(BaseDocumentProcessor):
 
     def extract_document(self):
         print("PDFProcessor extract_document self.pdf_path", self.pdf_path, flush=True)
-        media_name =Path(self.pdf_path).stem
+        mediaName =Path(self.pdf_path).stem
 
 
-        pdf_s3_object_name = self.save_pdf_to_s3(self.pdf_path)
+        pdf_s3ObjectName = self.save_pdf_to_s3(self.pdf_path)
 
         document = Document(
-            document_id=self.id,
-            original_path=self.pdf_path,
-            s3_object_name=pdf_s3_object_name,
-            media_name=media_name,
+            id=self.id,
+            originalPath=self.pdf_path,
+            s3ObjectName=pdf_s3ObjectName,
+            mediaName=mediaName,
         )
 
         with fitz.open(self.pdf_path) as fitz_doc:
@@ -233,8 +224,8 @@ class PDFProcessor(BaseDocumentProcessor):
             # create chunks for every images, and save them to s3
             for img in images_with_descriptions:
                 image_path, file_name = self.save_image(img.get('image'))
-                image_s3_object_name = f"{pdf_s3_object_name}/images/{file_name}"
-                self.save_to_s3(self.s3, image_path, image_s3_object_name)
+                image_s3ObjectName = f"{pdf_s3ObjectName}/images/{file_name}"
+                self.save_to_s3(self.s3, image_path, image_s3ObjectName)
                 img.get('image').close()
 
                 chunk = PdfImageChunk(
@@ -242,8 +233,8 @@ class PDFProcessor(BaseDocumentProcessor):
                     title="",
                     document=document,
                     metadata=PdfImageMetadata(
-                        s3_object_name=image_s3_object_name,
-                        page_number=img.get('page_number'),
+                        s3ObjectName=image_s3ObjectName,
+                        pageNumber=img.get('pageNumber'),
                         bbox=BoundingBox(
                             x1=img.get('bbox',{}).get('x1', -1), 
                             y1=img.get('bbox',{}).get('x1', -1), 
@@ -258,5 +249,5 @@ class PDFProcessor(BaseDocumentProcessor):
     
             if (self.remove_after_upload_to_s3 is True):
                 os.remove(self.pdf_path)
-    
+            print("RETURNING", document, chunks, flush=True)
             return document, chunks

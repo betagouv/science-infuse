@@ -79,24 +79,24 @@ def read_root():
 
 
 @cache(expire=3600)
-async def get_s3_url(s3_object_name: str):
-    print(f"Attempting to retrieve cache for {s3_object_name}")
-    s3_public_path = s3.get_presigned_url(s3_object_name, expiration=3600)
-    print(f"Generated URL: {s3_public_path}")
-    return s3_public_path
+async def get_s3_url(s3ObjectName: str):
+    print(f"Attempting to retrieve cache for {s3ObjectName}")
+    s3_publicPath = s3.get_presigned_url(s3ObjectName, expiration=3600)
+    print(f"Generated URL: {s3_publicPath}")
+    return s3_publicPath
 
 @cache(expire=3600)
 async def get_s3_url_from_uuid(document_uuid: str):
     print(f"Attempting to retrieve cache for {document_uuid}")
     with SIWeaviateClient() as client:
-        s3_object_name = client.collections.get("Document").query.fetch_object_by_id(document_uuid).properties.get('s3_object_name')
-        print(f"Getting signed url for : {s3_object_name}")
-        s3_public_path = s3.get_presigned_url(s3_object_name, expiration=3600)
-        print(f"Generated URL: {s3_public_path}")
-        return s3_public_path
+        s3ObjectName = client.collections.get("Document").query.fetch_object_by_id(document_uuid).properties.get('s3ObjectName')
+        print(f"Getting signed url for : {s3ObjectName}")
+        s3_publicPath = s3.get_presigned_url(s3ObjectName, expiration=3600)
+        print(f"Generated URL: {s3_publicPath}")
+        return s3_publicPath
 
-@app.get("/s3/{s3_object_name:path}")
-async def s3_redirect(s3_object_name: str, s3_url: str = Depends(get_s3_url)):
+@app.get("/s3/{s3ObjectName:path}")
+async def s3_redirect(s3ObjectName: str, s3_url: str = Depends(get_s3_url)):
     print(f"Redirecting to: {s3_url}")
     response = RedirectResponse(s3_url, status_code=307)
     response.headers["Access-Control-Allow-Origin"] = "*"

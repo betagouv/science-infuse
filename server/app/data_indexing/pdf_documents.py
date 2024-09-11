@@ -26,7 +26,7 @@ def is_document_already_indexed(pdf_path, client: WeaviateClient):
     document = client.collections.get("Document")
     response = document.query.fetch_objects(
         filters=(
-            Filter.by_property("original_path").equal(pdf_path)
+            Filter.by_property("originalPath").equal(pdf_path)
         ),
         limit=1,
         return_properties=[]
@@ -52,5 +52,5 @@ def index_pdfs_from_dir(dir: str):
 
 
 # you can change it to whatever directory containing pdfs, 
-# it will skip a file based on it's absolute path on the server (stored as original_path in db) cf : is_document_already_indexed
+# it will skip a file based on it's absolute path on the server (stored as originalPath in db) cf : is_document_already_indexed
 index_pdfs_from_dir('/server/ftp-data')
