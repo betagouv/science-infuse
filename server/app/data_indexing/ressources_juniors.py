@@ -1,20 +1,13 @@
-import itertools
 import sys
 import os
-from typing import List
 from urllib.parse import urljoin
 
-from weaviate import WeaviateClient
 
 sys.path.append(os.path.join(os.getcwd(), 'app'))
 
-from SIWeaviateClient import SIWeaviateClient
 from processing.CiteScienceRessourcesJunior import CiteScienceRessourcesJunior
-from processing.CiteScienceQA import CiteScienceQA
 import os
-from weaviate.classes.query import Filter, GeoCoordinate, MetadataQuery, QueryReference 
-from playwright.sync_api import sync_playwright, Browser
-import concurrent.futures
+from playwright.sync_api import sync_playwright
 
 
 from urllib.parse import urljoin
@@ -81,35 +74,35 @@ def get_ressources_juniors_experiences():
         browser.close()
         return web_experiences
 
-def is_url_already_indexed(url, client: WeaviateClient):
-    documentChunk = client.collections.get("DocumentChunk")
-    response = documentChunk.query.fetch_objects(
-        filters=(
-            Filter.by_property("meta_url").equal(url)
-        ),
-        limit=1,
-        return_properties=[]
-    )
-    return len(response.objects) > 0
+def is_url_already_indexed(url):
+    return False
+    # documentChunk = client.collections.get("DocumentChunk")
+    # response = documentChunk.query.fetch_objects(
+    #     filters=(
+    #         Filter.by_property("meta_url").equal(url)
+    #     ),
+    #     limit=1,
+    #     return_properties=[]
+    # )
+    # return len(response.objects) > 0
 
 
 def main():
-    with SIWeaviateClient() as client:
-        web_experiences = get_ressources_juniors_experiences()
-        
-        for exp in web_experiences:
-            title = exp.get('title', '')
-            url = exp.get('url', '')
-            description = exp.get('description', '')
-            type = exp.get('type', '')
-            if not is_url_already_indexed(url, client):
-                print("INDEXING ", url[-40:])
-                try:
-                    processor = CiteScienceRessourcesJunior(client, title, url, description, type)
-                except Exception as e:
-                    print("ERROR", e)
-            else:
-                print("SKIPPING INDEXING ", url[-40:])
+    web_experiences = get_ressources_juniors_experiences()
+    
+    for exp in web_experiences:
+        title = exp.get('title', '')
+        url = exp.get('url', '')
+        description = exp.get('description', '')
+        type = exp.get('type', '')
+        if not is_url_already_indexed(url):
+            print("INDEXING ", url[-40:])
+            try:
+                processor = CiteScienceRessourcesJunior(title, url, description, type)
+            except Exception as e:
+                print("ERROR", e)
+        else:
+            print("SKIPPING INDEXING ", url[-40:])
 
 
 main()

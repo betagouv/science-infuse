@@ -111,41 +111,10 @@ class BaseDocumentProcessor(ABC):
     def save_document(self, document: Document, chunks: List[DocumentChunk]):
         
         document_id = str(uuid.uuid4())
-        print("INSERT DOCUMENT", document_id, document, flush=True)
         db_document = self.insert_document(document_id, document)
         
-        print("INSERT CHUNKS", chunks, flush=True)
         for chunk in chunks:
             print("INSERT CHUNK - ", chunk, flush=True)
             vector = get_embeddings(chunk.text)
             self.insert_chunk(chunk, vector, document_id)
         self.conn.commit()
-        
-        print("SAVE DOCUMENT", document, chunks)
-
-        return
-        documents = self.client.collections.get("Document")
-        document_id = documents.data.insert(document.model_dump())
-
-        # Create DocumentChunks and link to Document
-        document_chunks = self.client.collections.get("DocumentChunk")
-        for chunk in chunks:
-            chunk_dict = self.temp_fix_metadata_not_filterable(chunk.model_dump())
-            # chunk_dict = chunk.model_dump()
-            chunk_id = document_chunks.data.insert(chunk_dict)
-            
-            # Link chunk to document
-            document_chunks.data.reference_add(
-                from_uuid=chunk_id,
-                from_property="belongsToDocument",
-                to=document_id
-            )
-            
-            # Link document to chunk
-            documents.data.reference_add(
-                from_uuid=document_id,
-                from_property="hasChunks",
-                to=chunk_id
-            )
-
-        return document_id

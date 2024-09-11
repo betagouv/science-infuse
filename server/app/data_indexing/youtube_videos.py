@@ -6,48 +6,15 @@ import pytube.exceptions
 sys.path.append(os.path.join(os.getcwd(), 'app'))
 
 from S3Storage import S3Storage
-from SIWeaviateClient import SIWeaviateClient
-from weaviate import WeaviateClient
-from weaviate.classes.query import Filter, GeoCoordinate, MetadataQuery, QueryReference
 
 from processing.YoutubeProcessor import YoutubeProcessor
 from processing.audio.SIWhisperModel import SIWhisperModel 
-from pytube import YouTube
 import pytube
 # Replace with your own API key
 api_key = os.environ.get('YOUTUBE_API_KEY', '')
 
 # Create a YouTube API client
 youtube = build("youtube", "v3", developerKey=api_key)
-
-# Replace with the channel ID you want to fetch videos from
-# LE BLOB
-# def get_channel_videos(channel_id):
-#     videos = []
-#     next_page_token = None
-    
-#     while True:
-#         request = youtube.search().list(
-#             part="snippet",
-#             channelId=channel_id,
-#             maxResults=50,
-#             type="video",
-#             pageToken=next_page_token
-#         )
-#         response = request.execute()
-        
-#         for item in response["items"]:
-#             videos.append({
-#                 "title": item["snippet"]["title"],
-#                 "video_id": item["id"]["videoId"],
-#                 "publish_time": item["snippet"]["publishTime"]
-#             })
-        
-#         next_page_token = response.get("nextPageToken")
-#         if not next_page_token:
-#             break
-    
-#     return videos
 
 
 # trick to bypass the 500 result limit from search, get channel full playlist -> no limit
@@ -79,16 +46,17 @@ def get_channel_videos(playlist_id):
             
     return videos
 
-def is_url_already_indexed(url, client: WeaviateClient):
-    document = client.collections.get("Document")
-    response = document.query.fetch_objects(
-        filters=(
-            Filter.by_property("originalPath").equal(url)
-        ),
-        limit=1,
-        return_properties=[]
-    )
-    return len(response.objects) > 0
+def is_url_already_indexed(url):
+    return False
+    # document = client.collections.get("Document")
+    # response = document.query.fetch_objects(
+    #     filters=(
+    #         Filter.by_property("originalPath").equal(url)
+    #     ),
+    #     limit=1,
+    #     return_properties=[]
+    # )
+    # return len(response.objects) > 0
 
 
 whisper = SIWhisperModel('medium', 'whisper-medium')
@@ -100,36 +68,35 @@ def index_channel(channel_id: str, use_oauth: bool):
     print(len(channel_videos))
     
     s3 = S3Storage()
-    with SIWeaviateClient() as client:
-        for i, video in enumerate(channel_videos):
-            print(f"video {i}/{len(channel_videos)}")          
-            url = f"https://www.youtube.com/watch?v={video['video_id']}"
-            # yt = YouTube(url)
-            # if (yt.length > MAX_VIDEO_LENGTH_SECONDS):
-                # print(f"Video Too Long, SKIP INDEXING {url}")
-                # continue
+    for i, video in enumerate(channel_videos):
+        print(f"video {i}/{len(channel_videos)}")          
+        url = f"https://www.youtube.com/watch?v={video['video_id']}"
+        # yt = YouTube(url)
+        # if (yt.length > MAX_VIDEO_LENGTH_SECONDS):
+            # print(f"Video Too Long, SKIP INDEXING {url}")
+            # continue
 
-            print(f"Title: {video['title']}")
-            print(f"Video ID: {video['video_id']}")
-            # print('indexing....')
-            
-            if (is_url_already_indexed(url, client)):
-                print(f"Already in DB, SKIP INDEXING {url}")
+        print(f"Title: {video['title']}")
+        print(f"Video ID: {video['video_id']}")
+        # print('indexing....')
+        
+        if (is_url_already_indexed(url)):
+            print(f"Already in DB, SKIP INDEXING {url}")
+            continue
+        for i in range(10):
+            try:
+                YoutubeProcessor(s3=s3,whisper=whisper, youtube_url=url, use_oauth=use_oauth)
+                print("---")
+                break
+            except pytube.exceptions.AgeRestrictedError:
+                print("Age restricted -> SKIP")
                 continue
-            for i in range(10):
-                try:
-                    YoutubeProcessor(s3=s3,client=client, whisper=whisper, youtube_url=url, use_oauth=use_oauth)
-                    print("---")
-                    break
-                except pytube.exceptions.AgeRestrictedError:
-                    print("Age restricted -> SKIP")
-                    continue
-                except Exception as e:
-                    if i == 9:
-                        print("===================Failed after 10 retries", e)
-                        import traceback
-                        traceback.print_exc()
-                    continue
+            except Exception as e:
+                if i == 9:
+                    print("===================Failed after 10 retries", e)
+                    import traceback
+                    traceback.print_exc()
+                continue
     s3.s3_client.close()
     
 # Fetch the videos

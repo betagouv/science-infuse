@@ -1,12 +1,8 @@
-from googleapiclient.discovery import build
 import os
 import sys
-from weaviate.classes.query import Filter
 
 sys.path.append(os.path.join(os.getcwd(), 'app'))
 
-from weaviate import WeaviateClient
-from SIWeaviateClient import SIWeaviateClient
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
 from processing.text.SISurya import SISurya
@@ -22,16 +18,17 @@ def get_all_pdfs(root_folder: str):
                 # pdf_files.append(os.path.abspath(os.path.join(root, file)))
     return pdf_files
 
-def is_document_already_indexed(pdf_path, client: WeaviateClient):
-    document = client.collections.get("Document")
-    response = document.query.fetch_objects(
-        filters=(
-            Filter.by_property("originalPath").equal(pdf_path)
-        ),
-        limit=1,
-        return_properties=[]
-    )
-    return len(response.objects) > 0
+def is_document_already_indexed(pdf_path):
+    return False
+    # document = client.collections.get("Document")
+    # response = document.query.fetch_objects(
+    #     filters=(
+    #         Filter.by_property("originalPath").equal(pdf_path)
+    #     ),
+    #     limit=1,
+    #     return_properties=[]
+    # )
+    # return len(response.objects) > 0
 
 image_descriptor = SIImageDescription()
 s3 = S3Storage()
@@ -40,14 +37,13 @@ translator = SITranslator()
 surya = SISurya()
 
 def index_pdfs_from_dir(dir: str):
-    with SIWeaviateClient() as client:
-        pdf_paths = get_all_pdfs(dir)
-        for pdf_path in pdf_paths:
-            if (is_document_already_indexed(pdf_path, client)):
-                print(f"Already in DB, SKIP INDEXING {pdf_path}")
-                continue
-            pdf = PDFProcessor(client, image_descriptor, translator, surya, s3, pdf_path)
-            print(f"Successfully indexed {pdf_path}", flush=True)
+    pdf_paths = get_all_pdfs(dir)
+    for pdf_path in pdf_paths:
+        if (is_document_already_indexed(pdf_path)):
+            print(f"Already in DB, SKIP INDEXING {pdf_path}")
+            continue
+        pdf = PDFProcessor(image_descriptor, translator, surya, s3, pdf_path)
+        print(f"Successfully indexed {pdf_path}", flush=True)
 
 
 
