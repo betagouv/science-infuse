@@ -1,9 +1,8 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 
 from processing.text.SIReranker import SIReranker, TextWithScore
-from schemas import ChunkSearchResults, ChunkWithScore, DocumentChunk, DocumentSearchResult, DocumentSearchResults, RerankTextQuery, SearchQuery
+from schemas import RerankTextQuery
 
 router = APIRouter()
 reranker = SIReranker()

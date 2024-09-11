@@ -17,19 +17,19 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class CiteScienceRessourcesJunior(BaseDocumentProcessor):
-    def __init__(self, client: WeaviateClient, title: str, url: str, description: str, type: str):
+    def __init__(self, title: str, url: str, description: str, type: str):
         self.title = title
         self.url = url
         self.description = description
         self.type = type
-        super().__init__(client)
+        super().__init__()
 
     def extract_document(self):
         document = Document(
-            document_id=self.id,
-            public_path=self.url,
-            original_path=self.url,
-            media_name=self.title,
+            id=self.id,
+            publicPath=self.url,
+            originalPath=self.url,
+            mediaName=self.title,
         )
         chunk = WebsiteExperienceChunk(
             chunk_id=self.id,

@@ -31,13 +31,13 @@ class S3Storage:
         for obj in response.get('Contents', []):
             print(f'  {obj["Key"]}')
 
-    def upload_file(self, input_file_path, s3_object_name):
+    def upload_file(self, input_file_path, s3ObjectName):
         try:
-            self.s3_client.upload_file(input_file_path, self.bucket_name, s3_object_name, ExtraArgs={'ACL': 'public-read'})
-            print(f"File {input_file_path} uploaded successfully to bucket {self.bucket_name} as {s3_object_name}.")
+            self.s3_client.upload_file(input_file_path, self.bucket_name, s3ObjectName, ExtraArgs={'ACL': 'public-read'})
+            print(f"File {input_file_path} uploaded successfully to bucket {self.bucket_name} as {s3ObjectName}.")
             
             # Generate the public URL
-            public_url = f"{self.S3_ENDPOINT}/{self.bucket_name}/{s3_object_name}"
+            public_url = f"{self.S3_ENDPOINT}/{self.bucket_name}/{s3ObjectName}"
             # print(f"Public URL: {public_url}")
             return public_url
         except Exception as e:

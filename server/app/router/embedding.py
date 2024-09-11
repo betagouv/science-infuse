@@ -11,11 +11,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 router = APIRouter()
 
-@router.post("/", response_model=List[float])
-async def _embedding(query: EmbeddingQuery):
-    print("EMBEDDINGS", query.text)
+def get_embeddings(text: str):
     inputs = tokenizer(
-        query.text,
+        text,
         padding=True,
         truncation=False,
         return_tensors="pt",
@@ -25,3 +23,8 @@ async def _embedding(query: EmbeddingQuery):
     embeddings = result.last_hidden_state[:, 0, :].cpu().detach().numpy()
     array = embeddings.flatten().tolist()
     return array
+
+
+@router.post("/", response_model=List[float])
+async def _embedding(query: EmbeddingQuery):
+    return get_embeddings(query.text)

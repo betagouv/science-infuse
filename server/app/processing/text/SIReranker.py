@@ -1,6 +1,7 @@
 from typing import List
 from transformers import AutoModelForSequenceClassification
-from schemas import ChunkWithScore, DocumentSearchResult, RerankTextQuery
+from schemas import RerankTextQuery
+# from schemas import ChunkWithScore, RerankTextQuery
 import numpy as np
 from pydantic import BaseModel
 
@@ -31,40 +32,40 @@ class SIReranker:
         
         return sorted_texts_with_scores
 
-    def sort_document_chunks(self, document_chunks: List[ChunkWithScore], query: str, alpha: float = 0.5) -> List[ChunkWithScore]:
-        """
-        Sort document chunks based on reranker scores and adjust Weaviate scores according to reranker's score.<br/>
-        **alpha** Control parameter for score adjustment (0 <= alpha <= 1)<br/>
-            **0**: No adjustment (pure weaviate scores)<br/>
-            **1**: Maximum adjustment based on reranker scores
-        """
-        sentence_pairs = [[query, chunk.title + ". " + chunk.text] for chunk in document_chunks]
-        if (len(sentence_pairs) <= 0):
-            return []
-        reranker_scores = self.model.compute_score(sentence_pairs, max_length=1024)
+    # def sort_document_chunks(self, document_chunks: List[ChunkWithScore], query: str, alpha: float = 0.5) -> List[ChunkWithScore]:
+    #     """
+    #     Sort document chunks based on reranker scores and adjust Weaviate scores according to reranker's score.<br/>
+    #     **alpha** Control parameter for score adjustment (0 <= alpha <= 1)<br/>
+    #         **0**: No adjustment (pure weaviate scores)<br/>
+    #         **1**: Maximum adjustment based on reranker scores
+    #     """
+    #     sentence_pairs = [[query, chunk.title + ". " + chunk.text] for chunk in document_chunks]
+    #     if (len(sentence_pairs) <= 0):
+    #         return []
+    #     reranker_scores = self.model.compute_score(sentence_pairs, max_length=1024)
 
-        scored_chunks = list(zip(reranker_scores, [chunk.score for chunk in document_chunks], document_chunks))
+    #     scored_chunks = list(zip(reranker_scores, [chunk.score for chunk in document_chunks], document_chunks))
 
-        sorted_chunks = sorted(scored_chunks, key=lambda x: x[0], reverse=True)
+    #     sorted_chunks = sorted(scored_chunks, key=lambda x: x[0], reverse=True)
 
-        sorted_reranker_scores, sorted_weaviate_scores, _ = zip(*sorted_chunks)
+    #     sorted_reranker_scores, sorted_weaviate_scores, _ = zip(*sorted_chunks)
 
-        reranker_array = np.array(sorted_reranker_scores)
-        weaviate_array = np.array(sorted_weaviate_scores)
+    #     reranker_array = np.array(sorted_reranker_scores)
+    #     weaviate_array = np.array(sorted_weaviate_scores)
 
-        min_reranker = np.min(reranker_array)
-        max_reranker = np.max(reranker_array)
-        range_reranker = max_reranker - min_reranker
+    #     min_reranker = np.min(reranker_array)
+    #     max_reranker = np.max(reranker_array)
+    #     range_reranker = max_reranker - min_reranker
 
-        weaviate_normalized = (weaviate_array - np.min(weaviate_array)) / (np.max(weaviate_array) - np.min(weaviate_array))
+    #     weaviate_normalized = (weaviate_array - np.min(weaviate_array)) / (np.max(weaviate_array) - np.min(weaviate_array))
 
-        # Calculate new scores: maintain reranker order but increase proportionally to Weaviate scores
-        new_scores = reranker_array + (alpha * weaviate_normalized * range_reranker)
+    #     # Calculate new scores: maintain reranker order but increase proportionally to Weaviate scores
+    #     new_scores = reranker_array + (alpha * weaviate_normalized * range_reranker)
 
-        # Update chunks with new scores, maintaining reranker order
-        for (original_reranker_score, _, chunk), new_score in zip(sorted_chunks, new_scores):
-            chunk.score = max(0, min(new_score, 1))
-        return [chunk for _, _, chunk in sorted_chunks]
+    #     # Update chunks with new scores, maintaining reranker order
+    #     for (original_reranker_score, _, chunk), new_score in zip(sorted_chunks, new_scores):
+    #         chunk.score = max(0, min(new_score, 1))
+    #     return [chunk for _, _, chunk in sorted_chunks]
      
 
     # def sort_docment_chunks(self, document_chunks: List[ChunkWithScore], query: str) -> List[ChunkWithScore]:

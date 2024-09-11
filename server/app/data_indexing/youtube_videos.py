@@ -83,7 +83,7 @@ def is_url_already_indexed(url, client: WeaviateClient):
     document = client.collections.get("Document")
     response = document.query.fetch_objects(
         filters=(
-            Filter.by_property("original_path").equal(url)
+            Filter.by_property("originalPath").equal(url)
         ),
         limit=1,
         return_properties=[]
