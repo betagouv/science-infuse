@@ -1,9 +1,15 @@
 'use client';
+import { useSnackbar } from "@/app/SnackBarProvider";
+import Snackbar from "@/course_editor/components/Snackbar";
+import { apiClient, UserFull } from "@/lib/api-client";
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { Select } from "@codegouvfr/react-dsfr/SelectNext";
-import { useState } from "@preact-signals/safe-react/react";
-import { EducationLevel } from "@prisma/client";
-import { User } from "next-auth";
+import { useEffect, useState } from "@preact-signals/safe-react/react";
+import { Academy, EducationLevel, SchoolsSubjects } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import * as React from 'react';
+import CustomMultiSelect from "@/components/CustomMultiSelect";
+
 
 const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, isPassword: boolean;[key: string]: any }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -43,26 +49,41 @@ const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, is
 interface FieldProps {
     isEditable?: boolean;
     label: string;
-    value: string;
-    onChange: (value: string) => void;
+    value: string | string[];
+    onChange: (value: string | string[]) => void;
+    onValidate?: () => void;
     hint?: React.ReactNode;
     isPassword?: boolean;
     isSelect?: boolean;
+    isMultiSelect?: boolean;
     options?: { value: string; label: string }[];
 }
 
-const Field = (props: FieldProps) => {
+const Field: React.FC<FieldProps> = (props) => {
     const [editable, setEditable] = useState(false);
+
+    const handleChange = (newValue: string | string[]) => {
+        props.onChange(newValue);
+    };
+
     return (
         <div className="relative flex flex-col gap-4">
             <div className="relative">
-                {props.isSelect ? (
+                {props.isMultiSelect ? (
+                    <CustomMultiSelect
+                        disabled={!editable}
+                        label={props.label}
+                        value={props.value as string[]}
+                        onChange={handleChange}
+                        options={props.options || []}
+                    />
+                ) : props.isSelect ? (
                     <Select
                         disabled={!editable}
                         label={props.label}
                         nativeSelectProps={{
-                            value: props.value,
-                            onChange: (e) => props.onChange(e.target.value)
+                            value: props.value as string,
+                            onChange: (e) => handleChange(e.target.value)
                         }}
                         options={props.options || []}
                     />
@@ -73,8 +94,8 @@ const Field = (props: FieldProps) => {
                         style={{ margin: 0 }}
                         editable={editable}
                         nativeInputProps={{
-                            value: props.value,
-                            onChange: (e: React.ChangeEvent<HTMLInputElement>) => props.onChange(e.target.value)
+                            value: props.value as string,
+                            onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)
                         }}
                         state="default"
                         stateRelatedMessage="Texte de validation"
@@ -82,108 +103,185 @@ const Field = (props: FieldProps) => {
                     />
                 )}
             </div>
-            {props.hint && <div className="flex items-start gap-2">
-                <svg
-                    width={14}
-                    height={14}
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    preserveAspectRatio="none"
-                >
-                    <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M12.0003 0.666748H2.00033C1.26395 0.666748 0.666992 1.2637 0.666992 2.00008V12.0001C0.666992 12.7365 1.26395 13.3334 2.00033 13.3334H12.0003C12.7367 13.3334 13.3337 12.7365 13.3337 12.0001V2.00008C13.3337 1.2637 12.7367 0.666748 12.0003 0.666748ZM7.66699 3.66675H6.33366V5.00008H7.66699V3.66675ZM7.66699 6.33341H6.33366V10.3334H7.66699V6.33341Z"
-                        fill="black"
-                    />
-                </svg>
-                <span className="text-sm">{props.hint}</span>
-            </div>}
-            {props.isEditable && <div className="flex w-full justify-end">
-                <button onClick={() => setEditable(!editable)} className="italic">{editable ? "Valider" : "Modifier"}</button>
-            </div>}
+            {props.hint && (
+                <div className="flex items-start gap-2">
+                    <svg
+                        width={14}
+                        height={14}
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        preserveAspectRatio="none"
+                    >
+                        <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M12.0003 0.666748H2.00033C1.26395 0.666748 0.666992 1.2637 0.666992 2.00008V12.0001C0.666992 12.7365 1.26395 13.3334 2.00033 13.3334H12.0003C12.7367 13.3334 13.3337 12.7365 13.3337 12.0001V2.00008C13.3337 1.2637 12.7367 0.666748 12.0003 0.666748ZM7.66699 3.66675H6.33366V5.00008H7.66699V3.66675ZM7.66699 6.33341H6.33366V10.3334H7.66699V6.33341Z"
+                            fill="black"
+                        />
+                    </svg>
+                    <span className="text-sm">{props.hint}</span>
+                </div>
+            )}
+            {props.isEditable && (
+                <div className="flex w-full justify-end">
+                    <button
+                        onClick={() => {
+                            if (editable) {
+                                props.onValidate && props.onValidate();
+                            }
+                            setEditable(!editable);
+                        }}
+                        className="italic"
+                    >
+                        {editable ? "Valider" : "Modifier"}
+                    </button>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default function UserSettings(props: { educationLevels: EducationLevel[], user: User }) {
-    const { user } = props;
-    console.log("USERRR", user)
-    console.log("USERRR el", props.educationLevels)
-    const [firstname, setFirstname] = useState(user.firstName || "");
-    const [lastname, setLastname] = useState(user.lastName || "");
-    const [email, setEmail] = useState(user.email  || "");
+
+
+
+const subjectTaughtOptions = [
+    { value: "mathematiques", label: "Mathématiques" },
+    { value: "francais", label: "Français" },
+    { value: "histoire-geographie", label: "Histoire-Géographie" },
+    { value: "sciences", label: "Sciences" },
+    { value: "anglais", label: "Anglais" },
+    { value: "arts-plastiques", label: "Arts Plastiques" },
+    { value: "education-physique", label: "Éducation Physique" },
+    { value: "musique", label: "Musique" },
+    { value: "technologie", label: "Technologie" },
+    { value: "philosophie", label: "Philosophie" },
+    { value: "sciences-economiques", label: "Sciences Économiques" },
+    { value: "langues-vivantes", label: "Langues Vivantes" },
+    { value: "latin-grec", label: "Latin-Grec" },
+    { value: "physique-chimie", label: "Physique-Chimie" },
+    { value: "svt", label: "Sciences de la Vie et de la Terre" }
+]
+
+export default function UserSettings(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolsSubjects[] }) {
+    const { data: session } = useSession();
+    const { showSnackbar } = useSnackbar();
+    const userId = session?.user?.id;
+    const [user, setUser] = useState<UserFull | null>(null)
+    // console.log("USERRR el", props.educationLevels)
+    const [email, setEmail] = useState(user?.firstName || "");
+    const [firstname, setFirstname] = useState(user?.firstName || "");
+    const [lastname, setLastname] = useState(user?.lastName || "");
     const [password, setPassword] = useState("xxxxxxxxx");
     const [academy, setAcademy] = useState("");
-    const [educationLevels, setEducationLevels] = useState("");
-    const [subjectTaught, setSubjectTaught] = useState("");
+    const [educationLevels, setEducationLevels] = useState<string[]>([]);
+    const [school, setSchool] = useState("");
+    const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
-    
-    const academyOptions = [
-        { value: "aix-marseille", label: "Aix-Marseille" },
-        { value: "amiens", label: "Amiens" },
-        { value: "besancon", label: "Besançon" },
-    ];
+    const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
 
-    const subjectTaughtOptions = [
-        { value: "mathematiques", label: "Mathématiques" },
-        { value: "francais", label: "Français" },
-        { value: "histoire-geographie", label: "Histoire-Géographie" },
-        { value: "sciences", label: "Sciences" },
-        { value: "anglais", label: "Anglais" },
-        { value: "arts-plastiques", label: "Arts Plastiques" },
-        { value: "education-physique", label: "Éducation Physique" },
-        { value: "musique", label: "Musique" },
-        { value: "technologie", label: "Technologie" },
-        { value: "philosophie", label: "Philosophie" },
-        { value: "sciences-economiques", label: "Sciences Économiques" },
-        { value: "langues-vivantes", label: "Langues Vivantes" },
-        { value: "latin-grec", label: "Latin-Grec" },
-        { value: "physique-chimie", label: "Physique-Chimie" },
-        { value: "svt", label: "Sciences de la Vie et de la Terre" }
-    ]
+    const fetchUser = async () => {
+        if (!session) return;
+        const updatedUser = await apiClient.getUser();
+        if (!updatedUser) return;
+        setUser(updatedUser);
+        setFirstname(updatedUser.firstName || "")
+        setLastname(updatedUser.lastName || "")
+        setEmail(updatedUser.email || "")
+        setSchool(updatedUser?.school || "")
+        setAcademy(updatedUser?.academyId || "")
+        setEducationLevels(updatedUser?.educationLevels.map(e => e.id) || [])
+        setSchoolSubjects(updatedUser?.schoolSubjects.map(e => e.id) || [])
+    }
+
+    useEffect(() => {
+        (async () => {
+            await fetchUser();
+        })()
+    }, [userId]);
+
+    const updateUser = async (userData: Partial<UserFull>) => {
+        try {
+            await apiClient.updateUser(userData);
+            showSnackbar(<p className="m-0">Profil enregistré avec succès</p>, 'success')
+        } catch (error) {
+
+        }
+    }
+
+
     return (
         <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
             <div className="fr-col-12 fr-col-md-6 main-content-item my-24">
                 <div className="flex flex-col gap-8">
-                    <Field isEditable label="Prénom" value={firstname} onChange={setFirstname} />
-                    <Field isEditable label="Nom" value={lastname} onChange={setLastname} />
-                    <Field label="Email professionnel" value={email} onChange={setEmail} />
-                    <Field label="Mot de passe" value={password} onChange={setPassword} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
+
+                    <Field
+                        isEditable
+                        label="Prénom"
+                        value={firstname}
+                        onValidate={async () => { await updateUser({ firstName: firstname }) }}
+                        onChange={(_) => setFirstname(_ as string)}
+                    />
+
+                    <Field
+                        isEditable
+                        label="Nom"
+                        value={lastname}
+                        onValidate={async () => { await updateUser({ lastName: lastname }) }}
+                        onChange={(_) => setLastname(_ as string)}
+                    />
+
+                    <Field label="Email professionnel" value={email} onChange={() => { }} />
+                    <Field label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
 
                     <Field
                         isEditable
                         isSelect
                         label="Académie de rattachement"
                         value={academy}
-                        onChange={setAcademy}
-                        options={academyOptions}
+                        onChange={(_) => setAcademy(_ as string)}
+                        onValidate={async () => { await updateUser({ academyId: academy }) }}
+                        options={props.academies.map(a => ({ value: a.id, label: a.name }))}
                         hint="Cette information permettra d'exporter les contenus et les cours vers l'ENT."
                     />
 
+
                     <Field
                         isEditable
-                        isSelect
-                        label="Niveaux auxquels j’enseigne pour l’année 2024-2025"
-                        value={educationLevels}
-                        onChange={setEducationLevels}
-                        options={educationOptions}
-                        hint="Plusieurs choix possible. Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
+                        label="Mon école"
+                        value={school}
+                        onChange={(_) => setSchool(_ as string)}
+                        onValidate={async () => { await updateUser({ school }) }}
+                    />
+
+
+
+       
+                    <Field
+                        isEditable
+                        isMultiSelect
+                        label="Matière enseignée"
+                        value={schoolSubjects}
+                        onChange={(value) => setSchoolSubjects(value as string[])}
+                        options={schoolSubjectsOptions}
+                        onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
+                        hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
                     />
 
                     <Field
                         isEditable
-                        isSelect
-                        label="Matière enseignée"
-                        value={subjectTaught}
-                        onChange={setSubjectTaught}
-                        options={subjectTaughtOptions}
-                        hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
+                        isMultiSelect
+                        label="Niveaux auxquels j'enseigne pour l'année 2024-2025"
+                        value={educationLevels}
+                        onChange={(value) => setEducationLevels(value as string[])}
+                        options={educationOptions}
+                        onValidate={async () => { await updateUser({ educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)) }) }}
+                        hint="Plusieurs choix possible. Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
                     />
                 </div>
             </div>
+            <Snackbar />
         </div>
     );
 }

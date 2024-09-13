@@ -2,13 +2,12 @@ import { FormEvent, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input } from "@codegouvfr/react-dsfr/Input";
-import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from '@/course_editor/components/Snackbar';
 
-export default () => {
+const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
@@ -23,7 +22,7 @@ export default () => {
         })
 
         if (result?.error) {
-            showSnackbar('Échec de connexion. Veuillez vérifier vos identifiants.', 'error')
+            showSnackbar(<p className='m-0'>Échec de connexion. <br />Veuillez vérifier vos identifiants.</p>, 'error')
         } else {
             router.push("/") // Redirect to home page or dashboard
         }
@@ -107,12 +106,14 @@ export default () => {
                 <h2 className="m-0 text-3xl font-bold">Vous n'avez pas de compte ?</h2>
                 <div className="flex flex-col gap-2">
                     <p className="m-0 text-sm text-[#666]">Envoyez un e-mail au responsable du service :</p>
-                    <a href="mailto:o.rabet@universcience.fr" target='_blank' className="w-fit text-sm border-b border-[#000091] inline-block">
-                        o.rabet@universcience.fr
+                    <a href="mailto:olivier.rabet@universcience.fr" target='_blank' className="w-fit text-sm border-b border-[#000091] inline-block">
+                        olivier.rabet@universcience.fr
                     </a>
                 </div>
             </div>
+            <Snackbar />
         </div>
 
     )
 }
+export default Login;

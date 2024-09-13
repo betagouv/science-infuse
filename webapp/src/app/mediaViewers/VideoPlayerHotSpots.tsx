@@ -83,6 +83,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                 )}
                 {chunks
                     .sort((a,b) => b.score - a.score)
+                    .filter(c => c.metadata)
                     // at least 4
                     // and the best 20%
                     // .slice(0, Math.max(4, Math.min(Math.floor(chunks.length * 0.2), chunks.length)))

@@ -26,6 +26,23 @@ const createEducationLevels = async () => {
   })
 }
 
+const createAcademies = async () => {
+  const academies = ["Aix-Marseille", "Autres", "Besançon", "Créteil", "Grenoble", "Guyane", "La Réunion", "Limoges", "Martinique", "Montpellier", "Nantes", "Orléans-Tours", "Paris", "Poitiers", "Rennes", "Toulouse", "Versailles"]
+  await prisma.academy.createMany({
+    data: academies.map(academy => ({ name: academy })),
+    skipDuplicates: true,
+  })
+}
+
+const createSchoolSubjects = async () => {
+  const subjects = ["Mathématiques", "Français", "Histoire-Géographie", "Sciences", "Anglais", "Arts Plastiques", "Éducation Physique", "Musique", "Technologie", "Philosophie", "Sciences Économiques", "Langues Vivantes", "Latin-Grec", "Physique-Chimie", "Sciences de la Vie et de la Terre"]
+
+  await prisma.schoolsSubjects.createMany({
+    data: subjects.map(subject => ({ name: subject })),
+    skipDuplicates: true,
+  })
+}
+
 const createSkills = async () => {
   const skills = [
     "utiliser des outils numériques (SVT cycle 4)",
@@ -143,6 +160,8 @@ async function main() {
   await createSkills();
   await createKeyIdeas();
   await createFileTypes();
+  await createAcademies();
+  await createSchoolSubjects();
 }
 
 main()
