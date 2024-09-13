@@ -1,8 +1,15 @@
 import { ChunkSearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
-import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, Skill, StarredDocumentChunk, Tag } from '@prisma/client';
+import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolsSubjects, Skill, StarredDocumentChunk, Tag, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { TableOfContents } from './types';
+
+
+export interface UserFull extends Omit<User, 'password'> {
+  roles: UserRoles[],
+  educationLevels: EducationLevel[],
+  schoolSubjects: SchoolsSubjects[],
+}
 
 export interface QueryRequest {
   query: string,
@@ -68,10 +75,25 @@ class ApiClient {
     });
   }
 
-  
+
+
+  async getUser(): Promise<UserFull> {
+    const response = await this.axiosInstance.get<UserFull>(`/users/me`);
+    return response.data;
+  }
+
+  async updateUser(userData: Partial<UserFull>): Promise<UserFull> {
+    const response = await this.axiosInstance.put<UserFull>(`/users/me`, userData);
+    return response.data;
+  }
 
   async search(queryData: QueryRequest): Promise<ChunkSearchResults> {
     const response = await this.axiosInstance.post<ChunkSearchResults>(`/search`, queryData);
+    return response.data;
+  }
+
+  async deleteDocument(id: string): Promise<any> {
+    const response = await this.axiosInstance.delete<any>(`/document/${id}`);
     return response.data;
   }
 

@@ -19,6 +19,7 @@ import { apiClient } from "@/lib/api-client";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { useSearchParams } from "next/navigation";
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
+import { useSession } from "next-auth/react";
 
 const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -119,6 +120,8 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
 const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
+    const { data: session } = useSession();
+    const user = session?.user;
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
@@ -133,6 +136,15 @@ const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode
                         </svg>
                     </button>
                 }
+
+                <button
+                onClick={async () => {
+                    await apiClient.deleteDocument(props.chunk.document.id)
+                }}
+                >
+                    delete
+                </button>
+
 
             </div>
         </div>
@@ -167,7 +179,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
 
 export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => {
     const path = chunk.title.toLowerCase().split('>');
-
+if (!chunk.metadata) {
+    console.log("CHUNKKK", chunk)
+}
     return (
 
         <Card

@@ -9,7 +9,6 @@ datasource db {
   extensions = [vector]
 }
 
-// INDEXED DOCUMENTS / VECTOR DB;  pgvector/pgvector-setup.ts will create the index (since not supported by prisma yet) `npm run db:init-pgvector`
 model Document {
   id             String          @id @default(cuid()) @db.Uuid
   s3ObjectName   String
@@ -20,13 +19,13 @@ model Document {
 }
 
 model DocumentChunk {
-  id                   String                      @id @default(cuid()) @db.Uuid
+  id                   String                 @id @default(cuid()) @db.Uuid
   text                 String
-  textEmbedding        Unsupported("vector(768)")?
+  textEmbedding        Unsupported("vector")?
   title                String
   mediaType            String
-  documentId           String                      @db.Uuid
-  document             Document                    @relation(fields: [documentId], references: [id])
+  documentId           String                 @db.Uuid
+  document             Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
   metadata             DocumentChunkMeta?
   starredDocumentChunk StarredDocumentChunk[]
 }
@@ -45,51 +44,40 @@ model DocumentChunkMeta {
   description     String?
   url             String?
   documentChunkId String        @unique @db.Uuid
-  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id])
+  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id], onDelete: Cascade)
 }
 
-// STARREDDOCUMENTCHUNK
 model StarredDocumentChunk {
   id              String        @id @default(cuid())
   keyword         String
   userId          String
-  user            User          @relation(fields: [userId], references: [id])
   documentChunkId String        @db.Uuid
-  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  documentChunk   DocumentChunk @relation(fields: [documentChunkId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, documentChunkId, keyword]) // Ensure a user can star a DocumentChunk with a specific keyword only once
+  @@unique([userId, documentChunkId, keyword])
 }
-
-// COMMENTS
 
 model CommentThread {
   id        String    @id @default(cuid())
-  comments  Comment[]
   chapterId String
-  chapter   Chapter   @relation(fields: [chapterId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  comments  Comment[]
+  chapter   Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
   id              String         @id @default(cuid())
   message         String
   userId          String
-  user            User           @relation(fields: [userId], references: [id])
-  commentThread   CommentThread? @relation(fields: [commentThreadId], references: [id])
   commentThreadId String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-}
-
-// COURSE >>>
-
-enum ChapterStatus {
-  DRAFT
-  REVIEW
-  PUBLISHED
+  commentThread   CommentThread? @relation(fields: [commentThreadId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Chapter {
@@ -97,17 +85,17 @@ model Chapter {
   status          ChapterStatus    @default(DRAFT)
   title           String
   themeId         String?
-  theme           Theme?           @relation(fields: [themeId], references: [id])
-  content         Json // TipTap output
-  skills          Skill[]
-  tags            Tag[]
-  blocks          Block[]
-  educationLevels EducationLevel[]
+  content         Json
   userId          String
-  user            User             @relation(fields: [userId], references: [id])
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+  blocks          Block[]
+  theme           Theme?           @relation(fields: [themeId], references: [id])
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentThread   CommentThread[]
+  educationLevels EducationLevel[]
+  skills          Skill[]          @relation("ChapterToSkill")
+  tags            Tag[]            @relation("ChapterToTag")
 }
 
 model Theme {
@@ -118,108 +106,118 @@ model Theme {
 
 model Skill {
   id       String    @id @default(cuid())
-  title    String
-  chapters Chapter[]
-
-  @@unique([title])
+  title    String    @unique
+  chapters Chapter[] @relation("ChapterToSkill")
 }
 
 model KeyIdea {
   id     String  @id @default(cuid())
-  title  String
-  blocks Block[]
-
-  @@unique([title])
+  title  String  @unique
+  blocks Block[] @relation("BlockToKeyIdea")
 }
 
 model Tag {
   id          String     @id @default(cuid())
-  title       String
+  title       String     @unique
   description String
-  chapters    Chapter[]
-  blocks      Block[]
-  activities  Activity[]
-
-  @@unique([title])
+  activities  Activity[] @relation("ActivityToTag")
+  blocks      Block[]    @relation("BlockToTag")
+  chapters    Chapter[]  @relation("ChapterToTag")
 }
 
 model Block {
   id         String     @id @default(cuid())
   title      String
-  tags       Tag[]
-  keyIdeas   KeyIdea[]
-  activities Activity[]
-  content    Json // TipTap output
+  content    Json
   chapterId  String
-  chapter    Chapter    @relation(fields: [chapterId], references: [id])
   userId     String
-  user       User       @relation(fields: [userId], references: [id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+  activities Activity[]
+  chapter    Chapter    @relation(fields: [chapterId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  keyIdeas   KeyIdea[]  @relation("BlockToKeyIdea")
+  tags       Tag[]      @relation("BlockToTag")
 }
 
 model Activity {
   id        String   @id @default(cuid())
   title     String
-  content   Json // TipTap output
-  tags      Tag[]
+  content   Json
   blockId   String
-  block     Block    @relation(fields: [blockId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  block     Block    @relation(fields: [blockId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  tags      Tag[]    @relation("ActivityToTag")
 }
 
 model EducationLevel {
   id        String   @id @default(cuid())
-  name      String
-  Chapter   Chapter? @relation(fields: [chapterId], references: [id])
+  name      String   @unique
   chapterId String?
-
-  @@unique([name])
+  Chapter   Chapter? @relation(fields: [chapterId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
 }
-
-// USER FILES
 
 model File {
   id           String     @id @default(cuid())
   description  String
   author       String
   s3ObjectName String
-  fileTypes    FileType[]
   extension    String
   shared       Boolean
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  User         User?      @relation(fields: [userId], references: [id])
   userId       String?
+  User         User?      @relation(fields: [userId], references: [id])
+  fileTypes    FileType[]
 }
 
 model FileType {
   id     String  @id @default(cuid())
   name   String
-  File   File?   @relation(fields: [fileId], references: [id])
   fileId String?
+  File   File?   @relation(fields: [fileId], references: [id])
 }
 
-// USERS
+model Academy {
+  id   String @id @default(cuid())
+  name String
+  User User[]
+}
+
+model SchoolsSubjects {
+  id     String  @id @default(cuid())
+  name   String
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
 model User {
-  id            String                 @id @default(cuid())
-  firstName     String?
-  lastName      String?
-  email         String?                @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  files         File[]
-  Account       Account[]
-  Session       Session[]
-  chapters      Chapter[]
-  blocks        Block[]
-  activities    Activity[]
-  Comment       Comment[]
-  starred       StarredDocumentChunk[]
+  id              String                 @id @default(cuid())
+  firstName       String?
+  roles           UserRoles[]            @default([USER])
+  educationLevels EducationLevel[]
+  schoolSubjects  SchoolsSubjects[]
+  school          String?
+  lastName        String?
+  email           String?                @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  academy         Academy?               @relation(fields: [academyId], references: [id])
+  Account         Account[]
+  activities      Activity[]
+  blocks          Block[]
+  chapters        Chapter[]
+  Comment         Comment[]
+  files           File[]
+  Session         Session[]
+  starred         StarredDocumentChunk[]
+  academyId       String?
 }
 
 model Account {
@@ -228,15 +226,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -255,4 +252,16 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum UserRoles {
+  ADMIN
+  REVIEWER
+  USER
+}
+
+enum ChapterStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
 }

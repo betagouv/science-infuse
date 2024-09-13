@@ -1,4 +1,4 @@
-import { ChapterWithBlock } from "../api-client";
+import { ChapterWithBlock, UserFull } from "../api-client";
 import prisma from "../prisma";
 
 export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {
@@ -22,4 +22,25 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
             educationLevels: true,
         }
     });
+}
+
+export const getUserFull = async (userId: string) => {
+    const user: UserFull | null = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            firstName: true,
+            email: true,
+            roles: true,
+            school: true,
+            lastName: true,
+            emailVerified: true,
+            image: true,
+            academyId: true,
+            educationLevels: true,
+            schoolSubjects: true,
+            // Add other fields you want to include, but exclude password
+        }
+    });
+    return user;
 }

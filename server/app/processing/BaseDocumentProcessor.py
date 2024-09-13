@@ -4,25 +4,14 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-import psycopg2
 from S3Storage import S3Storage
+from SIPostgresClient import SIPostgresClient
 from router.embedding import get_embeddings
 from schemas import Document, DocumentChunk
 
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="scienceinfuse", 
-    user="postgres", 
-    password=f"{os.environ['POSTGRES_PASSWORD']}"
-)
-
-cur = conn.cursor()
-
 class BaseDocumentProcessor(ABC):
     def __init__(self):
-        self.cur = cur
-        self.conn = conn
         self.base_download_folder = os.path.join(os.getcwd(), 'documents')
         self.id = str(uuid.uuid4())
         self.process_document()
@@ -59,62 +48,14 @@ class BaseDocumentProcessor(ABC):
         
         
     # Helper function to insert document
-    def insert_document(self, document_id, doc: Document):
-        self.cur.execute("""
-            INSERT INTO "Document" (id, "s3ObjectName", "originalPath", "publicPath", "mediaName")
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id
-        """, (
-            document_id, doc.s3ObjectName, doc.originalPath, doc.publicPath, doc.mediaName
-        ))
-        return self.cur.fetchone()[0]
-
-
-    # Helper function to insert document chunk
-    def insert_chunk(self, chunk: DocumentChunk, text_embedding, document_id):
-        for field in ['text', 'title', 'media_type']:
-            if field in chunk and '\x00' in chunk[field]:
-                chunk[field] = chunk[field].replace('\x00', '')
-
-        chunk_uuid = str(uuid.uuid4())
-        self.cur.execute("""
-            INSERT INTO "DocumentChunk" (id, "text", "textEmbedding", "title", "mediaType", "documentId")
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-        """, (
-            chunk_uuid, chunk.text, text_embedding, chunk.title, chunk.mediaType, document_id
-        ))
-        chunk_id = self.cur.fetchone()[0]
-        meta_uuid = str(uuid.uuid4())
-        metadata = chunk.metadata.model_dump()
-        # Insert metadata
-        self.cur.execute("""
-            INSERT INTO "DocumentChunkMeta" (id, "documentChunkId", "s3ObjectName", "pageNumber", "bbox", "type", "start", "end", "question", "answer", "url", "description", "title")
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            meta_uuid, 
-            chunk_id, 
-            metadata.get("s3ObjectName"), 
-            metadata.get("pageNumber"),
-            json.dumps(metadata.get("bbox")), 
-            metadata.get("type"),
-            metadata.get("start"), 
-            metadata.get("end"),
-            metadata.get("question"), 
-            metadata.get("answer"), 
-            metadata.get("url"),
-            metadata.get("description"),
-            metadata.get("title"),
-        ))
-        return
 
     def save_document(self, document: Document, chunks: List[DocumentChunk]):
         
-        document_id = str(uuid.uuid4())
-        db_document = self.insert_document(document_id, document)
-        
-        for chunk in chunks:
-            print("INSERT CHUNK - ", chunk, flush=True)
-            vector = get_embeddings(chunk.text)
-            self.insert_chunk(chunk, vector, document_id)
-        self.conn.commit()
+        with SIPostgresClient() as client:
+            document_id = str(uuid.uuid4())
+            db_document = client.insert_document(document_id, document)
+            for chunk in chunks:
+                vector = get_embeddings(chunk.text)
+                print("INSERT CHUNK - ", chunk.text, vector, flush=True)
+                client.insert_chunk(chunk, vector, document_id)
+            client.commit()
