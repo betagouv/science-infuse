@@ -137,13 +137,13 @@ const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode
                     </button>
                 }
 
-                <button
+                {/* <button
                 onClick={async () => {
                     await apiClient.deleteDocument(props.chunk.document.id)
                 }}
                 >
                     delete
-                </button>
+                </button> */}
 
 
             </div>
@@ -179,9 +179,9 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
 
 export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => {
     const path = chunk.title.toLowerCase().split('>');
-if (!chunk.metadata) {
-    console.log("CHUNKKK", chunk)
-}
+    if (!chunk.metadata) {
+        console.log("CHUNKKK", chunk)
+    }
     return (
 
         <Card
