@@ -140,7 +140,7 @@ const LoadingIndicator: React.FC = () => (
 );
 
 const ErrorMessage: React.FC = () => (
-  <p>Une erreur s'est produite lors de la recherche.</p>
+  <p className="text-center">Une erreur s'est produite lors de la recherche.</p>
 );
 
 const NoResultsMessage: React.FC = () => (

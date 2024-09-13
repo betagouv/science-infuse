@@ -51,6 +51,7 @@ model StarredDocumentChunk {
   id              String        @id @default(cuid())
   keyword         String
   userId          String
+  comment         String        @default("")
   documentChunkId String        @db.Uuid
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

@@ -11,7 +11,7 @@
 - [ ] pour les chapitres: les faire recherchable: v1) sur titre v2) vectorielle
 - [ ] Integration matomo
 - [ ] ajouter commentaire dans les  StarredDocumentChunk + UX
-- [ ] message erreur login (actuellemtn si login ne fonctionne pas on a pas de message)
+- [x] message erreur login (actuellemtn si login ne fonctionne pas on a pas de message)
 - [x] Revue decouverte -> pas telechargable
 - [ ] http://localhost:3000/prof/parametres -> ajouter nom etablissmeent
 
