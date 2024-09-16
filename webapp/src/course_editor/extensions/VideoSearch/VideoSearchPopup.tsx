@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import axios from 'axios';
 import { ChunkSearchResultsWithType, ChunkWithScore } from '@/types/vectordb';
-import { NEXT_PUBLIC_SERVER_URL } from '@/config';
+import { NEXT_PUBLIC_SERVER_URL, WEBAPP_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import VideoPlayer from '@/app/mediaViewers/VideoPlayer';
 import { Button } from '@mui/material';
@@ -46,7 +46,7 @@ const VideoSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
       <Masonry columns={2} spacing={2}>
         {results != undefined && (results as ChunkSearchResultsWithType<"video_transcript">).chunks.map((chunk, index) => {
           const duration = Math.floor(chunk.metadata.end - chunk.metadata.start);
-          const videoUrl = `/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`;
+          const videoUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`;
           return (
             <div key={index} className="rounded-lg overflow-hidden shadow-lg bg-white">
               <div className="flex flex-col p-4">

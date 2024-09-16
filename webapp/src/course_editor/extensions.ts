@@ -30,8 +30,7 @@ import PdfBlock from './extensions/PdfBlock/PdfBlock'
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider'
 import { FontSize } from './extensions/FontSize'
 import { AutocompleteExtension } from './extensions/AutoComplete'
-import { IntroductionNode } from './extensions/CourseBlock/IntroductionNode'
-import { ReportNode } from './extensions/CourseBlock/ReportNode'
+
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import { SaveCourse } from './extensions/SaveCourse'
 import { TrailingNode } from './extensions/TrailingNode'
@@ -72,8 +71,6 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         // course
         CourseBlockNode,
         TitleNode,
-        IntroductionNode, 
-        ReportNode,
         // ContentNode,
         // /course
         CustomDocument,
@@ -136,9 +133,9 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
                     }
                     return 'Titre';
                 }
-                if (node.type.name === 'introduction') {
-                    return node.attrs['data-is-empty'] === 'true' ? 'placeholder for introduction' : '';
-                }        
+                // if (node.type.name === 'introduction') {
+                //     return node.attrs['data-is-empty'] === 'true' ? 'placeholder for introduction' : '';
+                // }        
                 return "";
             },
             showOnlyWhenEditable: false,
