@@ -26,6 +26,8 @@ libgbm-dev \
 libxshmfence1 \
 libdrm2
 
+RUN apt-get install chromium
+
 COPY package.json ./
 COPY package-lock.json ./
 COPY .npmrc ./
