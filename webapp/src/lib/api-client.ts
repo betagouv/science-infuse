@@ -3,6 +3,7 @@ import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, Docum
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { TableOfContents } from './types';
+import { WEBAPP_URL } from '@/config';
 
 
 export interface UserFull extends Omit<User, 'password'> {
@@ -172,10 +173,11 @@ class ApiClient {
         },
       });
 
+      console.log("WEBAPP_URLWEBAPP_URLWEBAPP_URLWEBAPP_URL", WEBAPP_URL)
       if (response.data && response.data.s3ObjectName) {
         return {
           s3ObjectName: response.data.s3ObjectName,
-          url: `/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
+          url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
           id: response.data.id,
         }
       } else {

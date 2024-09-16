@@ -77,10 +77,15 @@ const CourseBlockNode = Node.create({
     ]
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }), 0]
+  // renderHTML({ HTMLAttributes }) {
+  //   return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }), 0]
+  // },
+  renderHTML({ HTMLAttributes, node }) {
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }),
+      ['h2', { class: 'course-block-title' }, node.attrs.title],
+      ['div', { class: 'course-block-content' }, 0]
+    ]
   },
-
   addCommands() {
     return {
       setCourseTitle: (title: string) => ({ tr, dispatch, chain, state, editor }) => {
