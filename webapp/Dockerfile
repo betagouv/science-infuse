@@ -80,6 +80,10 @@ RUN npx prisma generate
 
 RUN npm run build
 
+# Copy and set permissions for entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Change ownership of the app directory to appuser
 RUN chown -R appuser:appuser /app
 
@@ -88,7 +92,4 @@ USER appuser
 
 EXPOSE 3000
 
-# Use a shell script as entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
