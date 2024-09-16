@@ -17,6 +17,7 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     CourseBlockNode: {
       addCourseBlock: (blockId: string) => ReturnType;
+      setCourseTitle: (title: string) => ReturnType;
       removeCourseBlock: (id: string) => ReturnType;
       updateCourseBlockQuestions: (id: string, questions: Question[]) => ReturnType;
       updateCourseBlockKeyIdeas: (id: string, keyIdeas: KeyIdea[]) => ReturnType;
@@ -25,6 +26,7 @@ declare module "@tiptap/core" {
   interface Node {
     attrs: {
       id?: string;
+      title?: string;
       quizQuestions: Question[];
       keyIdeas: KeyIdea[];
     };
@@ -36,12 +38,19 @@ declare module "@tiptap/core" {
 const CourseBlockNode = Node.create({
   name: 'courseBlock',
   group: 'block',
-  content: 'heading introduction block+ report',
+  content: 'block+',
 
   addAttributes() {
     return {
       id: {
         default: () => `course-block-${Math.random().toString(36).substr(2, 9)}`,
+      },
+      title: {
+        default: [],
+        parseHTML: element => JSON.parse(element.getAttribute('data-title') || ''),
+        renderHTML: attributes => ({
+          'data-title': attributes.title,
+        }),
       },
       quizQuestions: {
         default: [],
@@ -74,6 +83,27 @@ const CourseBlockNode = Node.create({
 
   addCommands() {
     return {
+      setCourseTitle: (title: string) => ({ tr, dispatch, chain, state, editor }) => {
+        const { doc } = tr
+        let nodePos = -1
+
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'courseBlock') {
+            nodePos = pos
+            return false
+          }
+        })
+
+        if (nodePos > -1) {
+          tr.setNodeAttribute(nodePos, 'title', title)
+          if (dispatch) {
+            dispatch(tr)
+          }
+          return false
+        }
+
+        return false
+      },
       addCourseBlock: (blockId: string) => ({ chain, state, editor }) => {
         if (state.selection.$from.depth > 1) {
           return false
@@ -85,28 +115,7 @@ const CourseBlockNode = Node.create({
             attrs: { id: blockId },
             content: [
               {
-                type: "heading", attrs: { "level": 2 }, content: [{ type: 'text', text: 'Chapitre' }]
-              },
-              {
-                type: 'introduction',
-                content: [
-                  {
-                    type: "heading", attrs: { "level": 3 }, content: [{ type: 'text', text: 'Introduction' }]
-                  },
-                  { type: 'paragraph', content: [{ type: 'text', text: ' ' }] },
-                ]
-              },
-              {
                 type: 'paragraph',
-              },
-              {
-                type: 'report',
-                content: [
-                  {
-                    type: "heading", attrs: { "level": 3 }, content: [{ type: 'text', text: 'Bilan de bloc' }]
-                  },
-                  { type: 'paragraph', content: [{ type: 'text', text: ' ' }] },
-                ]
               },
             ],
           })
@@ -288,29 +297,47 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const getTitle = () => {
-    const firstElement = node.content.firstChild
-    return firstElement ? firstElement.textContent : ''
-  }
+  // const getTitle = () => {
+  //   const firstElement = node.content.firstChild
+  //   return firstElement ? firstElement.textContent : ''
+  // }
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block bg-[--background-default-grey] sm:rounded-xl sm:border sm:shadow-lg p-8">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block">
       <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>
-      <MemoKeyIdeasPicker
+      {/* <MemoKeyIdeasPicker
         getContext={getCourseBlockText}
         className='mb-4 w-full'
         selectedKeyIdeas={selectedKeyIdeas}
         onSelectedKeyIdeas={updateKeyIdeas}
+      /> */}
+
+      {/* TODO: Get block title from block attrs (add to courseBlock plugin) */}
+      <input
+        type="text"
+        placeholder="Titre du bloc"
+        // defaultValue={getTitle()}
+        className="text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none"
+        value={node.attrs.title}
+        onChange={(e) => {
+          const newTitle = e.target.value;
+          editor.commands.setCourseTitle(newTitle);
+          // editor.commands.updateCourseBlockTitle(node.attrs.id, newTitle);
+        }}
       />
-      <NodeViewContent className="content" />
-      <MemoQuiz
+      <div className="bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
+
+        <NodeViewContent className="content" />
+      </div>
+      <hr className='mt-8' />
+      {/* <MemoQuiz
         parentRef={parentRef}
         questions={questions}
         setQuestions={updateQuestions}
         isExpanded={isExpanded}
         setIsExpanded={setIsExpanded}
         getContext={getCourseBlockText}
-      />
+      /> */}
     </NodeViewWrapper>
   )
 }
