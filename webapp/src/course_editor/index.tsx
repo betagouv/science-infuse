@@ -129,8 +129,10 @@ export const TiptapEditor = (props: { editor: Editor }) => {
 
   return (
     <div className="flex flex-row mt-8">
-      <div className="flex justify-center min-w-96 p-4 md:p-16">
-        <ExportToPdf editor={editor} />
+      <div className="relative min-w-96 p-4 md:p-16">
+        <div className="sticky top-8 flex flex-col space-y-4">
+          <ExportToPdf editor={editor} />
+        </div>
       </div>
 
       <StyledEditor
