@@ -19,4 +19,10 @@ async function setupPgVector() {
   }
 }
 
-setupPgVector();
+setupPgVector().then(() => {
+  console.log('Setup complete');
+  process.exit(0);
+}).catch((error) => {
+  console.error('Setup failed:', error);
+  process.exit(1);
+});
