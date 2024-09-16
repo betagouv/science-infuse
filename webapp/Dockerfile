@@ -3,6 +3,27 @@ FROM node:22.4
 WORKDIR /app
 RUN mkdir -p /app/public
 
+RUN apt-get update && apt-get install -y \
+libx11-xcb1 \
+libxcb1 \
+libxcomposite1 \
+libxcursor1 \
+libxdamage1 \
+libxext6 \
+libxi6 \
+libxtst6 \
+libnss3 \
+libcups2 \
+libxss1 \
+libxrandr2 \
+libasound2 \
+libatk1.0-0 \
+libgtk-3-0 \
+libgbm-dev \
+libxshmfence1 \
+libdrm2
+
+
 COPY package.json ./
 COPY package-lock.json ./
 COPY .npmrc ./
