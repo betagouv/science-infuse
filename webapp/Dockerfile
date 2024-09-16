@@ -42,6 +42,8 @@ COPY tailwind.config.ts ./tailwind.config.ts
 COPY postcss.config.mjs ./postcss.config.mjs
 COPY .eslintrc.json ./.eslintrc.json
 
+RUN npx @puppeteer/browsers install chrome@stable
+
 ARG NEXT_PUBLIC_FILE_SERVER_URL
 ENV NEXT_PUBLIC_FILE_SERVER_URL $NEXT_PUBLIC_FILE_SERVER_URL
 
