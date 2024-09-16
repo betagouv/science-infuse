@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
 import { ChunkSearchResultsWithType } from '@/types/vectordb';
-import { NEXT_PUBLIC_SERVER_URL } from '@/config';
+import { NEXT_PUBLIC_SERVER_URL, WEBAPP_URL } from '@/config';
 import Masonry from '@mui/lab/Masonry';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@tanstack/react-query';
@@ -43,7 +43,7 @@ const ImageSearchPopup = (props: { editor: Editor; closePopup: () => void }) => 
       />
       <Masonry columns={2} spacing={2}>
         {results != undefined && (results as ChunkSearchResultsWithType<"pdf_image">).chunks.map((chunk, index) => {
-          const image = `/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
+          const image = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
           return (
             <div key={index} className="masonry-item">
               <img
