@@ -141,9 +141,32 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)]
-  },
+    let styleString = '';
+    const width = HTMLAttributes?.['data-width']
+    const align = HTMLAttributes?.['data-align']
 
+    if (width) {
+      styleString += `width: ${width};`;
+    }
+
+    if (align) {
+      styleString += 'display: block;';
+      styleString += `margin-left: ${align === 'left' ? '0' : align === 'center' ? 'auto' : 'none'};`;
+      styleString += `margin-right: ${align === 'right' ? '0' : align === 'center' ? 'auto' : 'none'};`;
+      if (align === 'left' || align === 'right') {
+        styleString += `float: ${align};`;
+      }
+    }
+    console.log("STYLEEE", styleString, "||", HTMLAttributes)
+
+    const attributes = {
+      ...this.options.HTMLAttributes,
+      ...HTMLAttributes,
+      style: styleString,
+    };
+
+    return ['img', mergeAttributes(attributes)]
+  },
   addCommands() {
     return {
       setImageFromFile:

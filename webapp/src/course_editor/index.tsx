@@ -55,6 +55,35 @@ export const useTiptapEditor = () => {
   }
 };
 
+const ExportToPdf = (props: { editor: Editor }) => {
+  return (
+    <Button
+      iconId="fr-icon-download-fill"
+      iconPosition="right"
+      className='bg-black  h-fit' onClick={() => {
+        fetch('/api/export/pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ html: props.editor.getHTML() }),
+        })
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'exported_document.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => console.error('Error:', error));
+      }}>Télécharger en PDF</Button>
+  )
+}
+
 export const TiptapEditor = (props: { editor: Editor }) => {
 
   const { editor } = props;
@@ -99,53 +128,38 @@ export const TiptapEditor = (props: { editor: Editor }) => {
 
 
   return (
-    <StyledEditor
-      id="editor"
-      className='container mx-auto relative min-h-[500px] w-full max-w-screen-lg border border-solid border-[#f1f5f9] bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg mt-8 p-4 md:p-16 ' style={{ minHeight: '100vh' }}
-    >
-
-      <Button onClick={() => {
-        fetch('/api/export/pdf', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ html: editor.getHTML() }),
-        })
-          .then(response => response.blob())
-          .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'exported_document.pdf';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-          })
-          .catch(error => console.error('Error:', error));
-      }}>EXPORT</Button>
-
-      <SkillsPicker
-        selectedSkills={editor.storage.simetadata.skills}
-        onSelectedSkills={updateSkills}
-        className='mb-4' />
-
-      <EducationLevelPicker
-        selectedEducationLevels={editor.storage.simetadata.educationLevels}
-        onSelectedEducationLevels={updateEducationLevel}
-        className='mb-4' />
-
-      <div className="flex h-full" ref={menuContainerRef}>
-
-        <EditorContext.Provider value={providerValue}>
-          <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
-          {editor && <TextMenu editor={editor} />}
-          <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
-        </EditorContext.Provider>
-
+    <div className="flex flex-row mt-8">
+      <div className="flex justify-center min-w-96 p-4 md:p-16">
+        <ExportToPdf editor={editor} />
       </div>
-      <Snackbar />
-    </StyledEditor>
+
+      <StyledEditor
+        id="editor"
+        className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16 ' style={{ minHeight: '100vh' }}
+      >
+
+        <SkillsPicker
+          selectedSkills={editor.storage.simetadata.skills}
+          onSelectedSkills={updateSkills}
+          className='mb-4' />
+
+        <EducationLevelPicker
+          selectedEducationLevels={editor.storage.simetadata.educationLevels}
+          onSelectedEducationLevels={updateEducationLevel}
+          className='mb-4' />
+
+        <div className="flex h-full" ref={menuContainerRef}>
+
+          <EditorContext.Provider value={providerValue}>
+            <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
+            {editor && <TextMenu editor={editor} />}
+            <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
+          </EditorContext.Provider>
+
+        </div>
+        <Snackbar />
+      </StyledEditor>
+
+    </div>
   )
 }
