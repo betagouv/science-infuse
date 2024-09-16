@@ -1,5 +1,8 @@
 FROM node:22.4
 
+# Create a non-root user
+RUN useradd -m appuser
+
 WORKDIR /app
 RUN mkdir -p /app/public
 
@@ -23,12 +26,10 @@ libgbm-dev \
 libxshmfence1 \
 libdrm2
 
-
 COPY package.json ./
 COPY package-lock.json ./
 COPY .npmrc ./
 RUN npm install
-#RUN npm i -g prisma
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY tsconfig.json ./tsconfig.json
@@ -67,20 +68,23 @@ ARG S3_BUCKET
 ENV S3_BUCKET=$S3_BUCKET
 
 ARG NEXTAUTH_SECRET
-ENV NEXTAUTH_SECRET NEXTAUTH_SECRET
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
 
 ARG NEXTAUTH_URL
-ENV NEXTAUTH_URL NEXTAUTH_URL
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Generate Prisma client
-RUN ls
-RUN ls src
-RUN ls src/prisma
 RUN npx prisma generate
 
 RUN npm run build
+
+# Change ownership of the app directory to appuser
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 EXPOSE 3000
 
