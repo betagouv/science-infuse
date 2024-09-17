@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Chapter, User } from "@prisma/client";
 
 //  this should match schema.py
 export const MediaTypes = {
@@ -93,6 +93,11 @@ export interface GroupedVideo {
   items: ChunkWithScore<"video_transcript">[];
   maxScore: number;
 }[]
+
+export type ChapterBlocksResponse = {
+  title: string,
+  chapter: Chapter
+}
 
 export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_image"> & { mediaType: "pdf_image" })

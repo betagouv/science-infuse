@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [vector]
+  extensions = [pgvector(map: "vector")]
 }
 
 model Document {
@@ -22,6 +22,7 @@ model DocumentChunk {
   id                   String                 @id @default(cuid()) @db.Uuid
   text                 String
   textEmbedding        Unsupported("vector")?
+  test String @default("test")
   title                String
   mediaType            String
   documentId           String                 @db.Uuid
@@ -127,18 +128,19 @@ model Tag {
 }
 
 model Block {
-  id         String     @id @default(cuid())
-  title      String
-  content    Json
-  chapterId  String
-  userId     String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  activities Activity[]
-  chapter    Chapter    @relation(fields: [chapterId], references: [id])
-  user       User       @relation(fields: [userId], references: [id])
-  keyIdeas   KeyIdea[]  @relation("BlockToKeyIdea")
-  tags       Tag[]      @relation("BlockToTag")
+  id            String                 @id @default(cuid())
+  title         String
+  content       Json
+  textEmbedding Unsupported("vector")?
+  chapterId     String
+  userId        String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  activities    Activity[]
+  chapter       Chapter                @relation(fields: [chapterId], references: [id])
+  user          User                   @relation(fields: [userId], references: [id])
+  keyIdeas      KeyIdea[]              @relation("BlockToKeyIdea")
+  tags          Tag[]                  @relation("BlockToTag")
 }
 
 model Activity {
@@ -158,9 +160,9 @@ model EducationLevel {
   id        String   @id @default(cuid())
   name      String   @unique
   chapterId String?
+  userId    String?
   Chapter   Chapter? @relation(fields: [chapterId], references: [id])
   User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
 }
 
 model File {
@@ -193,32 +195,32 @@ model Academy {
 model SchoolsSubjects {
   id     String  @id @default(cuid())
   name   String
-  User   User?   @relation(fields: [userId], references: [id])
   userId String?
+  User   User?   @relation(fields: [userId], references: [id])
 }
 
 model User {
   id              String                 @id @default(cuid())
   firstName       String?
   roles           UserRoles[]            @default([USER])
-  educationLevels EducationLevel[]
-  schoolSubjects  SchoolsSubjects[]
   school          String?
   lastName        String?
   email           String?                @unique
   emailVerified   DateTime?
   image           String?
   password        String?
-  academy         Academy?               @relation(fields: [academyId], references: [id])
+  academyId       String?
   Account         Account[]
   activities      Activity[]
   blocks          Block[]
   chapters        Chapter[]
   Comment         Comment[]
+  educationLevels EducationLevel[]
   files           File[]
+  schoolSubjects  SchoolsSubjects[]
   Session         Session[]
   starred         StarredDocumentChunk[]
-  academyId       String?
+  academy         Academy?               @relation(fields: [academyId], references: [id])
 }
 
 model Account {

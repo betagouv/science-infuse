@@ -1,11 +1,12 @@
 import { NEXT_PUBLIC_SERVER_URL, OLLAMA_URL } from "@/config";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { searchDocumentChunks } from "./sql_raw_queries";
+import { searchChapters, searchDocumentChunks } from "./sql_raw_queries";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/authOptions";
 import { QueryRequest } from "@/lib/api-client";
+import { getEmbeddings } from "@/lib/utils/getEmbeddings";
 
 
 export async function POST(request: NextRequest): Promise<NextResponse<any | { error: string }>> {
@@ -18,21 +19,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
     try {
         const params = await request.json() as QueryRequest;
         console.log("PARAMS, ", params)
-        const embeddingResponse = await axios.post(`${NEXT_PUBLIC_SERVER_URL}/embedding/`, {
-            text: params.query
-        })
-        const embedding = embeddingResponse.data
+        const embeddings = await getEmbeddings(params.query)
 
-        const chunks = await searchDocumentChunks(user.id, embedding, params)
-        return NextResponse.json({ page_count: 1, chunks })
-
-
-        // if (response.data && response.data.response) {
-        //     return NextResponse.json(response.data.response)
-        // } else {
-        //     return NextResponse.json({ error: "No response generated" }, { status: 500 })
-        // }
-
+        const chunks = await searchDocumentChunks(user.id, embeddings, params)
+        const chapters = await searchChapters(embeddings);
+        console.log("chapters", chapters)
+        return NextResponse.json({ page_count: 1, chunks, chapters })
     } catch (error) {
         console.log("ERRRRROR", error)
         return NextResponse.json({ error: `unable to search` }, { status: 500 })

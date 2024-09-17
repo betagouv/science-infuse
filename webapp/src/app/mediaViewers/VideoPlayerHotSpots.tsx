@@ -93,6 +93,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                         const end = chunk.metadata.end;
                         const text = chunk.text.length > 200 ? chunk.text.slice(0, 100) + ' [...] ' + chunk.text.slice(-100) : chunk.text;
                         const score = chunk.score;
+                        console.log("SCORE", score)
                         const selected = chunkId == selectedChunk?.id;
                         const starred = !!chunk.user_starred;
                         return (

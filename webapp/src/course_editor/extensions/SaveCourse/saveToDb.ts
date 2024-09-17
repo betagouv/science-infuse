@@ -12,15 +12,10 @@ export const saveBlocks = async (editorContent: JSONContent) => {
             if (block.attrs && block.attrs.id && block.content) {
                 const blockId = block.attrs.id;
                 const blockKeyIdeas = (block.attrs.keyIdeas || []).map((b: KeyIdea) => b.id);
-                const blockTitle = block.content[0]?.content?.[0]?.text || ""
-                console.log(`Block ID: ${block.attrs.id}`)
-                console.log('Block Title:', blockTitle)
-                console.log('Block Content:', block.content)
-                console.log('Block attrs:', block.attrs)
-                console.log('Block kKeyIdeas:', block.attrs.id, blockKeyIdeas)
+                const blockTitle = block.attrs?.title || ""
 
                 try {
-                    const saved = await apiClient.saveBlock(blockId, blockTitle, block.content, blockKeyIdeas)
+                    const saved = await apiClient.updateBlock(blockId, blockTitle, block.content, blockKeyIdeas)
                     if (!saved) {
                         return false;
                     }

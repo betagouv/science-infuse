@@ -1,32 +1,46 @@
 import { Prisma } from '@prisma/client'
 import prisma from "@/lib/prisma"
 import { QueryRequest } from '@/lib/api-client';
+import { JSONContent } from '@tiptap/core';
+
+export async function updateBlock(title: string, content: JSONContent, textEmbedding: number[], userId: string, blockId: string) {
+  const updatedBlock = await prisma.$queryRaw`
+  UPDATE "Block"
+  SET 
+    "title" = ${title},
+    "content" = ${JSON.stringify(content)}::jsonb,
+    "textEmbedding" = ${textEmbedding},
+    "updatedAt" = CURRENT_TIMESTAMP
+  WHERE 
+    "id" = ${blockId} AND "userId" = ${userId};
+    `;
+  return updatedBlock;
+}
 
 
+export async function searchChapters(embedding: number[]) {
+  const startTime = performance.now();
+  const data = await prisma.$queryRaw`
+  SELECT
+  "Block".title,
+  to_json("Chapter".*) as "chapter",
+  1 - ("textEmbedding" <=> ${embedding}::vector) as score
+  FROM "Block"
+  LEFT JOIN "Chapter" ON "Chapter"."id" = "Block"."chapterId"
+  WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.21
+  ORDER BY score DESC
+  LIMIT 100
+`;
+  const endTime = performance.now();
+  const executionTime = endTime - startTime;
+  console.log(`Execution time: ${executionTime} milliseconds`);
 
+  return data;
+}
 export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
   const startTime = performance.now();
-
-
-  // // First, get all column names except the vector column
-  // const columnsQuery = await prisma.$queryRaw<[{ columns: string }]>`
-  //   SELECT string_agg(column_name, ', ') as columns
-  //   FROM information_schema.columns
-  //   WHERE table_name = 'DocumentChunk'
-  //     AND column_name != 'textEmbedding'
-  // `;
-
-  // const columns = columnsQuery[0].columns.split(', ')
-  //   // .filter(c => c.toLocaleLowerCase() != "documentid")
-  //   .filter(c => c != "id")
-  //   .map(c => `"${c}"`)
-  //   .join(", ");
-  // console.log("COLUMNS==========", columns)
-
-  // Now use these columns in the main query
-  // ${Prisma.raw(columns)}, // NOTE:, to make dynamic, could replace |"documentId", "text", "title", "mediaType",| with this
-
   const data = await prisma.$queryRaw`
+WITH ranked_chunks AS (
   SELECT
     "DocumentChunk"."text",
     "DocumentChunk"."title",
@@ -45,14 +59,14 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
   LEFT JOIN "StarredDocumentChunk" 
     ON "DocumentChunk"."id" = "StarredDocumentChunk"."documentChunkId"
     AND "StarredDocumentChunk"."userId" = ${userId}
-  -- add a threshold, discard results bellow 0.21 score (considered not relevent). Might need to find a sweet spot
-  WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.21
-  -- filter by media type if specified in search params
+  WHERE "textEmbedding" IS NOT NULL
     ${params.mediaTypes ? Prisma.sql`AND "DocumentChunk"."mediaType" = ANY(${params.mediaTypes}::text[])` : Prisma.empty}
-  ORDER BY score DESC
-  -- limit result to 1000
-  LIMIT ${Math.min(params.limit || 1000, 1000)}
-
+)
+SELECT *
+FROM ranked_chunks
+WHERE score > 0.21
+ORDER BY score DESC
+LIMIT ${Math.min(params.limit || 1000, 1000)}
 `;
   const endTime = performance.now();
   const executionTime = endTime - startTime;
