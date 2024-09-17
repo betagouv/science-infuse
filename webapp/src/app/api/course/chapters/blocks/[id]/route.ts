@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { getTiptapNodeText } from './getTiptapNodeText';
+import { getEmbeddings } from '@/lib/utils/getEmbeddings';
+import { updateBlock } from '@/app/api/search/sql_raw_queries';
 
 const prisma = new PrismaClient();
 
@@ -46,24 +49,26 @@ export async function PUT(
     }
 
     const { title, content, keyIdeas } = await request.json();
-    console.log("SAVE BLOCKKKKK", title, "\n", content, "\n", keyIdeas)
+    const blockText = getTiptapNodeText({content: JSON.parse(content)}, 0);
+    const embeddings = await getEmbeddings(blockText)
+    const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id)
 
-    const updatedBlock = await prisma.block.update({
-      where: {
-        id: params.id,
-        userId: session.user.id,
-      },
-      data: {
-        title,
-        content,
-        keyIdeas: {
-          set: keyIdeas.map((id: string) => ({ id })),
-        },
+    // const updatedBlock = await prisma.block.update({
+    //   where: {
+    //     id: params.id,
+    //     userId: session.user.id,
+    //   },
+    //   data: {
+    //     title,
+    //     content,
+    //     keyIdeas: {
+    //       set: keyIdeas.map((id: string) => ({ id })),
+    //     },
 
-      },
-    });
+    //   },
+    // });
 
-    return NextResponse.json(updatedBlock);
+    return NextResponse.json(true);
   } catch (error) {
     console.error('Error updating block:', error);
     return NextResponse.json({ error: 'Failed to update block' }, { status: 500 });

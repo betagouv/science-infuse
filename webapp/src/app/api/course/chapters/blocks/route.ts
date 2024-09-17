@@ -4,6 +4,10 @@ import { CreateChapterBlockRequest } from '@/types/api/chapter';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
 import { Block } from '@prisma/client';
+import { getEmbeddings } from '@/lib/utils/getEmbeddings';
+import { getTiptapNodeText } from './[id]/getTiptapNodeText';
+import { JSONContent } from '@tiptap/core';
+import { updateBlock } from '@/app/api/search/sql_raw_queries';
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +24,6 @@ export async function POST(request: Request) {
       throw new Error(`CourseChapter with id ${chapterId} not found`);
     }
 
-    console.log("CREATE BLOCKKKK", title, content, chapterId, session.user.id)
     const block = await prisma.block.create({
       data: {
         title,

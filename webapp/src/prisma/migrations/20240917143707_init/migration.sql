@@ -2,6 +2,9 @@
 CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- CreateEnum
+CREATE TYPE "UserRoles" AS ENUM ('ADMIN', 'REVIEWER', 'USER');
+
+-- CreateEnum
 CREATE TYPE "ChapterStatus" AS ENUM ('DRAFT', 'REVIEW', 'PUBLISHED');
 
 -- CreateTable
@@ -19,7 +22,8 @@ CREATE TABLE "Document" (
 CREATE TABLE "DocumentChunk" (
     "id" UUID NOT NULL,
     "text" TEXT NOT NULL,
-    "textEmbedding" vector,
+    "textEmbedding" vector(768),
+    "test" TEXT NOT NULL DEFAULT 'test',
     "title" TEXT NOT NULL,
     "mediaType" TEXT NOT NULL,
     "documentId" UUID NOT NULL,
@@ -51,6 +55,7 @@ CREATE TABLE "StarredDocumentChunk" (
     "id" TEXT NOT NULL,
     "keyword" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "comment" TEXT NOT NULL DEFAULT '',
     "documentChunkId" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -132,6 +137,7 @@ CREATE TABLE "Block" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" JSONB NOT NULL,
+    "textEmbedding" vector(768),
     "chapterId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -158,6 +164,7 @@ CREATE TABLE "EducationLevel" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "chapterId" TEXT,
+    "userId" TEXT,
 
     CONSTRAINT "EducationLevel_pkey" PRIMARY KEY ("id")
 );
@@ -187,14 +194,34 @@ CREATE TABLE "FileType" (
 );
 
 -- CreateTable
+CREATE TABLE "Academy" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Academy_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SchoolsSubjects" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "userId" TEXT,
+
+    CONSTRAINT "SchoolsSubjects_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "firstName" TEXT,
+    "roles" "UserRoles"[] DEFAULT ARRAY['USER']::"UserRoles"[],
+    "school" TEXT,
     "lastName" TEXT,
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
     "password" TEXT,
+    "academyId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -370,10 +397,19 @@ ALTER TABLE "Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "EducationLevel" ADD CONSTRAINT "EducationLevel_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "Chapter"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "EducationLevel" ADD CONSTRAINT "EducationLevel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "File" ADD CONSTRAINT "File_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FileType" ADD CONSTRAINT "FileType_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "File"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SchoolsSubjects" ADD CONSTRAINT "SchoolsSubjects_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_academyId_fkey" FOREIGN KEY ("academyId") REFERENCES "Academy"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
