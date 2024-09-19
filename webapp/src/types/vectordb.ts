@@ -1,4 +1,5 @@
-import { Chapter, User } from "@prisma/client";
+import { Chapter, EducationLevel, Skill, User } from "@prisma/client";
+import { JSONContent } from "@tiptap/core";
 
 //  this should match schema.py
 export const MediaTypes = {
@@ -94,10 +95,6 @@ export interface GroupedVideo {
   maxScore: number;
 }[]
 
-export type ChapterBlocksResponse = {
-  title: string,
-  chapter: Chapter
-}
 
 export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_image"> & { mediaType: "pdf_image" })
@@ -138,8 +135,22 @@ export interface DocumentSearchResults {
   page_count: number,
 }
 
-export interface ChunkSearchResults {
+export interface ChapterFromBlockFull extends Chapter {
+  educationLevels: EducationLevel[],
+  skills: Skill[],
+}
+
+
+export type BlockWithChapter = {
+  title: string,
+  score: number,
+  content: string,
+  chapter: ChapterFromBlockFull
+}
+
+export interface SearchResults {
   chunks: ChunkWithScoreUnion[],
+  blocks: BlockWithChapter[],
   page_count: number,
 }
 

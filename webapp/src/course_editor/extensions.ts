@@ -35,10 +35,12 @@ import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import { SaveCourse } from './extensions/SaveCourse'
 import { TrailingNode } from './extensions/TrailingNode'
 import Comments from './extensions/Comments'
+import CourseSkillsPickerNode from './extensions/CourseSkillsPicker'
+import CourseBlockKeyIdeaPickerNode from './extensions/CourseBlockKeyIdeaPicker'
 
 
 const CustomDocument = Document.extend({
-    content: 'heading block*',
+    content: 'heading courseSkillsPicker block*',
 })
 
 const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
@@ -70,6 +72,8 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         SIVideo,
         // course
         CourseBlockNode,
+        CourseSkillsPickerNode,
+        CourseBlockKeyIdeaPickerNode,
         TitleNode,
         // ContentNode,
         // /course
@@ -126,7 +130,9 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         }),
         Placeholder.configure({
             placeholder: (props) => {
-                const { node, pos } = props;
+                const { node, pos, editor } = props;
+                if (!editor.isEditable)
+                    return ""
                 if (node.type.name === 'heading') {
                     if (pos === 0) {
                         return 'Titre du cours';

@@ -5,10 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { CircularProgress } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import { ChunkSearchResults, ChunkWithScore, ChunkWithScoreUnion, DocumentSearchResults, GroupedVideo, MediaType } from "@/types/vectordb";
+import { SearchResults, ChunkWithScore, ChunkWithScoreUnion, DocumentSearchResults, GroupedVideo, MediaType, BlockWithChapter } from "@/types/vectordb";
 import { signal } from "@preact/signals-react";
 import { getSearchWords } from "./text-highlighter";
-import ChunkRenderer, { RenderGroupedVideoTranscriptCard } from "./DocumentChunkFull";
+import ChunkRenderer, { RenderChapter, RenderChapterBlock, RenderGroupedVideoTranscriptCard } from "./DocumentChunkFull";
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
 import { DEFAULT_PAGE_NUMBER, NEXT_PUBLIC_SERVER_URL } from "@/config";
@@ -18,6 +18,7 @@ import { useEffect, useState } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import VideoPlayerHotSpots from "../mediaViewers/VideoPlayerHotSpots";
 import { MasonaryItem } from "@/components/MasonaryItem";
+import { ChapterWithBlock } from "@/lib/api-client";
 
 const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) => {
   // Group by documentId
@@ -63,8 +64,8 @@ const Search: React.FC = () => {
 
   const resultPerPage = 10
 
-  const chunks = results && (results as ChunkSearchResults).chunks
-    ? (results as ChunkSearchResults).chunks
+  const chunks = results && (results as SearchResults).chunks
+    ? (results as SearchResults).chunks
       .filter(chunk => activeTypes.includes(chunk.mediaType as MediaType))
     : [];
 
@@ -86,37 +87,40 @@ const Search: React.FC = () => {
       <div className="fr-col-12 fr-container main-content-item">
         <div className="py-16 flex flex-col gap-8 md:px-0">
           <SearchHeader query={query} />
-          <Tabs chunks={(results as ChunkSearchResults)?.chunks || []} />
+          <Tabs blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
           {isLoading && <LoadingIndicator />}
           {isError && <ErrorMessage />}
           {!isLoading && !isError && !results && <NoResultsMessage />}
           {!isLoading && !isError && results && (
-            selectedTabType.value != TabType.Videos ?
-              <ChunkResults
-                chunks={chunks.slice((pageNumber - 1) * resultPerPage, pageNumber * resultPerPage)}
-                searchWords={searchWords}
-              /> :
-              <GroupedVideoChunkResults
-                groupedVideos={groupedVideos.slice((pageNumber - 1) * resultPerPage, pageNumber * resultPerPage)}
-                searchWords={searchWords}
-              />
+            selectedTabType.value === TabType.Chapters ?
+              <BlockResults
+                blocks={(results as SearchResults).blocks}
+                searchWords={searchWords} /> :
+              selectedTabType.value !== TabType.Videos ?
+                <ChunkResults
+                  chunks={chunks.slice((pageNumber - 1) * resultPerPage, pageNumber * resultPerPage)}
+                  searchWords={searchWords}
+                /> :
+                <GroupedVideoChunkResults
+                  groupedVideos={groupedVideos.slice((pageNumber - 1) * resultPerPage, pageNumber * resultPerPage)}
+                  searchWords={searchWords}
+                />
           )
           }
 
-          <Pagination
+          {selectedTabType.value != TabType.Chapters && <Pagination
             className="[&_ul]:justify-around"
             count={pageCount}
             defaultPage={Math.max(pageNumber, 1)}
             getPageLinkProps={(newPageNumber: number) => ({
               onClick: (e) => {
                 e.preventDefault();
-                console.log("PaginationComponent newPageNumber", newPageNumber)
                 setPageNumber(newPageNumber)
               },
               href: ``,
             })}
             showFirstLast
-          />
+          />}
         </div>
       </div>
       <Snackbar />
@@ -166,6 +170,31 @@ const GroupedVideoChunkResults: React.FC<{ groupedVideos: GroupedVideo[], search
     </Masonry>
   )
 }
+
+export const ChapterResults: React.FC<{ chapters: ChapterWithBlock[] }> = ({ chapters }) => {
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+    {chapters
+      .map((chapter, index) => (
+        <MasonaryItem key={index}>
+          <RenderChapter chapter={chapter} />
+        </MasonaryItem>
+      ))
+    }
+  </Masonry>
+};
+
+export const BlockResults: React.FC<{ blocks: BlockWithChapter[], searchWords: string[] }> = ({ blocks, searchWords }) => {
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+    {blocks
+      .sort((a, b) => b.score - a.score)
+      .map((block, index) => (
+        <MasonaryItem key={index}>
+          <RenderChapterBlock searchWords={searchWords} block={block} />
+        </MasonaryItem>
+      ))
+    }
+  </Masonry>
+};
 
 const ChunkResults: React.FC<{ chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ chunks, searchWords }) => {
   return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>

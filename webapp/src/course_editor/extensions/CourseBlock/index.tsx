@@ -38,7 +38,7 @@ declare module "@tiptap/core" {
 const CourseBlockNode = Node.create({
   name: 'courseBlock',
   group: 'block',
-  content: 'block+',
+  content: 'courseBlockKeyIdeaPicker block+',
 
   addAttributes() {
     return {
@@ -47,7 +47,7 @@ const CourseBlockNode = Node.create({
       },
       title: {
         default: [],
-        parseHTML: element => JSON.parse(element.getAttribute('data-title') || ''),
+        parseHTML: element => element.getAttribute('data-title'),
         renderHTML: attributes => ({
           'data-title': attributes.title,
         }),
@@ -119,6 +119,29 @@ const CourseBlockNode = Node.create({
             type: this.name,
             attrs: { id: blockId },
             content: [
+              {
+                type: 'courseBlockKeyIdeaPicker',
+                content: [
+                  {
+                    type: "bulletList",
+                    content: [
+                      {
+                        type: "listItem",
+                        content: [
+                          {
+                            type: "paragraph",
+                            content: [
+                              {
+                                type: "text",
+                                text: "..."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                    ]
+                  }]
+              },
               {
                 type: 'paragraph',
               },
@@ -309,7 +332,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
   return (
     <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block">
-      <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>
+      {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
       {/* <MemoKeyIdeasPicker
         getContext={getCourseBlockText}
         className='mb-4 w-full'
@@ -321,8 +344,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       <input
         type="text"
         placeholder="Titre du bloc"
-        // defaultValue={getTitle()}
-        className="text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none"
+        className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none focus:outline-none focus:ring-0"
         value={node.attrs.title}
         onChange={(e) => {
           const newTitle = e.target.value;

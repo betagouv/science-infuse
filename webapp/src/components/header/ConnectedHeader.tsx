@@ -19,7 +19,7 @@ const Arrow = (props: { active: boolean }) => (
     >
         <path
             fillRule="evenodd"
-            clip-rule="evenodd"
+            clipRule="evenodd"
             d="M4.99999 2.21883L1.69999 5.51883L0.757324 4.57616L4.99999 0.333496L9.24266 4.57616L8.29999 5.51883L4.99999 2.21883Z"
             fill="black"
         />
@@ -42,11 +42,10 @@ color: black !important;
 export default () => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const { data: session } = useSession();
+    const router = useRouter();
     const user = session?.user;
 
     if (!user) return;
-
-    console.log("USER", user)
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -56,9 +55,8 @@ export default () => {
         setAnchorEl(null);
     };
 
-    const open = Boolean(anchorEl);
+    const open = !!anchorEl;
     const id = open ? 'simple-popover' : undefined;
-    const router = useRouter();
 
     return (
         <div className="flex">

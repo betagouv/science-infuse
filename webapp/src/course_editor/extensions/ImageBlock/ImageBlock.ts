@@ -34,6 +34,8 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
 
   defining: true,
 
+  draggable: true,
+
   isolating: true,
 
   addOptions() {

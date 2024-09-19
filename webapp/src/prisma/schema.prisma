@@ -22,7 +22,7 @@ model DocumentChunk {
   id                   String                 @id @default(cuid()) @db.Uuid
   text                 String
   textEmbedding        Unsupported("vector")?
-  test String @default("test")
+  test                 String                 @default("test")
   title                String
   mediaType            String
   documentId           String                 @db.Uuid
@@ -267,4 +267,5 @@ enum ChapterStatus {
   DRAFT
   REVIEW
   PUBLISHED
+  DELETED
 }

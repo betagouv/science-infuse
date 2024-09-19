@@ -2,7 +2,6 @@
 
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { EMPTY_DOCUMENT } from '@/config';
-import Button from '@codegouvfr/react-dsfr/Button';
 import styled from '@emotion/styled';
 import { EducationLevel, Skill } from '@prisma/client';
 import { Editor, EditorContent, useEditor } from '@tiptap/react';
@@ -16,17 +15,19 @@ import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
 import { TextMenu } from './extensions/BubbleMenu/TextMenu';
 import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
 import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
+import CourseSettings from './components/CourseSettings';
 
 const StyledEditor = styled.div`
 `
 
 
-export const useTiptapEditor = () => {
+export const useTiptapEditor = (params: { preview?: boolean }) => {
 
   const { showSnackbar } = useSnackbar();
 
   const editor = useEditor({
     immediatelyRender: false,
+    editable: !params?.preview,
     extensions: getExtensions(showSnackbar),
     content: EMPTY_DOCUMENT,
   })
@@ -55,34 +56,6 @@ export const useTiptapEditor = () => {
   }
 };
 
-const ExportToPdf = (props: { editor: Editor }) => {
-  return (
-    <Button
-      iconId="fr-icon-download-fill"
-      iconPosition="right"
-      className='bg-black  h-fit' onClick={() => {
-        fetch('/api/export/pdf', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ html: props.editor.getHTML() }),
-        })
-          .then(response => response.blob())
-          .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'exported_document.pdf';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-          })
-          .catch(error => console.error('Error:', error));
-      }}>Télécharger en PDF</Button>
-  )
-}
 
 export const TiptapEditor = (props: { editor: Editor }) => {
 
@@ -94,8 +67,8 @@ export const TiptapEditor = (props: { editor: Editor }) => {
     }
   }, [])
 
-  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
   const [selectedEducationLevels, setSelectedEducationLevels] = useState<EducationLevel[]>(editor.storage.simetadata.educationLevels)
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
 
   const updateSkills = useCallback((newSkills: Skill[]) => {
     editor.storage.simetadata.skills = [...newSkills];
@@ -128,27 +101,25 @@ export const TiptapEditor = (props: { editor: Editor }) => {
 
 
   return (
-    <div className="flex flex-row mt-8">
-      <div className="relative min-w-96 p-4 md:p-16">
-        <div className="sticky top-8 flex flex-col space-y-4">
-          <ExportToPdf editor={editor} />
-        </div>
-      </div>
+    <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
+      {editor.isEditable && <div className="relative min-w-96 p-4 md:p-16">
+        <CourseSettings editor={editor} />
+      </div>}
 
       <StyledEditor
         id="editor"
-        className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16 ' style={{ minHeight: '100vh' }}
+        className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', minHeight: '100vh' }}
       >
 
-        <SkillsPicker
+        {editor.isEditable && <SkillsPicker
           selectedSkills={editor.storage.simetadata.skills}
           onSelectedSkills={updateSkills}
-          className='mb-4' />
+          className='mb-4' />}
 
-        <EducationLevelPicker
+        {editor.isEditable && <EducationLevelPicker
           selectedEducationLevels={editor.storage.simetadata.educationLevels}
           onSelectedEducationLevels={updateEducationLevel}
-          className='mb-4' />
+          className='mb-4' />}
 
         <div className="flex h-full" ref={menuContainerRef}>
 

@@ -1,9 +1,9 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { apiClient, QueryRequest } from "@/lib/api-client";
-import { ChunkSearchResults, DocumentSearchResults } from "@/types/vectordb";
+import { SearchResults, DocumentSearchResults } from "@/types/vectordb";
 import { QueryFunction } from "@tanstack/react-query";
 
-type SearchResultType = DocumentSearchResults | ChunkSearchResults;
+type SearchResultType = DocumentSearchResults | SearchResults;
 
 export const fetchSIContent: QueryFunction<SearchResultType, [string, string[] | undefined, number | undefined]> = async ({ queryKey }) => {
   const [query, mediaTypes, limit] = queryKey;

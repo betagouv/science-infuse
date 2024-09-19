@@ -1,8 +1,7 @@
-import { ChunkSearchResults, ChunkWithScoreUnion, MediaType, MediaTypes } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScoreUnion, MediaType, MediaTypes } from "@/types/vectordb";
 import { Tabs } from "@codegouvfr/react-dsfr/Tabs";
 import styled from "@emotion/styled";
 import { signal } from "@preact/signals-react";
-import { useState } from "react";
 
 // Define an enum for tab types
 export enum TabType {
@@ -75,12 +74,12 @@ const StyledTabs = styled.div`
 
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
-const TabsComponent = (props: { chunks: ChunkWithScoreUnion[] }) => {
+const TabsComponent = (props: { blocks: BlockWithChapter[], chunks: ChunkWithScoreUnion[] }) => {
     const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[]) => chunks.filter(c => mediaTypes.includes(c.mediaType)).length;
 
 
     const tabs: TabItem[] = [
-        { tabId: TabType.Chapters, label: "Chapitres (0)" },
+        { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
         { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
         { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
         { tabId: TabType.Videos, label: `Vidéos (${getCount(props.chunks, TabMediaTypeMap[TabType.Videos])})` },
