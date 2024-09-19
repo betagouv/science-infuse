@@ -2,12 +2,15 @@
 ### postgres
 using postgres as a SQL database, and as a vector database using pgvector
 
-### t2v-custom
-TODO: remove
-text-to-vec, custom embeddings model (solon) to create vector embeddings of the text of the database
+since vector is not supported by prisma, we need to do things behind his back...
+to prevent prisma drift, we have to remove index (which are not supported for vectors) before doing the db migration and re-crate them after the migration with this command:
+```
+SET maintenance_work_mem TO '2GB';
+CREATE INDEX idx_document_chunk_text_embedding 
+ON "DocumentChunk" USING hnsw ("textEmbedding" vector_cosine_ops)
+WITH (m = 16, ef_construction = 64);
+```
 
-### nginx
-used as an efficient way to serve stored files in folder documents (raw documents indexed by weaviate)
 
 ### webapp
 A NextJS client to query the database

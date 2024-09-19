@@ -5,6 +5,9 @@ import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { styled } from "@mui/material";
 import SearchBar from "../search/SearchBar";
+import { useEffect, useState } from "@preact-signals/safe-react/react";
+import { Theme } from "@prisma/client";
+import { apiClient } from "@/lib/api-client";
 
 
 export function Navigation() {
@@ -12,6 +15,23 @@ export function Navigation() {
 	const { data: session } = useSession();
 	const user = session?.user;
 	const pathname = usePathname();
+
+	const [themes, setThemes] = useState<Theme[]>([])
+
+	useEffect(() => {
+		const fetchThemes = async () => {
+			try {
+				const fetchedThemes = await apiClient.getThemes();
+				setThemes(fetchedThemes);
+			} catch (error) {
+				console.error("Error fetching themes:", error);
+			}
+		};
+
+		fetchThemes();
+
+	}, [])
+
 
 	const segment = useSelectedLayoutSegment();
 	if (!user) return ""
@@ -25,27 +45,12 @@ export function Navigation() {
 					{
 						isActive: false,
 						text: 'Catalogue de cours',
-						menuLinks: [
-							{
-								linkProps: {
-									href: '#'
-								},
-								text: `La planète Terre, l'environnement et l'action humaine`
+						menuLinks: themes.map(t => ({
+							linkProps: {
+								href: `/catalogue/${t.id}`
 							},
-							{
-								linkProps: {
-									href: '#'
-								},
-								text: `Le vivant et son évolution`
-							},
-							{
-								linkProps: {
-									href: '#'
-								},
-								text: `Le corps humain et la santé`
-							},
-						],
-
+							text: t.title || "Theme"
+						}))
 					},
 					{
 						linkProps: {

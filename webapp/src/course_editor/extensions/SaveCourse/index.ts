@@ -37,7 +37,9 @@ export const SaveCourse = Extension.create({
                     const educationLevels = (editor.storage.simetadata.educationLevels || []).map((b: Skill) => b.id);
                     const courseTitle = editor?.state.doc.firstChild?.textContent || "-";
                     handleSave(editor, chapterId, courseTitle, editor.getJSON(), skills, educationLevels)
-                        .then(({ message, severity }) => {
+                        .then((response) => {
+                            if (response == false) return;
+                            const { message, severity } = response;
                             this.options.showSnackbar(message, severity);
                         })
                     return true;

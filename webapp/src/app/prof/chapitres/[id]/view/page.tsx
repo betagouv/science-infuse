@@ -24,7 +24,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
 
-  const { editor, getContent, getTitle, setContent } = useTiptapEditor({preview: false})
+  const { editor, getContent, getTitle, setContent } = useTiptapEditor({ preview: true })
 
 
   useEffect(() => {
@@ -42,8 +42,12 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   }, [editor, chapter])
 
   return (
-    <div>
-      {editor && <TiptapEditor editor={editor} />}
+    <div className="py-16">
+    <div className='w-full fr-grid-row fr-grid-row--center'>
+      <div className="fr-col-12 fr-container main-content-item">
+        {editor && <TiptapEditor editor={editor} />}
+      </div>
+    </div>
     </div>
   )
 

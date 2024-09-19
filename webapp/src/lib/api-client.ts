@@ -1,5 +1,5 @@
-import { ChunkSearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
-import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolsSubjects, Skill, StarredDocumentChunk, Tag, User, UserRoles } from '@prisma/client';
+import { SearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
+import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolsSubjects, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { TableOfContents } from './types';
@@ -11,7 +11,6 @@ export interface UserFull extends Omit<User, 'password'> {
   educationLevels: EducationLevel[],
   schoolSubjects: SchoolsSubjects[],
 }
-
 export interface QueryRequest {
   query: string,
   mediaTypes?: string[],
@@ -76,8 +75,6 @@ class ApiClient {
     });
   }
 
-
-
   async getUser(): Promise<UserFull> {
     const response = await this.axiosInstance.get<UserFull>(`/users/me`);
     return response.data;
@@ -88,8 +85,18 @@ class ApiClient {
     return response.data;
   }
 
-  async search(queryData: QueryRequest): Promise<ChunkSearchResults> {
-    const response = await this.axiosInstance.post<ChunkSearchResults>(`/search`, queryData);
+  async getThemes(): Promise<Theme[]> {
+    const response = await this.axiosInstance.get<Theme[]>(`/themes`);
+    return response.data;
+  }
+
+  async getChaptersByTheme(themeId: string): Promise<ChapterWithBlock[]> {
+    const response = await this.axiosInstance.get<ChapterWithBlock[]>(`/course/chapters/byTheme/${themeId}`);
+    return response.data;
+  }
+
+  async search(queryData: QueryRequest): Promise<SearchResults> {
+    const response = await this.axiosInstance.post<SearchResults>(`/search`, queryData);
     return response.data;
   }
 
@@ -274,6 +281,11 @@ class ApiClient {
 
   async getEducationLevels(): Promise<EducationLevel[]> {
     const response = await this.axiosInstance.get<EducationLevel[]>(`/educationLevel`);
+    return response.data;
+  }
+
+  async getSchoolsSubjects(): Promise<EducationLevel[]> {
+    const response = await this.axiosInstance.get<EducationLevel[]>(`/schoolSubjects`);
     return response.data;
   }
 }

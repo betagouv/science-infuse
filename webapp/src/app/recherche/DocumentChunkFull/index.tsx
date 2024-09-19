@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
 import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL, WEBAPP_URL } from "@/config";
 import VideoPlayer from "@/app/mediaViewers/VideoPlayer";
 import { Typography, Collapse, Tooltip, styled } from '@mui/material';
+
+import styledComponent from '@emotion/styled';
+
+
 import Badge from "@codegouvfr/react-dsfr/Badge";
 // import Button from "@codegouvfr/react-dsfr/Button";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -15,11 +19,13 @@ import axios from "axios";
 import { useCollapse } from 'react-collapsed'
 import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import BreadcrumbNoLink from "@/ui/BreadcrumbNoLink";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, ChapterWithBlock } from "@/lib/api-client";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { useSearchParams } from "next/navigation";
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
 import { useSession } from "next-auth/react";
+import { Chapter } from "@prisma/client";
+import { TiptapEditor, useTiptapEditor } from "@/course_editor";
 
 const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -110,9 +116,9 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     }
     return <Tooltip title={props.starred ? "Supprimer des favoris" : "Ajouter aux favoris"}>
         {starred ? <svg onClick={unStarDocumentChunk} className="cursor-pointer" width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" clip-rule="evenodd" d="M11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26Z" fill="#161616" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26Z" fill="#161616" />
         </svg> : <svg onClick={starDocumentChunk} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" clip-rule="evenodd" d="M11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5ZM11.9999 5.275L9.96191 9.695L5.12891 10.267L8.70191 13.572L7.75291 18.345L11.9999 15.968L16.2469 18.345L15.2979 13.572L18.8709 10.267L14.0379 9.694L11.9999 5.275Z" fill="#161616" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5ZM11.9999 5.275L9.96191 9.695L5.12891 10.267L8.70191 13.572L7.75291 18.345L11.9999 15.968L16.2469 18.345L15.2979 13.572L18.8709 10.267L14.0379 9.694L11.9999 5.275Z" fill="#161616" />
         </svg>}
     </Tooltip>
 }
@@ -132,7 +138,7 @@ const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode
                         onClick={() => window.open(props.downloadLink, '_blank')}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fillRule="evenodd" clip-rule="evenodd" d="M3 19H21V21H3V19ZM13 13.172L19.071 7.1L20.485 8.514L12 17L3.515 8.515L4.929 7.1L11 13.17V2H13V13.172Z" fill="#161616" />
+                            <path fillRule="evenodd" clipRule="evenodd" d="M3 19H21V21H3V19ZM13 13.172L19.071 7.1L20.485 8.514L12 17L3.515 8.515L4.929 7.1L11 13.17V2H13V13.172Z" fill="#161616" />
                         </svg>
                     </button>
                 }
@@ -221,36 +227,6 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
             title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
             titleAs="h3"
         />
-        // <BaseCard
-        //     chunk={chunk}
-        //     title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
-        //     linkProps={{
-        //         href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
-        //         target: "_blank",
-        //     }}
-        //     end={
-        //         // <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
-        //         <BuildCardEnd
-        //             chunk={chunk}
-        //             end={
-        //                 <div className="flex">
-        //                     <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
-        //                 </div>
-        //             }
-        //             starred={!!chunk?.user_starred}
-        //             downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
-        //         />
-        //     }
-        // >
-
-        //     <Highlighter
-        //         highlightClassName="highlightSearch"
-        //         searchWords={searchWords}
-        //         autoEscape={false}
-        //         textToHighlight={chunk.text}
-        //         findChunks={findNormalizedChunks}
-        //     />
-        // </BaseCard>
     )
 };
 
@@ -479,6 +455,118 @@ export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"web
         </div>
     </BaseCard>
 );
+
+
+
+
+const StyledRenderBlock = styledComponent.div`
+    h1.is-empty {
+        display: none;
+    }
+    max-height: 14rem;
+    overflow: hidden;
+    zoom: 0.8;
+    text-align: left;
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+
+    .node-courseSkillsPicker.is-empty {
+        display: none;
+    }
+`
+
+const RenderTiptapContent = (props: { content: any }) => {
+    const { editor, setContent } = useTiptapEditor({ preview: true })
+    useEffect(() => {
+        setContent(props.content)
+    }, [editor])
+
+
+    return (
+        <StyledRenderBlock>
+            {editor && <TiptapEditor editor={editor} />}
+        </StyledRenderBlock>
+    )
+}
+
+export const RenderChapterBlock = (props: { searchWords: string[], block: BlockWithChapter }) => {
+    const { searchWords, block } = props;
+    const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
+    const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
+    const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
+
+    return <Card
+        background
+        border
+        badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
+        desc={
+            <div className="relative">
+                <RenderTiptapContent content={JSON.parse(props.block.content as string)} />
+            </div >
+        }
+        horizontal
+        imageAlt="texte alternatif de l’image"
+        imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
+        footer={
+            <a href={`/prof/chapitres/${block.chapter.id}/view`} id="">
+                <div className="flex justify-start items-center gap-3 pt-2">
+                    <div className="flex items-center gap-2">
+                        <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
+                        </svg>
+                        <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+                    </div>
+                </div>
+            </a>
+        }
+        size="small"
+        title={<div className="flex flex-col gap-2 w-full text-left">
+            <p className="m-0 font-bold text-xl text-[#161616]">{block.chapter.title}</p>
+            <p className="m-0 font-bold text-[#161616]">{block.title}</p>
+        </div>}
+        titleAs="h3"
+    />
+}
+
+export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
+    const { chapter } = props;
+    const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
+    const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
+    const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
+console.log("blockImageSrc", blockImageSrc)
+    return <StyledCardWithoutTitle
+        background
+        border
+        badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
+        desc={
+            <div className="relative pt-4" >
+                <RenderTiptapContent content={JSON.parse(props.chapter.content as string)} />
+            </div >
+        }
+        horizontal
+        imageAlt="texte alternatif de l’image"
+        imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
+        footer={
+            <a href={`/prof/chapitres/${chapter.id}/view`} id="">
+                <div className="flex justify-start items-center gap-3 pt-2">
+                    <div className="flex items-center gap-2">
+                        <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
+                        </svg>
+                        <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+                    </div>
+                </div>
+            </a>
+        }
+        size="small"
+        title={<div className="flex flex-col gap-2 w-full text-left">
+            <p className="m-0 font-bold text-xl text-[#161616]">{chapter.title}</p>
+            <p className="m-0 font-bold text-[#161616]">{chapter.title}</p>
+        </div>}
+        titleAs="h3"
+    />
+}
+
 
 export const ChunkRenderer: React.FC<ChunkRendererProps> = ({ chunk, searchWords }) => {
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard chunk={chunk} />;

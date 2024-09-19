@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "vector";
 CREATE TYPE "UserRoles" AS ENUM ('ADMIN', 'REVIEWER', 'USER');
 
 -- CreateEnum
-CREATE TYPE "ChapterStatus" AS ENUM ('DRAFT', 'REVIEW', 'PUBLISHED');
+CREATE TYPE "ChapterStatus" AS ENUM ('DRAFT', 'REVIEW', 'PUBLISHED', 'DELETED');
 
 -- CreateTable
 CREATE TABLE "Document" (
@@ -22,7 +22,7 @@ CREATE TABLE "Document" (
 CREATE TABLE "DocumentChunk" (
     "id" UUID NOT NULL,
     "text" TEXT NOT NULL,
-    "textEmbedding" vector(768),
+    "textEmbedding" vector,
     "test" TEXT NOT NULL DEFAULT 'test',
     "title" TEXT NOT NULL,
     "mediaType" TEXT NOT NULL,
@@ -137,7 +137,7 @@ CREATE TABLE "Block" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" JSONB NOT NULL,
-    "textEmbedding" vector(768),
+    "textEmbedding" vector,
     "chapterId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

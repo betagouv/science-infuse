@@ -23,7 +23,7 @@ import { ChapterStatus } from '@prisma/client';
 import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
 
 
-const RenderChapterBlock = ({ chapter }: { chapter: ChapterWithBlock }) => {
+const RenderChapterBlockTable = ({ chapter }: { chapter: ChapterWithBlock }) => {
   const blocks = chapter.blocks;
   const chapterBlockIds = JSON.parse((chapter.content as string)).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
 
@@ -122,7 +122,7 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0, paddingLeft: '65px' }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <RenderChapterBlock chapter={chapter} />
+            <RenderChapterBlockTable chapter={chapter} />
           </Collapse>
         </TableCell>
       </TableRow>

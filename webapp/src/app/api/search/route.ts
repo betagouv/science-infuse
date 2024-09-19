@@ -1,7 +1,7 @@
 import { NEXT_PUBLIC_SERVER_URL, OLLAMA_URL } from "@/config";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { searchChapters, searchDocumentChunks } from "./sql_raw_queries";
+import { searchBlocksWithChapter, searchDocumentChunks } from "./sql_raw_queries";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/authOptions";
@@ -22,9 +22,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
         const embeddings = await getEmbeddings(params.query)
 
         const chunks = await searchDocumentChunks(user.id, embeddings, params)
-        const chapters = await searchChapters(embeddings);
-        console.log("chapters", chapters)
-        return NextResponse.json({ page_count: 1, chunks, chapters })
+        const blocks = await searchBlocksWithChapter(embeddings);
+        return NextResponse.json({ page_count: 1, chunks, blocks })
     } catch (error) {
         console.log("ERRRRROR", error)
         return NextResponse.json({ error: `unable to search` }, { status: 500 })
