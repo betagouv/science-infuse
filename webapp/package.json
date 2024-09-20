@@ -86,6 +86,7 @@
     "tiptap-extension-global-drag-handle": "^0.1.10",
     "tss-react": "^4.9.10",
     "use-debounce": "^10.0.1",
+    "usehooks-ts": "^3.1.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

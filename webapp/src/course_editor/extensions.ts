@@ -19,7 +19,7 @@ import Document from '@tiptap/extension-document'
 import SlashCommand from './extensions/SlashCommand/SlashCommand'
 import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
 import { FileHandler } from '@tiptap-pro/extension-file-handler'
-import ImageSearch from './extensions/ImageSearch'
+import ImageSearch from './extensions/ContentSearch'
 import SIVideo from './extensions/VideoSearch'
 import CourseBlockNode from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
@@ -36,11 +36,11 @@ import { SaveCourse } from './extensions/SaveCourse'
 import { TrailingNode } from './extensions/TrailingNode'
 import Comments from './extensions/Comments'
 import CourseSkillsPickerNode from './extensions/CourseSkillsPicker'
-import CourseBlockKeyIdeaPickerNode from './extensions/CourseBlockKeyIdeaPicker'
+// import CourseBlockKeyIdeaPickerNode from './extensions/CourseBlockKeyIdeaPicker'
 
 
 const CustomDocument = Document.extend({
-    content: 'heading courseSkillsPicker block*',
+    content: 'heading courseSkillsPicker courseBlock*',
 })
 
 const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
@@ -73,7 +73,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         // course
         CourseBlockNode,
         CourseSkillsPickerNode,
-        CourseBlockKeyIdeaPickerNode,
+        // CourseBlockKeyIdeaPickerNode,
         TitleNode,
         // ContentNode,
         // /course
@@ -93,7 +93,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         // CodeBlock,
         // Image,
         Comments,
-        TrailingNode,
+        // TrailingNode,
         ImageBlock.configure({
             showSnackbar: showSnackbar,
         }),
@@ -135,7 +135,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
                     return ""
                 if (node.type.name === 'heading') {
                     if (pos === 0) {
-                        return 'Titre du cours';
+                        return 'Donner un titre au chapitre';
                     }
                     return 'Titre';
                 }

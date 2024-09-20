@@ -40,7 +40,7 @@ body {
     box-shadow: none;
 }
 
-.chapter-keyIdeas-picker {
+.course-block-keyIdeas-picker {
     display: none;
 }
 

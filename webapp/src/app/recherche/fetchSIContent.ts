@@ -3,11 +3,10 @@ import { apiClient, QueryRequest } from "@/lib/api-client";
 import { SearchResults, DocumentSearchResults } from "@/types/vectordb";
 import { QueryFunction } from "@tanstack/react-query";
 
-type SearchResultType = DocumentSearchResults | SearchResults;
 
-export const fetchSIContent: QueryFunction<SearchResultType, [string, string[] | undefined, number | undefined]> = async ({ queryKey }) => {
+export const fetchSIContent: QueryFunction<SearchResults, [string, string[] | undefined, number | undefined]> = async ({ queryKey }) => {
   const [query, mediaTypes, limit] = queryKey;
-  if (!query) return { chunks: [], page_count: 1 };
+  if (!query) return { chunks: [], blocks: [], page_count: 1 };
 
   const queryData: QueryRequest = {
     query,

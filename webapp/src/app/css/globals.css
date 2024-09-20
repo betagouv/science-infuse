@@ -36,6 +36,10 @@ header.fr-header .fr-header__menu {
 
 /* ------ */
 
+.react-renderer {
+	width: 100%;
+	height: 100%;
+}
 
 .node-pdf {
 	position: relative;

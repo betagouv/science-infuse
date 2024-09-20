@@ -29,7 +29,7 @@ export const GROUPS: Group[] = [
         iconName: 'Image',
         description: 'Search and insert an image',
         action: async editor => {
-          editor.chain().focus().openImageSearch().run()
+          editor.chain().focus().openContentSearchPopup(editor.state.selection.anchor).run()
         },
       },
       {

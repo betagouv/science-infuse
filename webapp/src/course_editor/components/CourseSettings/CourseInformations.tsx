@@ -10,13 +10,11 @@ import { useQuery } from '@tanstack/react-query';
 
 const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
-    console.log("EDITOR", props.editor)
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
     };
 
     const handleEducationLevelChange = async (level: EducationLevel, checked: boolean) => {
-        console.log("handleEducationLevelChange", level, checked)
         try {
             if (!props.chapter) return;
 
@@ -24,7 +22,6 @@ const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: E
                 ? (props.chapter?.educationLevels || []).filter(e => e.id !== level.id)
                 : [...(props.chapter?.educationLevels || []), level];
 
-            console.log("handleEducationLevelChange", updatedLevels.map(l => l.name))
             props.updateChapter({ educationLevels: updatedLevels })
         } catch (error) {
             console.error('Error updating chapter:', error);

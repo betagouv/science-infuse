@@ -41,13 +41,13 @@ const CourseSkillsPickerNode = Node.create({
   parseHTML() {
     return [
       {
-        tag: 'div[data-type="chapter-skills-picker"]',
+        tag: 'div[data-type="course-skills-picker"]',
       },
     ]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-skills-picker', class: "chapter-skills-picker" }), 0]
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'course-skills-picker', class: "course-skills-picker" }), 0]
   },
   addCommands() {
     return {
@@ -72,7 +72,7 @@ const CourseSkillsPicker = ({ node, selected, editor }: { node: PMNode; editor: 
 
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} className="relative chapter-skills-picker">
+    <NodeViewWrapper data-id={node.attrs.id} className="relative course-skills-picker">
       <div className="bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8 mb-8">
         <p className='pointer-events-none'>Compétences et notions clés :</p>
         {/* <SkillsPicker

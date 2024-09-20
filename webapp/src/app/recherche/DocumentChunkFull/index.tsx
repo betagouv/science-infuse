@@ -26,6 +26,7 @@ import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
 import { useSession } from "next-auth/react";
 import { Chapter } from "@prisma/client";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
+import { OnInserted } from "../RenderSearch";
 
 const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -123,11 +124,9 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     </Tooltip>
 }
 
-const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
+const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
-    const { data: session } = useSession();
-    const user = session?.user;
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
@@ -139,6 +138,16 @@ const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fillRule="evenodd" clipRule="evenodd" d="M3 19H21V21H3V19ZM13 13.172L19.071 7.1L20.485 8.514L12 17L3.515 8.515L4.929 7.1L11 13.17V2H13V13.172Z" fill="#161616" />
+                        </svg>
+                    </button>
+                }
+
+                {
+                    props.onInserted && <button
+                        onClick={() => props.onInserted && props.onInserted(props.chunk)}
+                    >
+                        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"  >
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 6V0H8V6H14V8H8V14H6V8H0V6H6Z" fill="#161616" />
                         </svg>
                     </button>
                 }
@@ -158,7 +167,7 @@ const BuildCardEnd = (props: { chunk: ChunkWithScoreUnion, end?: React.ReactNode
 }
 
 // Base Card component
-export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkProps, chunk, badgeText, badgeSeverity = "new" }) => {
+export const BaseCard: React.FC<OnInserted & BaseCardProps> = ({ onInserted, end, children, title, linkProps, chunk, badgeText, badgeSeverity = "new" }) => {
 
     return (
         <div className="relative">
@@ -168,7 +177,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
                 border
                 className="text-left"
 
-                end={<BuildCardEnd chunk={chunk} end={end} starred={!!chunk?.user_starred} />}
+                end={<BuildCardEnd onInserted={onInserted} chunk={chunk} end={end} starred={!!chunk?.user_starred} />}
                 desc={
                     <div className="relative">
                         {children}
@@ -183,7 +192,7 @@ export const BaseCard: React.FC<BaseCardProps> = ({ end, children, title, linkPr
     );
 };
 
-export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ searchWords, chunk }) => {
+export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ onInserted, searchWords, chunk }) => {
     const path = chunk.title.toLowerCase().split('>');
     if (!chunk.metadata) {
         console.log("CHUNKKK", chunk)
@@ -198,6 +207,7 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
             end={
                 // <BreadcrumbNoLink className="flex pointer-events-none m-0" list={path} />
                 <BuildCardEnd
+                    onInserted={onInserted}
                     chunk={chunk}
                     end={
                         <div className="flex">
@@ -231,7 +241,7 @@ export const RenderPdfTextCard: React.FC<{ searchWords: string[]; chunk: ChunkWi
 };
 
 
-export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }> = ({ chunk }) => {
+export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"pdf_image"> }> = ({ onInserted, chunk }) => {
     const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
     if (chunk.title) {
         path.push(...chunk.title.toLowerCase().split('>'))
@@ -243,6 +253,7 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
             imageAlt={chunk.text}
             imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
             end={<BuildCardEnd
+                onInserted={onInserted}
                 chunk={chunk}
                 end={
                     <div className="flex">
@@ -260,7 +271,7 @@ export const RenderPdfImageCard: React.FC<{ chunk: ChunkWithScore<"pdf_image"> }
     )
 };
 
-export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; searchWords: string[] }> = ({ video, searchWords }) => {
+export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[] }> = ({ onInserted, video, searchWords }) => {
     const firstChunk = video.items[0];
     const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${firstChunk.document.s3ObjectName}`
     let originalPath = firstChunk.document.originalPath;
@@ -272,6 +283,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; s
     return (
         <StyledGroupedVideoCard
             end={<BuildCardEnd
+                onInserted={onInserted}
                 chunk={selectedChunk || video.items[0]}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
@@ -295,7 +307,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<{ video: GroupedVideo; s
         />
     )
 }
-export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ chunk, searchWords }) => {
+export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ onInserted, chunk, searchWords }) => {
     let originalPath = chunk.document.originalPath;
     const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`
     if (originalPath.includes("youtube")) {
@@ -304,6 +316,7 @@ export const RenderVideoTranscriptCard: React.FC<{ chunk: ChunkWithScore<"video_
     return (
         <StyledGroupedVideoCard
             end={<BuildCardEnd
+                onInserted={onInserted}
                 chunk={chunk}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
@@ -348,7 +361,7 @@ function getDomain(input: string) {
 }
 
 
-export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
+export const RenderWebsiteQAChunk: React.FC<OnInserted & { chunk: ChunkWithScore<"website_qa">; searchWords: string[] }> = ({ chunk, searchWords }) => {
     const [expanded, setExpanded] = useState(false);
     const answerParts = chunk.metadata.answer.split("\n");
 
@@ -429,7 +442,7 @@ export const RenderWebsiteQAChunk: React.FC<{ chunk: ChunkWithScore<"website_qa"
     );
 };
 
-export const RenderWebsiteExperienceChunk: React.FC<{ chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ chunk, searchWords }) => (
+export const RenderWebsiteExperienceChunk: React.FC<OnInserted & { chunk: ChunkWithScore<"website_experience">; searchWords: string[] }> = ({ chunk, searchWords }) => (
     <BaseCard
 
         chunk={chunk}
@@ -533,7 +546,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
     const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
     const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
-console.log("blockImageSrc", blockImageSrc)
+    console.log("blockImageSrc", blockImageSrc)
     return <StyledCardWithoutTitle
         background
         border
@@ -568,12 +581,12 @@ console.log("blockImageSrc", blockImageSrc)
 }
 
 
-export const ChunkRenderer: React.FC<ChunkRendererProps> = ({ chunk, searchWords }) => {
-    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard chunk={chunk} />;
-    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard chunk={chunk} searchWords={searchWords} />;
-    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk chunk={chunk} searchWords={searchWords} />;
-    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk chunk={chunk} searchWords={searchWords} />;
+export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, chunk, searchWords }) => {
+    if (isPdfImageChunk(chunk)) return <RenderPdfImageCard onInserted={onInserted} chunk={chunk} />;
+    if (isPdfTextChunk(chunk)) return <RenderPdfTextCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
+    if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     return null;
 };
 

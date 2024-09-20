@@ -250,11 +250,10 @@ class ApiClient {
     return "";
   }
 
-  async updateBlock(blockId: string, title: string, content: any[], keyIdeas?: string[]): Promise<boolean> {
+  async updateBlock(blockId: string, title: string, content: any[]): Promise<boolean> {
     const response = await this.axiosInstance.put(`/course/chapters/blocks/${blockId}`, {
       title: title,
       content: JSON.stringify(content),
-      keyIdeas: keyIdeas
     })
     return response.data;
   }

@@ -34,13 +34,13 @@ const CourseBlockKeyIdeaPickerNode = Node.create({
   parseHTML() {
     return [
       {
-        tag: 'div[data-type="chapter-keyIdeas-picker"]',
+        tag: 'div[data-type="course-block-keyidea-picker"]',
       },
     ]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-keyIdeas-picker', class: "chapter-keyIdeas-picker" }), 0]
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'course-block-keyidea-picker', class: "course-block-keyidea-picker" }), 0]
   },
   addCommands() {
     return {
