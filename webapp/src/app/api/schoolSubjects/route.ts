@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
 
     try {
-        const schoolSubjects = await prisma.schoolsSubjects.findMany();
+        const schoolSubjects = await prisma.schoolSubject.findMany();
         return NextResponse.json(schoolSubjects)
     } catch (error) {
         console.error('Error getting schoolSubjects:', error);

@@ -5,7 +5,7 @@ import { apiClient, UserFull } from "@/lib/api-client";
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { Select } from "@codegouvfr/react-dsfr/SelectNext";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
-import { Academy, EducationLevel, SchoolsSubjects } from "@prisma/client";
+import { Academy, EducationLevel, SchoolSubject } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import * as React from 'react';
 import CustomMultiSelect from "@/components/CustomMultiSelect";
@@ -163,7 +163,7 @@ const subjectTaughtOptions = [
     { value: "svt", label: "Sciences de la Vie et de la Terre" }
 ]
 
-export default function UserSettings(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolsSubjects[] }) {
+export default function UserSettings(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolSubject[] }) {
     const { data: session } = useSession();
     const { showSnackbar } = useSnackbar();
     const userId = session?.user?.id;

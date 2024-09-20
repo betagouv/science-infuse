@@ -1,5 +1,5 @@
 import { SearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
-import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolsSubjects, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
+import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { TableOfContents } from './types';
@@ -9,7 +9,7 @@ import { WEBAPP_URL } from '@/config';
 export interface UserFull extends Omit<User, 'password'> {
   roles: UserRoles[],
   educationLevels: EducationLevel[],
-  schoolSubjects: SchoolsSubjects[],
+  schoolSubjects: SchoolSubject[],
 }
 export interface QueryRequest {
   query: string,
@@ -59,7 +59,7 @@ export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], t
 export type CommentWithUserEmail = Comment & { user: { email: string } }
 export type FullCommentThread = CommentThread & { comments: CommentWithUserEmail[] }
 
-export type ChapterWithoutBlocks = (Chapter & { skills: Skill[], educationLevels: EducationLevel[] }) | null;
+export type ChapterWithoutBlocks = Chapter & { skills: Skill[], educationLevels: EducationLevel[] } | null;
 export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 
 
@@ -259,15 +259,19 @@ class ApiClient {
     return response.data;
   }
 
-  async saveChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[], educationLevels?: EducationLevel[]): Promise<boolean> {
-    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, {
-      title: title,
-      content: JSON.stringify(content),
-      skills,
-      educationLevels
-    });
+  async updateChapter(chapterId: string, data: Partial<ChapterWithoutBlocks>): Promise<boolean> {
+    const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, data);
     return response.data;
   }
+  // async updateChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[], educationLevels?: EducationLevel[]): Promise<boolean> {
+  //   const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, {
+  //     title: title,
+  //     content: JSON.stringify(content),
+  //     skills,
+  //     educationLevels
+  //   });
+  //   return response.data;
+  // }
 
   async getSkills(): Promise<Skill[]> {
     const response = await this.axiosInstance.get<Skill[]>(`/skills`);
@@ -284,7 +288,7 @@ class ApiClient {
     return response.data;
   }
 
-  async getSchoolsSubjects(): Promise<EducationLevel[]> {
+  async getSchoolSubject(): Promise<EducationLevel[]> {
     const response = await this.axiosInstance.get<EducationLevel[]>(`/schoolSubjects`);
     return response.data;
   }

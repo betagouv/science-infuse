@@ -14,7 +14,7 @@ const Settings = async function () {
 
     const educationLevels = await prisma.educationLevel.findMany();
     const academies = await prisma.academy.findMany();
-    const schoolSubjects = await prisma.schoolsSubjects.findMany();
+    const schoolSubjects = await prisma.schoolSubject.findMany();
 
     return <UserSettings educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects}/>
 
