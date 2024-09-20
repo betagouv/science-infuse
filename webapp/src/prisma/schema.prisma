@@ -86,18 +86,20 @@ model Chapter {
   id              String           @id @default(cuid())
   status          ChapterStatus    @default(DRAFT)
   title           String
-  themeId         String?
   content         Json
   userId          String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   blocks          Block[]
   theme           Theme?           @relation(fields: [themeId], references: [id])
+  themeId         String?
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentThread   CommentThread[]
   educationLevels EducationLevel[]
   skills          Skill[]          @relation("ChapterToSkill")
   tags            Tag[]            @relation("ChapterToTag")
+  schoolSubject   SchoolSubject?   @relation(fields: [schoolSubjectId], references: [id])
+  schoolSubjectId String?
 }
 
 model Theme {
@@ -192,11 +194,12 @@ model Academy {
   User User[]
 }
 
-model SchoolsSubjects {
-  id     String  @id @default(cuid())
-  name   String
-  userId String?
-  User   User?   @relation(fields: [userId], references: [id])
+model SchoolSubject {
+  id      String    @id @default(cuid())
+  name    String
+  userId  String?
+  User    User?     @relation(fields: [userId], references: [id])
+  Chapter Chapter[]
 }
 
 model User {
@@ -217,7 +220,7 @@ model User {
   Comment         Comment[]
   educationLevels EducationLevel[]
   files           File[]
-  schoolSubjects  SchoolsSubjects[]
+  schoolSubjects  SchoolSubject[]
   Session         Session[]
   starred         StarredDocumentChunk[]
   academy         Academy?               @relation(fields: [academyId], references: [id])

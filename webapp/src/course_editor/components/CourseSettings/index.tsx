@@ -5,7 +5,9 @@ import CourseInformations from "./CourseInformations";
 const CourseSettings = (props: { editor: Editor }) => {
     return <div className="sticky top-8 w-full bg-white z-[1] flex flex-col space-y-4">
         <CourseInformations editor={props.editor} />
-        <ExportToPdf editor={props.editor} />
+        <div className="flex flex-col gap-4 sticky bottom-4 w-full items-center justify-center z-[2]">
+            <ExportToPdf editor={props.editor} />
+        </div>
     </div>
 }
 

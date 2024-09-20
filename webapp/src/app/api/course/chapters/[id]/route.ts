@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
+import { ChapterWithoutBlocks } from '@/lib/api-client';
 
 export async function GET(
   request: Request,
@@ -46,26 +47,39 @@ export async function PUT(
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+    const data: Partial<ChapterWithoutBlocks> = await request.json();
+    if (!data) {
+      return NextResponse.json({ error: 'Nothing to update' }, { status: 404 });
+    }
+    const { title, content, skills, educationLevels, themeId, schoolSubjectId } = data;
 
-    const { title, content, skills, educationLevels } = await request.json();
-    console.log("SAVE CHAPTER educationLevels", educationLevels)
+    console.log("DATA", data)
+
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (schoolSubjectId !== undefined) updateData.schoolSubjectId = schoolSubjectId;
+    if (content !== undefined) updateData.content = content as string;
+    if (themeId !== undefined) updateData.themeId = themeId;
+    if (skills !== undefined) {
+      updateData.skills = {
+        set: skills.map((s) => ({id: s.id})),
+      };
+    }
+    if (educationLevels !== undefined) {
+      updateData.educationLevels = {
+        set: educationLevels.map(el => ({id: el.id}))
+      };
+    }
+
+    console.log("updateData", JSON.stringify(updateData))
+
     const updatedChapter = await prisma.chapter.update({
       where: {
         id: params.id,
         userId: session.user.id,
       },
-      data: {
-        title,
-        content,
-        skills: {
-          set: skills.map((id: string) => ({ id })),
-        },
-        educationLevels: {
-          set: educationLevels.map((id: string) => ({ id })),
-        },
-      },
+      data: updateData,
     });
-
     return NextResponse.json(updatedChapter);
   } catch (error) {
     console.error('Error updating course chapter:', error);

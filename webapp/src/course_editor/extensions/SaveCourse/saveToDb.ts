@@ -37,7 +37,12 @@ export const handleSave = async (editor: Editor, chapterId: string, title: strin
     if (!editor.isEditable) return false;
     let saveChapterOk;
     try {
-        saveChapterOk = await apiClient.saveChapter(chapterId, title, content, skills, educationLevels);
+        saveChapterOk = await apiClient.updateChapter(chapterId, {
+            title,
+            content: JSON.stringify(content),
+            skills: skills,
+            educationLevels
+        });
     } catch (error) {
         saveChapterOk = false;
     }
@@ -52,5 +57,4 @@ export const handleSave = async (editor: Editor, chapterId: string, title: strin
     }
 
     return { message: "Chapitre sauvegardé avec succès.", severity: "success" }
-
 };

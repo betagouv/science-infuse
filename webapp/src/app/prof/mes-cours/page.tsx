@@ -2,12 +2,9 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from 'next/navigation';
 
-import { Suspense } from 'react';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
-import { useSession } from "next-auth/react";
 import { EMPTY_DOCUMENT } from "@/config";
-import { ChapterWithBlock } from "@/lib/api-client";
 import { getChaptersWithBlocks } from "@/lib/utils/db";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import ProfDashboardContent from "../ProfDashboardContent";

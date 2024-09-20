@@ -90,11 +90,12 @@ CREATE TABLE "Chapter" (
     "id" TEXT NOT NULL,
     "status" "ChapterStatus" NOT NULL DEFAULT 'DRAFT',
     "title" TEXT NOT NULL,
-    "themeId" TEXT,
     "content" JSONB NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "themeId" TEXT,
+    "schoolSubjectId" TEXT,
 
     CONSTRAINT "Chapter_pkey" PRIMARY KEY ("id")
 );
@@ -202,12 +203,12 @@ CREATE TABLE "Academy" (
 );
 
 -- CreateTable
-CREATE TABLE "SchoolsSubjects" (
+CREATE TABLE "SchoolSubject" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "userId" TEXT,
 
-    CONSTRAINT "SchoolsSubjects_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SchoolSubject_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -382,6 +383,9 @@ ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_themeId_fkey" FOREIGN KEY ("themeI
 ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_schoolSubjectId_fkey" FOREIGN KEY ("schoolSubjectId") REFERENCES "SchoolSubject"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Block" ADD CONSTRAINT "Block_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "Chapter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -406,7 +410,7 @@ ALTER TABLE "File" ADD CONSTRAINT "File_userId_fkey" FOREIGN KEY ("userId") REFE
 ALTER TABLE "FileType" ADD CONSTRAINT "FileType_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "File"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "SchoolsSubjects" ADD CONSTRAINT "SchoolsSubjects_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "SchoolSubject" ADD CONSTRAINT "SchoolSubject_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_academyId_fkey" FOREIGN KEY ("academyId") REFERENCES "Academy"("id") ON DELETE SET NULL ON UPDATE CASCADE;

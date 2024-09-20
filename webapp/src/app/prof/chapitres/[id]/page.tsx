@@ -24,13 +24,12 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
 
-  const { editor, getContent, getTitle, setContent } = useTiptapEditor({preview: false})
+  const { editor, setContent } = useTiptapEditor({preview: false})
 
 
   useEffect(() => {
     if (editor && chapter) {
       const content = JSON.parse(chapter.content as string);
-      console.log("EDITORRR", editor, content)
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;

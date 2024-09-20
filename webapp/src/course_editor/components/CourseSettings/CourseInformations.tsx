@@ -1,31 +1,34 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import { Editor } from '@tiptap/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { Collapse } from '@mui/material';
-import { apiClient } from '@/lib/api-client';
-import { EducationLevel, Theme } from '@prisma/client';
+import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
+import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
+import { EditorContext } from '@/course_editor/context/EditorContext';
+import { useQuery } from '@tanstack/react-query';
 
-const EducationLevelPicker = () => {
+const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [schoolLevels, setSchoolLevels] = useState<EducationLevel[]>([]);
-
-    useEffect(() => {
-        const fetchEducationLevels = async () => {
-            try {
-                const levels = await apiClient.getEducationLevels();
-                setSchoolLevels(levels);
-            } catch (error) {
-                console.error('Error fetching education levels:', error);
-            }
-        };
-
-        fetchEducationLevels();
-    }, []);
-
+    console.log("EDITOR", props.editor)
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handleEducationLevelChange = async (level: EducationLevel, checked: boolean) => {
+        console.log("handleEducationLevelChange", level, checked)
+        try {
+            if (!props.chapter) return;
+
+            const updatedLevels = !checked
+                ? (props.chapter?.educationLevels || []).filter(e => e.id !== level.id)
+                : [...(props.chapter?.educationLevels || []), level];
+
+            console.log("handleEducationLevelChange", updatedLevels.map(l => l.name))
+            props.updateChapter({ educationLevels: updatedLevels })
+        } catch (error) {
+            console.error('Error updating chapter:', error);
+        }
     };
 
     return (
@@ -38,13 +41,14 @@ const EducationLevelPicker = () => {
             </div>
             <Collapse in={isOpen}>
                 <div>
-                    {schoolLevels.map((level, index) => (
+                    {props.availablEducationLevel.sort((a, b) => a.name.localeCompare(b.name)).map((level, index) => (
                         <Checkbox
                             key={index}
                             options={[
                                 {
                                     nativeInputProps: {
-                                        onChange: () => { }
+                                        checked: props.chapter?.educationLevels.map(e => e.id).includes(level.id),
+                                        onChange: (e) => handleEducationLevelChange(level, e.target.checked)
                                     },
                                     label: level.name,
                                 }
@@ -57,26 +61,15 @@ const EducationLevelPicker = () => {
     );
 }
 
-const SchoolsSubjectsPicker = () => {
+const SchoolSubjectPicker = (props: { editor: Editor, availableSchoolSubjects: SchoolSubject[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [schoolSubjects, setSchoolSubjects] = useState<EducationLevel[]>([]);
-    const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchEducationLevels = async () => {
-            try {
-                const levels = await apiClient.getSchoolsSubjects();
-                setSchoolSubjects(levels);
-            } catch (error) {
-                console.error('Error fetching education levels:', error);
-            }
-        };
-
-        fetchEducationLevels();
-    }, []);
 
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handleSubjectChange = (subject: SchoolSubject) => {
+        props.updateChapter({ schoolSubjectId: subject.id });
     };
 
     return (
@@ -89,14 +82,14 @@ const SchoolsSubjectsPicker = () => {
             </div>
             <Collapse in={isOpen}>
                 <div>
-                    {schoolSubjects.map((subject, index) => (
+                    {props.availableSchoolSubjects.map((subject, index) => (
                         <RadioButtons
                             key={index}
                             options={[
                                 {
                                     nativeInputProps: {
-                                        checked: selectedSubject === subject.name,
-                                        onChange: () => setSelectedSubject(subject.name)
+                                        checked: props.chapter?.schoolSubjectId === subject.id,
+                                        onChange: () => handleSubjectChange(subject)
                                     },
                                     label: subject.name,
                                 }
@@ -109,26 +102,15 @@ const SchoolsSubjectsPicker = () => {
     );
 }
 
-const ThemePicker = () => {
-    const [themes, setThemes] = useState<Theme[]>([]);
-    const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
-    const [isOpen, setIsOpen] = useState(true);
-
-    useEffect(() => {
-        const fetchThemes = async () => {
-            try {
-                const fetchedThemes = await apiClient.getThemes();
-                setThemes(fetchedThemes);
-            } catch (error) {
-                console.error('Error fetching themes:', error);
-            }
-        };
-
-        fetchThemes();
-    }, []);
+const ThemePicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, availableThemes: Theme[], updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
 
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handleThemeChange = (theme: Theme) => {
+        props.updateChapter({ themeId: theme.id });
     };
 
     return (
@@ -141,14 +123,14 @@ const ThemePicker = () => {
             </div>
             <Collapse in={isOpen}>
                 <div>
-                    {themes.map((theme, index) => (
+                    {props.availableThemes.map((theme, index) => (
                         <RadioButtons
                             key={index}
                             options={[
                                 {
                                     nativeInputProps: {
-                                        checked: selectedTheme === theme,
-                                        onChange: () => setSelectedTheme(theme)
+                                        checked: props.chapter?.themeId === theme.id,
+                                        onChange: () => handleThemeChange(theme)
                                     },
                                     label: theme.title,
                                 }
@@ -161,13 +143,42 @@ const ThemePicker = () => {
     );
 };
 
-
 const CourseInformations = (props: { editor: Editor }) => {
+    const context = useContext(EditorContext)
+
+    const { data: chapter, refetch } = useQuery<ChapterWithoutBlocks>({
+        queryKey: ['chapter', props.editor.storage.simetadata.chapterId],
+        queryFn: () => apiClient.getChapter(props.editor.storage.simetadata.chapterId),
+    });
+
+    const updateChapter = async (params: Partial<ChapterWithoutBlocks>) => {
+        console.log("chapter update", params)
+        await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, params);
+        refetch();
+    };
+
     return <div className="flex flex-col ">
-        <EducationLevelPicker />
-        <SchoolsSubjectsPicker />
-        <ThemePicker />
+        <p className="flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+            INFORMATIONS SUR LE CHAPITRE
+        </p>
+        {chapter && <EducationLevelPicker
+            editor={props.editor}
+            availablEducationLevel={context.educationLevels}
+            updateChapter={updateChapter}
+            chapter={chapter}
+        />}
+        {chapter && <SchoolSubjectPicker
+            editor={props.editor}
+            availableSchoolSubjects={context.schoolSubjects}
+            updateChapter={updateChapter}
+            chapter={chapter}
+        />}
+        {chapter && <ThemePicker
+            editor={props.editor}
+            availableThemes={context.themes}
+            updateChapter={updateChapter}
+            chapter={chapter}
+        />}
     </div>
 };
-
 export default CourseInformations;

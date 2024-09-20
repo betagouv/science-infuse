@@ -3,19 +3,17 @@
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { EMPTY_DOCUMENT } from '@/config';
 import styled from '@emotion/styled';
-import { EducationLevel, Skill } from '@prisma/client';
 import { Editor, EditorContent, useEditor } from '@tiptap/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Snackbar from './components/Snackbar';
 import { EditorContext } from './context/EditorContext';
 import "./editor.scss";
 import { getExtensions } from './extensions';
-import CommentView from './extensions/BubbleMenu/CommentView';
 import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
 import { TextMenu } from './extensions/BubbleMenu/TextMenu';
-import EducationLevelPicker from './extensions/CourseBlock/EducationLevelPicker';
-import SkillsPicker from './extensions/CourseBlock/SkillsPicker';
 import CourseSettings from './components/CourseSettings';
+import { apiClient } from '@/lib/api-client';
+import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 
 const StyledEditor = styled.div`
 `
@@ -57,30 +55,44 @@ export const useTiptapEditor = (params: { preview?: boolean }) => {
 };
 
 
+
 export const TiptapEditor = (props: { editor: Editor }) => {
 
   const { editor } = props;
   const menuContainerRef = useRef(null)
+
+  const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [schoolSubjects, setSchoolSubjects] = useState<SchoolSubject[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [educationLevelsResponse, themesResponse, schoolSubjectsResponse] = await Promise.all([
+          apiClient.getEducationLevels(),
+          apiClient.getThemes(),
+          apiClient.getSchoolSubject()
+        ]);
+        setEducationLevels(educationLevelsResponse);
+        setThemes(themesResponse);
+        setSchoolSubjects(schoolSubjectsResponse)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // showSnackbar('Error fetching education levels and themes', 'error');
+      }
+    };  
+    fetchData();
+  }, []);
+  
+
   const providerValue = useMemo(() => {
     return {
       title: "test",
+      themes,
+      educationLevels,
+      schoolSubjects
     }
-  }, [])
-
-  const [selectedEducationLevels, setSelectedEducationLevels] = useState<EducationLevel[]>(editor.storage.simetadata.educationLevels)
-  const [selectedSkills, setSelectedSkills] = useState<Skill[]>(editor.storage.simetadata.skills)
-
-  const updateSkills = useCallback((newSkills: Skill[]) => {
-    editor.storage.simetadata.skills = [...newSkills];
-    setSelectedSkills(newSkills);
-  }, [editor]);
-
-  const updateEducationLevel = useCallback((newEducationLevel: EducationLevel[]) => {
-    console.log("newEducationLevel", newEducationLevel)
-    editor.storage.simetadata.educationLevels = [...newEducationLevel];
-    setSelectedEducationLevels(newEducationLevel);
-  }, [editor]);
-
+  }, [themes, educationLevels])
 
   // save editor on ctrl+s press on whole page
   useEffect(() => {
@@ -90,9 +102,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
         editor.commands.save(editor);
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -102,37 +112,26 @@ export const TiptapEditor = (props: { editor: Editor }) => {
 
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
-      {editor.isEditable && <div className="relative min-w-96 p-4 md:p-16">
-        <CourseSettings editor={editor} />
-      </div>}
+      <EditorContext.Provider value={providerValue}>
+        {editor.isEditable && <div className="relative min-w-96 p-4 md:p-16">
+          <CourseSettings editor={editor} />
+        </div>}
 
-      <StyledEditor
-        id="editor"
-        className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', minHeight: '100vh' }}
-      >
+        <StyledEditor
+          id="editor"
+          className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', minHeight: '100vh' }}
+        >
 
-        {editor.isEditable && <SkillsPicker
-          selectedSkills={editor.storage.simetadata.skills}
-          onSelectedSkills={updateSkills}
-          className='mb-4' />}
+          <div className="flex h-full" ref={menuContainerRef}>
 
-        {editor.isEditable && <EducationLevelPicker
-          selectedEducationLevels={editor.storage.simetadata.educationLevels}
-          onSelectedEducationLevels={updateEducationLevel}
-          className='mb-4' />}
-
-        <div className="flex h-full" ref={menuContainerRef}>
-
-          <EditorContext.Provider value={providerValue}>
             <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
             {editor && <TextMenu editor={editor} />}
             <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
-          </EditorContext.Provider>
 
-        </div>
-        <Snackbar />
-      </StyledEditor>
-
+          </div>
+          <Snackbar />
+        </StyledEditor>
+      </EditorContext.Provider>
     </div>
   )
 }

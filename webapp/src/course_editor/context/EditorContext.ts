@@ -1,9 +1,18 @@
+import { ChapterWithBlock, ChapterWithoutBlocks } from '@/lib/api-client'
+import { EducationLevel, SchoolSubject, Theme } from '@prisma/client'
 import { createContext } from 'react'
 
 interface IEditorContext {
   title?: string
+  educationLevels: EducationLevel[],
+  themes: Theme[],
+  schoolSubjects: SchoolSubject[],
+  // chapter: ChapterWithoutBlocks
 }
 
 export const EditorContext = createContext<IEditorContext>({
-  title: "unset title",
+  title: "",
+  educationLevels: [],
+  themes: [],
+  schoolSubjects: []
 })
