@@ -11,11 +11,12 @@ export const saveBlocks = async (editorContent: JSONContent) => {
             const block = blocks[i]
             if (block.attrs && block.attrs.id && block.content) {
                 const blockId = block.attrs.id;
-                const blockKeyIdeas = (block.attrs.keyIdeas || []).map((b: KeyIdea) => b.id);
+                // const blockKeyIdeas = (block.attrs.keyIdeas || []).map((b: KeyIdea) => b.id);
                 const blockTitle = block.attrs?.title || ""
+                console.log("BLOCK TITLE", blockTitle);
 
                 try {
-                    const saved = await apiClient.updateBlock(blockId, blockTitle, block.content, blockKeyIdeas)
+                    const saved = await apiClient.updateBlock(blockId, blockTitle, block.content)
                     if (!saved) {
                         return false;
                     }
@@ -33,15 +34,13 @@ interface HandleSaveResponse {
     severity: TSeverity
 }
 
-export const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent, skills: Skill[], educationLevels: EducationLevel[]): Promise<HandleSaveResponse | false> => {
+export const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent): Promise<HandleSaveResponse | false> => {
     if (!editor.isEditable) return false;
     let saveChapterOk;
     try {
         saveChapterOk = await apiClient.updateChapter(chapterId, {
             title,
             content: JSON.stringify(content),
-            skills: skills,
-            educationLevels
         });
     } catch (error) {
         saveChapterOk = false;

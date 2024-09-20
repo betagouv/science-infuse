@@ -12,12 +12,13 @@ import { Node as PMNode } from '@tiptap/pm/model'
 import SkillsPicker from './SkillsPicker';
 import KeyIdeasPicker from './KeyIdeaPicker';
 import { KeyIdea } from '@prisma/client';
+import ActionButtons from './ActionButtons';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     CourseBlockNode: {
       addCourseBlock: (blockId: string) => ReturnType;
-      setCourseTitle: (title: string) => ReturnType;
+      setCourseTitle: (id: string, title: string) => ReturnType;
       removeCourseBlock: (id: string) => ReturnType;
       updateCourseBlockQuestions: (id: string, questions: Question[]) => ReturnType;
       updateCourseBlockKeyIdeas: (id: string, keyIdeas: KeyIdea[]) => ReturnType;
@@ -38,7 +39,10 @@ declare module "@tiptap/core" {
 const CourseBlockNode = Node.create({
   name: 'courseBlock',
   group: 'block',
-  content: 'courseBlockKeyIdeaPicker block+',
+  content: 'block+',
+
+  defining: true,
+  isolating: true,
 
   addAttributes() {
     return {
@@ -46,7 +50,7 @@ const CourseBlockNode = Node.create({
         default: () => `course-block-${Math.random().toString(36).substr(2, 9)}`,
       },
       title: {
-        default: [],
+        default: "",
         parseHTML: element => element.getAttribute('data-title'),
         renderHTML: attributes => ({
           'data-title': attributes.title,
@@ -88,12 +92,12 @@ const CourseBlockNode = Node.create({
   },
   addCommands() {
     return {
-      setCourseTitle: (title: string) => ({ tr, dispatch, chain, state, editor }) => {
+      setCourseTitle: (id: string, title: string) => ({ tr, dispatch, chain, state, editor }) => {
         const { doc } = tr
         let nodePos = -1
 
         doc.descendants((node, pos) => {
-          if (node.type.name === 'courseBlock') {
+          if (node.type.name === 'courseBlock' && node.attrs.id == id) {
             nodePos = pos
             return false
           }
@@ -119,29 +123,6 @@ const CourseBlockNode = Node.create({
             type: this.name,
             attrs: { id: blockId },
             content: [
-              {
-                type: 'courseBlockKeyIdeaPicker',
-                content: [
-                  {
-                    type: "bulletList",
-                    content: [
-                      {
-                        type: "listItem",
-                        content: [
-                          {
-                            type: "paragraph",
-                            content: [
-                              {
-                                type: "text",
-                                text: "..."
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                    ]
-                  }]
-              },
               {
                 type: 'paragraph',
               },
@@ -299,6 +280,27 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
     return text.slice(0, 4000);
   };
+  const [storedSelection, setStoredSelection] = useState<Selection | null>(null)
+  const handleMouseEnter = () => {
+    console.log("POS node.attrs.id", node.attrs.id, editor.state.selection.$anchor.pos)
+
+    setStoredSelection(editor.state.selection)
+  }
+
+  const handleMouseLeave = () => {
+    setStoredSelection(null)
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.target instanceof HTMLElement && !e.target.isContentEditable) {
+      e.preventDefault()
+      e.stopPropagation()
+      if (storedSelection) {
+        editor.commands.setTextSelection(storedSelection)
+      }
+    }
+  }
+
 
   const [questions, setQuestions] = useState(node.attrs.quizQuestions);
   const [selectedKeyIdeas, setSelectedKeyIdeas] = useState<KeyIdea[]>(node.attrs.keyIdeas)
@@ -324,14 +326,15 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
 
   const parentRef = useRef<HTMLDivElement>(null);
-
   // const getTitle = () => {
   //   const firstElement = node.content.firstChild
   //   return firstElement ? firstElement.textContent : ''
   // }
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block">
+    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block"
+      onClick={handleClick}
+    >
       {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
       {/* <MemoKeyIdeasPicker
         getContext={getCourseBlockText}
@@ -348,12 +351,18 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         value={node.attrs.title}
         onChange={(e) => {
           const newTitle = e.target.value;
-          editor.commands.setCourseTitle(newTitle);
+          editor.commands.setCourseTitle(node.attrs.id, newTitle);
           // editor.commands.updateCourseBlockTitle(node.attrs.id, newTitle);
         }}
       />
       <div className="bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
-
+        <div
+        className='sticky top-4 z-[100]'
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          >
+          <ActionButtons pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
+        </div>
         <NodeViewContent className="content" />
       </div>
       <hr className='mt-8' />

@@ -62,8 +62,8 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
     };
 
     return (
-        <div className="w-full max-w-3xl mx-auto">
-            <video ref={videoRef} src={videoUrl} className="w-full" controls />
+        <div className="w-full mx-auto">
+            <video ref={videoRef} src={videoUrl} className="w-full sm:rounded-xl" controls />
             <div className="relative h-[5px] bg-gray-200 mt-2 cursor-pointer" onClick={handleSeek}>
                 <div
                     className="absolute top-0 left-0 h-full bg-blue-500"
@@ -93,7 +93,6 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                         const end = chunk.metadata.end;
                         const text = chunk.text.length > 200 ? chunk.text.slice(0, 100) + ' [...] ' + chunk.text.slice(-100) : chunk.text;
                         const score = chunk.score;
-                        console.log("SCORE", score)
                         const selected = chunkId == selectedChunk?.id;
                         const starred = !!chunk.user_starred;
                         return (

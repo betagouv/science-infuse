@@ -14,6 +14,7 @@ import { TextMenu } from './extensions/BubbleMenu/TextMenu';
 import CourseSettings from './components/CourseSettings';
 import { apiClient } from '@/lib/api-client';
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
+import AddBlockAtEnd from './components/AddBlockAtEnd';
 
 const StyledEditor = styled.div`
 `
@@ -64,7 +65,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
   const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [schoolSubjects, setSchoolSubjects] = useState<SchoolSubject[]>([]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,10 +81,10 @@ export const TiptapEditor = (props: { editor: Editor }) => {
         console.error('Error fetching data:', error);
         // showSnackbar('Error fetching education levels and themes', 'error');
       }
-    };  
+    };
     fetchData();
   }, []);
-  
+
 
   const providerValue = useMemo(() => {
     return {
@@ -119,14 +120,15 @@ export const TiptapEditor = (props: { editor: Editor }) => {
 
         <StyledEditor
           id="editor"
-          className='relative min-h-[500px] w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', minHeight: '100vh' }}
+          className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}
         >
 
-          <div className="flex h-full" ref={menuContainerRef}>
+          <div className="flex flex-col h-full" ref={menuContainerRef}>
 
-            <EditorContent className="flex-1 w-full" editor={editor} style={{ minHeight: '100%' }} />
+            <EditorContent className="flex-1 w-full" editor={editor} />
             {editor && <TextMenu editor={editor} />}
             <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
+            <AddBlockAtEnd editor={editor} />
 
           </div>
           <Snackbar />

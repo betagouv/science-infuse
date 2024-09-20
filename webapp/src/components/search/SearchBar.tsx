@@ -1,33 +1,44 @@
 'use client';
 
 import SearchBar from "@codegouvfr/react-dsfr/SearchBar"
-import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import assert from "assert";
+import { useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 
 const StyledSearchBar = styled(SearchBar)`
-.fr-btn {
-background: black;
-}
+  .fr-btn {
+    background: black;
+  }
 
-.fr-search-bar .fr-input {
-box-shadow: inset 0 -2px 0 0 var(--border-action-high-blue-france);
-}
+  .fr-search-bar .fr-input {
+    box-shadow: inset 0 -2px 0 0 var(--border-action-high-blue-france);
+  }
 `
 
-export default (props: { autoFocus?: boolean }) => {
-    const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
+export default (props: { autoFocus?: boolean, handleSearch?: (query: string) => void }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
 
     const searchQuery = searchParams.get('query') || "";
     const [query, setQuery] = useState<string>(searchQuery);
     const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        if (props.autoFocus && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [props.autoFocus]);
 
     const handleSearch = () => {
-        const current = new URLSearchParams(Array.from(searchParams.entries())); // -> has to use this form
+        if (props.handleSearch) {
+            props.handleSearch(query);
+            return;
+        }
+
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
 
         if (!query) {
             current.delete("query");
@@ -35,14 +46,15 @@ export default (props: { autoFocus?: boolean }) => {
             current.set("query", query);
         }
 
-        // cast to string
         const search = current.toString();
-        // or const searchQuery = `${'?'.repeat(search.length && 1)}${search}`;
         const searchQuery = search ? `?${search}` : "";
 
         router.push(`/recherche${searchQuery}`);
-
     };
+
+    if (!isMounted) {
+        return null;
+    }
 
     return (
         <StyledSearchBar
@@ -51,8 +63,7 @@ export default (props: { autoFocus?: boolean }) => {
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (
                 <input
-                    autoFocus={props?.autoFocus || false}
-                    ref={setInputElement}
+                    ref={inputRef}
                     className={className}
                     id={id}
                     placeholder={placeholder}
@@ -62,9 +73,8 @@ export default (props: { autoFocus?: boolean }) => {
                     onKeyDown={event => {
                         if (event.key === "Enter") {
                             handleSearch();
-                        } else if (event.key === "Escape") {
-                            assert(inputElement !== null);
-                            inputElement.blur();
+                        } else if (event.key === "Escape" && inputRef.current) {
+                            inputRef.current.blur();
                         }
                     }}
                 />
