@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
 import { ChapterWithoutBlocks } from '@/lib/api-client';
+import { ChapterStatus } from '@prisma/client';
 
 export async function GET(
   request: Request,
@@ -51,7 +52,7 @@ export async function PUT(
     if (!data) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 404 });
     }
-    const { title, content, skills, educationLevels, themeId, schoolSubjectId } = data;
+    const { status, title, content, skills, educationLevels, themeId, schoolSubjectId } = data;
 
     console.log("DATA", data)
 
@@ -60,14 +61,15 @@ export async function PUT(
     if (schoolSubjectId !== undefined) updateData.schoolSubjectId = schoolSubjectId;
     if (content !== undefined) updateData.content = content as string;
     if (themeId !== undefined) updateData.themeId = themeId;
+    if (status !== undefined && [ChapterStatus.DELETED, ChapterStatus.DRAFT, ChapterStatus.REVIEW].includes(status as any)) updateData.status = status;
     if (skills !== undefined) {
       updateData.skills = {
-        set: skills.map((s) => ({id: s.id})),
+        set: skills.map((s) => ({ id: s.id })),
       };
     }
     if (educationLevels !== undefined) {
       updateData.educationLevels = {
-        set: educationLevels.map(el => ({id: el.id}))
+        set: educationLevels.map(el => ({ id: el.id }))
       };
     }
 

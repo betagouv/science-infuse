@@ -7,6 +7,11 @@
     max-width: 100%;
 }
 
+.fr-card--horizontal .fr-card__body {
+    max-width: 60%;
+}
+
+
 .highlightSearch {
     background-color: #6beaf8;
 }

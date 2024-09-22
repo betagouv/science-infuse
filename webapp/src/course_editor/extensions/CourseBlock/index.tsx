@@ -356,13 +356,13 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         }}
       />
       <div className="bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
-        <div
-        className='sticky top-4 z-[100]'
+        {editor.isEditable && <div
+          className='sticky top-4 z-[100]'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          >
+        >
           <ActionButtons pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
-        </div>
+        </div>}
         <NodeViewContent className="content" />
       </div>
       <hr className='mt-8' />
