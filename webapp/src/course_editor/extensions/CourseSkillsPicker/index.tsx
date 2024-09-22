@@ -1,15 +1,10 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { Node, mergeAttributes } from '@tiptap/core'
 import { NodeViewWrapper, NodeViewContent, ReactNodeViewRenderer } from '@tiptap/react'
-import { apiClient } from '@/lib/api-client';
-import { TextSelection } from '@tiptap/pm/state'
 import { Editor } from '@tiptap/core'
-import { keymap } from '@tiptap/pm/keymap'
-import Quiz, { Question } from './Quiz';
 import { useState } from '@preact-signals/safe-react/react';
 import { Node as PMNode } from '@tiptap/pm/model'
-import { KeyIdea, Skill } from '@prisma/client';
-import SkillsPicker from './SkillsPicker';
+import { Skill } from '@prisma/client';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {

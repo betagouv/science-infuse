@@ -63,7 +63,7 @@ const Filters: React.FC<FiltersProps> = ({ selectedFilter, onFilterChange, filte
 interface ClientCatalogueProps {
     initialChapters: ChapterWithBlock[];
     filters: EducationLevel[];
-    theme?: Theme
+    theme: Theme | null
 }
 
 const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filters, theme }) => {
