@@ -98,16 +98,9 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
             {chapter.title}
           </Link>
         </TableCell>
-        <TableCell>
-          <div className="flex flex-wrap gap-1">
-            {chapter.skills.map((skill, index) => (
-              <Chip key={index} label={skill.title} size="small" sx={{ mr: 0.5, mb: 0.5 }} />
-            ))}
-          </div>
-        </TableCell>
         <TableCell className=''>
-          <Badge severity={statusToSeverity[chapter.status] as AlertProps.Severity}>
-            {statusToText[chapter.status]}
+          <Badge severity={statusToSeverity[chapter.status as keyof typeof statusToSeverity] as AlertProps.Severity}>
+            {statusToText[chapter.status as keyof typeof statusToText]}
           </Badge>
         </TableCell>
         <TableCell className='flex flex-wrap'>
@@ -129,7 +122,6 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
     </>
   );
 };
-
 const ChaptersTable = ({ chapters }: { chapters: ChapterWithBlock[] }) => {
   return (
     <TableContainer component={Paper}>
@@ -138,7 +130,6 @@ const ChaptersTable = ({ chapters }: { chapters: ChapterWithBlock[] }) => {
           <TableRow>
             <TableCell />
             <TableCell>Titre</TableCell>
-            <TableCell>Compétences</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Niveaux d'éducation</TableCell>
             <TableCell>Dernière mise à jour</TableCell>

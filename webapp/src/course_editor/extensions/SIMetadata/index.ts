@@ -1,3 +1,4 @@
+import { ChapterStatus } from '@prisma/client';
 import { Extension } from '@tiptap/core'
 
 const SIMetadata = Extension.create({
@@ -7,7 +8,7 @@ const SIMetadata = Extension.create({
     return {
       chapterId: "",
       skills: [],
-      educationLevels: []
+      educationLevels: [],
     }
   },
 

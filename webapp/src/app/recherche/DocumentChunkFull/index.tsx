@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { Card } from "@codegouvfr/react-dsfr/Card";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentChunk, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import { findNormalizedChunks } from "../text-highlighter";
 import Highlighter from "react-highlight-words";
-import { NEXT_PUBLIC_FILE_SERVER_URL, NEXT_PUBLIC_SERVER_URL, WEBAPP_URL } from "@/config";
-import VideoPlayer from "@/app/mediaViewers/VideoPlayer";
+import { WEBAPP_URL } from "@/config";
 import { Typography, Collapse, Tooltip, styled } from '@mui/material';
 
 import styledComponent from '@emotion/styled';
@@ -13,18 +12,11 @@ import styledComponent from '@emotion/styled';
 
 import Badge from "@codegouvfr/react-dsfr/Badge";
 // import Button from "@codegouvfr/react-dsfr/Button";
-import { fr } from "@codegouvfr/react-dsfr";
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import axios from "axios";
-import { useCollapse } from 'react-collapsed'
-import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
-import BreadcrumbNoLink from "@/ui/BreadcrumbNoLink";
 import { apiClient, ChapterWithBlock } from "@/lib/api-client";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { useSearchParams } from "next/navigation";
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
-import { useSession } from "next-auth/react";
-import { Chapter } from "@prisma/client";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
 import { OnInserted } from "../RenderSearch";
 
@@ -572,10 +564,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
             </a>
         }
         size="small"
-        title={<div className="flex flex-col gap-2 w-full text-left">
-            <p className="m-0 font-bold text-xl text-[#161616]">{chapter.title}</p>
-            <p className="m-0 font-bold text-[#161616]">{chapter.title}</p>
-        </div>}
+        title={""}
         titleAs="h3"
     />
 }
