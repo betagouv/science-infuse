@@ -24,21 +24,12 @@ export const GROUPS: Group[] = [
         }
       },
       {
-        name: 'image',
-        label: 'Image',
+        name: 'si-content',
+        label: 'Contenu Science Infuse',
         iconName: 'Image',
-        description: 'Search and insert an image',
+        description: 'Insérer du contenu de Science Infuse',
         action: async editor => {
           editor.chain().focus().openContentSearchPopup(editor.state.selection.anchor).run()
-        },
-      },
-      {
-        name: 'video',
-        label: 'Video',
-        iconName: 'Video',
-        description: 'Search and insert an video',
-        action: async editor => {
-          editor.chain().focus().openVideoSearch().run()
         },
       },
     ]

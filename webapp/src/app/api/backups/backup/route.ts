@@ -6,6 +6,8 @@ import { NextResponse } from 'next/server';
 
 const execAsync = promisify(exec);
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
     try {
         const databaseUrl = process.env.DATABASE_URL;
