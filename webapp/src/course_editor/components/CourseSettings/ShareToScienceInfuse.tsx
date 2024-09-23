@@ -40,7 +40,7 @@ const ShareToScienceInfuse = (props: { editor: Editor }) => {
                     setTimeout(() => {
                         setChapterStatus(ChapterStatus.REVIEW);
                         setIsLoading(false);
-                    }, 4000);
+                    }, 2000);
                 } catch (error) {
                     setIsLoading(false);
                 }

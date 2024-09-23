@@ -3,7 +3,7 @@ import { Editor } from "@tiptap/core";
 const ActionButtons = (props: { editor: Editor, pos?: number }) => {
     console.log("EDIOTR POSSS", props.pos)
     return (
-        <div contentEditable={false} className="w-full flex justify-center items-center gap-4 pb-8">
+        <div contentEditable={false} className="w-full flex justify-center items-center gap-4 pb-8 relative">
             <div className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
                 <div className="flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                     <img src="/images/actionButtons/addImage.svg" className="h-13 w-auto" alt="Importer" width={24} height={24} />

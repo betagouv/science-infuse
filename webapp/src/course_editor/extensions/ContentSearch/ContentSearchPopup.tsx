@@ -1,18 +1,15 @@
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Editor } from '@tiptap/react';
-import { ChunkSearchResultsWithType, ChunkWithScore, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, MediaType, SearchResults } from '@/types/vectordb';
-import { NEXT_PUBLIC_SERVER_URL, WEBAPP_URL } from '@/config';
-import Masonry from '@mui/lab/Masonry';
-import { useDebounce } from 'use-debounce';
+import { ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
+import { WEBAPP_URL } from '@/config';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 import SearchBar from '@/components/search/SearchBar';
-import Tabs, { selectedTabType, TabMediaTypeMap, TabType } from '@/app/recherche/Tabs';
+import Tabs, { selectedTabType } from '@/app/recherche/Tabs';
 import { useOnClickOutside } from 'usehooks-ts'
 import { useEffect } from '@preact-signals/safe-react/react';
-import { getSearchWords } from '@/app/recherche/text-highlighter';
-import { BlockResults, ChunkResults, GroupedVideoChunkResults, groupVideo, RenderSearchResult } from '@/app/recherche/RenderSearch';
+import { RenderSearchResult } from '@/app/recherche/RenderSearch';
 
 
 const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => void }) => {

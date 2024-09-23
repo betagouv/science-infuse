@@ -83,23 +83,25 @@ model Comment {
 }
 
 model Chapter {
-  id              String           @id @default(cuid())
-  status          ChapterStatus    @default(DRAFT)
-  title           String
-  content         Json
-  userId          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  blocks          Block[]
-  theme           Theme?           @relation(fields: [themeId], references: [id])
-  themeId         String?
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commentThread   CommentThread[]
-  educationLevels EducationLevel[]
-  skills          Skill[]          @relation("ChapterToSkill")
-  tags            Tag[]            @relation("ChapterToTag")
-  schoolSubject   SchoolSubject?   @relation(fields: [schoolSubjectId], references: [id])
-  schoolSubjectId String?
+  id                     String           @id @default(cuid())
+  status                 ChapterStatus    @default(DRAFT)
+  title                  String
+  content                Json
+  skillsAndKeyIdeas      String           @default("")
+  additionalInformations String           @default("")
+  userId                 String
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  blocks                 Block[]
+  theme                  Theme?           @relation(fields: [themeId], references: [id])
+  themeId                String?
+  user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentThread          CommentThread[]
+  educationLevels        EducationLevel[]
+  skills                 Skill[]          @relation("ChapterToSkill")
+  tags                   Tag[]            @relation("ChapterToTag")
+  schoolSubject          SchoolSubject?   @relation(fields: [schoolSubjectId], references: [id])
+  schoolSubjectId        String?
 }
 
 model Theme {

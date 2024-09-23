@@ -7,6 +7,8 @@ import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import { EditorContext } from '@/course_editor/context/EditorContext';
 import { useQuery } from '@tanstack/react-query';
+import { Input } from "@codegouvfr/react-dsfr/Input";
+import { useDebounceValue } from "usehooks-ts";
 
 const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +142,88 @@ const ThemePicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, ava
     );
 };
 
+const SkillsAndKeyIdeasPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [value, setValue] = useState(props.chapter?.skillsAndKeyIdeas || "")
+    const [debouncedValue] = useDebounceValue(value, 500);
+
+
+    useEffect(() => {
+        props.updateChapter({ skillsAndKeyIdeas: value });
+    }, [debouncedValue])
+
+
+    const toggleCollapse = () => {
+        setIsOpen(!isOpen);
+    };
+
+    return (
+        <div>
+            <div onClick={toggleCollapse} className="flex cursor-pointer items-center gap-2 py-4 sticky top-0 w-full bg-white z-[1]">
+                <p className="m-0 text-sm text-black">Compétences et notions clés</p>
+                <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M8.00048 8.78132L11.3005 5.48132L12.2431 6.42399L8.00048 10.6667L3.75781 6.42399L4.70048 5.48132L8.00048 8.78132Z" fill="#161616" />
+                </svg>
+            </div>
+            <Collapse in={isOpen}>
+                <div>
+                    <Input
+                        label=" "
+                        nativeTextAreaProps={{
+                            value: value,
+                            onChange: (e) => setValue(e.target.value),
+                            required: true,
+                            placeholder: "A compléter...",
+                        }}
+                        textArea
+                    />
+                </div>
+            </Collapse>
+        </div>
+    );
+};
+
+const AdditionalInformationsPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [value, setValue] = useState(props.chapter?.additionalInformations || "")
+    const [debouncedValue] = useDebounceValue(value, 500);
+
+
+    useEffect(() => {
+        props.updateChapter({ additionalInformations: value });
+    }, [debouncedValue])
+
+
+    const toggleCollapse = () => {
+        setIsOpen(!isOpen);
+    };
+
+    return (
+        <div>
+            <div onClick={toggleCollapse} className="flex cursor-pointer items-center gap-2 py-4 sticky top-0 w-full bg-white z-[1]">
+                <p className="m-0 text-sm text-black">Autres informations</p>
+                <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M8.00048 8.78132L11.3005 5.48132L12.2431 6.42399L8.00048 10.6667L3.75781 6.42399L4.70048 5.48132L8.00048 8.78132Z" fill="#161616" />
+                </svg>
+            </div>
+            <Collapse in={isOpen}>
+                <div>
+                    <Input
+                        label=" "
+                        nativeTextAreaProps={{
+                            value: value,
+                            onChange: (e) => setValue(e.target.value),
+                            required: true,
+                            placeholder: "",
+                        }}
+                        textArea
+                    />
+                </div>
+            </Collapse>
+        </div>
+    );
+};
+
 const CourseInformations = (props: { editor: Editor }) => {
     const context = useContext(EditorContext)
 
@@ -149,9 +233,12 @@ const CourseInformations = (props: { editor: Editor }) => {
     });
 
     const updateChapter = async (params: Partial<ChapterWithoutBlocks>) => {
-        console.log("chapter update", params)
-        await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, params);
-        refetch();
+        const changed = Object.keys(params as object);
+        const hasChanged = changed.some(key => chapter && params && params[key as keyof ChapterWithoutBlocks] !== chapter[key as keyof ChapterWithoutBlocks]);
+        if (hasChanged) {
+            await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, params);
+            refetch();
+        }
     };
 
     return <div className="flex flex-col ">
@@ -173,6 +260,18 @@ const CourseInformations = (props: { editor: Editor }) => {
         {chapter && <ThemePicker
             editor={props.editor}
             availableThemes={context.themes}
+            updateChapter={updateChapter}
+            chapter={chapter}
+        />}
+
+        {chapter && <SkillsAndKeyIdeasPicker
+            editor={props.editor}
+            updateChapter={updateChapter}
+            chapter={chapter}
+        />}
+
+        {chapter && <AdditionalInformationsPicker
+            editor={props.editor}
             updateChapter={updateChapter}
             chapter={chapter}
         />}
