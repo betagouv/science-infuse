@@ -123,7 +123,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
           className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}
         >
 
-          <div className="flex flex-col h-full" ref={menuContainerRef}>
+          <div className="flex flex-col" ref={menuContainerRef}>
 
             <EditorContent className="flex-1 w-full" editor={editor} />
             {editor && <TextMenu editor={editor} />}

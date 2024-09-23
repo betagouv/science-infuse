@@ -14,7 +14,7 @@
 - [x] message erreur login (actuellemtn si login ne fonctionne pas on a pas de message)
 - [x] Revue decouverte -> pas telechargable
 - [ ] http://localhost:3000/prof/parametres -> ajouter nom etablissmeent
-
+- [ ] https://www.anthropic.com/news/contextual-retrieval
 
 
 

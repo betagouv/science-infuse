@@ -60,15 +60,6 @@ const ExportToPdf = (props: { editor: Editor }) => {
             iconPosition="right"
             className='bg-black w-full flex justify-center h-fit' onClick={() => {
                 const htmlContent = buildHtml(props.editor.getHTML());
-                navigator.clipboard.writeText(htmlContent)
-                    .then(() => {
-                        console.log('HTML content copied to clipboard');
-                    })
-                    .catch((err) => {
-                        console.error('Failed to copy HTML content: ', err);
-                    });
-
-                // return;
                 fetch('/api/export/pdf', {
                     method: 'POST',
                     headers: {

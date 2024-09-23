@@ -24,23 +24,18 @@ import SIVideo from './extensions/VideoSearch'
 import CourseBlockNode from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
 import { Editor } from '@tiptap/core';
-import { apiClient } from '@/lib/api-client'
 import ImageBlock from './extensions/ImageBlock/ImageBlock'
 import PdfBlock from './extensions/PdfBlock/PdfBlock'
-import { TSeverity, useSnackbar } from '@/app/SnackBarProvider'
+import { TSeverity } from '@/app/SnackBarProvider'
 import { FontSize } from './extensions/FontSize'
-import { AutocompleteExtension } from './extensions/AutoComplete'
 
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import { SaveCourse } from './extensions/SaveCourse'
-import { TrailingNode } from './extensions/TrailingNode'
 import Comments from './extensions/Comments'
-import CourseSkillsPickerNode from './extensions/CourseSkillsPicker'
-// import CourseBlockKeyIdeaPickerNode from './extensions/CourseBlockKeyIdeaPicker'
 
 
 const CustomDocument = Document.extend({
-    content: 'heading courseSkillsPicker courseBlock*',
+    content: 'heading courseBlock*',
 })
 
 const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
@@ -72,7 +67,6 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         SIVideo,
         // course
         CourseBlockNode,
-        CourseSkillsPickerNode,
         // CourseBlockKeyIdeaPickerNode,
         TitleNode,
         // ContentNode,

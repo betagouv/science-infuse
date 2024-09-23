@@ -474,10 +474,6 @@ const StyledRenderBlock = styledComponent.div`
     text-align: left;
     mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-
-    .node-courseSkillsPicker.is-empty {
-        display: none;
-    }
 `
 
 const RenderTiptapContent = (props: { content: any }) => {

@@ -29,7 +29,7 @@ const AddBlockAtEnd = (props: { editor: Editor }) => {
 
     return (
         <div onClick={() => addCourseBlockAtEnd()} className="flex items-center h-12 cursor-pointer">
-            <div className="flex flex-col items-center relative">
+            <div className="flex flex-col items-center relative mt-16">
                 <div className="flex items-center gap-2">
                     <svg
                         width={16}
