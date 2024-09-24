@@ -1,26 +1,26 @@
 import { Extension } from '@tiptap/core'
 import { Command, Editor, RawCommands, ReactRenderer } from '@tiptap/react'
-import ContentSearch from './ContentSearchPopup'
+import FileImport from './FileImportPopup'
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
-        ContentSearch: {
-            openContentSearchPopup: (pos: number) => ReturnType;
+        FileImport: {
+            openFileImportPopup: (pos: number) => ReturnType;
         };
     }
 }
 
-export const ContentSearchExtension = Extension.create({
-    name: 'contentSearch',
+export const FileImportExtension = Extension.create({
+    name: 'fileImport',
 
     addCommands() {
         return {
-            openContentSearchPopup:
+            openFileImportPopup:
                 (pos: number) =>
                     ({ editor, chain }) => {
                         let popupElement: HTMLDivElement | null = null;
 
-                        const component = new ReactRenderer(ContentSearch, {
+                        const component = new ReactRenderer(FileImport, {
                             props: {
                                 editor,
                                 pos: pos,
@@ -55,4 +55,4 @@ export const ContentSearchExtension = Extension.create({
     },
 })
 
-export default ContentSearchExtension
+export default FileImportExtension

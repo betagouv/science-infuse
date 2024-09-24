@@ -19,8 +19,9 @@ import Document from '@tiptap/extension-document'
 import SlashCommand from './extensions/SlashCommand/SlashCommand'
 import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
 import { FileHandler } from '@tiptap-pro/extension-file-handler'
-import ImageSearch from './extensions/ContentSearch'
-import SIVideo from './extensions/VideoSearch'
+import ContentSearch from './extensions/ContentSearch'
+import FileImport from './extensions/FileImport'
+import SIVideo from './extensions/VideoBlock'
 import CourseBlockNode from './extensions/CourseBlock'
 import SIMetadata from './extensions/SIMetadata'
 import { Editor } from '@tiptap/core';
@@ -40,13 +41,17 @@ const CustomDocument = Document.extend({
 
 const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
 const pdfMime = ['application/pdf']
+const videoMime = ['video/mp4']
 
 
 const handleFile = (file: File, editor: Editor, pos?: number) => {
+    console.log("filefilefilefile", file, file.type)
     if (imagesMime.includes(file.type)) {
         editor.chain().setImageFromFile(file).focus().run()
     } else if (pdfMime.includes(file.type)) {
         editor.chain().setPdfFromFile(file).focus().run()
+    } else if (videoMime.includes(file.type)) {
+        editor.chain().setVideoFromFile(file).focus().run()
     }
 }
 
@@ -95,13 +100,13 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
             showSnackbar: showSnackbar,
         }),
         PdfBlock,
-        ImageSearch,
+        ContentSearch,
+        FileImport,
         FileHandler.configure({
-            allowedMimeTypes: [...pdfMime, ...imagesMime],
+            allowedMimeTypes: [...pdfMime, ...imagesMime, ...videoMime],
             onDrop: (editor: Editor, files: File[], pos: number) => {
                 files.forEach(async (file) => {
                     handleFile(file, editor, pos)
-
                 })
             },
             onPaste: (editor: Editor, files: File[]) => {

@@ -11,6 +11,7 @@ import { File as DbFile } from '@prisma/client';
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const author = formData.get('author') as string | null;
     const session = await getServerSession(authOptions);
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
     if (!user) {
@@ -40,13 +41,13 @@ export async function POST(request: NextRequest) {
     try {
         await writeFile(localFilePath, new Uint8Array(buffer));
         const s3ObjectName = `prof/${user.id}/${fileName}`;
-        s3Storage.uploadFile(localFilePath, s3ObjectName)
+        await s3Storage.uploadFile(localFilePath, s3ObjectName)
 
         const dbfile = await prisma.file.create({
             data: {
                 userId: user.id,
-                description: 'file description',
-                author: `${user.firstName} ${user.lastName}`,
+                description: '',
+                author: author || `${user.firstName} ${user.lastName}`,
                 extension: fileExtension,
                 s3ObjectName: s3ObjectName,
                 shared: false

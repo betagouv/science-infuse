@@ -4,14 +4,14 @@ import { Editor } from '@tiptap/react';
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
-import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
+import { EducationLevel, File as DbFile, SchoolSubject, Theme } from '@prisma/client';
 import { EditorContext } from '@/course_editor/context/EditorContext';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { useDebounceValue } from "usehooks-ts";
 import styled from "@emotion/styled";
 import SearchBar from "@/components/search/SearchBar";
-import { ChunkWithScore, ChunkWithScoreUnion, MediaTypes, SearchResults } from "@/types/vectordb";
+import { ChunkWithScore, ChunkWithScoreUnion, MediaTypes, s3ToPublicUrl, SearchResults } from "@/types/vectordb";
 import { fetchSIContent } from "@/app/recherche/fetchSIContent";
 import Tabs, { TabType } from "@/app/recherche/Tabs";
 import { ChunkResults, RenderSearchResult } from "@/app/recherche/RenderSearch";
@@ -22,7 +22,7 @@ import { BuildCardEnd, StyledImageCard } from "@/app/recherche/DocumentChunkFull
 import { WEBAPP_URL } from "@/config";
 import Button from "@codegouvfr/react-dsfr/Button";
 import RenderImportedImage from "./components/RenderImportedImage";
-import ImportedImageSource from "./components/ImportedImageSource";
+import ImportedFileSource from "./components/ImportedFileSource";
 import { useSession } from "next-auth/react";
 
 const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
@@ -281,9 +281,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"pdf_image"> | null>(null);
 
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>("http://localhost:3000/api/s3/presigned_url/object_name/prof/cm1fe31gf000082if4fvcqmi1/20b43a5e-f3f8-400b-976a-1c7d75961d25.png");
     const [droppedFile, setDroppedFile] = useState<File | null>(null)
-    // const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -310,7 +308,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
         setIsUploading(true);
         try {
             const response = await apiClient.uploadFile(file);
-            setUploadedFileUrl(response.url);
+            await props.updateChapter({coverPath: s3ToPublicUrl(response.s3ObjectName)})
         } catch (error) {
             console.error('Error uploading file:', error);
         } finally {
@@ -490,7 +488,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                 {droppedFile && (
                                     <div className="flex flex-col gap-4 w-full items-center">
                                         <RenderImportedImage isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
-                                        <ImportedImageSource source={source} setSource={setSource} />
+                                        <ImportedFileSource source={source} setSource={setSource} />
                                         <Button className="bg-black" onClick={async (e) => {
                                             e.preventDefault();
                                             e.stopPropagation();

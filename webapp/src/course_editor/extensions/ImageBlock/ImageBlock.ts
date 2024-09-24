@@ -8,6 +8,9 @@ import { apiClient } from '@/lib/api-client'
 import { ImageOptions } from '@tiptap/extension-image'
 import { TSeverity } from '@/app/SnackBarProvider'
 import PdfBlock from '../PdfBlock/PdfBlock'
+import { s3ToPublicUrl } from '@/types/vectordb';
+import { File as DbFile } from '@prisma/client';
+import VideoBlock from '../VideoBlock';
 
 export type ImageBlockOptions = ImageOptions & {
   showSnackbar: (message: string, severity: TSeverity) => void;
@@ -17,6 +20,7 @@ declare module '@tiptap/core' {
     imageBlock: {
       setImageBlock: (attributes: { src: string }) => ReturnType
       setImageBlockAt: (attributes: { src: string; pos: number | Range }) => ReturnType
+      setImageBlockUserFileAt: (attributes: { src: string; pos: number | Range, userFile: DbFile }) => ReturnType
       setImageBlockAlign: (align: 'left' | 'center' | 'right') => ReturnType
       setImageBlockWidth: (width: number) => ReturnType
       setFileShared: (shared: boolean) => ReturnType
@@ -53,10 +57,8 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
           'data-isExternalFile': attributes.isExternalFile,
         }),
       },
-      isUploading: {
-        default: false,
-        parseHTML: () => false,
-        renderHTML: () => ({}),
+      userFile: {
+        default: undefined,
       },
       uploadId: {
         default: null,
@@ -207,7 +209,7 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
 
             apiClient.uploadFile(file).then(data => {
               console.log("DATA URL", data)
-              loadImageWithRetry(data.url)
+              loadImageWithRetry(s3ToPublicUrl(data.s3ObjectName))
                 .then(validUrl => {
                   const img = new Image();
                   img.onload = () => {
@@ -220,6 +222,7 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
                             isUploading: false,
                             isExternalFile: true,
                             isLoaded: true,
+                            userFile: file,
                             uploadId: null,
                             s3ObjectName: data.s3ObjectName,
                             id: data.id,
@@ -253,6 +256,11 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
           ({ commands }) => {
             return commands.insertContentAt(attrs.pos, { type: this.name, attrs: { src: attrs.src } })
           },
+      setImageBlockUserFileAt:
+        attrs =>
+          ({ commands }) => {
+            return commands.insertContentAt(attrs.pos, { type: this.name, attrs: { src: attrs.src, userFile: attrs.userFile } })
+          },
 
       setImageBlockAlign:
         align =>
@@ -269,19 +277,22 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
           ({ commands, editor, view }) => {
             const selection = editor?.state?.selection;
             const selectedNodeType = selection instanceof NodeSelection ? selection.node.type.name : undefined;
-            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
-              this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
+            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name, VideoBlock.name].includes(selectedNodeType)) {
+              this.options.showSnackbar(`Impossible de modifier la source d'un bloc du type "${selectedNodeType}"`, "error");
               return true;
             }
             console.log("selectedNodeType", selectedNodeType)
             commands.updateAttributes(selectedNodeType, { fileSource: source })
             const s3ObjectName = editor.getAttributes(selectedNodeType).s3ObjectName
+            const userFile = editor.getAttributes(selectedNodeType)?.userFile;
             console.log("s3ObjectNames3ObjectNames3ObjectNames3ObjectName", s3ObjectName)
-            // apiClient.shareFile(s3ObjectName, shared).then(() => {
-            //   this.options.showSnackbar("Statut de partage mis à jour avec succès", "success");
-            // }).catch(() => {
-            //   this.options.showSnackbar("Échec de la mise à jour du statut de partage", "error");
-            // })
+            if (userFile) {
+              apiClient.updateFile(userFile.id, {author: source}).then(() => {
+                this.options.showSnackbar("Statut de partage mis à jour avec succès", "success");
+              }).catch(() => {
+                this.options.showSnackbar("Échec de la mise à jour du statut de partage", "error");
+              })
+            }
             return true
           },
       setFileShared:
@@ -289,7 +300,7 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
           ({ commands, editor, view }) => {
             const selection = editor?.state?.selection;
             const selectedNodeType = selection instanceof NodeSelection ? selection.node.type.name : undefined;
-            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name].includes(selectedNodeType)) {
+            if (!selectedNodeType || ![PdfBlock.name, ImageBlock.name, VideoBlock.name].includes(selectedNodeType)) {
               this.options.showSnackbar(`Impossible de partager un bloc du type "${selectedNodeType}"`, "error");
               return true;
             }

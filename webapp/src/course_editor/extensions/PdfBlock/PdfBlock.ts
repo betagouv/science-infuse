@@ -1,12 +1,11 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
-import React from 'react'
-import { Document, Page } from 'react-pdf'
 import { pdfjs } from 'react-pdf'
 import PdfBlockView from './components/PdfBlockView'
 import { apiClient } from '@/lib/api-client'
 import { TSeverity } from '@/app/SnackBarProvider'
-
+import { s3ToPublicUrl } from '@/types/vectordb'
+import {File as DbFile} from '@prisma/client';
 
 // there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -25,9 +24,10 @@ declare module '@tiptap/core' {
     pdfBlock: {
       setPdfBlock: (attributes: { src: string }) => ReturnType
       setPdfBlockAt: (attributes: { src: string; pos: number | Range }) => ReturnType
+      setPdfBlockUserFileAt: (attributes: { src: string; pos: number | Range, userFile: DbFile }) => ReturnType
       setPdfBlockShared: (shared: boolean) => ReturnType
       setFileShared: (shared: boolean) => ReturnType
-      setPdfFromFile: (file: File,) => ReturnType
+      setPdfFromFile: (file: File, author?: string) => ReturnType
     }
 
   }
@@ -55,6 +55,9 @@ const PdfBlock = Node.create<PdfBlockOptions>({
         renderHTML: attributes => ({
           'data-isExternalFile': attributes.isExternalFile,
         }),
+      },
+      userFile: {
+        default: undefined,
       },
       isUploading: {
         default: false,
@@ -127,7 +130,7 @@ const PdfBlock = Node.create<PdfBlockOptions>({
   addCommands() {
     return {
       setPdfFromFile:
-        file =>
+        (file, author) =>
           ({ commands, view }) => {
             const uploadId = Math.random().toString(36).substr(2, 9)
             commands.insertContent({
@@ -135,43 +138,18 @@ const PdfBlock = Node.create<PdfBlockOptions>({
               attrs: { src: '', isUploading: true, uploadId, isLoaded: false },
             })
 
-            // TODO: fix pdf not available with s3 (delay, or retry)
-            // function loadPdfWithRetry(url: string, retries = 5) {
-            //   return new Promise((resolve, reject) => {
-            //     const img = new Image();
-
-            //     function onLoad() {
-            //       resolve(url);
-            //     }
-
-            //     function onError() {
-            //       if (retries > 0) {
-            //         setTimeout(() => {
-            //           loadPdfWithRetry(url, retries - 1).then(resolve).catch(reject);
-            //         }, 1000);
-            //       } else {
-            //         reject(new Error('Failed to load image after several retries.'));
-            //       }
-            //     }
-
-            //     img.onload = onLoad;
-            //     img.onerror = onError;
-            //     img.src = url;
-            //   });
-            // }
-
-
-            apiClient.uploadFile(file).then(data => {
-              console.log("DATA URL", data)
+            apiClient.uploadFile(file, author).then(data => {
               view.state.doc.descendants((node, pos) => {
                 if (node.type.name === this.name && node.attrs.uploadId === uploadId) {
                   view.dispatch(
                     view.state.tr.setNodeMarkup(pos, null, {
                       ...node.attrs,
-                      src: data.url,
+                      src: s3ToPublicUrl(data.s3ObjectName),
                       isUploading: false,
                       isExternalFile: true,
+                      fileSource: author,
                       isLoaded: true,
+                      userFile: file,
                       uploadId: null,
                       s3ObjectName: data.s3ObjectName,
                       id: data.id,
@@ -195,6 +173,12 @@ const PdfBlock = Node.create<PdfBlockOptions>({
           ({ commands }) => {
             return commands.insertContent({ type: this.name, attrs: { src: attrs.src } })
           },
+      setPdfBlockUserFileAt:
+        attrs =>
+          ({ commands }) => {
+            return commands.insertContentAt(attrs.pos as number, { type: this.name, attrs: { src: attrs.src, userFile: attrs.userFile } })
+          },
+
 
       setPdfBlockAt:
         attrs =>

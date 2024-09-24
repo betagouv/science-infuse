@@ -1,7 +1,7 @@
 import Input from "@codegouvfr/react-dsfr/Input";
 import { useState } from "@preact-signals/safe-react/react";
 
-const ImportedImageSource = (props: {source: string, setSource: (source: string) => void}) => {
+const ImportedFileSource = (props: {source: string, setSource: (source: string) => void}) => {
     return (
         <div className="flex flex-col justify-start items-start w-full gap-2">
             <div className="flex flex-col justify-start items-center w-full gap-2">
@@ -11,6 +11,7 @@ const ImportedImageSource = (props: {source: string, setSource: (source: string)
                             label="Source"
                             className="w-full"
                             nativeInputProps={{
+                                onClick: (e) => {e.preventDefault(); e.stopPropagation();},
                                 type: "text",
                                 value: props.source,
                                 onChange: (e) => props.setSource(e.target.value),
@@ -47,4 +48,4 @@ const ImportedImageSource = (props: {source: string, setSource: (source: string)
         </div>
     )
 }
-export default ImportedImageSource;
+export default ImportedFileSource;

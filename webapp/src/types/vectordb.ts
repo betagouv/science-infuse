@@ -1,3 +1,4 @@
+import { WEBAPP_URL } from "@/config";
 import { Chapter, EducationLevel, Skill, User } from "@prisma/client";
 import { JSONContent } from "@tiptap/core";
 
@@ -186,3 +187,6 @@ export function isWebsiteQAChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWith
 export function isWebsiteExperienceChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_experience"> {
   return chunk.mediaType === "website_experience";
 }
+
+
+export const s3ToPublicUrl = (s3ObjectName: string) => `${WEBAPP_URL}/api/s3/presigned_url/object_name/${s3ObjectName}`

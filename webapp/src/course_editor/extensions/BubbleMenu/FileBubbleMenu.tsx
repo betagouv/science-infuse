@@ -14,8 +14,9 @@ import { ImageBlock } from '../ImageBlock';
 import PdfBlock from '../PdfBlock/PdfBlock';
 import getRenderContainer from '@/lib/utils/getRenderContainer';
 import FileTypePicker from './FileTypePicker';
-import VideoSearch from '../VideoSearch';
+import VideoSearch from '../VideoBlock';
 import Input from '@codegouvfr/react-dsfr/Input';
+import { File } from '@prisma/client';
 
 const ImageOptions = (props: { editor: Editor }) => {
   const { editor } = props;
@@ -126,8 +127,7 @@ const FileSourceOption = (props: { editor: Editor; onSubmit: (source: string) =>
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   // @ts-ignore
   const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
-  const originalSource = selectedNodeAttrs?.fileSource || "";
-  const fileSource = selectedNodeAttrs?.fileSource;
+  const originalSource = selectedNodeAttrs?.fileSource || selectedNodeAttrs?.userFile?.author || "";
 
 
   const [source, setSource] = useState(originalSource)
@@ -152,7 +152,7 @@ const FileSourceOption = (props: { editor: Editor; onSubmit: (source: string) =>
         active={false}
         onClick={handleOpenConfirmDialog}
       >
-        <Icon className={fileSource ? '' : 'text-red-600'} name="Quote" />
+        <Icon className={originalSource ? '' : 'text-red-600'} name="Quote" />
       </Toolbar.Button>
       <Dialog
         open={openConfirmDialog}
@@ -194,6 +194,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
 
 
   const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
+  console.log("selectedNodeAttrs", selectedNodeAttrs)
   const s3ObjectName = selectedNodeAttrs?.s3ObjectName;
   const fileTypes = selectedNodeAttrs?.fileTypes;
   const shared = selectedNodeAttrs?.shared;
@@ -236,10 +237,17 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
 
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
 
+          {/* source */}
           {!!s3ObjectName && <FileSourceOption onSubmit={(newSource: string) => {
             editor.chain().focus(undefined, { scrollIntoView: false }).setFileSource(newSource).run()
           }} editor={editor} />
           }
+          {/* {selectedNodeAttrs?.userFile && <FileSourceOption onSubmit={async (newSource: string) => {
+            editor.chain().focus(undefined, { scrollIntoView: false }).setFileSource(newSource).run()
+            const userFile = selectedNodeAttrs.userFile as File;
+            await apiClient.updateFile(userFile.id, {author: newSource})
+          }} editor={editor} />
+          } */}
 
 
           {!!s3ObjectName && <AllowShare
@@ -259,7 +267,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           />}
 
 
-          <Toolbar.Divider />
+          {!!s3ObjectName && <Toolbar.Divider />}
 
           <DeleteOption editor={editor} />
 

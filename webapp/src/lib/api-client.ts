@@ -44,11 +44,6 @@ export interface FileUploadResponse {
   message: string;
 }
 
-export interface APIClientFileUploadResponse {
-  s3ObjectName: string,
-  url: string,
-  id: string
-}
 
 export interface TextWithScore {
   text: string,
@@ -169,9 +164,11 @@ class ApiClient {
     return response.data;
   }
 
-  async uploadFile(file: File): Promise<APIClientFileUploadResponse> {
+  async uploadFile(file: File, author?: string): Promise<DbFile> {
     const formData = new FormData();
     formData.append('file', file);
+    if (author)
+      formData.append('author', author);
 
     try {
       const response = await this.axiosInstance.post<DbFile>('/file/upload', formData, {
@@ -182,11 +179,8 @@ class ApiClient {
 
       console.log("WEBAPP_URLWEBAPP_URLWEBAPP_URLWEBAPP_URL", WEBAPP_URL)
       if (response.data && response.data.s3ObjectName) {
-        return {
-          s3ObjectName: response.data.s3ObjectName,
-          url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
-          id: response.data.id,
-        }
+        return response.data;
+        // url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
       } else {
         throw new Error('Upload failed: No filename received');
       }

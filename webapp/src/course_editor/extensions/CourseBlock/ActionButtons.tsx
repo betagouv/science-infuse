@@ -4,7 +4,11 @@ const ActionButtons = (props: { editor: Editor, pos?: number }) => {
     console.log("EDIOTR POSSS", props.pos)
     return (
         <div contentEditable={false} className="w-full flex justify-center items-center gap-4 pb-8 relative">
-            <div className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
+            <div
+                onClick={(e) => {
+                    props.editor.commands.openFileImportPopup(props?.pos || 0)
+                }}
+                className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
                 <div className="flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                     <img src="/images/actionButtons/addImage.svg" className="h-13 w-auto" alt="Importer" width={24} height={24} />
                 </div>
@@ -12,14 +16,11 @@ const ActionButtons = (props: { editor: Editor, pos?: number }) => {
                     Importer un fichier
                 </p>
             </div>
-            <div onClick={(e) => {
-                // e.preventDefault();
-                // e.stopPropagation();
-                console.log("EDITOR SELECTION", props.editor.state.selection)
-                props.editor.commands.openContentSearchPopup(props?.pos||0)
-                // props.editor.commands.openContentSearchPopup(props.editor.state.selection.anchor)
-
-            }} className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
+            <div
+                onClick={(e) => {
+                    props.editor.commands.openContentSearchPopup(props?.pos || 0)
+                }}
+                className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
                 <div className="flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                     <img src="/images/actionButtons/search.svg" className="h-13 w-auto" alt="Chercher" width={24} height={24} />
                 </div>

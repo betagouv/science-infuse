@@ -37,6 +37,8 @@ export async function PUT(
 
         const { fileTypes, ...updateData } = await request.json()
 
+        console.log("updateData", updateData, fileTypes)
+
         const file = await prisma.file.findUnique({
             where: { id: params.id, userId: user.id }
         })
@@ -53,13 +55,14 @@ export async function PUT(
             where: { id: params.id },
             data: {
                 ...updateData,
-                fileTypes: {
-                    set: fileTypes.map((id: string) => ({ id }))
-                }
+                ...(fileTypes && {
+                    fileTypes: {
+                        set: fileTypes.map((id: string) => ({ id }))
+                    }
+                })
             },
             include: { fileTypes: true }
         })
-
         return NextResponse.json(updatedFile)
     } catch (error) {
         console.error('Error updating file:', error)
