@@ -15,7 +15,8 @@ interface PdfBlockViewProps {
     attrs: {
       src: string
       isUploading: boolean
-      isLoaded: boolean
+      isLoaded: boolean,
+      userFile?: File
     }
   }
   updateAttributes: (attrs: Record<string, string | boolean>) => void

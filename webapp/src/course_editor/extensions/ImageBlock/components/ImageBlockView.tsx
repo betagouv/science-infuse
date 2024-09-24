@@ -1,5 +1,6 @@
 // ImageBlockView.tsx
 import { cn } from '@/lib/utils'
+import { File } from '@prisma/client'
 import { Node } from '@tiptap/pm/model'
 import { Editor, NodeViewWrapper } from '@tiptap/react'
 import { useCallback, useRef } from 'react'
@@ -11,7 +12,8 @@ interface ImageBlockViewProps {
     attrs: {
       src: string
       isUploading: boolean
-      isLoaded: boolean
+      isLoaded: boolean,
+      userFile?: File
     }
   }
   updateAttributes: (attrs: Record<string, string | boolean>) => void
@@ -20,7 +22,7 @@ interface ImageBlockViewProps {
 export const ImageBlockView = (props: ImageBlockViewProps) => {
   const { editor, getPos, node } = props
   const imageWrapperRef = useRef<HTMLDivElement>(null)
-  const { src, isUploading, isLoaded } = node.attrs
+  const { src, isUploading, isLoaded, userFile } = node.attrs
 
   const wrapperClassName = cn(
     node.attrs.align === 'left' ? 'ml-0' : 'ml-auto',
