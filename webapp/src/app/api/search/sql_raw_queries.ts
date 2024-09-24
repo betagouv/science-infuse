@@ -29,6 +29,7 @@ export async function searchBlocksWithChapter(embedding: number[]) {
       'status', "Chapter"."status",
       'title', "Chapter"."title",
       'content', "Chapter"."content",
+      'coverPath', "Chapter"."coverPath",
       'userId', "Chapter"."userId",
       'createdAt', "Chapter"."createdAt",
       'updatedAt', "Chapter"."updatedAt",
