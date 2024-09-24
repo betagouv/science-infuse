@@ -248,38 +248,6 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       editor.commands.removeCourseBlock(node.attrs.id)
   }
 
-  const getCourseBlockText = () => {
-    let text = "";
-    const { view, state } = editor;
-    const { doc } = state;
-
-    // Find the position of the node in the document
-    let nodePos: number | null = null;
-    doc.descendants((n, pos) => {
-      if (n === node) {
-        nodePos = pos;
-        return false; // Stop searching
-      }
-    });
-
-
-    if (nodePos !== null) {
-      const $start = doc.resolve(nodePos);
-      const $end = doc.resolve(nodePos + node.nodeSize);
-      const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
-
-      // Extract text content
-      text = doc.textBetween($start.pos, $end.pos);
-
-      if (domElement) {
-        const pdfs: HTMLDivElement[] = Array.from(domElement.querySelectorAll('.node-pdf .pdf-wrapper'));
-        const pdfsTexts = pdfs.map(pdf => pdf.innerText).join("\n\n");
-        text += pdfsTexts.trim().slice(0, 2000);
-      }
-    }
-
-    return text.slice(0, 4000);
-  };
   const [storedSelection, setStoredSelection] = useState<Selection | null>(null)
   const handleMouseEnter = () => {
     console.log("POS node.attrs.id", node.attrs.id, editor.state.selection.$anchor.pos)
@@ -302,47 +270,14 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   }
 
 
-  const [questions, setQuestions] = useState(node.attrs.quizQuestions);
-  const [selectedKeyIdeas, setSelectedKeyIdeas] = useState<KeyIdea[]>(node.attrs.keyIdeas)
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    setQuestions(node.attrs.quizQuestions);
-  }, [node.attrs.quizQuestions]);
-
-  useEffect(() => {
-    setSelectedKeyIdeas(node.attrs.keyIdeas);
-  }, [node.attrs.keyIdeas]);
-
-  const updateQuestions = useCallback((newQuestions: Question[]) => {
-    setQuestions(newQuestions);
-    editor.commands.updateCourseBlockQuestions(node.attrs.id, newQuestions);
-  }, [editor, node.attrs.id]);
-
-  const updateKeyIdeas = useCallback((newKeyIdeas: KeyIdea[]) => {
-    setSelectedKeyIdeas(newKeyIdeas);
-    editor.commands.updateCourseBlockKeyIdeas(node.attrs.id, newKeyIdeas);
-  }, [editor, node.attrs.id]);
-
-
   const parentRef = useRef<HTMLDivElement>(null);
-  // const getTitle = () => {
-  //   const firstElement = node.content.firstChild
-  //   return firstElement ? firstElement.textContent : ''
-  // }
 
   return (
     <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block"
       onClick={handleClick}
     >
       {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
-      {/* <MemoKeyIdeasPicker
-        getContext={getCourseBlockText}
-        className='mb-4 w-full'
-        selectedKeyIdeas={selectedKeyIdeas}
-        onSelectedKeyIdeas={updateKeyIdeas}
-      /> */}
-
+     
       {/* TODO: Get block title from block attrs (add to courseBlock plugin) */}
       <input
         type="text"
@@ -366,14 +301,6 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         <NodeViewContent className="content" />
       </div>
       <hr className='mt-8' />
-      {/* <MemoQuiz
-        parentRef={parentRef}
-        questions={questions}
-        setQuestions={updateQuestions}
-        isExpanded={isExpanded}
-        setIsExpanded={setIsExpanded}
-        getContext={getCourseBlockText}
-      /> */}
     </NodeViewWrapper>
   )
 }

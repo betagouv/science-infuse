@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/core";
+import { Editor, getNodeAtPosition } from "@tiptap/core";
 
 const ActionButtons = (props: { editor: Editor, pos?: number }) => {
     console.log("EDIOTR POSSS", props.pos)
@@ -28,7 +28,18 @@ const ActionButtons = (props: { editor: Editor, pos?: number }) => {
                     Chercher dans Science Infuse
                 </p>
             </div>
-            <div className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
+            <div
+                onClick={(e) => {
+                    if (props.pos) {
+
+                        const [node, _] = getNodeAtPosition(props.editor.state, 'courseBlock', props.pos)
+                        console.log("EDITOR", props.editor, props.pos, node)
+                        if (node) {
+                            props.editor.commands.openQuizPopup(props?.pos || 0, node)
+                        }
+                    }
+                }}
+                className="cursor-pointer w-full flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]">
                 <div className="flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                     <img src="/images/actionButtons/aiGeneration.svg" className="h-13 w-auto" alt="Générer" width={24} height={24} />
                 </div>
