@@ -15,7 +15,7 @@ const StyledSearchBar = styled(SearchBar)`
   }
 `
 
-export default (props: { autoFocus?: boolean, handleSearch?: (query: string) => void }) => {
+export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -58,7 +58,7 @@ export default (props: { autoFocus?: boolean, handleSearch?: (query: string) => 
 
     return (
         <StyledSearchBar
-            className="w-[40rem] max-w-full"
+            className={`w-[40rem] max-w-full ${props.className}`}
             label="Rechercher une image, une vidéo, un document..."
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (
@@ -69,7 +69,13 @@ export default (props: { autoFocus?: boolean, handleSearch?: (query: string) => 
                     placeholder={placeholder}
                     type={type}
                     value={query}
-                    onChange={event => setQuery(event.currentTarget.value)}
+                    onChange={event => {
+                        const value = event.currentTarget.value;
+                        setQuery(value)
+                        if (value == "" && props?.onSearchBarEmpty) {
+                            props.onSearchBarEmpty();
+                        } 
+                    }}
                     onKeyDown={event => {
                         if (event.key === "Enter") {
                             handleSearch();

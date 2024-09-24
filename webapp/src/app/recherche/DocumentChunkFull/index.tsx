@@ -50,7 +50,7 @@ const StyledGroupedVideoCard = styled(StyledCardWithoutTitle)`
 
 `
 
-const StyledImageCard = styled(StyledCardWithoutTitle)`
+export const StyledImageCard = styled(StyledCardWithoutTitle)`
 a {
     filter: none;
 }
@@ -116,7 +116,7 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     </Tooltip>
 }
 
-const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
+export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
     return (
@@ -493,8 +493,8 @@ const RenderTiptapContent = (props: { content: any }) => {
 export const RenderChapterBlock = (props: { searchWords: string[], block: BlockWithChapter }) => {
     const { searchWords, block } = props;
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
-    const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
-    const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
+    // const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
+    // const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
 
     return <Card
         background
@@ -507,7 +507,8 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         }
         horizontal
         imageAlt="texte alternatif de l’image"
-        imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
+        imageUrl={props.block.chapter?.coverPath || baseImageSrc}
+        // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
             <a href={`/prof/chapitres/${block.chapter.id}/view`} id="">
                 <div className="flex justify-start items-center gap-3 pt-2">
@@ -532,9 +533,8 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
 export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
     const { chapter } = props;
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
-    const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
-    const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
-    console.log("blockImageSrc", blockImageSrc)
+    // const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
+    // const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
     return <StyledCardWithoutTitle
         background
         border
@@ -546,7 +546,8 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         }
         horizontal
         imageAlt="texte alternatif de l’image"
-        imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
+        imageUrl={chapter.coverPath || baseImageSrc}
+        // imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
         footer={
             <a href={`/prof/chapitres/${chapter.id}/view`} id="">
                 <div className="flex justify-start items-center gap-3 pt-2">

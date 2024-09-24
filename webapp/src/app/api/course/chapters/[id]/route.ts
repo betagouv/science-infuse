@@ -52,13 +52,14 @@ export async function PUT(
     if (!data) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 404 });
     }
-    const { status, title, content, skills, educationLevels, themeId, schoolSubjectId, skillsAndKeyIdeas, additionalInformations } = data;
+    const { status, title, content, skills, educationLevels, themeId, schoolSubjectId, skillsAndKeyIdeas, additionalInformations, coverPath } = data;
 
     console.log("DATA", data)
 
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
     if (schoolSubjectId !== undefined) updateData.schoolSubjectId = schoolSubjectId;
+    if (coverPath !== undefined) updateData.coverPath = coverPath as string;
     if (content !== undefined) updateData.content = content as string;
     if (skillsAndKeyIdeas !== undefined) updateData.skillsAndKeyIdeas = skillsAndKeyIdeas as string;
     if (additionalInformations !== undefined) updateData.additionalInformations = additionalInformations as string;

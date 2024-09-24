@@ -19,9 +19,6 @@ const MenuProps = {
 };
 
 const StyledMultiSelect = styled.div`
-
-
-
   fieldset {
     border: none;
   }

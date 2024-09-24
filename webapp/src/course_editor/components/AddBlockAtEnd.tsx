@@ -27,6 +27,8 @@ const AddBlockAtEnd = (props: { editor: Editor }) => {
         // props.editor.commands.addCourseBlock()
     }
 
+    if (!props.editor.isEditable)
+        return "";
     return (
         <div onClick={() => addCourseBlockAtEnd()} className="flex items-center h-12 cursor-pointer">
             <div className="flex flex-col items-center relative mt-16">
