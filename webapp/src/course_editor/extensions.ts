@@ -33,6 +33,7 @@ import { FontSize } from './extensions/FontSize'
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import { SaveCourse } from './extensions/SaveCourse'
 import Comments from './extensions/Comments'
+import Quiz from './extensions/Quiz'
 
 
 const CustomDocument = Document.extend({
@@ -100,6 +101,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
             showSnackbar: showSnackbar,
         }),
         PdfBlock,
+        Quiz,
         ContentSearch,
         FileImport,
         FileHandler.configure({
