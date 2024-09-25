@@ -37,8 +37,6 @@ export async function PUT(
 
         const { fileTypes, ...updateData } = await request.json()
 
-        console.log("updateData", updateData, fileTypes)
-
         const file = await prisma.file.findUnique({
             where: { id: params.id, userId: user.id }
         })

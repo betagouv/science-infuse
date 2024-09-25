@@ -11,7 +11,6 @@ const ChapterTableOfContents = (props: { editor: Editor }) => {
             .forEach((block, index) => {
                 const title = block.attrs?.title;
                 const domElement = document.querySelector(`[data-id="${block.attrs?.id}"]`) as HTMLElement;
-                console.log("BLOCK POS", domElement)
                 blocks.push({ title, domElement });
             });
     }

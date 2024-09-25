@@ -249,13 +249,13 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       editor.commands.removeCourseBlock(node.attrs.id)
   }
 
+  // store editor position before clicking on a button
+  // in order to insert content at the right position
+  // since if we clicked on the button, tiptap would update carret position (close to the button)
   const [storedSelection, setStoredSelection] = useState<Selection | null>(null)
   const handleMouseEnter = () => {
-    console.log("POS node.attrs.id", node.attrs.id, editor.state.selection.$anchor.pos)
-
     setStoredSelection(editor.state.selection)
   }
-
   const handleMouseLeave = () => {
     setStoredSelection(null)
   }
@@ -306,7 +306,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <ActionButtons pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
+          <ActionButtons courseBlockNode={node} pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
         </div>}
         <NodeViewContent className="content" />
       </div>

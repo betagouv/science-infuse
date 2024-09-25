@@ -54,8 +54,6 @@ export async function PUT(
     }
     const { status, title, content, skills, educationLevels, themeId, schoolSubjectId, skillsAndKeyIdeas, additionalInformations, coverPath } = data;
 
-    console.log("DATA", data)
-
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
     if (schoolSubjectId !== undefined) updateData.schoolSubjectId = schoolSubjectId;
@@ -75,8 +73,6 @@ export async function PUT(
         set: educationLevels.map(el => ({ id: el.id }))
       };
     }
-
-    console.log("updateData", JSON.stringify(updateData))
 
     const updatedChapter = await prisma.chapter.update({
       where: {

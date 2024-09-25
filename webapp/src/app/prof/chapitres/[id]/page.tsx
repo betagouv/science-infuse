@@ -62,7 +62,6 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       editor.storage.simetadata.skills = chapter.skills;
       editor.storage.simetadata.educationLevels = chapter.educationLevels;
       editor.storage.simetadata.chapterStatus = chapter.status;
-      console.log("editor.storage.simetadata.chapterStatus11", chapter.status)
       // editor.storage.content.comments = content.storage.comments;
       setContent(content)
 
