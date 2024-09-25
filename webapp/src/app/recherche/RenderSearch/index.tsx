@@ -96,13 +96,22 @@ export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[]
 };
 
 
-export const RenderSearchResult = (props: OnInserted & { selectedTab: TabType, results: SearchResults, searchWords: string[], resultPerPage: number }) => {
+export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithScoreUnion[], selectedTab: TabType, results: SearchResults, searchWords: string[], resultPerPage: number }) => {
   const [pageNumber, setPageNumber] = useState(1);
 
-  const activeTypes = TabMediaTypeMap[selectedTabType.value] || [];
+  const activeTypes = TabMediaTypeMap[props.selectedTab] || [];
   const groupedVideos = useMemo(() => groupVideo(props.results.chunks.filter(c => c.mediaType == "video_transcript") as ChunkWithScore<"video_transcript">[]), [props.results.chunks]);
-  const chunks = props.results.chunks
-    .filter(chunk => activeTypes.includes(chunk.mediaType as MediaType));
+
+  let chunks = [];
+  if (props.results.chunks.length <= 0 && props.selectedTab == TabType.Favourites && props.favourites) {
+    chunks = props.favourites
+  } else {
+    chunks = props.results.chunks
+      .filter(chunk => activeTypes.includes(chunk.mediaType as MediaType))
+      .filter(chunk => (props.favourites && props.selectedTab == TabType.Favourites) ? chunk.user_starred === true : true);
+  }
+
+  console.log("CHUNKS", chunks)
 
   useEffect(() => {
     setPageNumber(1);
@@ -137,8 +146,8 @@ export const RenderSearchResult = (props: OnInserted & { selectedTab: TabType, r
           />
       }
 
-      {selectedTabType.value != TabType.Chapters && <Pagination
-        className="[&_ul]:justify-around"
+      {props.selectedTab != TabType.Chapters && <Pagination
+        className="[&_ul]:justify-around mt-4"
         count={pageCount}
         defaultPage={Math.max(pageNumber, 1)}
         getPageLinkProps={(newPageNumber: number) => ({

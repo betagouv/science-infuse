@@ -5,36 +5,40 @@ import { signal } from "@preact/signals-react";
 
 // Define an enum for tab types
 export enum TabType {
-    Chapters = "chapters",
-    Documents = "documents",
-    Pictures = "pictures",
-    Videos = "videos",
-    Games = "games",
-    Others = "others"
+  Favourites = "favourites",
+  Chapters = "chapters",
+  Documents = "documents",
+  Pictures = "pictures",
+  Videos = "videos",
+  Games = "games",
+  Others = "others"
 }
 
+const allTypes: MediaType[] = Object.values(MediaTypes);
 export const TabMediaTypeMap: Record<TabType, MediaType[]> = {
-    [TabType.Chapters]: [],
-    [TabType.Documents]: [MediaTypes.PdfText],
-    [TabType.Pictures]: [MediaTypes.PdfImage, MediaTypes.RawImage],
-    [TabType.Videos]: [MediaTypes.VideoTranscript],
-    [TabType.Games]: [MediaTypes.WebsiteExperience],
-    [TabType.Others]: [MediaTypes.WebsiteQa],
+  [TabType.Favourites]: allTypes,
+  [TabType.Chapters]: [],
+  [TabType.Documents]: [MediaTypes.PdfText],
+  [TabType.Pictures]: [MediaTypes.PdfImage, MediaTypes.RawImage],
+  [TabType.Videos]: [MediaTypes.VideoTranscript],
+  [TabType.Games]: [MediaTypes.WebsiteExperience],
+  [TabType.Others]: [MediaTypes.WebsiteQa],
 }
 
 export const ColumnsMediaTypeMap: Record<TabType, number> = {
-    [TabType.Chapters]: 2,
-    [TabType.Documents]: 2,
-    [TabType.Pictures]: 4,
-    [TabType.Videos]: 3,
-    [TabType.Games]: 2,
-    [TabType.Others]: 2,
+  [TabType.Favourites]: 2,
+  [TabType.Chapters]: 2,
+  [TabType.Documents]: 2,
+  [TabType.Pictures]: 4,
+  [TabType.Videos]: 3,
+  [TabType.Games]: 2,
+  [TabType.Others]: 2,
 }
 
 // Define an interface for tab items
 interface TabItem {
-    tabId: TabType;
-    label: string;
+  tabId: TabType;
+  label: string;
 }
 
 const StyledTabs = styled.div`
@@ -74,30 +78,31 @@ const StyledTabs = styled.div`
 
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
-const TabsComponent = (props: { blocks: BlockWithChapter[], chunks: ChunkWithScoreUnion[] }) => {
-    const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[]) => chunks.filter(c => mediaTypes.includes(c.mediaType)).length;
+const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], chunks: ChunkWithScoreUnion[] }) => {
+  const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[], favourites?: boolean) => chunks.filter(c => (mediaTypes.includes(c.mediaType) && (favourites ? c.user_starred : true))).length;
 
 
-    const tabs: TabItem[] = [
-        { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
-        { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
-        { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
-        { tabId: TabType.Videos, label: `Vidéos (${getCount(props.chunks, TabMediaTypeMap[TabType.Videos])})` },
-        { tabId: TabType.Games, label: `Jeux (${getCount(props.chunks, TabMediaTypeMap[TabType.Games])})` },
-        { tabId: TabType.Others, label: `Autres (${getCount(props.chunks, TabMediaTypeMap[TabType.Others])})` },
-    ];
+  const tabs: TabItem[] = [
+    { tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` },
+    { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
+    { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
+    { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
+    { tabId: TabType.Videos, label: `Vidéos (${getCount(props.chunks, TabMediaTypeMap[TabType.Videos])})` },
+    { tabId: TabType.Games, label: `Jeux (${getCount(props.chunks, TabMediaTypeMap[TabType.Games])})` },
+    { tabId: TabType.Others, label: `Autres (${getCount(props.chunks, TabMediaTypeMap[TabType.Others])})` },
+  ];
 
-    return (
-        <StyledTabs>
-            <Tabs
-                selectedTabId={selectedTabType.value}
-                tabs={tabs}
-                onTabChange={(tabId) => selectedTabType.value = tabId as TabType}
-            >
-                <></>
-            </Tabs>
-        </StyledTabs>
-    );
+  return (
+    <StyledTabs>
+      <Tabs
+        selectedTabId={selectedTabType.value}
+        tabs={tabs}
+        onTabChange={(tabId) => selectedTabType.value = tabId as TabType}
+      >
+        <></>
+      </Tabs>
+    </StyledTabs>
+  );
 };
 
 export default TabsComponent;

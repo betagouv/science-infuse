@@ -131,17 +131,17 @@ class ApiClient {
   }
 
   async getStarDocumentChunk(): Promise<{ [key: string]: ChunkWithScoreUnion[] }> {
-    const response = await this.axiosInstance.get<{ [key: string]: ChunkWithScoreUnion[] }>('/starDocumentChunk');
+    const response = await this.axiosInstance.get<{ [key: string]: ChunkWithScoreUnion[] }>('/documentChunks/star');
     return response.data;
   }
 
   async starDocumentChunk(data: StarDocumentChunkRequest): Promise<boolean> {
-    const response = await this.axiosInstance.post<boolean>('/starDocumentChunk', data);
+    const response = await this.axiosInstance.post<boolean>(`/documentChunks/star`, data);
     return response.data;
   }
 
   async unStarDocumentChunk(data: UnStarDocumentChunkRequest): Promise<boolean> {
-    const response = await this.axiosInstance.delete<boolean>('/starDocumentChunk', { data });
+    const response = await this.axiosInstance.delete<boolean>(`/documentChunks/star`, { data });
     return response.data;
   }
   async createThread(data: CreateThreadRequest): Promise<CommentThread> {
