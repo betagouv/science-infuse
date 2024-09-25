@@ -362,7 +362,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
             </div>
             <Collapse in={isOpen}>
                 <div className="flex w-full justify-center cursor-pointer py-4">
-                    <div onClick={openModal} className="w-full max-w-[160px] h-auto aspect-[10/14] relative">
+                    <div onClick={openModal} className="w-full h-auto aspect-[10/14] relative">
                         {
                             props.chapter?.coverPath ?
                                 <img src={props.chapter.coverPath} className="w-full" />
@@ -538,48 +538,51 @@ const CourseInformations = (props: { editor: Editor }) => {
         }
     };
 
-    return <StyledCourseInformation className="flex flex-col ">
+    return <StyledCourseInformation className="flex flex-col sticky top-4">
         <p className="flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
             SOMMAIRE
         </p>
         <ChapterTableOfContents editor={props.editor} />
 
-        <p className="mt-8 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
-            INFORMATIONS SUR LE CHAPITRE
-        </p>
-        {chapter && <EducationLevelPicker
-            editor={props.editor}
-            availablEducationLevel={context.educationLevels}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
-        {chapter && <SchoolSubjectPicker
-            editor={props.editor}
-            availableSchoolSubjects={context.schoolSubjects}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
-        {chapter && <ThemePicker
-            editor={props.editor}
-            availableThemes={context.themes}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
-        {chapter && <SkillsAndKeyIdeasPicker
-            editor={props.editor}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
-        {chapter && <AdditionalInformationsPicker
-            editor={props.editor}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
-        {chapter && <CoverPicker
-            editor={props.editor}
-            updateChapter={updateChapter}
-            chapter={chapter}
-        />}
+        {chapter && props.editor.isEditable && <>
+            <p className="mt-8 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+                INFORMATIONS SUR LE CHAPITRE
+            </p>
+            <EducationLevelPicker
+                editor={props.editor}
+                availablEducationLevel={context.educationLevels}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+            <SchoolSubjectPicker
+                editor={props.editor}
+                availableSchoolSubjects={context.schoolSubjects}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+            <ThemePicker
+                editor={props.editor}
+                availableThemes={context.themes}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+            <SkillsAndKeyIdeasPicker
+                editor={props.editor}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+            <AdditionalInformationsPicker
+                editor={props.editor}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+            <CoverPicker
+                editor={props.editor}
+                updateChapter={updateChapter}
+                chapter={chapter}
+            />
+        </>}
+
     </StyledCourseInformation>
 };
 export default CourseInformations;

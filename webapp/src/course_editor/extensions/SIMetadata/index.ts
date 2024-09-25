@@ -9,6 +9,7 @@ const SIMetadata = Extension.create({
       chapterId: "",
       skills: [],
       educationLevels: [],
+      coverPath: ""
     }
   },
 

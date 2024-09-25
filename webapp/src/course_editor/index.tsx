@@ -114,14 +114,13 @@ export const TiptapEditor = (props: { editor: Editor }) => {
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
       <EditorContext.Provider value={providerValue}>
-        {editor.isEditable && <div className="relative min-w-96 p-4 md:p-16">
+        <div className="relative min-w-96 p-4 md:p-16">
           <CourseSettings editor={editor} />
-        </div>}
+        </div>
 
-        <StyledEditor
-          id="editor"
-          className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}
-        >
+        <StyledEditor id="editor" className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}>
+
+          {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
 
           <div className="flex flex-col" ref={menuContainerRef}>
 
