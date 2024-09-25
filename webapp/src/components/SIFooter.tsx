@@ -6,9 +6,12 @@ export default () => (
                 <a href="/venir-a-univers-science" className="m-0 text-xs font-bold text-[#161616]">
                     Venir à la Cité des sciences et de l’industrie et au Palais de la découverte
                 </a>
-                <p className="m-0 text-xs font-bold text-[#161616]">
+                <a href="/conditions-generales-d-utilisation" className="m-0 text-xs font-bold text-[#161616]">
                     Conditions Générales d'Utilisation
-                </p>
+                </a>
+                <a href="/politique-de-confidentialite" className="m-0 text-xs font-bold text-[#161616]">
+                    Politique de confidentialité
+                </a>
             </div>
         </div>
     </div>
