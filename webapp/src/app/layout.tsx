@@ -73,14 +73,14 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
                 </div>
                 <SIFooter />
                 <Footer
-                  accessibility="fully compliant"
+                  accessibility="partially compliant"
                   contentDescription={`
                 `}
                   bottomItems={[
                     headerFooterDisplayItem,
                     <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
                     <FooterConsentManagementItem key="FooterConsentManagementItem" />,
-                    <ClientFooterItem key="ClientFooterItem" />
+                    // <ClientFooterItem key="ClientFooterItem" />
                   ]}
                 />
               </MuiDsfrThemeProvider>
