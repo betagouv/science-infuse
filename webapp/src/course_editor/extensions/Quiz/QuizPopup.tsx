@@ -11,12 +11,12 @@ import { apiClient } from '@/lib/api-client';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Node as PMNode } from '@tiptap/pm/model'
 
-interface Option {
+export interface Option {
   answer: string;
   correct: boolean;
 }
 
-interface Question {
+export interface Question {
   question: string;
   options: Option[];
 }
