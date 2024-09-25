@@ -6,10 +6,11 @@ import { WEBAPP_URL } from '@/config';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 import SearchBar from '@/components/search/SearchBar';
-import Tabs, { selectedTabType } from '@/app/recherche/Tabs';
+import Tabs, { selectedTabType, TabType } from '@/app/recherche/Tabs';
 import { useOnClickOutside } from 'usehooks-ts'
 import { useEffect } from '@preact-signals/safe-react/react';
-import { RenderSearchResult } from '@/app/recherche/RenderSearch';
+import { ChunkResults, RenderSearchResult } from '@/app/recherche/RenderSearch';
+import { apiClient } from '@/lib/api-client';
 
 
 const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => void }) => {
@@ -97,6 +98,24 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
   useOnClickOutside(ref, handleClosePopup)
 
+  const [starredItems, setStarredItems] = useState<ChunkWithScoreUnion[]>([]);
+
+  useEffect(() => {
+    const fetchStarredItems = async () => {
+      try {
+        const response = await apiClient.getStarDocumentChunk();
+        if (response)
+          setStarredItems(Object.values(response).flat());
+      } catch (error) {
+        console.error('Error fetching starred items:', error);
+      }
+    };
+
+    fetchStarredItems();
+  }, []);
+
+
+  console.log("selectedTabType.value", selectedTabType.value)
 
   return (
     <div className="flex h-full transition-[0.4s] w-full items-center justify-center bg-[#16161686]">
@@ -107,16 +126,25 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
           console.log("query", _query)
           setQuery(_query)
         }} />
-        <Tabs blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
+        <Tabs favourites={starredItems} blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
 
         <div className="overflow-auto w-full">
 
+
           {!isLoading && !isError && results && <RenderSearchResult
+            favourites={starredItems}
             onInserted={insertChunk}
             selectedTab={selectedTabType.value}
             results={results}
             searchWords={[]}
             resultPerPage={10} />
+          }
+
+          {!isLoading && !isError && !results && selectedTabType.value == TabType.Favourites && <ChunkResults
+            onInserted={insertChunk}
+            chunks={starredItems}
+            searchWords={[]}
+          />
           }
         </div>
 

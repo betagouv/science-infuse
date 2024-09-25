@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/authOptions";
 import { DocumentChunk } from "@prisma/client";
 import { ChunkWithScoreUnion } from "@/types/vectordb";
+import { authOptions } from "../../auth/[...nextauth]/authOptions";
 
 type GroupedFavorites = {
     [keyword: string]: (DocumentChunk & { user_starred: boolean })[];

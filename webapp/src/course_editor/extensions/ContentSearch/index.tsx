@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/core'
 import { Command, Editor, RawCommands, ReactRenderer } from '@tiptap/react'
 import ContentSearch from './ContentSearchPopup'
+import { selectedTabType, TabType } from '@/app/recherche/Tabs';
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
@@ -19,6 +20,8 @@ export const ContentSearchExtension = Extension.create({
                 (pos: number) =>
                     ({ editor, chain }) => {
                         let popupElement: HTMLDivElement | null = null;
+
+                        selectedTabType.value = TabType.Favourites
 
                         const component = new ReactRenderer(ContentSearch, {
                             props: {

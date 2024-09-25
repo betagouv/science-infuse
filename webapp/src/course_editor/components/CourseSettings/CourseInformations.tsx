@@ -33,7 +33,7 @@ const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: E
 
     const handleEducationLevelChange = async (level: EducationLevel, checked: boolean) => {
         try {
-            if (!props.chapter) return;
+            if (!props.chapter || !props.chapter?.educationLevels) return;
 
             const updatedLevels = !checked
                 ? (props.chapter?.educationLevels || []).filter(e => e.id !== level.id)
