@@ -46,7 +46,7 @@ const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: E
     };
     
     if (!props.chapter || !props.chapter?.educationLevels) return <></>;
-    
+
     return (
         <div className="optionContainer">
             <div onClick={toggleCollapse} className={`${isOpen ? "open" : "closed"} button flex cursor-pointer items-center gap-2 p-4 sticky top-0 w-full bg-white z-[1]`}>
@@ -484,7 +484,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                         {!isDragActive ? "ou glisser et déposer en une ici" : "Déposez le fichier ici"}
                                     </p>
                                     <p className="m-0 text-sm text-center text-[#757575]">
-                                        Formats possibles : jpg, png
+                                        Formats possibles : jpg, png, pdf, mp4
                                     </p>
                                 </div>
                                 {droppedFile && (
