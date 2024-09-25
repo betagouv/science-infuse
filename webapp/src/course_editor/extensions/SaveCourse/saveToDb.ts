@@ -55,5 +55,5 @@ export const handleSave = async (editor: Editor, chapterId: string, title: strin
         return { message: "Erreur lors de la sauvegarde d'un bloc.", severity: "error" }
     }
 
-    return { message: "Chapitre sauvegardé avec succès.", severity: "success" }
+    return { message: "Chapitre sauvegardé.", severity: "success" }
 };

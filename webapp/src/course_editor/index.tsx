@@ -15,6 +15,7 @@ import CourseSettings from './components/CourseSettings';
 import { apiClient } from '@/lib/api-client';
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import AddBlockAtEnd from './components/AddBlockAtEnd';
+import { useDebounceValue } from 'usehooks-ts';
 
 const StyledEditor = styled.div`
 `
@@ -95,43 +96,31 @@ export const TiptapEditor = (props: { editor: Editor }) => {
     }
   }, [themes, educationLevels])
 
-  // save editor on ctrl+s press on whole page
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 's') {
-        event.preventDefault();
-        editor.commands.save(editor);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [editor]);
-
-
-
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
       <EditorContext.Provider value={providerValue}>
-        <div className="relative min-w-96 p-4 md:p-16">
-          <CourseSettings editor={editor} />
+        <div className="flex flex-row gap-0 max-w-full">
+
+          <div className="relative p-4 md:p-16">
+            <CourseSettings editor={editor} />
+          </div>
+
+          <StyledEditor id="editor" className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}>
+
+            {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
+
+            <div className="flex flex-col" ref={menuContainerRef}>
+
+              <EditorContent className="flex-1 w-full" editor={editor} />
+              {editor && <TextMenu editor={editor} />}
+              <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
+              <AddBlockAtEnd editor={editor} />
+
+            </div>
+            <Snackbar />
+          </StyledEditor>
         </div>
 
-        <StyledEditor id="editor" className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}>
-
-          {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
-
-          <div className="flex flex-col" ref={menuContainerRef}>
-
-            <EditorContent className="flex-1 w-full" editor={editor} />
-            {editor && <TextMenu editor={editor} />}
-            <FileBubbleMenu editor={editor} appendTo={menuContainerRef} />
-            <AddBlockAtEnd editor={editor} />
-
-          </div>
-          <Snackbar />
-        </StyledEditor>
       </EditorContext.Provider>
     </div>
   )
