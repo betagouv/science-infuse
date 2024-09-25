@@ -27,14 +27,14 @@ services:
     ports:
       - "6379:6379"
   # file server
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "8001:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./documents:/usr/share/nginx/html/documents
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx
+  #   ports:
+  #     - "8001:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./documents:/usr/share/nginx/html/documents
 
   postgresql:
     image: pgvector/pgvector:0.7.0-pg15
