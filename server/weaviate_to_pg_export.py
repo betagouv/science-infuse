@@ -13,11 +13,11 @@ class SIWeaviateClient:
         
         client = weaviate.WeaviateClient(
             connection_params=ConnectionParams.from_params(
-                http_host=os.getenv("WEAVIATE_URL"),
-                http_port=int(os.getenv("WEAVIATE_PORT")),
+                http_host=os.getenv("WEAVIATE_URL", '172.17.0.1'),
+                http_port=int(os.getenv("WEAVIATE_PORT"), 8080),
                 http_secure=False,
-                grpc_host=os.getenv("WEAVIATE_URL"),
-                grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT")),
+                grpc_host=os.getenv("WEAVIATE_URL", '172.17.0.1'),
+                grpc_port=int(os.getenv("WEAVIATE_GRPC_PORT"), 50051),
                 grpc_secure=False,
             ),
         )
@@ -55,7 +55,7 @@ import os
 import uuid
 
 conn = psycopg2.connect(
-    host="localhost",
+    host="172.17.0.1", #"localhost",
     database="scienceinfuse", 
     user="postgres", 
     password=f"{os.environ['POSTGRES_PASSWORD']}"

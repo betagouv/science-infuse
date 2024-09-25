@@ -7,7 +7,6 @@ import { Node as PMNode } from '@tiptap/pm/model'
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     CourseBlockKeyIdeaPickerNode: {
-      updateCourseSkills: (id: string, skills: string[]) => ReturnType;
     };
   }
 }
@@ -41,13 +40,6 @@ const CourseBlockKeyIdeaPickerNode = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'course-block-keyidea-picker', class: "course-block-keyidea-picker" }), 0]
-  },
-  addCommands() {
-    return {
-      // setCourseTitle: (title: string) => ({ tr, dispatch, chain, state, editor }) => {
-      //   return false
-      // }
-    }
   },
   addNodeView() {
     return ReactNodeViewRenderer(CourseBlockKeyIdeaPicker)
