@@ -4,15 +4,33 @@ import { addCourseBlockAtEnd } from '../AddBlockAtEnd';
 
 const ChapterTableOfContents = (props: { editor: Editor }) => {
     const content = props.editor.getJSON().content;
-    let blockTitles = []
+    let blocks: { title: string; domElement: HTMLElement }[] = [];
     if (content) {
-        blockTitles = content
+        content
             .filter(block => block.type == CourseBlockNode.name)
-            .map(block => block.attrs?.title)
+            .forEach((block, index) => {
+                const title = block.attrs?.title;
+                const domElement = document.querySelector(`[data-id="${block.attrs?.id}"]`) as HTMLElement;
+                console.log("BLOCK POS", domElement)
+                blocks.push({ title, domElement });
+            });
     }
+
+    const handleTitleClick = (index: number) => {
+        blocks[index].domElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     return <div className="flex flex-col gap-6">
-        {blockTitles.map(title => <p className="m-0 flex-grow text-base text-left text-[#161616] font-medium">{title}</p>)}
-        <div className="flex flex-col w-full">
+        {blocks.map((block, index) => (
+            <p
+                key={index}
+                className="m-0 flex-grow text-base text-left text-[#161616] font-medium cursor-pointer"
+                onClick={() => handleTitleClick(index)}
+            >
+                {block.title}
+            </p>
+        ))}
+        {props.editor.isEditable && <div className="flex flex-col w-full">
             <button
                 onClick={() => addCourseBlockAtEnd(props.editor)}
                 className="flex items-center gap-2 mb-2 p-0 w-fit "
@@ -22,7 +40,7 @@ const ChapterTableOfContents = (props: { editor: Editor }) => {
                     Ajouter une nouvelle partie
                 </span>
             </button>
-        </div>
+        </div>}
     </div>
 }
 
