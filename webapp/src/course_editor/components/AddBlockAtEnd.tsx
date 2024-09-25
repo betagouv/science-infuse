@@ -1,36 +1,35 @@
 import { apiClient } from "@/lib/api-client"
 import { Editor } from "@tiptap/core"
 
+export const addCourseBlockAtEnd = async (editor: Editor) => {
+    const newBlock = await apiClient.createBlock({
+        title: ``,
+        content: '[]',
+        chapterId: editor.storage.simetadata.chapterId,
+    })
+    editor.chain().focus().command(({ tr, dispatch }) => {
+        if (dispatch) {
+            const { doc } = tr
+            const position = doc.content.size
+            tr.insert(position, editor.schema.nodes.courseBlock.create(
+                { id: newBlock.id },
+                editor.schema.nodes.paragraph.create(
+                    {},
+                    editor.schema.text('\n')
+                )
+            ))
+        }
+        return true
+    }).run()
+
+}
+
 const AddBlockAtEnd = (props: { editor: Editor }) => {
-
-    const addCourseBlockAtEnd = async () => {
-        const newBlock = await apiClient.createBlock({
-            title: ``,
-            content: '[]',
-            chapterId: props.editor.storage.simetadata.chapterId,
-        })
-        props.editor.chain().focus().command(({ tr, dispatch }) => {
-            if (dispatch) {
-                const { doc } = tr
-                const position = doc.content.size
-                tr.insert(position, props.editor.schema.nodes.courseBlock.create(
-                    { id: newBlock.id },
-                    props.editor.schema.nodes.paragraph.create(
-                        {},
-                        props.editor.schema.text('\n')
-                    )
-                ))
-            }
-            return true
-        }).run()
-
-        // props.editor.commands.addCourseBlock()
-    }
 
     if (!props.editor.isEditable)
         return "";
     return (
-        <div onClick={() => addCourseBlockAtEnd()} className="flex items-center h-12 cursor-pointer">
+        <div onClick={() => addCourseBlockAtEnd(props.editor)} className="flex items-center h-12 cursor-pointer">
             <div className="flex flex-col items-center relative mt-16">
                 <div className="flex items-center gap-2">
                     <svg

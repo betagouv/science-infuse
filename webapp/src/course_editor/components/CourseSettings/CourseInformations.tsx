@@ -24,6 +24,7 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import RenderImportedImage from "./components/RenderImportedImage";
 import ImportedFileSource from "./components/ImportedFileSource";
 import { useSession } from "next-auth/react";
+import ChapterTableOfContents from "./ChapterTableOfContents";
 
 const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -308,7 +309,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
         setIsUploading(true);
         try {
             const response = await apiClient.uploadFile(file);
-            await props.updateChapter({coverPath: s3ToPublicUrl(response.s3ObjectName)})
+            await props.updateChapter({ coverPath: s3ToPublicUrl(response.s3ObjectName) })
         } catch (error) {
             console.error('Error uploading file:', error);
         } finally {
@@ -424,7 +425,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                                     e.stopPropagation();
                                                     setSelectedChunk(chunk);
                                                 }}
-                                                className='relative cursor-pointer'
+                                                    className='relative cursor-pointer'
                                                 >
                                                     {selected &&
                                                         <div className="absolute w-full h-full z-[1] bg-opacity-50 bg-white">
@@ -432,7 +433,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                                                 <Button className="bg-black" onClick={async (e) => {
                                                                     e.preventDefault();
                                                                     e.stopPropagation();
-                                                                    await props.updateChapter({coverPath: imageUrl})
+                                                                    await props.updateChapter({ coverPath: imageUrl })
                                                                     closeModal();
                                                                 }}>Définir comme image de couverture</Button>
                                                             </div>
@@ -527,16 +528,23 @@ const CourseInformations = (props: { editor: Editor }) => {
     });
 
     const updateChapter = async (params: Partial<ChapterWithoutBlocks>) => {
+        const chapterId = props.editor.storage.simetadata.chapterId;
+        if (!chapterId) return;
         const changed = Object.keys(params as object);
         const hasChanged = changed.some(key => chapter && params && params[key as keyof ChapterWithoutBlocks] !== chapter[key as keyof ChapterWithoutBlocks]);
         if (hasChanged) {
-            await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, params);
+            await apiClient.updateChapter(chapterId, params);
             refetch();
         }
     };
 
     return <StyledCourseInformation className="flex flex-col ">
         <p className="flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+            SOMMAIRE
+        </p>
+        <ChapterTableOfContents editor={props.editor} />
+
+        <p className="mt-8 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
             INFORMATIONS SUR LE CHAPITRE
         </p>
         {chapter && <EducationLevelPicker
