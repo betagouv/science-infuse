@@ -4,7 +4,7 @@ import CourseInformations from "./CourseInformations";
 import ShareToScienceInfuse from "./ShareToScienceInfuse";
 
 const CourseSettings = (props: { editor: Editor }) => {
-    return <div className="sticky top-8 h-full w-full bg-white z-[1] flex flex-col gap-8">
+    return <div className="sticky top-8 h-full w-full bg-white z-[1] flex flex-col gap-8 w-[300px]">
         <CourseInformations editor={props.editor} />
         <div className="flex flex-col gap-4 sticky bottom-4 w-full items-center justify-center z-[2] bg-white mt-auto">
             <ExportToPdf editor={props.editor} />
