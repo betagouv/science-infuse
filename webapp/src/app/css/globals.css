@@ -22,6 +22,10 @@
 
 
 /* header */
+
+.fr-header__tools-links {
+	height: 2.5rem;
+}
 header.fr-header {
 	filter: none;
 }

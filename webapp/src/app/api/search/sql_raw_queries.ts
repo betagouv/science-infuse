@@ -8,7 +8,7 @@ export async function updateBlock(title: string, content: JSONContent, textEmbed
   UPDATE "Block"
   SET 
     "title" = ${title},
-    "content" = ${JSON.stringify(content)}::jsonb,
+    "content" = ${content}::jsonb,
     "textEmbedding" = ${textEmbedding},
     "updatedAt" = CURRENT_TIMESTAMP
   WHERE 

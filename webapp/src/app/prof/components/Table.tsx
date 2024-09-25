@@ -21,51 +21,8 @@ import { ChapterWithBlock, FullBlock } from '@/lib/api-client';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { ChapterStatus } from '@prisma/client';
 import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
+import { Icon, Trash2 } from 'lucide-react';
 
-
-const RenderChapterBlockTable = ({ chapter }: { chapter: ChapterWithBlock }) => {
-  const blocks = chapter.blocks;
-  const chapterBlockIds = JSON.parse((chapter.content as string)).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
-
-  return <Box sx={{ margin: 1, marginLeft: 8 }}>
-    <Table size="small" aria-label="blocks">
-      <TableHead>
-        <TableRow>
-          <TableCell>Titre du bloc</TableCell>
-          <TableCell>Compétences</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {
-          blocks
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-            .map((block, index) => {
-              const existInBlock = chapterBlockIds.includes(block.id)
-
-              return <TableRow style={{ opacity: existInBlock ? 1 : 0.4 }} key={block.id}>
-                <TableCell className='whitespace-nowrap' component="th" scope="row">
-                  {block.title}
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-nowrap max-w-[35rem] overflow-auto gap-1">
-                    {
-                      block.keyIdeas.map((keyIdea, index) => (
-                        <Tooltip key={index} title={keyIdea.title}>
-                          <Chip label={keyIdea.title} className='max-w-48' size="small" />
-                        </Tooltip>
-                      ))
-                    }
-                  </div>
-                </TableCell>
-              </TableRow>
-            })
-        }
-      </TableBody>
-    </Table>
-  </Box>
-
-
-}
 
 const statusToSeverity = {
   [ChapterStatus.DRAFT]: undefined,
@@ -79,8 +36,12 @@ const statusToText = {
   [ChapterStatus.PUBLISHED]: "Publié",
 }
 
-const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
+const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, onDeleteChapter: (chapterId: string) => void }) => {
   const [open, setOpen] = useState(false);
+  // people might have created block (so created witha pi) but removed them by pressing delete key or x button,
+  // in this case we do not remove them from db, since it would be hard to know if the block should be re-created, for example if the user do a ctrl+y (redo)
+  // so we get all visible blockId in the current chapter's content, and only deal with chapter's blocks from db that do exist in this list.
+  const chapterBlockIds = JSON.parse((chapter.content as string)).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -93,6 +54,10 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
+        <TableCell>
+          <img className='w-64 aspect-[16/9] object-contain bg-[#f2f2f9]' src={chapter?.coverPath || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"} alt={`image de couverture du chapitre "${chapter.title}"`} />
+        </TableCell>
+
         <TableCell component="th" scope="row" className='min-w-36'>
           <Link className='flex w-fit' target="_blank" href={`/prof/chapitres/${chapter.id}`}>
             {chapter.title}
@@ -103,7 +68,7 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
             {statusToText[chapter.status as keyof typeof statusToText]}
           </Badge>
         </TableCell>
-        <TableCell className='flex flex-wrap'>
+        <TableCell className=''>
           <div className="flex gap-1">
             {chapter.educationLevels.map((level, index) => (
               <Chip key={index} label={level.name} size="small" />
@@ -111,33 +76,71 @@ const ChapterRow = ({ chapter }: { chapter: ChapterWithBlock }) => {
           </div>
         </TableCell>
         <TableCell>{new Date(chapter.updatedAt).toLocaleDateString()}</TableCell>
+        <TableCell className=''>
+          <div className="w-full flex items-center justify-center">
+            <Trash2 size={16} className="cursor-pointer hover:text-red-500" onClick={() => onDeleteChapter(chapter.id)} />
+          </div>
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0, paddingLeft: '65px' }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <RenderChapterBlockTable chapter={chapter} />
+
+            <div className="p-8">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Titre du bloc</TableCell>
+                    <TableCell align="right">Compétences et notions clés</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {chapter.blocks
+                        .filter(block => chapterBlockIds.includes(block.id))
+                        .map((block, index) => (
+                          <p key={index} className="text-base text-[#161616] font-medium">{block.title}</p>
+                        ))
+                      }
+                    </TableCell>
+                    <TableCell align="right" className='!flex'>
+                      <div className="h-full w-full flex flex-col justify-end">
+                        {
+                          chapter.skillsAndKeyIdeas.split("\n").map((t, index) =>
+                            <p key={index} className="text-base text-[#161616] font-medium">{t}</p>)
+                        }
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+
           </Collapse>
         </TableCell>
       </TableRow>
     </>
   );
 };
-const ChaptersTable = ({ chapters }: { chapters: ChapterWithBlock[] }) => {
+const ChaptersTable = ({ chapters, onDeleteChapter }: { chapters: ChapterWithBlock[], onDeleteChapter: (chapterId: string) => void }) => {
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
             <TableCell />
+            <TableCell>Couverture</TableCell>
             <TableCell>Titre</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Niveaux d'éducation</TableCell>
             <TableCell>Dernière mise à jour</TableCell>
+            <TableCell><div className="w-full text-center">Supprimer</div></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {chapters.map((chapter) => (
-            <ChapterRow key={chapter.id} chapter={chapter} />
+            <ChapterRow key={chapter.id} chapter={chapter} onDeleteChapter={onDeleteChapter} />
           ))}
         </TableBody>
       </Table>

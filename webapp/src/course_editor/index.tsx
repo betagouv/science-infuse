@@ -99,7 +99,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
       <EditorContext.Provider value={providerValue}>
-        <div className="flex flex-row gap-0 max-w-full">
+        <div className="flex flex-row gap-0 max-w-full w-full">
 
           <div className="relative p-4 md:p-16">
             <CourseSettings editor={editor} />

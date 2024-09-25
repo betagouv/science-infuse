@@ -3,7 +3,7 @@ import { Node as PMNode } from '@tiptap/pm/model'
 import React from 'react';
 
 const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: number }) => {
-    return (<div className="w-full flex-wrap flex justify-center items-center gap-4 pb-8 relative">
+    return (<div className="w-full flex-wrap flex justify-center items-center gap-4 relative">
         <div
             onClick={() => props.editor.commands.openFileImportPopup(props?.pos || 0)}
             className="max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"

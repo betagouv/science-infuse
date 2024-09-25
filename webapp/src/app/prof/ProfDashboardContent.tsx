@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 import { Block } from '@prisma/client';
 import { ChapterWithBlock } from '@/lib/api-client';
@@ -21,10 +21,8 @@ interface ProfDashboardContentProps {
 
 export default function ProfDashboardContent({ initialChapters, initialBlocks, user, createChapter, deleteChapter }: ProfDashboardContentProps) {
   const [chapters, setChapters] = useState(initialChapters);
-  const [blocks, setBlocks] = useState(initialBlocks);
   const [openDialog, setOpenDialog] = useState(false);
-  const [name, setName] = useState(user?.firstName || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [chapterToDelete, setChapterToDelete] = useState<string | null>(null);
 
   const handleCreateChapter = async () => {
     try {
@@ -37,36 +35,27 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
   };
 
   const handleDeleteChapter = async (chapterId: string) => {
-    try {
-      const updatedChapters = await deleteChapter(chapterId);
-      setChapters(updatedChapters);
-      alert("Chapter deleted successfully");
-    } catch (error) {
-      console.error('Error deleting chapter:', error);
-      alert('Failed to delete chapter. Please try again.');
-    }
+    setChapterToDelete(chapterId);
+    setOpenDialog(true);
   };
 
-
-  const handleUpdateAccount = async () => {
-    try {
-      const response = await fetch('/api/user', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email }),
-      });
-      if (response.ok) {
-        alert('Account updated successfully');
-        setOpenDialog(false);
-      } else {
-        throw new Error('Failed to update account');
+  const confirmDeleteChapter = async () => {
+    if (chapterToDelete) {
+      try {
+        const updatedChapters = await deleteChapter(chapterToDelete);
+        setChapters(updatedChapters);
+      } catch (error) {
+        console.error('Error deleting chapter:', error);
+        alert('Échec de la suppression du chapitre. Veuillez réessayer.');
       }
-    } catch (error) {
-      console.error('Error updating account:', error);
-      alert('Failed to update account. Please try again.');
     }
+    setOpenDialog(false);
+    setChapterToDelete(null);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setChapterToDelete(null);
   };
 
   return (
@@ -77,8 +66,29 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
           Nouveau chapitre
         </Button>
         </div>
-        <ChaptersTable chapters={chapters} />
+        <ChaptersTable chapters={chapters} onDeleteChapter={handleDeleteChapter} />
       </div>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Confirmer la suppression"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Êtes-vous sûr de vouloir supprimer ce chapitre ? Cette action est irréversible.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} priority="secondary">Annuler</Button>
+          <Button onClick={confirmDeleteChapter} priority="primary">
+            Confirmer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
