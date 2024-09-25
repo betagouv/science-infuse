@@ -1,6 +1,4 @@
 "use client"
-import { NEXT_PUBLIC_SERVER_URL } from "@/config";
-import axios from "axios";
 import { useState } from "react";
 import { IconButton, Typography, Box, CircularProgress, TextField } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';

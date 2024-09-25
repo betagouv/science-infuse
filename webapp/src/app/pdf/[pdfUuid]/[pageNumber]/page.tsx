@@ -1,7 +1,5 @@
 'use client';
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import RenderPdf from "../../RenderPdf";
 import { apiClient } from "@/lib/api-client";
 

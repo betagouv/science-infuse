@@ -58,8 +58,6 @@ services:
     build:
       context: ./webapp
       args:
-        - NEXT_PUBLIC_FILE_SERVER_URL=${NEXT_PUBLIC_FILE_SERVER_URL}
-        - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
         - DATABASE_URL=${DATABASE_URL}
         - OLLAMA_URL=${OLLAMA_URL}
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}

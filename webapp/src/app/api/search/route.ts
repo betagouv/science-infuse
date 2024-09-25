@@ -1,5 +1,3 @@
-import { NEXT_PUBLIC_SERVER_URL, OLLAMA_URL } from "@/config";
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { searchBlocksWithChapter, searchDocumentChunks } from "./sql_raw_queries";
 import { getServerSession } from "next-auth";
