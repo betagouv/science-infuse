@@ -107,7 +107,7 @@ model Chapter {
 
 model Theme {
   id       String    @id @default(cuid())
-  title    String
+  title    String    @unique
   chapters Chapter[]
 }
 
@@ -199,7 +199,7 @@ model Academy {
 
 model SchoolSubject {
   id      String    @id @default(cuid())
-  name    String
+  name    String    @unique
   userId  String?
   User    User?     @relation(fields: [userId], references: [id])
   Chapter Chapter[]

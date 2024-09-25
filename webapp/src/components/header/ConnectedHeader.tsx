@@ -92,7 +92,8 @@ export default () => {
                         {[
                             { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                             { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
-                            { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" }
+                            { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
+                            { icon: "fr-icon-question-answer-line", text: "Besoin d'aide", path: "/besoin-d-aide" },
                         ].map((item, index) => (
                             <button
                                 onClick={() => {
