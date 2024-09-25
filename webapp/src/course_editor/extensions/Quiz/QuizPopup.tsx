@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Editor } from '@tiptap/react';
 import { useOnClickOutside } from 'usehooks-ts'
 import { useEffect } from '@preact-signals/safe-react/react';
@@ -22,15 +22,16 @@ export interface Question {
 }
 
 
-const QuizPopup = (props: { pos: number, editor: Editor; courseBlockNode: PMNode, closePopup: () => void }) => {
-  const handleClosePopup = () => {
+const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup: () => void }) => {
+
+  const handleClosePopup = useCallback(() => {
     if (!ref.current) return;
     if (!ref.current.parentElement) return;
     ref.current.parentElement.style.opacity = '0';
     setTimeout(() => {
       props.closePopup();
     }, 400)
-  }
+  }, [props])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -196,8 +197,9 @@ const QuizPopup = (props: { pos: number, editor: Editor; courseBlockNode: PMNode
       'info',
       <AutoAwesomeIcon className="text-blue-500" />
     )
-
-    
+    setTimeout(() => {
+      handleClosePopup();
+    }, 500)
   }
 
 
@@ -215,7 +217,7 @@ const QuizPopup = (props: { pos: number, editor: Editor; courseBlockNode: PMNode
           onClick={() => generateQuiz()}
         >
           {isGenerating ? <div className='flex gap-4'>
-            <CircularProgress sx={{color: '#00000094'}} size={24} />
+            <CircularProgress sx={{ color: '#00000094' }} size={24} />
             <p className="font-semibold  m-0">Génération en cours <span></span></p>
           </div> :
             "Générer un quiz automatique"
@@ -234,8 +236,8 @@ const QuizPopup = (props: { pos: number, editor: Editor; courseBlockNode: PMNode
         <div className="w-full bg-gray-100 rounded-lg">
           {questions.map((question, questionIndex) => (
             <div key={questionIndex} className="mb-8 p-6 bg-white rounded-lg shadow-sm relative">
-              <IconButton 
-                onClick={() => removeQuestion(questionIndex)} 
+              <IconButton
+                onClick={() => removeQuestion(questionIndex)}
                 className="text-red-500 !absolute top-2 right-2"
               >
                 <DeleteIcon />
@@ -295,7 +297,7 @@ const QuizPopup = (props: { pos: number, editor: Editor; courseBlockNode: PMNode
             <Button
               className='w-full flex items-center justify-center'
               priority='primary'
-              onClick={() => {saveQuiz()}}
+              onClick={() => { saveQuiz() }}
             >
               Enregistrer le quiz
             </Button>

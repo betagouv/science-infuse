@@ -1,8 +1,8 @@
 import { Editor, getNodeAtPosition } from '@tiptap/core';
+import { Node as PMNode } from '@tiptap/pm/model'
 import React from 'react';
 
-const ActionButtons = (props: { editor: Editor, pos?: number }) => {
-    console.log("EDITOR POSSS", props.pos);
+const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: number }) => {
     return (<div className="w-full flex-wrap flex justify-center items-center gap-4 pb-8 relative">
         <div
             onClick={() => props.editor.commands.openFileImportPopup(props?.pos || 0)}
@@ -29,11 +29,7 @@ const ActionButtons = (props: { editor: Editor, pos?: number }) => {
         <div
             onClick={() => {
                 if (props.pos) {
-                    const [node] = getNodeAtPosition(props.editor.state, 'courseBlock', props.pos);
-                    console.log("EDITOR", props.editor, props.pos, node);
-                    if (node) {
-                        props.editor.commands.openQuizPopup(props?.pos || 0, node);
-                    }
+                    props.editor.commands.openQuizPopup(props.courseBlockNode);
                 }
             }}
             className="max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
@@ -46,7 +42,7 @@ const ActionButtons = (props: { editor: Editor, pos?: number }) => {
             </p>
         </div>
     </div>
-        );
+    );
 };
 
 export default ActionButtons;

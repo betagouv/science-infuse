@@ -6,7 +6,7 @@ import QuizPopup from './QuizPopup'
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
         Quiz: {
-            openQuizPopup: (pos: number, courseBlockNode: PMNode) => ReturnType;
+            openQuizPopup: (courseBlockNode: PMNode) => ReturnType;
         };
     }
 }
@@ -17,14 +17,13 @@ export const QuizExtension = Extension.create({
     addCommands() {
         return {
             openQuizPopup:
-                (pos: number, courseBlockNode: PMNode) =>
+                (courseBlockNode: PMNode) =>
                     ({ editor, chain }) => {
                         let popupElement: HTMLDivElement | null = null;
 
                         const component = new ReactRenderer(QuizPopup, {
                             props: {
                                 editor,
-                                pos: pos,
                                 courseBlockNode,
                                 closePopup: () => {
                                     if (popupElement) {

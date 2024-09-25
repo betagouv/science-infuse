@@ -194,7 +194,6 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
 
 
   const selectedNodeAttrs = editor?.state?.selection?.node?.attrs;
-  console.log("selectedNodeAttrs", selectedNodeAttrs)
   const s3ObjectName = selectedNodeAttrs?.s3ObjectName;
   const fileTypes = selectedNodeAttrs?.fileTypes;
   const shared = selectedNodeAttrs?.shared;
