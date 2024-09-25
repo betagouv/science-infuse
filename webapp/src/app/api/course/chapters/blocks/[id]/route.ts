@@ -5,8 +5,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { getTiptapNodeText } from './getTiptapNodeText';
 import { getEmbeddings } from '@/lib/utils/getEmbeddings';
 import { updateBlock } from '@/app/api/search/sql_raw_queries';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,

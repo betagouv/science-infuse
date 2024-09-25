@@ -6,11 +6,14 @@ import { Chapter } from '@prisma/client';
 import { Editor, JSONContent } from '@tiptap/react';
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
+import { useDebounceValue } from 'usehooks-ts';
 
 
 
+let prevContent = ""
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
+  const { editor, setContent } = useTiptapEditor({ preview: false })
 
 
   useEffect(() => {
@@ -23,12 +26,36 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   }, [params.id]);
 
 
+  // save editor on debounced content change
+  const [debouncedEditor] = useDebounceValue(editor?.state.doc.content, 5000);
+  useEffect(() => {
+    if (editor && debouncedEditor) {
+      const newContent = JSON.stringify(editor.getJSON())
+      if (newContent != prevContent && prevContent != "") {
+        editor.commands.saveChapter();
+      }
+      prevContent = newContent;
+    }
+  }, [debouncedEditor, editor]);
 
-  const { editor, setContent } = useTiptapEditor({preview: false})
+  // save editor on ctrl+s press on whole page
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (editor && event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        editor.commands.saveChapter();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor]);
+
 
 
   useEffect(() => {
-    if (editor && chapter) {
+    if (editor && chapter && setContent) {
       const content = JSON.parse(chapter.content as string);
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
@@ -40,12 +67,12 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       setContent(content)
 
     }
-  }, [editor, chapter])
+  }, [editor, chapter, setContent])
 
   return (
-    <div>
+    <>
       {editor && <TiptapEditor editor={editor} />}
-    </div>
+    </>
   )
 
 

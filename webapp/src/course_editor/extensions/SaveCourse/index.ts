@@ -9,7 +9,7 @@ import { Skill } from '@prisma/client';
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
         saveCourse: {
-            save: (editor: Editor) => ReturnType;
+            saveChapter: () => ReturnType;
         };
     }
 }
@@ -22,16 +22,11 @@ export const SaveCourse = Extension.create({
             showSnackbar: (message: string, severity: TSeverity) => { },
         };
     },
-    // addKeyboardShortcuts() {
-    //     return {
-    //         'Mod-s': () => this.editor.commands.save(this.editor),
-    //     };
-    // },
-
     addCommands() {
         return {
-            save: (editor: Editor) =>
+            saveChapter: () =>
                 () => {
+                    const editor = this.editor;
                     const chapterId = editor.storage.simetadata.chapterId;
                     const courseTitle = editor?.state.doc.firstChild?.textContent || "-";
                     handleSave(editor, chapterId, courseTitle, editor.getJSON())
