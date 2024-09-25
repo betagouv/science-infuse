@@ -30,7 +30,7 @@ const Search: React.FC = () => {
 
   const resultPerPage = 10
 
-  
+
 
 
   return (
@@ -38,12 +38,13 @@ const Search: React.FC = () => {
       <div className="fr-col-12 fr-container main-content-item">
         <div className="py-16 flex flex-col gap-8 md:px-0">
           <SearchHeader query={query} />
-          <Tabs blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
+          <Tabs favourites={[]} blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
           {isLoading && <LoadingIndicator />}
           {isError && <ErrorMessage />}
           {!isLoading && !isError && !results && <NoResultsMessage />}
           {!isLoading && !isError && results && (
             <RenderSearchResult
+              favourites={[]}
               selectedTab={selectedTabType.value}
               results={results}
               searchWords={searchWords}
