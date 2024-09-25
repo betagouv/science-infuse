@@ -22,6 +22,7 @@ import SIFooter from "@/components/SIFooter";
 import SIHeader from "@/components/header/SIHeader";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/authOptions";
+import MatomoAnalytics from "@/components/MatomoAnalytics";
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
     <html {...getHtmlAttributes({ defaultColorScheme, lang })} >
       <head>
         <title>Science Infuse</title>
+        <MatomoAnalytics />
         <StartDsfr />
         <DsfrHead
           Link={Link}
