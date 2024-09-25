@@ -6,13 +6,13 @@ import { PluginKey, Selection, TextSelection } from '@tiptap/pm/state'
 import { Editor } from '@tiptap/core'
 import { NodeType } from '@tiptap/pm/model';
 import { keymap } from '@tiptap/pm/keymap'
-import Quiz, { Question } from './Quiz';
 import { useState } from '@preact-signals/safe-react/react';
 import { Node as PMNode } from '@tiptap/pm/model'
 import SkillsPicker from './SkillsPicker';
 import KeyIdeasPicker from './KeyIdeaPicker';
 import { KeyIdea } from '@prisma/client';
 import ActionButtons from './ActionButtons';
+import { Question } from '../Quiz/QuizPopup';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -305,6 +305,5 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   )
 }
 
-const MemoQuiz = memo(Quiz);
 const MemoKeyIdeasPicker = memo(KeyIdeasPicker);
 export default CourseBlockNode;
