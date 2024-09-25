@@ -7,33 +7,35 @@ export async function POST(request: NextRequest): Promise<NextResponse<string | 
     try {
         const { context } = await request.json()
         try {
+            const prompt = `<context>${context}</context>
+en te basant sur le <context> propose un qcm avec 4 choix par questions sous la forme suivante:
+\`\`\`qcm
+[
+    {
+        "question": "{the question}",
+        "options": [
+            {
+                "answer": "reponse a", "correct": false
+            },
+            {
+                "answer": "reponse b", "correct": false
+            },
+            {
+                "answer": "reponse c", "correct": true
+            },
+            {
+                "answer": "reponse d", "correct": true
+            }
+        ]
+    },...
+]
+\`\`\``
+            console.log("PROMPT", prompt)
             const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
                 model: 'llama3.1:8b',
                 stream: false,
-                prompt: `<context>${context}</context>
-              en te basant sur le <context> propose un qcm avec 4 choix par questions sous la forme:
-      \`\`\`qcm
-      [
-          {
-              "question": "{the question}",
-              "options": [
-                  {
-                      "answer": "reponse a", "correct": false
-                  },
-                  {
-                      "answer": "reponse b", "correct": false
-                  },
-                  {
-                      "answer": "reponse c", "correct": true
-                  },
-                  {
-                      "answer": "reponse d", "correct": true
-                  }
-              ]
-          },...
-      ]
-      \`\`\`
-      `})
+                prompt: prompt
+            })
             if (response.data && response.data.response) {
                 const output = response.data.response
                 const startIndex = output.indexOf('[')

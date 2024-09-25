@@ -36,7 +36,7 @@ export const GROUPS: Group[] = [
   },
   {
     name: 'format',
-    title: 'Format',
+    title: 'Mise en page',
     commands: [
       {
         name: 'heading1',
@@ -97,44 +97,44 @@ export const GROUPS: Group[] = [
           editor.chain().focus().setBlockquote().run()
         },
       },
-      {
-        name: 'codeBlock',
-        label: 'Code Block',
-        iconName: 'SquareCode',
-        description: 'Code block with syntax highlighting',
-        shouldBeHidden: editor => editor.isActive('columns'),
-        action: async editor => {
-          editor.chain().focus().setCodeBlock().run()
-        },
-      },
+      // {
+      //   name: 'codeBlock',
+      //   label: 'Code Block',
+      //   iconName: 'SquareCode',
+      //   description: 'Code block with syntax highlighting',
+      //   shouldBeHidden: editor => editor.isActive('columns'),
+      //   action: async editor => {
+      //     editor.chain().focus().setCodeBlock().run()
+      //   },
+      // },
     ],
   },
-  {
-    name: 'insert',
-    title: 'Insert',
-    commands: [
-      {
-        name: 'table',
-        label: 'Table',
-        iconName: 'Table',
-        description: 'Insert a table',
-        shouldBeHidden: editor => editor.isActive('columns'),
-        action: async editor => {
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: false }).run()
-        },
-      },
-      {
-        name: 'horizontalRule',
-        label: 'Horizontal Rule',
-        iconName: 'Minus',
-        description: 'Insert a horizontal divider',
-        aliases: ['hr'],
-        action: async editor => {
-          editor.chain().focus().setHorizontalRule().run()
-        },
-      },
-    ],
-  },
+  // {
+  //   name: 'insert',
+  //   title: 'Insert',
+  //   commands: [
+  //     {
+  //       name: 'table',
+  //       label: 'Table',
+  //       iconName: 'Table',
+  //       description: 'Insert a table',
+  //       shouldBeHidden: editor => editor.isActive('columns'),
+  //       action: async editor => {
+  //         editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: false }).run()
+  //       },
+  //     },
+  //     {
+  //       name: 'horizontalRule',
+  //       label: 'Horizontal Rule',
+  //       iconName: 'Minus',
+  //       description: 'Insert a horizontal divider',
+  //       aliases: ['hr'],
+  //       action: async editor => {
+  //         editor.chain().focus().setHorizontalRule().run()
+  //       },
+  //     },
+  //   ],
+  // },
 ]
 
 export default GROUPS

@@ -13,6 +13,7 @@ import KeyIdeasPicker from './KeyIdeaPicker';
 import { KeyIdea } from '@prisma/client';
 import ActionButtons from './ActionButtons';
 import { Question } from '../Quiz/QuizPopup';
+import { TextareaAutosize } from '@mui/material';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -281,16 +282,16 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
       {/* Bloc Title */}
       {editor.isEditable && (
-        <input
-          type="text"
+        <TextareaAutosize
           placeholder="Titre du bloc"
-          className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none focus:outline-none focus:ring-0"
+          className="mt-8 text-[2.25rem] font-bold text-left text-[#ff8742] w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
           value={node.attrs.title}
           onChange={(e) => {
             const newTitle = e.target.value;
             editor.commands.setCourseBlockTitle(node.attrs.id, newTitle);
-            // editor.commands.updateCourseBlockTitle(node.attrs.id, newTitle);
           }}
+          minRows={1}
+          style={{ height: 'auto' }}
         />
       )}
       {!editor.isEditable && (
