@@ -18,7 +18,7 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     CourseBlockNode: {
       addCourseBlock: (blockId: string) => ReturnType;
-      setCourseTitle: (id: string, title: string) => ReturnType;
+      setCourseBlockTitle: (id: string, title: string) => ReturnType;
       removeCourseBlock: (id: string) => ReturnType;
       updateCourseBlockQuestions: (id: string, questions: Question[]) => ReturnType;
       updateCourseBlockKeyIdeas: (id: string, keyIdeas: KeyIdea[]) => ReturnType;
@@ -92,7 +92,7 @@ const CourseBlockNode = Node.create({
   },
   addCommands() {
     return {
-      setCourseTitle: (id: string, title: string) => ({ tr, dispatch, chain, state, editor }) => {
+      setCourseBlockTitle: (id: string, title: string) => ({ tr, dispatch, chain, state, editor }) => {
         const { doc } = tr
         let nodePos = -1
 
@@ -277,19 +277,28 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       onClick={handleClick}
     >
       {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
-     
-      {/* TODO: Get block title from block attrs (add to courseBlock plugin) */}
-      <input
-        type="text"
-        placeholder="Titre du bloc"
-        className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none focus:outline-none focus:ring-0"
-        value={node.attrs.title}
-        onChange={(e) => {
-          const newTitle = e.target.value;
-          editor.commands.setCourseTitle(node.attrs.id, newTitle);
-          // editor.commands.updateCourseBlockTitle(node.attrs.id, newTitle);
-        }}
-      />
+
+
+      {/* Bloc Title */}
+      {editor.isEditable && (
+        <input
+          type="text"
+          placeholder="Titre du bloc"
+          className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8 bg-transparent border-none outline-none focus:outline-none focus:ring-0"
+          value={node.attrs.title}
+          onChange={(e) => {
+            const newTitle = e.target.value;
+            editor.commands.setCourseBlockTitle(node.attrs.id, newTitle);
+            // editor.commands.updateCourseBlockTitle(node.attrs.id, newTitle);
+          }}
+        />
+      )}
+      {!editor.isEditable && (
+        <div className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8">
+          {node.attrs.title}
+        </div>
+      )}
+
       <div className="bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
         {editor.isEditable && <div
           className='sticky top-4 z-[100]'
