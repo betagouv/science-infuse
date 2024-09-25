@@ -173,10 +173,10 @@ const FileImport = (props: { pos: number, editor: Editor; closePopup: () => void
             </svg>
 
             <p className="m-0 text-lg font-medium text-center text-black">
-              {!isDragActive ? "ou glisser et déposer en une ici" : "Déposez le fichier ici"}
+              {!isDragActive ? "ou glissez et déposez en une ici" : "Déposez le fichier ici"}
             </p>
             <p className="m-0 text-sm text-center text-[#757575]">
-              Formats possibles : jpg, png
+              Formats possibles : jpg, png, pdf, mp4
             </p>
           </div>
           {droppedFile && (

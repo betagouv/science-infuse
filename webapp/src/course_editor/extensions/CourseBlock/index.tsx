@@ -150,7 +150,7 @@ const CourseBlockNode = Node.create({
           if (dispatch) {
             dispatch(tr)
           }
-          const newBlock = apiClient.deleteBlock(blockId);
+          // const newBlock = apiClient.deleteBlock(blockId);
 
           return true
         }
@@ -302,7 +302,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
       <div className="flex flex-col bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
         {editor.isEditable && <div
-          className='sticky top-4 z-[100]'
+          className='sticky top-0 py-4 bg-[#f6f6f6] z-[100]'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

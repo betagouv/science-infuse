@@ -52,6 +52,8 @@ export async function PUT(
     const embeddings = await getEmbeddings(blockText)
     const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id)
 
+    console.log("UPDATE BLOCK", "\n=========================\n", typeof(content), title, "\n=========================\n", blockText, "\n=========================\n")
+
     // const updatedBlock = await prisma.block.update({
     //   where: {
     //     id: params.id,

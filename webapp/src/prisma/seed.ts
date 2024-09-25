@@ -19,7 +19,7 @@ const createFileTypes = async () => {
 }
 
 const createEducationLevels = async () => {
-  const EducationLevels = ["6e", "5e", "4e", "3e", "2nde", "1ere", "Terminale"]
+  const EducationLevels = ["6e", "5e", "4e", "3e"]//, "2nde", "1ere", "Terminale"]
   await prisma.educationLevel.createMany({
     data: EducationLevels.map(name => ({ name })),
     skipDuplicates: true,
@@ -35,7 +35,7 @@ const createAcademies = async () => {
 }
 
 const createSchoolSubjects = async () => {
-  const subjects = ["Mathématiques", "Français", "Histoire-Géographie", "Sciences", "Anglais", "Arts Plastiques", "Éducation Physique", "Musique", "Technologie", "Philosophie", "Sciences Économiques", "Langues Vivantes", "Latin-Grec", "Physique-Chimie", "Sciences de la Vie et de la Terre"]
+  const subjects = ["Sciences de la Vie et de la Terre"]//,"Mathématiques", "Français", "Histoire-Géographie", "Sciences", "Anglais", "Arts Plastiques", "Éducation Physique", "Musique", "Technologie", "Philosophie", "Sciences Économiques", "Langues Vivantes", "Latin-Grec", "Physique-Chimie"]
 
   await prisma.schoolSubject.createMany({
     data: subjects.map(subject => ({ name: subject })),

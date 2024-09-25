@@ -59,7 +59,7 @@ export default () => {
     const id = open ? 'simple-popover' : undefined;
 
     return (
-        <div className="flex">
+        <div className="flex" id="connected-header">
 
             <StyledButton
                 onClick={handleClick}

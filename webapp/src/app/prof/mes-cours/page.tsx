@@ -49,6 +49,7 @@ export default async function ProfDashboard() {
 
 
     const chapters = await getChaptersWithBlocks(session.user.id);
+    console.log("CHAPTERS", chapters.map(c => JSON.stringify(c.blocks)))
     const blocks = await prisma.block.findMany({
         where: {
             userId: session.user.id,

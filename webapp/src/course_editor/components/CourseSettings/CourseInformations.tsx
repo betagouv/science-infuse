@@ -481,10 +481,10 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                         <path fillRule="evenodd" clipRule="evenodd" d="M15.334 15.3333V11.3333H16.6673V15.3333H20.6673V16.6667H16.6673V20.6667H15.334V16.6667H11.334V15.3333H15.334Z" fill="white" />
                                     </svg>
                                     <p className="m-0 text-lg font-medium text-center text-black">
-                                        {!isDragActive ? "ou glisser et déposer en une ici" : "Déposez le fichier ici"}
+                                        {!isDragActive ? "ou glissez et déposez en une ici" : "Déposez le fichier ici"}
                                     </p>
                                     <p className="m-0 text-sm text-center text-[#757575]">
-                                        Formats possibles : jpg, png, pdf, mp4
+                                        Formats possibles : jpg, png
                                     </p>
                                 </div>
                                 {droppedFile && (
