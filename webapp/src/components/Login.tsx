@@ -15,11 +15,16 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [openModal, setOpenModal] = useState(false);
+    const [acceptCGU, setAcceptCGU] = useState(false);
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (!acceptCGU) {
+            showSnackbar(<p className='m-0'>Veuillez accepter les CGU pour continuer.</p>, 'error')
+            return;
+        }
         const result = await signIn("credentials", {
             email,
             password,
@@ -122,7 +127,9 @@ const Login = () => {
                             label: <p className='m-0 ml-2'>J'accepte les <a href="" target='_blank'>CGU</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>Obligatoire</span></p>,
                             nativeInputProps: {
                                 name: 'checkboxes-1',
-                                value: 'value3'
+                                value: 'value3',
+                                onChange: (e) => setAcceptCGU(e.target.checked),
+                                required: true,
                             }
                         }
                     ]}

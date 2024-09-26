@@ -45,13 +45,14 @@ const StyledMultiSelect = styled.div`
 
 interface CustomMultiSelectProps {
   value: string[];
+  required?: boolean;
   onChange: (value: string[]) => void;
   options: { value: string; label: string }[];
   label: string;
   disabled?: boolean;
 }
 
-const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({ value, onChange, options, label, disabled }) => {
+const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({ value, required, onChange, options, label, disabled }) => {
   const handleChange = (event: SelectChangeEvent<typeof value>) => {
     const {
       target: { value: selectedValue },
@@ -64,6 +65,7 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({ value, onChange, 
       <FormControl variant="standard" className="w-full">
         <label className="fr-label" htmlFor={`multi-select-${label}`}>{label}</label>
         <MUISelect
+          required={required}
           className="fr-input si-select fr-select"
           disableUnderline={true}
           style={{
@@ -74,7 +76,7 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({ value, onChange, 
             lineHeight: '1.5rem',
             padding: '0.5rem 1rem',
             boxShadow: disabled ? 'inset 0 -2px 0 0 var(--border-disabled-grey) !important' : undefined,
-            
+
           }}
           multiple
           value={value}
@@ -93,7 +95,7 @@ const CustomMultiSelect: React.FC<CustomMultiSelectProps> = ({ value, onChange, 
           ))}
         </MUISelect>
       </FormControl>
-    </StyledMultiSelect>
+    </StyledMultiSelect >
   );
 };
 

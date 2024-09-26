@@ -14,15 +14,16 @@ import * as React from 'react';
 export default function RegisterForm(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolSubject[] }) {
     const { showSnackbar } = useSnackbar();
     const [user, setUser] = useState<UserFull | null>(null)
-    // console.log("USERRR el", props.educationLevels)
     const [email, setEmail] = useState(user?.firstName || "");
     const [firstName, setFirstName] = useState(user?.firstName || "");
     const [lastName, setLastName] = useState(user?.lastName || "");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [academy, setAcademy] = useState("");
     const [educationLevels, setEducationLevels] = useState<string[]>([]);
     const [school, setSchool] = useState("");
     const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -30,8 +31,28 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
 
     const router = useRouter();
 
+    const validatePassword = (password: string) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        return regex.test(password);
+    }
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+
+        if (!email || !firstName || !lastName || !password || !confirmPassword || !academy || schoolSubjects.length === 0) {
+            setErrorMessage("Veuillez remplir tous les champs obligatoires.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setErrorMessage("Les mots de passe ne correspondent pas.");
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            setErrorMessage("Le mot de passe doit contenir au moins 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.");
+            return;
+        }
 
         try {
             const response = await fetch("/api/auth/register", {
@@ -45,7 +66,7 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
                     school,
                     academyId: academy,
                     schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)),
-                    educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)) ,
+                    educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)),
                 }),
             })
 
@@ -53,8 +74,10 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
                 router.push("/") // Redirect to sign-in page after successful registration
             } else {
                 const data = await response.json()
+                setErrorMessage(data.error || "Une erreur s'est produite lors de l'inscription.");
             }
         } catch (error) {
+            setErrorMessage("Une erreur s'est produite lors de l'inscription.");
         }
     }
 
@@ -63,7 +86,7 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
             await apiClient.updateUser(userData);
             showSnackbar(<p className="m-0">Profil enregistré avec succès</p>, 'success')
         } catch (error) {
-
+            setErrorMessage("Une erreur s'est produite lors de la mise à jour du profil.");
         }
     }
 
@@ -75,12 +98,14 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
             <p className="m-0 text-sm text-left text-[#666]">
                 Tous les champs mentionnés avec une * sont obligatoires.
             </p>
+            {errorMessage && <p className="m-0 text-red-500 sticky top-[-4rem] bg-white z-[1] text-center py-6">{errorMessage}</p>}
             <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
 
                 <UserSettingsField
                     isEditable
                     alwaysEditable={true}
-                    label="Prénom"
+                    required={true}
+                    label="Prénom *"
                     value={firstName}
                     onValidate={async () => { await updateUser({ firstName: firstName }) }}
                     onChange={(_) => setFirstName(_ as string)}
@@ -89,32 +114,44 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
                 <UserSettingsField
                     isEditable
                     alwaysEditable={true}
-                    label="Nom"
+                    required={true}
+                    label="Nom *"
                     value={lastName}
                     onValidate={async () => { await updateUser({ lastName: lastName }) }}
                     onChange={(_) => setLastName(_ as string)}
                 />
 
                 <UserSettingsField
-                    label="Email professionnel"
+                    label="Email professionnel *"
+                    required={true}
                     alwaysEditable={true}
                     value={email}
                     onChange={(_) => setEmail(_ as string)}
                 />
                 <UserSettingsField
-                    label="Mot de passe"
+                    label="Mot de passe *"
+                    required={true}
                     alwaysEditable={true}
                     value={password}
                     onChange={(_) => setPassword(_ as string)}
                     isPassword
                     hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>}
                 />
+                <UserSettingsField
+                    label="Confirmer le mot de passe *"
+                    required={true}
+                    alwaysEditable={true}
+                    value={confirmPassword}
+                    onChange={(_) => setConfirmPassword(_ as string)}
+                    isPassword
+                />
 
                 <UserSettingsField
                     isEditable
+                    label="Académie de rattachement *"
+                    required={true}
                     alwaysEditable={true}
                     isSelect
-                    label="Académie de rattachement"
                     value={academy}
                     onChange={(_) => setAcademy(_ as string)}
                     onValidate={async () => { await updateUser({ academyId: academy }) }}
@@ -125,8 +162,9 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
 
                 <UserSettingsField
                     isEditable
-                    alwaysEditable={true}
                     label="Mon école"
+                    required={false}
+                    alwaysEditable={true}
                     value={school}
                     onChange={(_) => setSchool(_ as string)}
                     onValidate={async () => { await updateUser({ school }) }}
@@ -137,9 +175,10 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
 
                 <UserSettingsField
                     isEditable
+                    required={true}
+                    label="Matière enseignée *"
                     alwaysEditable={true}
                     isMultiSelect
-                    label="Matière enseignée"
                     value={schoolSubjects}
                     onChange={(value) => setSchoolSubjects(value as string[])}
                     options={schoolSubjectsOptions}
@@ -149,6 +188,7 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
 
                 <UserSettingsField
                     isEditable
+                    required={false}
                     alwaysEditable={true}
                     isMultiSelect
                     label="Niveaux auxquels j'enseigne pour l'année 2024-2025"
@@ -160,9 +200,8 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
                 />
 
                 <div className="flex justify-end gap-4">
-                    <Button type="submit" onClick={() => { }} priority="secondary">Annuler</Button>
-                    <Button className="bg-black" onClick={() => { }} priority="primary">S’inscrire</Button>
-
+                    <Button type="button" onClick={() => router.push("/")} priority="secondary">Annuler</Button>
+                    <Button className="bg-black" type="submit" priority="primary">S'inscrire</Button>
                 </div>
             </form>
         </div>

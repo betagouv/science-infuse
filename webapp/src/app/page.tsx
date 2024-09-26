@@ -17,7 +17,7 @@ export default function Page() {
                     <div className="fr-col-12 fr-col-md-8 main-content-item my-24">
                         <MainSearch />
                     </div> :
-                    <div className="fr-col-12 fr-col-md-4 main-content-item my-24">
+                    <div className="fr-col-12 fr-col-md-6 fr-col-lg-4 main-content-item my-16">
                         <Login />
                     </div>
                 }

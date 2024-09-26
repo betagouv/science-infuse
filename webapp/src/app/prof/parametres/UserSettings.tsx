@@ -48,6 +48,7 @@ const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, is
 
 interface FieldProps {
     isEditable?: boolean;
+    required?: boolean;
     alwaysEditable?: boolean;
     label: string;
     value: string | string[];
@@ -84,6 +85,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                         disabled={!isEditable}
                         label={props.label}
                         nativeSelectProps={{
+                            required:props.required,
                             value: props.value as string,
                             onChange: (e) => handleChange(e.target.value)
                         }}
@@ -96,6 +98,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                         style={{ margin: 0 }}
                         editable={isEditable}
                         nativeInputProps={{
+                            required:props.required,
                             value: props.value as string,
                             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)
                         }}
