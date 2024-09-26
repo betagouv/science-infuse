@@ -23,7 +23,7 @@ export async function POST(
     });
 
     if (!chapter) {
-      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
     }
 
     const newMessage = await prisma.comment.create({
