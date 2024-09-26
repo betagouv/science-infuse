@@ -19,7 +19,7 @@ export async function GET(
     const chapter = await prisma.chapter.findUnique({
       where: {
         id: params.id,
-        userId: session.user.id,
+        // userId: session.user.id,
       },
       include: {
         skills: true,
