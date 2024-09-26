@@ -117,7 +117,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
 
 
   const getFullText = () => {
-    return props.editor.getText();    
+    return props.editor.getText();
   }
   const getCourseBlockText = () => {
     let text = "";
@@ -206,7 +206,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
             </div>
           ) : (
             <>
-              <Button
+              {getCourseBlockText().length > 100 && <Button
                 iconId="fr-icon-sparkling-2-line"
                 iconPosition="right"
                 className='bg-black'
@@ -214,7 +214,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
                 onClick={() => handleGenerateQuiz('courseBlock')}
               >
                 Générer un quiz sur le bloc
-              </Button>
+              </Button>}
               <Button
                 iconId="fr-icon-sparkling-2-line"
                 iconPosition="right"
