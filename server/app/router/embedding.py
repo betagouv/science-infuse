@@ -15,7 +15,7 @@ def get_embeddings(text: str):
     inputs = tokenizer(
         text,
         padding=True,
-        truncation=False,
+        truncation=True,
         return_tensors="pt",
     ).to(device)
 
