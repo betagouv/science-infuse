@@ -56,14 +56,14 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     if (editor && chapter && setContent) {
-      const content = JSON.parse(chapter.content as string);
+      const content = chapter.content;
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;
       editor.storage.simetadata.educationLevels = chapter.educationLevels;
       editor.storage.simetadata.chapterStatus = chapter.status;
       // editor.storage.content.comments = content.storage.comments;
-      setContent(content)
+      setContent(content as JSONContent)
 
     }
   }, [editor, chapter, setContent])

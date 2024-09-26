@@ -34,13 +34,13 @@ interface HandleSaveResponse {
     severity: TSeverity
 }
 
-export const handleSave = async (editor: Editor, chapterId: string, title: string, content: JSONContent): Promise<HandleSaveResponse | false> => {
+export const handleSave = async (editor: Editor, chapterId: string, title: string, editorContent: JSONContent): Promise<HandleSaveResponse | false> => {
     if (!editor.isEditable) return false;
     let saveChapterOk;
     try {
         saveChapterOk = await apiClient.updateChapter(chapterId, {
             title,
-            content: JSON.stringify(content),
+            content: editorContent,
         });
     } catch (error) {
         saveChapterOk = false;
