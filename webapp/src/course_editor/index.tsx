@@ -3,7 +3,7 @@
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { EMPTY_DOCUMENT } from '@/config';
 import styled from '@emotion/styled';
-import { Editor, EditorContent, useEditor } from '@tiptap/react';
+import { Content, Editor, EditorContent, useEditor } from '@tiptap/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Snackbar from './components/Snackbar';
 import { EditorContext } from './context/EditorContext';
@@ -40,7 +40,7 @@ export const useTiptapEditor = (params: { preview?: boolean }) => {
     return editor?.state.doc.firstChild?.textContent ?? ''
   }, [editor])
 
-  const setContent = useCallback((content: string) => {
+  const setContent = useCallback((content: Content) => {
     // https://github.com/ueberdosis/tiptap/issues/3764
     setTimeout(() => {
       editor?.commands.setContent(content)
