@@ -1,19 +1,16 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react'
-import { Node, mergeAttributes } from '@tiptap/core'
-import { NodeViewWrapper, NodeViewContent, ReactNodeViewRenderer } from '@tiptap/react'
-import { apiClient } from '@/lib/api-client';
-import { PluginKey, Selection, TextSelection } from '@tiptap/pm/state'
-import { Editor } from '@tiptap/core'
-import { NodeType } from '@tiptap/pm/model';
-import { keymap } from '@tiptap/pm/keymap'
+import Button from '@codegouvfr/react-dsfr/Button';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Checkbox, Collapse, TextareaAutosize } from '@mui/material';
 import { useState } from '@preact-signals/safe-react/react';
-import { Node as PMNode } from '@tiptap/pm/model'
-import SkillsPicker from './SkillsPicker';
-import KeyIdeasPicker from './KeyIdeaPicker';
 import { KeyIdea } from '@prisma/client';
-import ActionButtons from './ActionButtons';
+import { Editor, Node, mergeAttributes } from '@tiptap/core';
+import { keymap } from '@tiptap/pm/keymap';
+import { Node as PMNode } from '@tiptap/pm/model';
+import { Selection, TextSelection } from '@tiptap/pm/state';
+import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
+import React, { useRef } from 'react';
 import { Question } from '../Quiz/QuizPopup';
-import { TextareaAutosize } from '@mui/material';
+import ActionButtons from './ActionButtons';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -157,7 +154,7 @@ const CourseBlockNode = Node.create({
 
         return false
       },
-      updateCourseBlockQuestions: (id: string, questions: Question[]) => ({ tr, dispatch }) => {
+      updateCourseBlockQuestions: (id: string, questions: Question[]) => ({ tr, dispatch, chain }) => {
         const { doc } = tr
         let nodePos = -1
 
@@ -170,9 +167,11 @@ const CourseBlockNode = Node.create({
 
         if (nodePos > -1) {
           tr.setNodeAttribute(nodePos, 'quizQuestions', questions)
+          console.log("UPDATE BLOCK QUIZ", dispatch)
           if (dispatch) {
             dispatch(tr)
           }
+          chain().run();
           return true
         }
 
@@ -270,6 +269,8 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
     }
   }
 
+  const quizQuestions: Question[] = node.attrs?.quizQuestions || []
+
 
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -309,11 +310,63 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
           <ActionButtons courseBlockNode={node} pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
         </div>}
         <NodeViewContent className="content" />
+
+        {/* quiz if available */}
+        <RenderBlockQuiz questions={quizQuestions} openQuizPopup={() => {
+          editor.commands.openQuizPopup(node);
+        }} />
+
       </div>
       <hr className='mt-8' />
     </NodeViewWrapper>
   )
 }
 
-const MemoKeyIdeasPicker = memo(KeyIdeasPicker);
+
+const RenderBlockQuiz = ({ questions, openQuizPopup }: { questions: Question[], openQuizPopup: () => void }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="w-full">
+      <button
+        className="flex justify-between items-center w-full p-4 bg-white hover:!bg-white text-gray-800 hover:text-gray-800 rounded-lg shadow-sm transition-all duration-300 ease-in-out"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <p className="m-0 text-lg font-semibold text-gray-800">Quiz</p>
+        <ExpandMoreIcon className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''} text-gray-600`} />
+      </button>
+
+      <Collapse in={isExpanded}>
+        <div className="my-4 p-4 bg-white rounded-b-lg shadow-md rounded-lg">
+          <div className="mb-4 text-center">
+            <p className="text-gray-600 italic">Ceci est un aperçu du quiz. Pour apporter des modifications, cliquez sur le bouton ci-dessous.</p>
+
+            <Button onClick={() => {setIsExpanded(false); openQuizPopup()}} className='bg-black'>Modifier le quiz</Button>
+          </div>
+          <div className="cursor-not-allowed">
+            <div className='pointer-events-none'>
+              {questions.map((question, questionIndex) => (
+                <div key={questionIndex} className="mb-6 p-6 bg-white rounded-lg shadow-md relative">
+                  <p className="m-0 mb-4 text-lg font-semibold text-gray-800">Question {questionIndex + 1}</p>
+                  <p className='m-0 py-4 text-xl text-gray-700'>{question.question}</p>
+                  {question.options.map((option, optionIndex) => (
+                    <div key={optionIndex} className="flex items-center w-full hover:bg-gray-50 transition-colors duration-200 rounded-md p-2">
+                      <Checkbox
+                        checked={option.correct}
+                        className="mr-3"
+                        sx={{ color: 'black', '&.Mui-checked': { color: 'black' } }}
+                      />
+                      <p className='m-0 text-gray-600'>{option.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Collapse>
+    </div>
+  );
+}
+
 export default CourseBlockNode;
