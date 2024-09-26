@@ -62,9 +62,9 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       editor.storage.simetadata.skills = chapter.skills;
       editor.storage.simetadata.educationLevels = chapter.educationLevels;
       editor.storage.simetadata.chapterStatus = chapter.status;
+      console.log("EDITORRR", editor, content)
       // editor.storage.content.comments = content.storage.comments;
-      setContent(content as JSONContent)
-
+      setContent(typeof content === 'string' ? JSON.parse(content) : content as JSONContent)
     }
   }, [editor, chapter, setContent])
 
