@@ -1,34 +1,90 @@
 import CourseBlockNode from '@/course_editor/extensions/CourseBlock';
-import { Editor } from '@tiptap/react';
+import { Editor, JSONContent } from '@tiptap/react';
 import { addCourseBlockAtEnd } from '../AddBlockAtEnd';
+import { Badge } from '@codegouvfr/react-dsfr/Badge';
+export const RenderChapterTOC = (props: { content: JSONContent[], onTitleClicked?: (blockId: string) => void }) => {
+    const { content } = props;
+    let blocks: { title: string; id: string }[] = [];
 
-const ChapterTableOfContents = (props: { editor: Editor }) => {
-    const content = props.editor.getJSON().content;
-    let blocks: { title: string; domElement: HTMLElement }[] = [];
     if (content) {
         content
             .filter(block => block.type == CourseBlockNode.name)
-            .forEach((block, index) => {
+            .forEach((block) => {
                 const title = block.attrs?.title;
-                const domElement = document.querySelector(`[data-id="${block.attrs?.id}"]`) as HTMLElement;
-                blocks.push({ title, domElement });
+                const id = block.attrs?.id;
+                blocks.push({ title, id });
             });
     }
 
-    const handleTitleClick = (index: number) => {
-        blocks[index].domElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
+    return blocks.map((block) => (
+        <p
+            key={block.id}
+            className="m-0 flex-grow text-xl text-left text-[#161616] font-medium cursor-pointer"
+            onClick={() => props.onTitleClicked && props.onTitleClicked(block.id)}
+        >
+            {block.title}
+        </p>
+    ));
+}
+
+export const RenderChapterBlockTOC = (props: { content: JSONContent[] }) => {
+    const { content } = props;
+    let blocks: { title: string; level: number }[] = [];
+
+    if (content) {
+        content
+            .filter(block => block.type == 'heading')
+            .forEach((block) => {
+                const title = block.content?.[0]?.text ?? '';
+                const level = block.attrs?.level || 1;
+                blocks.push({ title, level });
+            });
+    }
+
+    const fonts = {
+        1: '1.5rem',
+        2: '1.25rem',
+        3: '1rem',
+        4: '0.875rem',
+        5: '0.75rem',
+        6: '0.75rem',
+    }
+
+    return (
+        <div className="flex flex-col gap-3">
+            <ul className="list-none p-0">
+                {blocks.map((block, index) => (
+                    <li
+                        key={`${block.title}-${index}`}
+                        style={{
+                            marginLeft: `${(block.level - 1) * 20}px`,
+                            marginTop: block.level === 1 ? '12px' : '4px'
+                        }}
+                    >
+                        <p
+                            style={{ fontSize: fonts[block.level as keyof typeof fonts] }}
+                            className="m-0 text-left text-[#161616] font-medium cursor-pointer hover:text-blue-600 transition-colors duration-200"
+                        >
+                            {block.title}
+                        </p>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+const ChapterTableOfContents = (props: { editor: Editor, content: JSONContent[] }) => {
+    // const content = props.editor.getJSON().content;
 
     return <div className="flex flex-col gap-6">
-        {blocks.map((block, index) => (
-            <p
-                key={index}
-                className="m-0 flex-grow text-base text-left text-[#161616] font-medium cursor-pointer"
-                onClick={() => handleTitleClick(index)}
-            >
-                {block.title}
-            </p>
-        ))}
+        <RenderChapterTOC
+            content={props.content}
+            onTitleClicked={(blockId: string) => {
+                const domElement = document.querySelector(`[data-id="${blockId}"]`) as HTMLElement;
+                domElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+        />
+
         {props.editor.isEditable && <div className="flex flex-col w-full">
             <button
                 onClick={() => addCourseBlockAtEnd(props.editor)}

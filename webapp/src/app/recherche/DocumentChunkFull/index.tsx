@@ -19,6 +19,8 @@ import { useSearchParams } from "next/navigation";
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
 import { OnInserted } from "../RenderSearch";
+import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/components/CourseSettings/ChapterTableOfContents";
+import { JSONContent } from "@tiptap/core";
 
 const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -496,17 +498,19 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
     // const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
 
-    return <Card
+    return <StyledCardWithoutTitle
         background
         border
+        enlargeLink
         badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
-            <div className="relative">
-                <RenderTiptapContent content={props.block.content} />
+            <div className="relative pt-4" >
+                <p className="text-start text-4xl text-black">{props.block.title}</p>    
+                <RenderChapterBlockTOC content={props.block.content} />            
             </div >
         }
         horizontal
-        imageAlt="texte alternatif de l’image"
+        imageAlt="image d'illustration du bloc"
         imageUrl={props.block.chapter?.coverPath || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
@@ -527,25 +531,32 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
             <p className="m-0 font-bold text-[#161616]">{block.title}</p>
         </div>}
         titleAs="h3"
+        linkProps={{
+            href: `/prof/chapitres/${block.chapter.id}/view`,
+            target: "_self"
+        }}
     />
 }
-
 export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
     const { chapter } = props;
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
     // const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
+    const chapterContent = typeof props.chapter.content === 'string' ? JSON.parse(props.chapter.content) : props.chapter.content;
+    console.log("chapterContent", chapterContent, props.chapter.content)
     return <StyledCardWithoutTitle
         background
+        enlargeLink
         border
         badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
-                <RenderTiptapContent content={typeof props.chapter.content === 'string' ? JSON.parse(props.chapter.content) : props.chapter.content} />
+                <p className="text-start text-4xl text-black">{chapter.title}</p>
+                <RenderChapterTOC content={chapterContent.content} />
             </div >
         }
         horizontal
-        imageAlt="texte alternatif de l’image"
+        imageAlt="image d'illustration du chapitre"
         imageUrl={chapter.coverPath || baseImageSrc}
         // imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
         footer={
@@ -563,9 +574,12 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         size="small"
         title={""}
         titleAs="h3"
+        linkProps={{
+            href: `/prof/chapitres/${chapter.id}/view`,
+            target: "_self"
+        }}
     />
 }
-
 
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, chunk, searchWords }) => {
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard onInserted={onInserted} chunk={chunk} />;
