@@ -45,12 +45,12 @@ export async function PUT(request: Request) {
     if (academyId !== undefined) updateData.academyId = academyId;
     if (schoolSubjects !== undefined) {
       updateData.schoolSubjects = {
-        set: schoolSubjects.map(e => ({ id: e.id }))
+        connect: schoolSubjects.map(e => ({ id: e.id }))
       };
     }
     if (educationLevels !== undefined) {
       updateData.educationLevels = {
-        set: educationLevels.map(e => ({ id: e.id }))
+        connect: educationLevels.map(e => ({ id: e.id }))
       };
     }
 

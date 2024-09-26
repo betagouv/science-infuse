@@ -285,6 +285,11 @@ class ApiClient {
     const response = await this.axiosInstance.get<EducationLevel[]>(`/schoolSubjects`);
     return response.data;
   }
+
+  async getAcademies(): Promise<EducationLevel[]> {
+    const response = await this.axiosInstance.get<EducationLevel[]>(`/academies`);
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

@@ -48,6 +48,7 @@ const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, is
 
 interface FieldProps {
     isEditable?: boolean;
+    alwaysEditable?: boolean;
     label: string;
     value: string | string[];
     onChange: (value: string | string[]) => void;
@@ -59,19 +60,20 @@ interface FieldProps {
     options?: { value: string; label: string }[];
 }
 
-const Field: React.FC<FieldProps> = (props) => {
+export const UserSettingsField: React.FC<FieldProps> = (props) => {
     const [editable, setEditable] = useState(false);
 
     const handleChange = (newValue: string | string[]) => {
         props.onChange(newValue);
     };
+    const isEditable = !!(props.isEditable || props.alwaysEditable);
 
     return (
         <div className="relative flex flex-col gap-4">
             <div className="relative">
                 {props.isMultiSelect ? (
                     <CustomMultiSelect
-                        disabled={!editable}
+                        disabled={!isEditable}
                         label={props.label}
                         value={props.value as string[]}
                         onChange={handleChange}
@@ -79,7 +81,7 @@ const Field: React.FC<FieldProps> = (props) => {
                     />
                 ) : props.isSelect ? (
                     <Select
-                        disabled={!editable}
+                        disabled={!isEditable}
                         label={props.label}
                         nativeSelectProps={{
                             value: props.value as string,
@@ -89,10 +91,10 @@ const Field: React.FC<FieldProps> = (props) => {
                     />
                 ) : (
                     <CustomInput
-                        disabled={!editable}
+                        disabled={!isEditable}
                         label={props.label}
                         style={{ margin: 0 }}
-                        editable={editable}
+                        editable={isEditable}
                         nativeInputProps={{
                             value: props.value as string,
                             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)
@@ -123,18 +125,18 @@ const Field: React.FC<FieldProps> = (props) => {
                     <span className="text-sm">{props.hint}</span>
                 </div>
             )}
-            {props.isEditable && (
+            {!props.alwaysEditable && props.isEditable && (
                 <div className="flex w-full justify-end">
                     <button
                         onClick={() => {
-                            if (editable) {
+                            if (isEditable) {
                                 props.onValidate && props.onValidate();
                             }
-                            setEditable(!editable);
+                            setEditable(!isEditable);
                         }}
                         className="italic"
                     >
-                        {editable ? "Valider" : "Modifier"}
+                        {isEditable ? "Valider" : "Modifier"}
                     </button>
                 </div>
             )}
@@ -142,26 +144,6 @@ const Field: React.FC<FieldProps> = (props) => {
     );
 };
 
-
-
-
-const subjectTaughtOptions = [
-    { value: "mathematiques", label: "Mathématiques" },
-    { value: "francais", label: "Français" },
-    { value: "histoire-geographie", label: "Histoire-Géographie" },
-    { value: "sciences", label: "Sciences" },
-    { value: "anglais", label: "Anglais" },
-    { value: "arts-plastiques", label: "Arts Plastiques" },
-    { value: "education-physique", label: "Éducation Physique" },
-    { value: "musique", label: "Musique" },
-    { value: "technologie", label: "Technologie" },
-    { value: "philosophie", label: "Philosophie" },
-    { value: "sciences-economiques", label: "Sciences Économiques" },
-    { value: "langues-vivantes", label: "Langues Vivantes" },
-    { value: "latin-grec", label: "Latin-Grec" },
-    { value: "physique-chimie", label: "Physique-Chimie" },
-    { value: "svt", label: "Sciences de la Vie et de la Terre" }
-]
 
 export default function UserSettings(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolSubject[] }) {
     const { data: session } = useSession();
@@ -216,7 +198,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
             <div className="fr-col-12 fr-col-md-6 main-content-item my-24">
                 <div className="flex flex-col gap-8">
 
-                    <Field
+                    <UserSettingsField
                         isEditable
                         label="Prénom"
                         value={firstname}
@@ -224,7 +206,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                         onChange={(_) => setFirstname(_ as string)}
                     />
 
-                    <Field
+                    <UserSettingsField
                         isEditable
                         label="Nom"
                         value={lastname}
@@ -232,10 +214,10 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                         onChange={(_) => setLastname(_ as string)}
                     />
 
-                    <Field label="Email professionnel" value={email} onChange={() => { }} />
-                    <Field label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
+                    <UserSettingsField label="Email professionnel" value={email} onChange={() => { }} />
+                    <UserSettingsField label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
 
-                    <Field
+                    <UserSettingsField
                         isEditable
                         isSelect
                         label="Académie de rattachement"
@@ -247,7 +229,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                     />
 
 
-                    <Field
+                    <UserSettingsField
                         isEditable
                         label="Mon école"
                         value={school}
@@ -258,7 +240,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
 
 
        
-                    <Field
+                    <UserSettingsField
                         isEditable
                         isMultiSelect
                         label="Matière enseignée"
@@ -269,7 +251,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                         hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
                     />
 
-                    <Field
+                    <UserSettingsField
                         isEditable
                         isMultiSelect
                         label="Niveaux auxquels j'enseigne pour l'année 2024-2025"

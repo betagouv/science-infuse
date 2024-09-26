@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input } from "@codegouvfr/react-dsfr/Input";
@@ -6,10 +6,15 @@ import { Button } from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from '@/course_editor/components/Snackbar';
+import { Modal, Box } from '@mui/material';
+import RegisterForm from './RegisterForm';
+import { Academy, EducationLevel, SchoolSubject } from '@prisma/client';
+import { apiClient } from '@/lib/api-client';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [openModal, setOpenModal] = useState(false);
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
 
@@ -28,6 +33,38 @@ const Login = () => {
         }
     }
 
+    const handleOpenModal = () => {
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    };
+
+
+    const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
+    const [academies, setAcademies] = useState<Academy[]>([]);
+    const [schoolSubjects, setSchoolSubjects] = useState<SchoolSubject[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [fetchedEducationLevels, fetchedAcademies, fetchedSchoolSubjects] = await Promise.all([
+                    apiClient.getEducationLevels(),
+                    apiClient.getAcademies(),
+                    apiClient.getSchoolSubject()
+                ]);
+                setEducationLevels(fetchedEducationLevels);
+                setAcademies(fetchedAcademies);
+                setSchoolSubjects(fetchedSchoolSubjects);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
 
     return (
         <div className='flex flex-col gap-4'>
@@ -36,14 +73,12 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                 <Input
-                    // hintText="Format attendu : prénomnom@culture.gouv"
                     label="Email professionnel"
                     nativeInputProps={{
                         type: "email",
                         value: email,
                         onChange: (e) => setEmail(e.target.value),
                         required: true,
-                        // placeholder: "Email",
                     }}
                 />
                 <Input
@@ -53,7 +88,6 @@ const Login = () => {
                         value: password,
                         onChange: (e) => setPassword(e.target.value),
                         required: true,
-                        // placeholder: "Password",
                     }}
                 />
 
@@ -80,14 +114,12 @@ const Login = () => {
                         />
                     </svg>
                 </div>
-                <button className="text-sm w-fit p-0 border-solid border-0 border-b-2 border-[#000091]" >Mot de passe oublié ?</button>
-
-
+                <p className="text-sm w-fit p-0" >Mot de passe oublié ? Contactez scienceinfuse@universcience.fr</p>
                 <Checkbox
                     className='mt-4'
                     options={[
                         {
-                            label: <p className='m-0 ml-2'>J’accepte les <a href="" target='_blank'>CGU</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>Obligatoire</span></p>,
+                            label: <p className='m-0 ml-2'>J'accepte les <a href="" target='_blank'>CGU</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>Obligatoire</span></p>,
                             nativeInputProps: {
                                 name: 'checkboxes-1',
                                 value: 'value3'
@@ -99,21 +131,31 @@ const Login = () => {
 
                 <Button type='submit' className='w-full flex items-center justify-center bg-black text-[#fff]'>Se connecter</Button>
             </form>
-            {/* <p>Vous n'avez pas de compte ? <a href="/prof/inscription">Créer un compte</a></p> */}
 
             <div className="flex flex-col gap-4">
                 <hr className="p-4 mt-4 border-t border-[#DDDDDD]" />
                 <h2 className="m-0 text-3xl font-bold">Vous n'avez pas de compte ?</h2>
-                <div className="flex flex-col gap-2">
-                    <p className="m-0 text-sm text-[#666]">Envoyez un e-mail au responsable du service :</p>
-                    <a href="mailto:olivier.rabet@universcience.fr" target='_blank' className="w-fit text-sm border-b border-[#000091] inline-block">
-                        olivier.rabet@universcience.fr
-                    </a>
-                </div>
+
+                <Button onClick={handleOpenModal} className='w-full flex items-center justify-center bg-black text-[#fff]'>S'inscrire</Button>
+
             </div>
             <Snackbar />
-        </div>
 
+            <Modal
+                open={openModal}
+                onClose={handleCloseModal}
+                aria-labelledby="inscription"
+                className='flex items-center justify-center'
+            >
+                <div className="relative bg-white">
+                    <button onClick={handleCloseModal} className="absolute top-6 right-6 flex-grow-0 flex-shrink-0 text-sm font-medium text-center text-[#000091]">Fermer</button>
+
+                    <div className="max-h-[80vh] w-[600px] max-w-full  overflow-y-auto p-16">
+                        <RegisterForm educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
+                    </div>
+                </div>
+            </Modal>
+        </div>
     )
 }
 export default Login;
