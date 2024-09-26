@@ -105,7 +105,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
             <CourseSettings editor={editor} />
           </div>
 
-          <StyledEditor id="editor" className='relative w-full sm:mb-[calc(20vh)] p-4 md:p-16' style={{ padding: !editor.isEditable ? "0" : '', }}>
+          <StyledEditor id="editor" data-editable={editor.isEditable} className={`relative w-full sm:mb-[calc(20vh)] p-4 md:p-16`} style={{ padding: !editor.isEditable ? "0" : '', }}>
 
             {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
 
