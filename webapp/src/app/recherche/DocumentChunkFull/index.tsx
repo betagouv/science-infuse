@@ -541,7 +541,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
-                <RenderTiptapContent content={JSON.parse(props.chapter.content as string)} />
+                <RenderTiptapContent content={typeof props.chapter.content === 'string' ? JSON.parse(props.chapter.content) : props.chapter.content} />
             </div >
         }
         horizontal
