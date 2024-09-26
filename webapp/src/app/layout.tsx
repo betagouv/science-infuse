@@ -7,7 +7,7 @@ import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { defaultColorScheme } from "./defaultColorScheme";
-import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
+// import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { headerFooterDisplayItem, addDisplayTranslations } from "@codegouvfr/react-dsfr/Display";
 import Link from "next/link";
@@ -23,6 +23,7 @@ import SIHeader from "@/components/header/SIHeader";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/authOptions";
 import MatomoAnalytics from "@/components/MatomoAnalytics";
+import { MuiDsfrThemeProvider } from "./MuiDsfrThemeProvider";
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");

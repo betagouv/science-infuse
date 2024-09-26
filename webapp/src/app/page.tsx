@@ -4,9 +4,7 @@ import Section2 from '@/components/home/Section2';
 import Section3 from '@/components/home/Section3';
 import Login from '@/components/Login';
 import MainSearch from '@/components/search/MainSearch';
-import { Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 
 export default function Page() {
     const { data: session } = useSession();
