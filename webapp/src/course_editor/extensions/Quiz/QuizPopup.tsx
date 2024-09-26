@@ -116,6 +116,9 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
   const { showSnackbar } = useSnackbar();
 
 
+  const getFullText = () => {
+    return props.editor.getText();    
+  }
   const getCourseBlockText = () => {
     let text = "";
     const { view, state } = props.editor;
@@ -149,29 +152,11 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
     return text.slice(0, 4000);
   };
 
-  const generateQuiz = async () => {
+  const generateQuiz = async (context: string) => {
     setIsGenerating(true);
-    const context = getCourseBlockText();
-    console.log("CONTEXT", context)
     try {
-      showSnackbar(
-        <div className="flex flex-row items-start justify-start gap-2 overflow-hidden">
-          <p className="font-semibold  m-0">Génération en cours <span></span></p>
-          <CircularProgress size={24} />
-        </div>,
-        'info',
-        <AutoAwesomeIcon className="text-blue-500" />
-      )
       const quiz = await apiClient.generateQuiz(context);
       setQuestions(JSON.parse(quiz));
-      showSnackbar(
-        <div className="flex flex-col items-start justify-start gap-2">
-          <p className="font-semibold  m-0">Quiz généré avec succès </p>
-          <p className="text-sm m-0 text-gray-600">Pensez à vérifier l'exactitude <br /> des questions et des réponses</p>
-        </div>,
-        'info',
-        <AutoAwesomeIcon className="text-blue-500" />
-      )
     } catch (error) {
       showSnackbar(
         <div className="flex flex-col items-start justify-start gap-2">
@@ -185,7 +170,11 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
     } finally {
       setIsGenerating(false);
     }
+  }
 
+  const handleGenerateQuiz = (type: 'courseBlock' | 'fullChapter') => {
+    const context = type === 'courseBlock' ? getCourseBlockText() : getFullText();
+    generateQuiz(context);
   }
 
   const saveQuiz = () => {
@@ -206,24 +195,38 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
   return (
     <div className="flex h-full transition-[0.4s] w-full items-center justify-center bg-[#16161686]">
 
-      <div ref={ref} className="overflow-auto flex flex-col items-center gap-8 bg-[#f6f6f6] rounded-lg shadow-lg p-16 w-[80vw] h-[90vh] max-w-[800px] max-h-[90vh]">
+      <div ref={ref} className="overflow-auto flex flex-col items-center gap-8 bg-[#f6f6f6] rounded-lg shadow-lg p-16 w-[80vw] h-fit max-w-[800px] max-h-[90vh]">
         <p className="m-0 text-2xl font-bold text-center text-black">Quiz ({questions.length} question{questions.length > 1 ? 's' : ''})</p>
 
-        <Button
-          iconId="fr-icon-sparkling-2-line"
-          iconPosition="right"
-          className='bg-black'
-          disabled={isGenerating}
-          onClick={() => generateQuiz()}
-        >
-          {isGenerating ? <div className='flex gap-4'>
-            <CircularProgress sx={{ color: '#00000094' }} size={24} />
-            <p className="font-semibold  m-0">Génération en cours <span></span></p>
-          </div> :
-            "Générer un quiz automatique"
-          }
-        </Button>
-
+        <div className="flex gap-4">
+          {isGenerating ? (
+            <div className='flex gap-4'>
+              <CircularProgress sx={{ color: '#00000094' }} size={24} />
+              <p className="font-semibold m-0">Génération en cours</p>
+            </div>
+          ) : (
+            <>
+              <Button
+                iconId="fr-icon-sparkling-2-line"
+                iconPosition="right"
+                className='bg-black'
+                disabled={isGenerating}
+                onClick={() => handleGenerateQuiz('courseBlock')}
+              >
+                Générer un quiz sur le bloc
+              </Button>
+              <Button
+                iconId="fr-icon-sparkling-2-line"
+                iconPosition="right"
+                className='bg-black'
+                disabled={isGenerating}
+                onClick={() => handleGenerateQuiz('fullChapter')}
+              >
+                Générer un quiz sur le chapitre
+              </Button>
+            </>
+          )}
+        </div>
         <div className="flex flex-col md:flex-row items-start gap-2 mx-auto">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 w-4 h-4 mt-1"><path fillRule="evenodd" clipRule="evenodd" d="M12.9993 1.66666H2.99935C2.26297 1.66666 1.66602 2.26361 1.66602 2.99999V13C1.66602 13.7364 2.26297 14.3333 2.99935 14.3333H12.9993C13.7357 14.3333 14.3327 13.7364 14.3327 13V2.99999C14.3327 2.26361 13.7357 1.66666 12.9993 1.66666ZM8.66602 4.66666H7.33268V5.99999H8.66602V4.66666ZM8.66602 7.33332H7.33268V11.3333H8.66602V7.33332Z" fill="black" /></svg>
           <p className="m-0 text-xs text-left text-black">

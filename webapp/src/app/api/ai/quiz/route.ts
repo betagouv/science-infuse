@@ -30,8 +30,8 @@ en te basant sur le <context> propose un qcm avec 4 choix par questions sous la 
     },...
 ]
 \`\`\``
-            console.log("PROMPT", prompt)
             const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
+                // model: 'llama3.2:3b',
                 model: 'llama3.1:8b',
                 stream: false,
                 prompt: prompt
