@@ -543,7 +543,7 @@ const CourseInformations = (props: { editor: Editor }) => {
         <p className="flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
             SOMMAIRE
         </p>
-        <ChapterTableOfContents editor={props.editor} />
+        <ChapterTableOfContents content={props.editor.getJSON().content||[]} editor={props.editor} />
 
         {chapter && props.editor.isEditable && <>
             <p className="mt-8 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">

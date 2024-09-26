@@ -29,7 +29,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   // save editor on debounced content change
   const [debouncedEditor] = useDebounceValue(editor?.state.doc.content, 5000);
   useEffect(() => {
-    if (editor && debouncedEditor) {
+    if (editor) {
       const newContent = JSON.stringify(editor.getJSON())
       if (newContent != prevContent && prevContent != "") {
         editor.commands.saveChapter();
