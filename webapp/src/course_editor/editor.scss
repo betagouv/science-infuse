@@ -3,7 +3,6 @@
     font-size: 2.75rem;
   }
   .chapter-course-block {
-
     h1 {
       font-size: 2rem;
     }
@@ -16,14 +15,20 @@
   }
 }
 
-span[data-threadid] {
-  position: relative;
-  border-bottom: 3px solid green;
-  cursor: pointer;
-  background-color: rgba(0, 128, 0, 0.05);
-  transition: background-color 0.4s;
-  &:hover {
-    background-color: rgba(0, 128, 0, 0.2);
+#editor[data-editable="false"] {
+  
+}
+
+#editor[data-editable="true"] {
+  span[data-threadid] {
+    position: relative;
+    border-bottom: 3px solid green;
+    cursor: pointer;
+    background-color: rgba(0, 128, 0, 0.05);
+    transition: background-color 0.4s;
+    &:hover {
+      background-color: rgba(0, 128, 0, 0.2);
+    }
   }
 }
 
