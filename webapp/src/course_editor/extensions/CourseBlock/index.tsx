@@ -284,7 +284,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       {editor.isEditable && (
         <TextareaAutosize
           placeholder="Titre du bloc"
-          className="mt-8 text-[2.25rem] font-bold text-left text-[#ff8742] w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
+          className="mt-8 text-[2.25rem] font-bold text-left text-black w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
           value={node.attrs.title}
           onChange={(e) => {
             const newTitle = e.target.value;
@@ -295,7 +295,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         />
       )}
       {!editor.isEditable && (
-        <div className="mt-8 text-2xl font-bold text-left text-[#ff8742] w-full mb-8">
+        <div className="mt-8 text-[2.25rem] font-bold text-left text-black w-full mb-8">
           {node.attrs.title}
         </div>
       )}

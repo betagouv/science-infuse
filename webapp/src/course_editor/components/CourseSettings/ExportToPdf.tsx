@@ -28,7 +28,7 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     text-align: left;
-    color: #ff8742;
+    color: black;
     width: 100%;
     margin-bottom: 2rem;
     background-color: transparent;
