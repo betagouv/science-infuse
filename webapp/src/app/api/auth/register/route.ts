@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     console.log("USER REGISTER", body);
 
     if (!email || !password) {
-      return NextResponse.json({ error: "You need to provide email and password" }, { status: 400 })
+      return NextResponse.json({ error: "Vous devez fournir un email et un mot de passe." }, { status: 400 })
     }
 
     // Check if user already exists
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     })
 
     if (existingUser) {
-      return NextResponse.json({ error: "Email already exists" }, { status: 400 })
+      return NextResponse.json({ error: "Un compte est déjà associé à cet email." }, { status: 400 })
     }
 
     // Hash the password
@@ -51,9 +51,8 @@ export async function POST(req: Request) {
       }
     })
 
-    return NextResponse.json({ message: "User registered successfully" }, { status: 201 })
+    return NextResponse.json({ message: "Utilisateur enregistré avec succès." }, { status: 201 })
   } catch (error) {
-    console.error("Registration error:", error)
-    return NextResponse.json({ error: "An error occurred during registration" }, { status: 500 })
+    return NextResponse.json({ error: "Une erreur est survenue." }, { status: 500 })
   }
 }
