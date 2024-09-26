@@ -312,9 +312,9 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         <NodeViewContent className="content" />
 
         {/* quiz if available */}
-        <RenderBlockQuiz questions={quizQuestions} openQuizPopup={() => {
+        {quizQuestions.length > 0 && <RenderBlockQuiz editor={editor} questions={quizQuestions} openQuizPopup={() => {
           editor.commands.openQuizPopup(node);
-        }} />
+        }} />}
 
       </div>
       <hr className='mt-8' />
@@ -323,7 +323,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 }
 
 
-const RenderBlockQuiz = ({ questions, openQuizPopup }: { questions: Question[], openQuizPopup: () => void }) => {
+const RenderBlockQuiz = ({ editor, questions, openQuizPopup }: { editor: Editor, questions: Question[], openQuizPopup: () => void }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -338,11 +338,11 @@ const RenderBlockQuiz = ({ questions, openQuizPopup }: { questions: Question[], 
 
       <Collapse in={isExpanded}>
         <div className="my-4 p-4 bg-white rounded-b-lg shadow-md rounded-lg">
-          <div className="mb-4 text-center">
+          {editor.isEditable && <div className="mb-4 text-center">
             <p className="text-gray-600 italic">Ceci est un aperçu du quiz. Pour apporter des modifications, cliquez sur le bouton ci-dessous.</p>
+            <Button onClick={() => { setIsExpanded(false); openQuizPopup() }} className='bg-black'>Modifier le quiz</Button>
+          </div>}
 
-            <Button onClick={() => {setIsExpanded(false); openQuizPopup()}} className='bg-black'>Modifier le quiz</Button>
-          </div>
           <div className="cursor-not-allowed">
             <div className='pointer-events-none'>
               {questions.map((question, questionIndex) => (
