@@ -497,6 +497,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
     // const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
+    const blockContent = typeof props.block.content === 'string' ? JSON.parse(props.block.content) : props.block.content;
 
     return <StyledCardWithoutTitle
         background
@@ -505,8 +506,8 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
-                <p className="text-start text-4xl text-black">{props.block.title}</p>    
-                <RenderChapterBlockTOC content={props.block.content} />            
+                <p className="text-start text-4xl text-black">{props.block.title}</p>
+                <RenderChapterBlockTOC content={blockContent} />
             </div >
         }
         horizontal
