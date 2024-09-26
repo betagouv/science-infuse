@@ -41,7 +41,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
   // people might have created block (so created witha pi) but removed them by pressing delete key or x button,
   // in this case we do not remove them from db, since it would be hard to know if the block should be re-created, for example if the user do a ctrl+y (redo)
   // so we get all visible blockId in the current chapter's content, and only deal with chapter's blocks from db that do exist in this list.
-  const chapterBlockIds = JSON.parse((chapter.content as string)).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
+  const chapterBlockIds = (typeof chapter.content === 'string' ? JSON.parse(chapter.content) : chapter.content).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
