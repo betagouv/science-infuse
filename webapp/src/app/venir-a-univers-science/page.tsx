@@ -26,7 +26,8 @@ const NeedHelp = () => {
                         </div>
 
                         <div className="flex flex-col gap-4 items-center text-center p-24 w-full h-full max-w-3xl">
-                            <div className="flex-grow-0 mb-8 flex-shrink-0 w-60 h-44 overflow-hidden bg-[#f091ba]" />
+
+                            <img src="/images/cite-des-sciences.jpg" alt="Illustration cité des sciences" className="flex-grow-0 mb-8 flex-shrink-0 w-80 h-auto" />
 
                             <p className="text-5xl font-medium text-center text-[#1a1a1a]">
                                 La Cité des sciences et de l'industrie
@@ -68,7 +69,7 @@ const NeedHelp = () => {
                         </div>
 
                         <div className="flex flex-col gap-4 items-center text-center p-24 w-full h-full max-w-3xl">
-                            <div className="flex-grow-0 mb-8 flex-shrink-0 w-60 h-44 overflow-hidden bg-[#a243e3]" />
+                        <img src="/images/palais-decouverte.jpg" alt="Illustration palais de la découverte" className="flex-grow-0 mb-8 flex-shrink-0 w-80 h-auto" />
 
                             <p className="text-5xl font-medium text-center text-[#1a1a1a]">
                                 Etincelles du palais de la découverte
