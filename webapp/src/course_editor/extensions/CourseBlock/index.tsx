@@ -82,11 +82,39 @@ const CourseBlockNode = Node.create({
   // renderHTML({ HTMLAttributes }) {
   //   return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }), 0]
   // },
+  // renderHTML({ HTMLAttributes, node }) {
+  //   return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }),
+  //     ['h2', { class: 'course-block-title' }, node.attrs.title],
+  //     ['div', { class: 'course-block-content' }, 0]
+  //   ]
+  // },
   renderHTML({ HTMLAttributes, node }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: "chapter-course-block" }),
-      ['h2', { class: 'course-block-title' }, node.attrs.title],
-      ['div', { class: 'course-block-content' }, 0]
-    ]
+    const quizQuestions: Question[] = node.attrs.quizQuestions || [];
+    const quizContent = quizQuestions.length > 0 ? [
+      ['div', { class: 'course-block-quiz' },
+        ['h3', {}, 'Quiz'],
+        ...quizQuestions.map((question, index) => [
+          'div', { class: 'quiz-question' },
+          ['p', {}, `Question ${index + 1}: ${question.question}`],
+          ['ul', {},
+            ...question.options.map(option => [
+              'li', {},
+              ['label', {},
+                ['input', { type: 'checkbox', ...(option.correct==true?{checked: true}:{}), }],//disabled: true }],
+                ` ${option.answer}`
+              ]
+            ])
+          ]
+        ])
+      ]
+    ] : [];
+    console.log("QUIZQUESTIONS", quizQuestions, quizContent)
+
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: 'chapter-course-block' }),
+      ['h2', { class: 'course-block-title' }, node.attrs.title || ''],
+      ['div', { class: 'course-block-content' }, 0],
+      ...quizContent
+    ];
   },
   addCommands() {
     return {
