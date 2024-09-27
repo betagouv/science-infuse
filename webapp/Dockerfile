@@ -88,6 +88,10 @@ RUN chmod +x /entrypoint.sh
 # Change ownership of the app directory to appuser
 RUN chown -R appuser:appuser /app
 
+# Give appuser access to chromium
+RUN chown -R appuser:appuser /usr/bin/chromium && \
+    chmod +x /usr/bin/chromium
+
 # Switch to non-root user
 USER appuser
 
