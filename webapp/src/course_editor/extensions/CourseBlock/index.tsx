@@ -324,7 +324,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         />
       )}
       {!editor.isEditable && (
-        <div className="mt-8 text-[2.25rem] font-bold text-left text-black w-full mb-8">
+        <div className="mt-8 text-[2.25rem] leading-[2.5rem] font-bold text-left text-black w-full mb-8">
           {node.attrs.title}
         </div>
       )}
