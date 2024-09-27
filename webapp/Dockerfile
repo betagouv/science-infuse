@@ -90,7 +90,6 @@ RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
-RUN npx puppeteer browsers install
 
 EXPOSE 3000
 
