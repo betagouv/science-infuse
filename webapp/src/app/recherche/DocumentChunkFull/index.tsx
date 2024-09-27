@@ -544,7 +544,6 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
     // const chapterImageSrc = JSON.parse(chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const blockImageSrc = chapter.blocks.map((strBlock) => JSON.parse(strBlock.content as string).find((e: any) => e.type == "imageBlock")?.attrs?.src).find(i => i)
     const chapterContent = typeof props.chapter.content === 'string' ? JSON.parse(props.chapter.content) : props.chapter.content;
-    console.log("chapterContent", chapterContent, props.chapter.content)
     return <StyledCardWithoutTitle
         background
         enlargeLink
