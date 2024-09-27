@@ -1,5 +1,4 @@
-
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
@@ -8,21 +7,22 @@ import { fetchSIContent } from '@/app/recherche/fetchSIContent';
 import SearchBar from '@/components/search/SearchBar';
 import Tabs, { selectedTabType, TabType } from '@/app/recherche/Tabs';
 import { useOnClickOutside } from 'usehooks-ts'
-import { useEffect } from '@preact-signals/safe-react/react';
 import { ChunkResults, RenderSearchResult } from '@/app/recherche/RenderSearch';
 import { apiClient } from '@/lib/api-client';
 
 
 const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => void }) => {
   const [query, setQuery] = useState('');
-  const handleClosePopup = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  const handleClosePopup = useCallback(() => {
     if (!ref.current) return;
     if (!ref.current.parentElement) return;
     ref.current.parentElement.style.opacity = '0';
     setTimeout(() => {
       props.closePopup();
     }, 400)
-  }
+  }, [props]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,9 +67,11 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
         break;
 
       case isPdfTextChunk(chunk):
+        const url = `${WEBAPP_URL}/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`
+        const name = `${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`
         props.editor.chain()
-          .insertContentAt(props.pos, chunk.text)
-          .setTextSelection({ from: props.pos, to: props.pos + chunk.text.length })
+          .insertContentAt(props.pos, `<blockquote>${chunk.text}<br/><br/><a href="${url}" target="_blank">${name}</a></blockquote>`)
+          .setTextSelection({ from: props.pos, to: props.pos + chunk.text.length + name.length + 3 })
           .focus()
           .run();
         break;
@@ -114,6 +116,9 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
     fetchStarredItems();
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   console.log("selectedTabType.value", selectedTabType.value)
 
@@ -122,10 +127,11 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
       <div ref={ref} className="flex flex-col items-center gap-8 bg-[#f6f6f6] rounded-lg shadow-lg p-16 w-[80vw] h-[90vh] max-w-[1200px] max-h-[90vh]">
 
-        <SearchBar handleSearch={(_query) => {
-          console.log("query", _query)
-          setQuery(_query)
-        }} />
+        {isMounted && (
+          <SearchBar handleSearch={(_query) => {
+            setQuery(_query)
+          }} />
+        )}
         <Tabs favourites={starredItems} blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
 
         <div className="overflow-auto w-full">
@@ -153,5 +159,4 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
   );
 };
-
 export default ContentSearch;
