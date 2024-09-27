@@ -42,7 +42,7 @@ COPY tailwind.config.ts ./tailwind.config.ts
 COPY postcss.config.mjs ./postcss.config.mjs
 COPY .eslintrc.json ./.eslintrc.json
 
-RUN npx @puppeteer/browsers install chrome@stable
+RUN npx puppeteer browsers install chrome@stable
 
 ARG NEXT_PUBLIC_SERVER_URL
 ENV NEXT_PUBLIC_SERVER_URL $NEXT_PUBLIC_SERVER_URL
@@ -91,6 +91,10 @@ RUN chown -R appuser:appuser /app
 # Give appuser access to chromium
 RUN chown -R appuser:appuser /usr/bin/chromium && \
     chmod +x /usr/bin/chromium
+
+# Set Puppeteer cache directory and give appuser access
+ENV PUPPETEER_CACHE_DIR=/app/.cache/puppeteer
+RUN mkdir -p $PUPPETEER_CACHE_DIR && chown -R appuser:appuser $PUPPETEER_CACHE_DIR
 
 # Switch to non-root user
 USER appuser
