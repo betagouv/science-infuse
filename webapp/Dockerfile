@@ -33,7 +33,6 @@ COPY package-lock.json ./
 COPY .npmrc ./
 RUN npm install
 ENV PATH /app/node_modules/.bin:$PATH
-RUN npx puppeteer browsers install
 
 COPY tsconfig.json ./tsconfig.json
 COPY public ./public
@@ -90,6 +89,7 @@ RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
+RUN npx puppeteer browsers install
 
 EXPOSE 3000
 
