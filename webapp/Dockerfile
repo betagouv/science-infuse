@@ -33,6 +33,7 @@ COPY package-lock.json ./
 COPY .npmrc ./
 RUN npm install
 ENV PATH /app/node_modules/.bin:$PATH
+RUN npx puppeteer browsers install
 
 COPY tsconfig.json ./tsconfig.json
 COPY public ./public
@@ -42,7 +43,6 @@ COPY tailwind.config.ts ./tailwind.config.ts
 COPY postcss.config.mjs ./postcss.config.mjs
 COPY .eslintrc.json ./.eslintrc.json
 
-RUN npx @puppeteer/browsers install chrome@stable
 
 ARG NEXT_PUBLIC_SERVER_URL
 ENV NEXT_PUBLIC_SERVER_URL $NEXT_PUBLIC_SERVER_URL
@@ -90,6 +90,7 @@ RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
+RUN npx puppeteer browsers install
 
 EXPOSE 3000
 
