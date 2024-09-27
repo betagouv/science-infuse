@@ -3,7 +3,30 @@ import prisma from "@/lib/prisma"
 import { QueryRequest } from '@/lib/api-client';
 import { JSONContent } from '@tiptap/core';
 
-export async function updateBlock(title: string, content: JSONContent, textEmbedding: number[], userId: string, blockId: string) {
+export async function updateBlock(title: string, content: JSONContent, textEmbedding: number[], userId: string, blockId: string, chapterId: string) {
+  // if block does not exist (or has been deleted)
+  // create one
+  const block = await prisma.block.findUnique({
+    where: {
+      id: blockId,
+    },
+  });
+  if (!block) {
+    const block = await prisma.block.create({
+      data: {
+        id: blockId, 
+        title,
+        content,
+        chapter: {
+          connect: { id: chapterId }
+        },
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+  }
+
   const updatedBlock = await prisma.$queryRaw`
   UPDATE "Block"
   SET 
@@ -22,6 +45,7 @@ export async function searchBlocksWithChapter(embedding: number[]) {
   const startTime = performance.now();
   const data = await prisma.$queryRaw`
   SELECT
+    "Block".id,
     "Block".title,
     "Block".content,
     json_build_object(

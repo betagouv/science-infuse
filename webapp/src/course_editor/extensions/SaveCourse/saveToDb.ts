@@ -3,7 +3,7 @@ import { TSeverity } from '@/app/SnackBarProvider';
 import { apiClient } from '@/lib/api-client';
 import { EducationLevel, KeyIdea, Skill } from '@prisma/client';
 
-export const saveBlocks = async (editorContent: JSONContent) => {
+export const saveBlocks = async (chapterId: string, editorContent: JSONContent) => {
     const blocks = editorContent.content?.filter(element => element.type === "courseBlock")
     console.log("BLOCKS", blocks, editorContent)
     if (blocks && blocks.length > 0) {
@@ -16,7 +16,7 @@ export const saveBlocks = async (editorContent: JSONContent) => {
                 console.log("BLOCK TITLE", blockTitle, block.content);
 
                 try {
-                    const saved = await apiClient.updateBlock(blockId, blockTitle, block.content)
+                    const saved = await apiClient.updateBlock(chapterId, blockId, blockTitle, block.content)
                     if (!saved) {
                         return false;
                     }
@@ -45,7 +45,7 @@ export const handleSave = async (editor: Editor, chapterId: string, title: strin
     } catch (error) {
         saveChapterOk = false;
     }
-    const saveBlockOk = await saveBlocks(editor.getJSON())
+    const saveBlockOk = await saveBlocks(chapterId, editor.getJSON())
 
     if (!saveChapterOk) {
         return { message: "Erreur lors de la sauvegarde du chapitre", severity: "error" }

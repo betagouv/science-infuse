@@ -244,9 +244,10 @@ class ApiClient {
     return "";
   }
 
-  async updateBlock(blockId: string, title: string, content: any[]): Promise<boolean> {
+  async updateBlock(chapterId: string, blockId: string, title: string, content: any[]): Promise<boolean> {
     const response = await this.axiosInstance.put(`/course/chapters/blocks/${blockId}`, {
       title: title,
+      chapterId,
       content: JSON.stringify(content),
     })
     return response.data;
@@ -256,16 +257,6 @@ class ApiClient {
     const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, data);
     return response.data;
   }
-  // async updateChapter(chapterId: string, title: string, content: JSONContent | string, skills?: Skill[], educationLevels?: EducationLevel[]): Promise<boolean> {
-  //   const response = await this.axiosInstance.put(`/course/chapters/${chapterId}`, {
-  //     title: title,
-  //     content: JSON.stringify(content),
-  //     skills,
-  //     educationLevels
-  //   });
-  //   return response.data;
-  // }
-
   async getSkills(): Promise<Skill[]> {
     const response = await this.axiosInstance.get<Skill[]>(`/skills`);
     return response.data;

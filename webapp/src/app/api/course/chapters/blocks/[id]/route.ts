@@ -47,10 +47,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { title, content, keyIdeas } = await request.json();
+    const { title, content, chapterId, keyIdeas } = await request.json();
     const blockText = getTiptapNodeText({content: JSON.parse(content)}, 0);
     const embeddings = await getEmbeddings(blockText)
-    const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id)
+    const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id, chapterId)
 
     // const updatedBlock = await prisma.block.update({
     //   where: {

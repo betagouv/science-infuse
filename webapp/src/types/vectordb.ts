@@ -143,6 +143,7 @@ export interface ChapterFromBlockFull extends Chapter {
 
 
 export type BlockWithChapter = {
+  id: string,
   title: string,
   score: number,
   content: JSONContent[],
