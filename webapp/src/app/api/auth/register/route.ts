@@ -8,7 +8,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { email, password, firstName, lastName, school, academyId, schoolSubjects, educationLevels }: Partial<User & UserFull> = body;
-    console.log("USER REGISTER", body);
 
     if (!email || !password) {
       return NextResponse.json({ error: "Vous devez fournir un email et un mot de passe." }, { status: 400 })
