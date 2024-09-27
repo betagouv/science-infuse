@@ -7,6 +7,9 @@ const nextConfig = {
     swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
     // appDir: true,
   },
+  compiler: {
+    removeConsole: true,
+  },
   // output: 'standalone',
   env: {
     NEXT_PUBLIC_S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,

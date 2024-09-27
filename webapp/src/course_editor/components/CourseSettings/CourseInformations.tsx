@@ -34,17 +34,17 @@ const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: E
 
     const handleEducationLevelChange = async (level: EducationLevel, checked: boolean) => {
         try {
-            
+
             const updatedLevels = !checked
-            ? (props.chapter?.educationLevels || []).filter(e => e.id !== level.id)
-            : [...(props.chapter?.educationLevels || []), level];
-            
+                ? (props.chapter?.educationLevels || []).filter(e => e.id !== level.id)
+                : [...(props.chapter?.educationLevels || []), level];
+
             props.updateChapter({ educationLevels: updatedLevels })
         } catch (error) {
             console.error('Error updating chapter:', error);
         }
     };
-    
+
     if (!props.chapter || !props.chapter?.educationLevels) return <></>;
 
     return (
@@ -539,14 +539,14 @@ const CourseInformations = (props: { editor: Editor }) => {
         }
     };
 
-    return <StyledCourseInformation className="flex flex-col sticky top-4">
-        <p className="flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+    return <StyledCourseInformation className="flex flex-col">
+        <p className="mt-0 sticky top-0 z-[10] bg-white py-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
             SOMMAIRE
         </p>
-        <ChapterTableOfContents content={props.editor.getJSON().content||[]} editor={props.editor} />
+        <ChapterTableOfContents content={props.editor.getJSON().content || []} editor={props.editor} />
 
         {chapter && props.editor.isEditable && <>
-            <p className="mt-8 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+            <p className="mt-0 sticky top-0 z-[10] bg-white py-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
                 INFORMATIONS SUR LE CHAPITRE
             </p>
             <EducationLevelPicker
