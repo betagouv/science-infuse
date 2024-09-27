@@ -7,12 +7,12 @@ import { Editor, JSONContent } from '@tiptap/react';
 import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
 import CourseSettings from '@/course_editor/components/CourseSettings';
-
-
+import { useSearchParams } from 'next/navigation';
 
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
-
+  const searchParams = useSearchParams();
+  const blockId = searchParams.get('block');
 
   useEffect(() => {
     const fetchChapter = async () => {
@@ -23,13 +23,10 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
     fetchChapter();
   }, [params.id]);
 
-
-
   const { editor, getContent, getTitle, setContent } = useTiptapEditor({ preview: true })
 
-
   useEffect(() => {
-    if (editor && chapter) {
+    if (editor && chapter && blockId) {
       const content = chapter.content;
       console.log("EDITORRR", editor, content)
       document.title = chapter.title
@@ -39,8 +36,15 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       editor.storage.simetadata.coverPath = chapter.coverPath
       // editor.storage.content.comments = content.storage.comments;
       setContent(typeof content === 'string' ? JSON.parse(content) : content as JSONContent)
+
+      setTimeout(() => {
+        const blockNode = document.querySelector(`[data-id="${blockId}"]`)
+        if (blockNode) {
+          blockNode.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 400)
     }
-  }, [editor, chapter])
+  }, [editor, chapter, setContent, blockId])
 
   return (
     <div className="py-16">
@@ -51,7 +55,6 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       </div>
     </div>
   )
-
-
 }
+
 export default EditCourseChapter;

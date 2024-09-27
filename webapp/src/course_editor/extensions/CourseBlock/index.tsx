@@ -11,6 +11,7 @@ import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap
 import React, { useRef } from 'react';
 import { Question } from '../Quiz/QuizPopup';
 import ActionButtons from './ActionButtons';
+import { apiClient } from '@/lib/api-client';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -175,7 +176,7 @@ const CourseBlockNode = Node.create({
           if (dispatch) {
             dispatch(tr)
           }
-          // const newBlock = apiClient.deleteBlock(blockId);
+          apiClient.deleteBlock(blockId);
 
           return true
         }

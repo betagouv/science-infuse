@@ -498,7 +498,8 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
     // const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
     const blockContent = typeof props.block.content === 'string' ? JSON.parse(props.block.content) : props.block.content;
-
+    const link = `/prof/chapitres/${block.chapter.id}/view?block=${props.block.id}`
+    console.log("BLOCK CONTENT", blockContent)
     return <StyledCardWithoutTitle
         background
         border
@@ -506,7 +507,8 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
-                <p className="text-start text-4xl text-black">{props.block.title}</p>
+                <p className="text-start text-2xl text-black">{props.block.chapter.title}</p>
+                <p className="text-start text-xl text-black">{props.block.title}</p>
                 <RenderChapterBlockTOC content={blockContent} />
             </div >
         }
@@ -515,7 +517,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         imageUrl={props.block.chapter?.coverPath || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
-            <a href={`/prof/chapitres/${block.chapter.id}/view`} id="">
+            <a href={link} id="">
                 <div className="flex justify-start items-center gap-3 pt-2">
                     <div className="flex items-center gap-2">
                         <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -533,7 +535,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         </div>}
         titleAs="h3"
         linkProps={{
-            href: `/prof/chapitres/${block.chapter.id}/view`,
+            href: link,
             target: "_self"
         }}
     />
