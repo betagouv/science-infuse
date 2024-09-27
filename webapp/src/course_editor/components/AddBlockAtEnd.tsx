@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api-client"
 import { Editor } from "@tiptap/core"
+import { Plugin, TextSelection } from "prosemirror-state";
 
 export const addCourseBlockAtEnd = async (editor: Editor) => {
     const newBlock = await apiClient.createBlock({
@@ -11,17 +12,18 @@ export const addCourseBlockAtEnd = async (editor: Editor) => {
         if (dispatch) {
             const { doc } = tr
             const position = doc.content.size
-            tr.insert(position, editor.schema.nodes.courseBlock.create(
+            const courseBlock = editor.schema.nodes.courseBlock.create(
                 { id: newBlock.id },
-                editor.schema.nodes.paragraph.create(
-                    {},
-                    editor.schema.text('\n')
-                )
-            ))
+                editor.schema.nodes.paragraph.create()
+            )
+            tr.insert(position, courseBlock)
+            
+            // Set the selection to the end of the newly created paragraph
+            const newPosition = tr.doc.resolve(position + courseBlock.nodeSize - 1)
+            tr.setSelection(new TextSelection(newPosition))
         }
         return true
     }).run()
-
 }
 
 const AddBlockAtEnd = (props: { editor: Editor }) => {

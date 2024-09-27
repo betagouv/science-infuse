@@ -130,6 +130,8 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
             limit: 10000,
         }),
         Placeholder.configure({
+            // placeholder: 'My Custom Placeholder',
+
             placeholder: (props) => {
                 const { node, pos, editor } = props;
                 if (!editor.isEditable)
@@ -138,15 +140,17 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
                     if (pos === 0) {
                         return 'Donner un titre au chapitre';
                     }
-                    return 'Titre';
+                    if (node.attrs.level == 1) return 'Titre';
+                    if (node.attrs.level == 2) return 'Sous-titre 1';
+                    if (node.attrs.level == 3) return 'Sous-titre 2';
                 }
-                // if (node.type.name === 'introduction') {
-                //     return node.attrs['data-is-empty'] === 'true' ? 'placeholder for introduction' : '';
-                // }        
-                return "";
+                if (node.type.name == 'paragraph')
+                    return "Tapez « / » pour afficher les commandes…";
+                return ""
             },
-            showOnlyWhenEditable: false,
-            showOnlyCurrent: false,
+            showOnlyWhenEditable: true,
+            showOnlyCurrent: true,
+            includeChildren: true
         }),
     ]
 }

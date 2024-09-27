@@ -8,7 +8,7 @@ const nextConfig = {
     // appDir: true,
   },
   compiler: {
-    removeConsole: true,
+    removeConsole: process.env.NODE_ENV === 'development' ? false : true,
   },
   // output: 'standalone',
   env: {
