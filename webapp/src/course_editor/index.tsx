@@ -58,7 +58,7 @@ export const useTiptapEditor = (params: { preview?: boolean }) => {
 
 
 
-export const TiptapEditor = (props: { editor: Editor }) => {
+export const TiptapEditor = (props: { chapterId?: string, editor: Editor }) => {
 
   const { editor } = props;
   const menuContainerRef = useRef(null)
@@ -102,7 +102,7 @@ export const TiptapEditor = (props: { editor: Editor }) => {
         <div className="flex flex-row gap-0 max-w-full w-full">
 
           <div className="relative p-4 md:p-16">
-            <CourseSettings editor={editor} />
+            <CourseSettings chapterId={props.chapterId} editor={editor} />
           </div>
 
           <StyledEditor id="editor" data-editable={editor.isEditable} className={`relative w-full sm:mb-[calc(20vh)] p-4 md:p-16`} style={{ padding: !editor.isEditable ? "0" : '', }}>

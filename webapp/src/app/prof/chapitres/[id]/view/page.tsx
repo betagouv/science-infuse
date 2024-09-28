@@ -2,11 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
-import { Chapter } from '@prisma/client';
-import { Editor, JSONContent } from '@tiptap/react';
-import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
+import { JSONContent } from '@tiptap/react';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
-import CourseSettings from '@/course_editor/components/CourseSettings';
 
 
 
@@ -56,7 +53,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
     <div className="py-16">
       <div className='w-full fr-grid-row fr-grid-row--center'>
         <div className="fr-col-12 fr-container main-content-item">
-          {editor && <TiptapEditor editor={editor} />}
+          {editor && <TiptapEditor chapterId={chapter?.id} editor={editor} />}
         </div>
       </div>
     </div>

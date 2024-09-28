@@ -11,6 +11,10 @@ export async function updateBlock(title: string, content: JSONContent, textEmbed
       id: blockId,
     },
   });
+  console.log("BLOCKUSERID/USERID", block?.userId, userId)
+  if (block && block?.userId != userId) {
+    throw new Error("User does not have permission to update this block")
+  }
   if (!block) {
     const block = await prisma.block.create({
       data: {

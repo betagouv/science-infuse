@@ -38,6 +38,11 @@ export default async function ProfDashboard() {
             where: { id: chapterId },
         });
         if (chapter && chapter.userId === session.user.id) {
+            // Delete all blocks associated with the chapter
+            await prisma.block.deleteMany({
+                where: { chapterId: chapterId },
+            });
+            // Now delete the chapter
             await prisma.chapter.delete({
                 where: { id: chapterId },
             });
@@ -49,7 +54,6 @@ export default async function ProfDashboard() {
 
 
     const chapters = await getChaptersWithBlocks(session.user.id);
-    console.log("CHAPTERS", chapters.map(c => JSON.stringify(c.blocks)))
     const blocks = await prisma.block.findMany({
         where: {
             userId: session.user.id,

@@ -48,10 +48,16 @@ export async function PUT(
     }
 
     const { title, content, chapterId, keyIdeas } = await request.json();
-    const blockText = getTiptapNodeText({content: JSON.parse(content)}, 0);
+    const blockText = getTiptapNodeText({ content: JSON.parse(content) }, 0);
     const embeddings = await getEmbeddings(blockText)
-    const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id, chapterId)
-
+    try {
+      const updatedBlock = await updateBlock(title, content, embeddings, session.user.id, params.id, chapterId)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return NextResponse.json({ error: error.message }, { status: 403 })
+      }
+      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 403 })
+    }
     // const updatedBlock = await prisma.block.update({
     //   where: {
     //     id: params.id,
@@ -73,7 +79,6 @@ export async function PUT(
     return NextResponse.json({ error: 'Failed to update block' }, { status: 500 });
   }
 }
-
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }

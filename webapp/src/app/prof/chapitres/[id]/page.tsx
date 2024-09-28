@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
-import { Chapter } from '@prisma/client';
-import { Editor, JSONContent } from '@tiptap/react';
-import { TSeverity, useSnackbar } from '@/app/SnackBarProvider';
+import { JSONContent } from '@tiptap/react';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -70,7 +68,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      {editor && <TiptapEditor editor={editor} />}
+      {editor && <TiptapEditor chapterId={chapter?.id} editor={editor} />}
     </>
   )
 

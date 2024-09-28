@@ -92,7 +92,8 @@ const ExportToPdf = (props: { editor: Editor }) => {
         <Button
             iconId="fr-icon-download-fill"
             iconPosition="right"
-            className='bg-black w-full flex justify-center h-fit' onClick={() => {
+            className='bg-black w-full flex justify-center h-fit' 
+            onClick={() => {
                 const htmlContent = buildHtml(props.editor.getHTML());
 
                 // Copy htmlContent to clipboard

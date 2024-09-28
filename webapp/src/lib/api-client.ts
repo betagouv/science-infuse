@@ -125,6 +125,11 @@ class ApiClient {
     return response.data;
   }
 
+  async duplicateChapter(chapterId: string): Promise<ChapterWithoutBlocks> {
+    const response = await this.axiosInstance.get<ChapterWithoutBlocks>(`/course/chapters/${chapterId}/duplicate`);
+    return response.data;
+  }
+
   async createBlock(data: CreateBlockRequest): Promise<Block> {
     const response = await this.axiosInstance.post<Block>('/course/chapters/blocks', data);
     return response.data;
