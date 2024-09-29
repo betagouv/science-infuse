@@ -4,6 +4,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
 import { ChapterWithoutBlocks } from '@/lib/api-client';
 import { ChapterStatus } from '@prisma/client';
+import { JSONContent } from '@tiptap/core';
+import { getTiptapNodeText } from '../blocks/[id]/getTiptapNodeText';
+import { Question } from '@/course_editor/extensions/Quiz/QuizPopup';
+import { updateBlock } from '@/app/api/search/sql_raw_queries';
+import { getEmbeddings } from '@/lib/utils/getEmbeddings';
 
 export async function GET(
   request: Request,
@@ -44,6 +49,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const chapterId = params.id;
 
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -53,6 +59,27 @@ export async function PUT(
       return NextResponse.json({ error: 'Nothing to update' }, { status: 404 });
     }
     const { status, title, content, skills, educationLevels, themeId, schoolSubjectId, skillsAndKeyIdeas, additionalInformations, coverPath } = data;
+
+    // blocks
+    if (content) {
+      const blocks = ((content as JSONContent).content || [])
+        .filter(block => block.type == 'courseBlock')
+
+      await Promise.all(blocks.map(async block => {
+        if (!block.content || !block.attrs?.id) return;
+        const blockTitle = block.attrs?.title;
+        const blockTextContent = getTiptapNodeText({ content: block.content }, 0);
+        const blockQuizQuestions = (block.attrs?.quizQuestions || []) as Question[];
+        const blockQuizText = blockQuizQuestions.map(q => `${q.question}\n${q.options.filter(o => o.correct).map(o => o.answer).join('\n')}`).join('\n')
+        const blockText = `${title}\n${blockTitle}\n${blockTextContent}\n${blockQuizText}`;
+        const blockTextEmbeddings = await getEmbeddings(blockText);
+        // const content =  [{"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Exemple de mise en situation", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Il existe de", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(55, 53, 47)", "fontSize": "", "fontFamily": ""}}]}, {"text": " ", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(193, 76, 138)", "fontSize": "", "fontFamily": ""}}]}, {"text": "multiples expressions quand on parle du monde microbien: on parle de microbes, de microorganismes, de bactéries, de virus ou de façon plus ancienne, de germes. Ces mots sont parfois utilisés dans les journaux ou dans les conversations courantes de manière équivalente alors que pourtant, ils peuvent désigner des êtres vivants très différents les uns des autres. Cette ambiguïté met en évidence la difficulté de s’emparer intellectuellement d’un monde qui est invisible à l’oeil nu.", "type": "text"}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Définition", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Le mot microbe forgé à partir du grec ancien μικρός , mikrós (« petit ») et βίος , bíos (« vie ») désigne l’ensemble des êtres vivants invisibles à l’oeil nu, on peut également utiliser le mot microorganisme (ou micro-organisme).", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Problème", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#e74c3c", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Comment distinguer les microbes les uns des autres ?", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(212, 76, 71)", "fontSize": "", "fontFamily": ""}}]}]}]
+
+        console.log("CONTENT", typeof block.content, block.content);
+        await updateBlock(blockTitle, block.content, blockTextEmbeddings, session.user.id, block.attrs.id, chapterId);
+      }));
+    }
+
 
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
@@ -76,7 +103,7 @@ export async function PUT(
 
     const updatedChapter = await prisma.chapter.update({
       where: {
-        id: params.id,
+        id: chapterId,
         userId: session.user.id,
       },
       data: updateData,
