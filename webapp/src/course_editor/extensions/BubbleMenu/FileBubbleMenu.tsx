@@ -197,8 +197,10 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const s3ObjectName = selectedNodeAttrs?.s3ObjectName;
   const fileTypes = selectedNodeAttrs?.fileTypes;
   const shared = selectedNodeAttrs?.shared;
+  const userFile = selectedNodeAttrs?.userFile;
   const nodeName = editor?.state?.selection?.node?.type?.name;
 
+  console.log("selectedNodeAttrs", selectedNodeAttrs)
 
   const getReferenceClientRect = useCallback(() => {
     const renderContainer = getRenderContainer(editor, 'node-imageBlock')
@@ -237,7 +239,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
 
           {/* source */}
-          {!!s3ObjectName && <FileSourceOption onSubmit={(newSource: string) => {
+          {!!s3ObjectName || userFile && <FileSourceOption onSubmit={(newSource: string) => {
             editor.chain().focus(undefined, { scrollIntoView: false }).setFileSource(newSource).run()
           }} editor={editor} />
           }

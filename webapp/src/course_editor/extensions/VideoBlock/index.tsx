@@ -120,6 +120,26 @@ export default Node.create({
     ]
   },
 
+  renderHTML({ HTMLAttributes, node }) {
+    console.log("NODE ATTRS", node.attrs)
+    const s3ObjectName = node.attrs.chunk?.document?.s3ObjectName || node.attrs.userFile.s3ObjectName;
+    const videoTitle = node.attrs.chunk?.document?.mediaName  || "Vidéo"; // Assuming there's a title attribute, otherwise use "Video" as default
+    const downloadLink = s3ToPublicUrl(s3ObjectName);
+    let youtubeUrl = "";
+    if (node.attrs.chunk) {
+      let originalPath = node.attrs.chunk.document.originalPath;
+      if (originalPath.includes("youtube")) {
+        youtubeUrl = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(node.attrs.chunk.metadata.start)}`
+      }
+    }
+
+    return ['div', { class: 'block-video', ...HTMLAttributes },
+      ['p', {}, videoTitle],
+      ['video', { src: downloadLink }, ""],
+      !youtubeUrl ? [] : ['a', { href: youtubeUrl, target: '_blank', rel: 'noopener noreferrer' }, "Regarder sur YouTube"],
+      ['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger la vidéo"]
+    ];
+  },
   addCommands() {
     return {
       setVideoFromFile:
@@ -161,9 +181,6 @@ export default Node.create({
     }
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ['si-video', mergeAttributes(HTMLAttributes)]
-  },
 
   addNodeView() {
     return ReactNodeViewRenderer(VideoNode)

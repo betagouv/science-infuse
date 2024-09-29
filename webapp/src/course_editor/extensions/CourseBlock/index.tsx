@@ -93,7 +93,7 @@ const CourseBlockNode = Node.create({
     const quizQuestions: Question[] = node.attrs.quizQuestions || [];
     const quizContent = quizQuestions.length > 0 ? [
       ['div', { class: 'course-block-quiz' },
-        ['h3', {}, 'Quiz'],
+        // ['h3', {}, 'Quiz'],
         ...quizQuestions.map((question, index) => [
           'div', { class: 'quiz-question' },
           ['p', {}, `Question ${index + 1}: ${question.question}`],
@@ -101,7 +101,7 @@ const CourseBlockNode = Node.create({
             ...question.options.map(option => [
               'li', {},
               ['label', {},
-                ['input', { type: 'checkbox', ...(option.correct==true?{checked: true}:{}), }],//disabled: true }],
+                ['input', { type: 'checkbox', ...(option.correct == true ? { checked: true } : {}), }],//disabled: true }],
                 ` ${option.answer}`
               ]
             ])

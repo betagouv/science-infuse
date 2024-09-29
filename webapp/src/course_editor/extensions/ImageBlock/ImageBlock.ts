@@ -288,9 +288,9 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
             console.log("s3ObjectNames3ObjectNames3ObjectNames3ObjectName", s3ObjectName)
             if (userFile) {
               apiClient.updateFile(userFile.id, {author: source}).then(() => {
-                this.options.showSnackbar("Statut de partage mis à jour avec succès", "success");
+                this.options.showSnackbar("Source mise à jour avec succès", "success");
               }).catch(() => {
-                this.options.showSnackbar("Échec de la mise à jour du statut de partage", "error");
+                this.options.showSnackbar("Échec de la mise à jour de la source", "error");
               })
             }
             return true
