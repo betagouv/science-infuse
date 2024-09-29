@@ -2,6 +2,7 @@ import CourseBlockNode from '@/course_editor/extensions/CourseBlock';
 import { Editor, JSONContent } from '@tiptap/react';
 import { addCourseBlockAtEnd } from '../AddBlockAtEnd';
 import { Badge } from '@codegouvfr/react-dsfr/Badge';
+import { ChevronRight } from 'lucide-react';
 export const RenderChapterTOC = (props: { content: JSONContent[], onTitleClicked?: (blockId: string) => void }) => {
     const { content } = props;
     let blocks: { title: string; id: string }[] = [];
@@ -41,30 +42,23 @@ export const RenderChapterBlockTOC = (props: { content: JSONContent[] }) => {
             });
     }
 
-    const fonts = {
-        1: '1.5rem',
-        2: '1.25rem',
-        3: '1rem',
-        4: '0.875rem',
-        5: '0.75rem',
-        6: '0.75rem',
-    }
 
     return (
         <div className="flex flex-col gap-3">
             <ul className="list-none p-0">
-                {blocks.map((block, index) => (
+                {blocks
+                .filter(b => b.level <= 3)
+                .map((block, index) => (
                     <li
                         key={`${block.title}-${index}`}
+                        className='flex items-center max-w-full'
                         style={{
                             marginLeft: `${(block.level - 1) * 20}px`,
                             marginTop: block.level === 1 ? '12px' : '4px'
                         }}
                     >
-                        <p
-                            style={{ fontSize: fonts[block.level as keyof typeof fonts] }}
-                            className="m-0 text-left text-[#161616] font-medium cursor-pointer hover:text-blue-600 transition-colors duration-200"
-                        >
+                        <ChevronRight size={16} color='#FF8742'/>
+                        <p className="m-0 block overflow-hidden overflow-ellipsis whitespace-nowrap text-left text-gray-500 font-light cursor-pointer">
                             {block.title}
                         </p>
                     </li>
