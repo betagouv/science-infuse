@@ -1,5 +1,5 @@
 import { WEBAPP_URL } from "@/config";
-import { Chapter, EducationLevel, Skill, User } from "@prisma/client";
+import { Chapter, EducationLevel, Skill, Theme, User } from "@prisma/client";
 import { JSONContent } from "@tiptap/core";
 
 //  this should match schema.py
@@ -139,6 +139,7 @@ export interface DocumentSearchResults {
 export interface ChapterFromBlockFull extends Chapter {
   educationLevels: EducationLevel[],
   skills: Skill[],
+  theme?: Theme,
 }
 
 

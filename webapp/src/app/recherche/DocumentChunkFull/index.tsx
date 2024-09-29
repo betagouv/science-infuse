@@ -505,8 +505,17 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         border
         enlargeLink
         badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
+        start={
+            block.chapter.theme ? <ul className="fr-badges-group pt-4 w-full">
+                <li className="w-full overflow-hidden">
+                    <Badge className="bg-[#f5ece9] text-[#ff8742] whitespace-nowrap overflow-hidden text-ellipsis max-w-full inline-block">
+                        {props.block.chapter?.theme?.title || ""}
+                    </Badge>
+                </li>
+            </ul> : undefined
+        }
         desc={
-            <div className="relative pt-4" >
+            < div className="relative" >
                 <p className="text-start text-2xl text-black">{props.block.chapter.title}</p>
                 <p className="text-start text-xl text-black">{props.block.title}</p>
                 <RenderChapterBlockTOC content={blockContent} />
@@ -517,7 +526,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         imageUrl={props.block.chapter?.coverPath || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
-            <a href={link} id="">
+            < a href={link} id="" >
                 <div className="flex justify-start items-center gap-3 pt-2">
                     <div className="flex items-center gap-2">
                         <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -526,13 +535,13 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
                         <p className="m-0 text-xs text-[#ff8742]">Détail</p>
                     </div>
                 </div>
-            </a>
+            </a >
         }
         size="small"
-        title={<div className="flex flex-col gap-2 w-full text-left">
+        title={< div className="flex flex-col gap-2 w-full text-left" >
             <p className="m-0 font-bold text-xl text-[#161616]">{block.chapter.title}</p>
             <p className="m-0 font-bold text-[#161616]">{block.title}</p>
-        </div>}
+        </div >}
         titleAs="h3"
         linkProps={{
             href: link,

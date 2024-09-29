@@ -17,15 +17,19 @@ export const RenderChapterTOC = (props: { content: JSONContent[], onTitleClicked
             });
     }
 
-    return blocks.map((block) => (
-        <p
-            key={block.id}
-            className="m-0 flex-grow text-xl text-left text-[#161616] font-medium cursor-pointer"
-            onClick={() => props.onTitleClicked && props.onTitleClicked(block.id)}
-        >
-            {block.title}
-        </p>
-    ));
+    return (
+        <ul>
+            {blocks.map((block) => <li key={block.id}>
+                <p
+                    className="m-0 flex-grow text-xl text-left text-[#161616] font-medium cursor-pointer"
+                    onClick={() => props.onTitleClicked && props.onTitleClicked(block.id)}
+                >
+                    {block.title}
+                </p>
+            </li>
+            )}
+        </ul>
+    );
 }
 
 export const RenderChapterBlockTOC = (props: { content: JSONContent[] }) => {
@@ -47,22 +51,22 @@ export const RenderChapterBlockTOC = (props: { content: JSONContent[] }) => {
         <div className="flex flex-col gap-3">
             <ul className="list-none p-0">
                 {blocks
-                .filter(b => b.level <= 3)
-                .map((block, index) => (
-                    <li
-                        key={`${block.title}-${index}`}
-                        className='flex items-center max-w-full'
-                        style={{
-                            marginLeft: `${(block.level - 1) * 20}px`,
-                            marginTop: block.level === 1 ? '12px' : '4px'
-                        }}
-                    >
-                        <ChevronRight size={16} color='#FF8742'/>
-                        <p className="m-0 block overflow-hidden overflow-ellipsis whitespace-nowrap text-left text-gray-500 font-light cursor-pointer">
-                            {block.title}
-                        </p>
-                    </li>
-                ))}
+                    .filter(b => b.level <= 3)
+                    .map((block, index) => (
+                        <li
+                            key={`${block.title}-${index}`}
+                            className='flex items-center max-w-full'
+                            style={{
+                                marginLeft: `${(block.level - 1) * 20}px`,
+                                marginTop: block.level === 1 ? '12px' : '4px'
+                            }}
+                        >
+                            <ChevronRight size={16} color='#FF8742' />
+                            <p className="m-0 block overflow-hidden overflow-ellipsis whitespace-nowrap text-left text-gray-500 font-light cursor-pointer">
+                                {block.title}
+                            </p>
+                        </li>
+                    ))}
             </ul>
         </div>
     );
