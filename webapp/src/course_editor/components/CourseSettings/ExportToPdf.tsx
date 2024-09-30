@@ -12,7 +12,12 @@ body {
   font-family: "Marianne", arial, sans-serif;
 }
 
+/* files */
+
+.block-image, 
 .block-video {
+  box-sizing: border-box;
+  width: 100%;
   margin: 2rem 0;
   padding: 1.5rem;
   background-color: #ffffff;
@@ -21,16 +26,21 @@ body {
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+.block-image a,
 .block-video a {
   display: block;
   margin-top: 1rem;
 }
 
+.block-image p {
+  font-size: 1rem;
+}
 .block-video p {
   margin: 0;
   font-size: 1.5rem;
 }
 
+.block-image img,
 .block-video video {
   width: 100%;
 }
@@ -51,6 +61,7 @@ body {
   width: 100%;
   margin-bottom: 2rem;
 }
+
 
 /* quiz */
 .course-block-quiz {
@@ -98,7 +109,7 @@ body {
 `
 
 const buildHtml = (content: string) => {
-    return `
+  return `
 <html lang="fr">
     <head>
         <meta charset="UTF-8" />
@@ -118,48 +129,48 @@ const ExportToPdf = (props: { editor: Editor }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleExport = async () => {
-      setIsLoading(true);
-      const htmlContent = buildHtml(props.editor.getHTML());
+    setIsLoading(true);
+    const htmlContent = buildHtml(props.editor.getHTML());
 
-      try {
-          await navigator.clipboard.writeText(htmlContent);
-          console.log('HTML content copied to clipboard');
+    try {
+      await navigator.clipboard.writeText(htmlContent);
+      console.log('HTML content copied to clipboard');
 
-          const response = await fetch('/api/export/pdf', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ html: htmlContent }),
-          });
-
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = 'exported_document.pdf';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-      } catch (error) {
-          console.error('Error:', error);
-      } finally {
-          setIsLoading(false);
-      }
+      const response = await fetch('/api/export/pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ html: htmlContent }),
+      });
+      const title = props.editor?.state.doc.firstChild?.textContent || "document sans titre"
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${title}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-      <Button
-          iconId="fr-icon-download-fill"
-          iconPosition="right"
-          className='bg-black w-full flex justify-center h-fit items-center'
-          onClick={handleExport}
-          disabled={isLoading}
-      >
-          {isLoading && <CircularProgress className="mr-2" size={16} />}
-          {isLoading ? "Téléchargement en cours" : "Télécharger en PDF"}
-      </Button>
+    <Button
+      iconId="fr-icon-download-fill"
+      iconPosition="right"
+      className='bg-black w-full flex justify-center h-fit items-center'
+      onClick={handleExport}
+      disabled={isLoading}
+    >
+      {isLoading && <CircularProgress className="mr-2" size={16} />}
+      {isLoading ? "Téléchargement en cours" : "Télécharger en PDF"}
+    </Button>
   );
 };
 

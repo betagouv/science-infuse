@@ -239,7 +239,7 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
 
           {/* source */}
-          {!!s3ObjectName || userFile && <FileSourceOption onSubmit={(newSource: string) => {
+          {[ImageBlock.name, VideoSearch.name, PdfBlock.name].includes(nodeName) && <FileSourceOption key={selectedNodeAttrs.src} onSubmit={(newSource: string) => {
             editor.chain().focus(undefined, { scrollIntoView: false }).setFileSource(newSource).run()
           }} editor={editor} />
           }

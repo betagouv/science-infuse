@@ -144,32 +144,49 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
     ]
   },
 
-  renderHTML({ HTMLAttributes }) {
-    let styleString = '';
-    const width = HTMLAttributes?.['data-width']
-    const align = HTMLAttributes?.['data-align']
-
+  renderHTML({ HTMLAttributes, node }) {
+    console.log("RENDER IMAGE", node.attrs);
+    let containerStyle = 'display: flex;';
+    let imageStyle = '';
+    const width = HTMLAttributes?.['data-width'];
+    const align = HTMLAttributes?.['data-align'];
+    const fileSource = node.attrs?.fileSource || "";
+    const downloadLink = node.attrs?.src;
+  
     if (width) {
-      styleString += `width: ${width};`;
+      imageStyle += `width: ${width};`;
     }
-
+  
     if (align) {
-      styleString += 'display: block;';
-      styleString += `margin-left: ${align === 'left' ? '0' : align === 'center' ? 'auto' : 'none'};`;
-      styleString += `margin-right: ${align === 'right' ? '0' : align === 'center' ? 'auto' : 'none'};`;
-      if (align === 'left' || align === 'right') {
-        styleString += `float: ${align};`;
+      switch(align) {
+        case 'left':
+          imageStyle += 'align-self: flex-start;';
+          break;
+        case 'center':
+          imageStyle += 'align-self: center;';
+          break;
+        case 'right':
+          imageStyle += 'align-self: flex-end;';
+          break;
       }
     }
-    console.log("STYLEEE", styleString, "||", HTMLAttributes)
-
-    const attributes = {
+  
+    console.log("CONTAINER STYLE", containerStyle);
+    console.log("IMAGE STYLE", imageStyle);
+  
+    const imageAttributes = {
       ...this.options.HTMLAttributes,
       ...HTMLAttributes,
-      style: styleString,
+      style: imageStyle,
     };
-
-    return ['img', mergeAttributes(attributes)]
+  
+    return ['div', { class: 'block-image', style: containerStyle },
+      ['div', { style: 'display: flex; flex-direction: column;' },
+        ['img', mergeAttributes(imageAttributes)],
+        downloadLink && ['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger l'image"],
+        fileSource && ['p', { class: "file-source" }, `Source : ${fileSource}`],
+      ]
+    ];
   },
   addCommands() {
     return {
@@ -287,7 +304,7 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
             const userFile = editor.getAttributes(selectedNodeType)?.userFile;
             console.log("s3ObjectNames3ObjectNames3ObjectNames3ObjectName", s3ObjectName)
             if (userFile) {
-              apiClient.updateFile(userFile.id, {author: source}).then(() => {
+              apiClient.updateFile(userFile.id, { author: source }).then(() => {
                 this.options.showSnackbar("Source mise à jour avec succès", "success");
               }).catch(() => {
                 this.options.showSnackbar("Échec de la mise à jour de la source", "error");
