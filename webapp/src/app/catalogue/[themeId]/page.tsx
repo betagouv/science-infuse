@@ -12,7 +12,8 @@ interface ServerCatalogueProps {
 async function getChaptersFiltersAndTheme(themeId: string) {
     const chapters: ChapterWithBlock[] = await prisma.chapter.findMany({
         where: {
-            themeId: themeId
+            themeId: themeId,
+            status: "REVIEW"
         },
         include: {
             skills: true,
