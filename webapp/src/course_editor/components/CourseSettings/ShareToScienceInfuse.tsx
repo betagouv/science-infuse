@@ -3,12 +3,12 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { ChapterStatus } from '@prisma/client';
 import { Editor } from '@tiptap/react';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Tooltip } from '@mui/material';
 
 const ShareToScienceInfuse = (props: { editor: Editor }) => {
     const [chapterStatus, setChapterStatus] = useState<ChapterStatus>(props.editor.storage.simetadata.chapterStatus);
     const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("");
 
     useEffect(() => {
         const fetchChapter = async () => {
@@ -25,29 +25,42 @@ const ShareToScienceInfuse = (props: { editor: Editor }) => {
 
         fetchChapter();
     }, [props.editor.storage.simetadata.chapterId]);
-
-
+    console.log("chapterStatus", chapterStatus)
+    if (!chapterStatus) return;
     return (
-        <Button
-            iconId="fr-icon-group-fill"
-            iconPosition="right"
-            className='bg-black w-full flex justify-center h-fit'
-            disabled={chapterStatus == ChapterStatus.REVIEW || isLoading}
-            onClick={async () => {
-                try {
-                    setIsLoading(true);
-                    await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, { status: ChapterStatus.REVIEW });
-                    setTimeout(() => {
-                        setChapterStatus(ChapterStatus.REVIEW);
-                        setIsLoading(false);
-                    }, 2000);
-                } catch (error) {
-                    setIsLoading(false);
-                }
-            }}>
+        <Tooltip title={chapterStatus === ChapterStatus.REVIEW && <span>Votre cours est en attente de revue.<br />Cliquez pour annuler la demande.</span>}>
+            <Button
+                iconId="fr-icon-group-fill"
+                iconPosition="right"
+                className='w-full flex justify-center h-fit'
+                style={{
+                    background: "white",
+                    color: "black",
+                }}
+                disabled={!!loadingMessage}
+                priority="secondary"
+                // priority={!loadingMessage || chapterStatus == ChapterStatus.REVIEW ? "secondary" : "primary"}
+                onClick={async () => {
+                    try {
+                        const expectedStatus = chapterStatus == ChapterStatus.REVIEW ? ChapterStatus.DRAFT : ChapterStatus.REVIEW;
+                        expectedStatus == ChapterStatus.REVIEW && setLoadingMessage("Envoie de la demande");
+                        expectedStatus == ChapterStatus.DRAFT && setLoadingMessage("Annulation de la demande");
+                        console.log("expectedStatus", expectedStatus)
+                        await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, { status: expectedStatus });
+                        setTimeout(() => {
+                            setChapterStatus(expectedStatus);
+                            setLoadingMessage("");
+                        }, 1000);
+                    } catch (error) {
+                        setLoadingMessage("");
+                    }
+                }}>
 
-            {chapterStatus == ChapterStatus.REVIEW ? "Demande envoyée" : isLoading ? <>Mise à jour  <CircularProgress className='ml-2' size={16} sx={{ color: 'black' }} /></> : "Partager à Science Infuse"}
-        </Button>
+                {loadingMessage && <>{loadingMessage}  <CircularProgress className='ml-2' size={16} sx={{ color: 'black' }} /></>}
+                {!loadingMessage && chapterStatus == ChapterStatus.DRAFT && "Partager à Science Infuse"}
+                {!loadingMessage && chapterStatus == ChapterStatus.REVIEW && "Demande envoyée"}
+            </Button>
+        </Tooltip >
     )
 }
 
