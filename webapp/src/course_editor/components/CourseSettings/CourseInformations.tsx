@@ -540,7 +540,7 @@ const CourseInformations = (props: { editor: Editor }) => {
     };
 
     return <StyledCourseInformation className="flex flex-col">
-        <p className="mt-0 sticky top-0 z-[10] bg-white py-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
+        <p className="mt-0 sticky top-0 z-[10] bg-white pt-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
             SOMMAIRE
         </p>
         <ChapterTableOfContents content={props.editor.getJSON().content || []} editor={props.editor} />

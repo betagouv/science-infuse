@@ -18,10 +18,13 @@ export const RenderChapterTOC = (props: { content: JSONContent[], onTitleClicked
     }
 
     return (
-        <ul>
+        <ul className='list-none p-0 m-0'>
             {blocks.map((block) => <li key={block.id}>
                 <p
-                    className="m-0 flex-grow text-xl text-left text-[#161616] font-medium cursor-pointer"
+                    className="m-0 flex-grow text-lg text-left text-[#161616] font-medium"
+                    style={{
+                        cursor: props.onTitleClicked ? "pointer" : "default"
+                    }}
                     onClick={() => props.onTitleClicked && props.onTitleClicked(block.id)}
                 >
                     {block.title}

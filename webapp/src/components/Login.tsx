@@ -158,7 +158,7 @@ const Login = () => {
                     <button onClick={handleCloseModal} className="absolute top-6 right-6 flex-grow-0 flex-shrink-0 text-sm font-medium text-center text-[#000091]">Fermer</button>
 
                     <div className="max-h-[80vh] w-[600px] max-w-full  overflow-y-auto p-16">
-                        <RegisterForm educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
+                        <RegisterForm handleCloseModal={handleCloseModal} educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
                     </div>
                 </div>
             </Modal>
