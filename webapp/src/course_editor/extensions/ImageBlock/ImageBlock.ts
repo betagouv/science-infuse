@@ -150,7 +150,7 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
     let imageStyle = '';
     const width = HTMLAttributes?.['data-width'];
     const align = HTMLAttributes?.['data-align'];
-    const fileSource = node.attrs?.fileSource || "";
+    const fileSource = node.attrs?.fileSource || node.attrs?.userFile?.author || "";
     const downloadLink = node.attrs?.src;
   
     if (width) {

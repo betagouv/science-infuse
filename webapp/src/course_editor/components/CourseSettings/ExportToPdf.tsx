@@ -133,7 +133,7 @@ const ExportToPdf = (props: { editor: Editor }) => {
     const htmlContent = buildHtml(props.editor.getHTML());
 
     try {
-      await navigator.clipboard.writeText(htmlContent);
+      // await navigator.clipboard.writeText(htmlContent);
       console.log('HTML content copied to clipboard');
 
       const response = await fetch('/api/export/pdf', {
