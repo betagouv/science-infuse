@@ -75,7 +75,7 @@ export async function searchBlocksWithChapter(embedding: number[]) {
     1 - ("textEmbedding" <=> ${embedding}::vector) as score
   FROM "Block"
   LEFT JOIN "Chapter" ON "Chapter"."id" = "Block"."chapterId"
-  WHERE 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.41
+  WHERE "status" = 'REVIEW' AND 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.41
   ORDER BY score DESC
   LIMIT 100
 `;
