@@ -2,115 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .fr-card__body {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .fr-card--horizontal .fr-card__body {
-    max-width: 60%;
+  max-width: 60%;
 }
 
-
 .highlightSearch {
-    background-color: #6beaf8;
+  background-color: #6beaf8;
 }
 
 .autocomplete-suggestion {
-    opacity: 0.25;
+  opacity: 0.25;
 }
-
 
 /* header */
 
 .fr-header__tools-links {
-	height: 2.5rem;
+  height: 2.5rem;
 }
 header.fr-header {
-	filter: none;
+  filter: none;
 }
 
-.fr-header__menu {
-	width: calc(100% - 4rem) !important;
+.fr-nav__list {
+  display: flex;
+  flex-grow: 1;
+}
+
+#header-menu-modal-fr-header .fr-container {
+  padding-right: 0;
+}
+#header-menu-modal-fr-header {
+  position: relative;
+}
+#header-menu-modal-fr-header::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  background-color: white;
 }
 
 .fr-header__menu,
 .fr-header__body {
-	background-color: #6beaf8 !important;
+  background-color: #6beaf8 !important;
 }
 header.fr-header .fr-header__menu {
-	box-shadow: none;
-}	
-
+  box-shadow: none;
+}
 
 /* ------ */
 
 .react-renderer {
-	width: 100%;
-	height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .node-pdf {
-	position: relative;
+  position: relative;
 }
 .ai-loading .ai-loading {
-	z-index: 1;
+  z-index: 1;
 }
 .ai-loading {
-    /* background: white; */
-	position: relative;
-    border-radius: 0.75rem;
-    display: block;
+  /* background: white; */
+  position: relative;
+  border-radius: 0.75rem;
+  display: block;
 }
 .ai-loading:before {
-	content: '';
-	position: absolute;
-	/* opacity: 0.5; */
-	background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00,#ffff00, #ff0000, #fb0094, 
-	#0000ff, #00ff00,#ffff00, #ff0000);
-	background-size: 400%;
-	left: 10px;
-	top: 10px;
-	width: calc(100% - 20px);
-	height: calc(100% - 20px);
-	z-index: -1;
-	animation: 
-		steam 20s linear infinite,
-		heartbeat 1.5s ease-in-out infinite;}
+  content: "";
+  position: absolute;
+  /* opacity: 0.5; */
+  background: linear-gradient(
+    45deg,
+    #fb0094,
+    #0000ff,
+    #00ff00,
+    #ffff00,
+    #ff0000,
+    #fb0094,
+    #0000ff,
+    #00ff00,
+    #ffff00,
+    #ff0000
+  );
+  background-size: 400%;
+  left: 10px;
+  top: 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  z-index: -1;
+  animation: steam 20s linear infinite, heartbeat 1.5s ease-in-out infinite;
+}
 
 @keyframes steam {
-	0% {
-		background-position: 0 0;
-	}
-	50% {
-		background-position: 400% 0;
-	}
-	100% {
-		background-position: 0 0;
-	}
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
 
 @keyframes heartbeat {
-    0%, 100% {
-		left: 10px;
-		top: 10px;
-		width: calc(100% - 20px);
-		height: calc(100% - 20px);
-		}
-    50% {
-		left: 20px;
-		top: 20px;
-		width: calc(100% - 40px);
-		height: calc(100% - 40px);
-		}
+  0%,
+  100% {
+    left: 10px;
+    top: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+  }
+  50% {
+    left: 20px;
+    top: 20px;
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+  }
 }
 
 .ai-loading:before {
-	filter: blur(15px);
+  filter: blur(15px);
 }
 .ai-loading:after {
-	background: white;
-	content: "";
-	width: 100%;
-	height: 100%;
+  background: white;
+  content: "";
+  width: 100%;
+  height: 100%;
 }

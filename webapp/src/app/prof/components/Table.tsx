@@ -66,7 +66,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
           </Link>
         </TableCell>
         <TableCell className=''>
-          <Badge severity={statusToSeverity[chapter.status as keyof typeof statusToSeverity] as AlertProps.Severity}>
+          <Badge className='whitespace-nowrap' severity={statusToSeverity[chapter.status as keyof typeof statusToSeverity] as AlertProps.Severity}>
             {statusToText[chapter.status as keyof typeof statusToText]}
           </Badge>
         </TableCell>

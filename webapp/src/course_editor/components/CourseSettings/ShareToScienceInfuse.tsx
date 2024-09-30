@@ -4,6 +4,7 @@ import { ChapterStatus } from '@prisma/client';
 import { Editor } from '@tiptap/react';
 import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
 import { CircularProgress, Tooltip } from '@mui/material';
+import React from 'react';
 
 const ShareToScienceInfuse = (props: { editor: Editor }) => {
     const [chapterStatus, setChapterStatus] = useState<ChapterStatus>(props.editor.storage.simetadata.chapterStatus);

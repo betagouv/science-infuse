@@ -10,6 +10,28 @@ import { Theme } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
 
 
+const StyledMainNavigation = styled(MainNavigation)`
+	.fr-nav__list {
+		width: 100%;
+		display: flex;
+		align-items: center;
+	}
+
+	.fr-nav {
+		width: 100%;
+	}
+
+	.fr-nav__item:first-child {
+		/* margin-left: 2rem; */
+	}
+	.fr-nav__item:last-child {
+		margin-left: auto;
+		a.fr-nav__link:hover {
+			background-color: unset !important;
+		}
+	}
+`
+
 export function Navigation() {
 
 	const { data: session } = useSession();
@@ -39,8 +61,8 @@ export function Navigation() {
 	return (
 		<div className="flex flex-row items-center">
 
-			<MainNavigation
-				className="w-full"
+			<StyledMainNavigation
+				className="w-full flex "
 				items={[
 					{
 						isActive: false,
@@ -58,14 +80,27 @@ export function Navigation() {
 							target: '_self'
 						},
 						text: 'Création de cours'
+					},
+					{
+						linkProps: {
+							href: '/besoin-d-aide',
+							target: '_self'
+						},
+						text: `Besoin d'aide`
+					},
+					{
+						linkProps: {
+							href: '#',
+							target: "_self",
+							className: "ml-auto"
+						},
+						text: <div className="max-w-[30rem]">
+							<SearchBar />
+						</div>
+
 					}
 				]}
 			/>
-			{pathname != "/" &&
-				<div className="absolute right-24 max-w-[30rem]">
-					<SearchBar />
-				</div>
-			}
 		</div>
 	);
 
