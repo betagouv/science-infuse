@@ -2,10 +2,12 @@ import Header from "@codegouvfr/react-dsfr/Header"
 import { Navigation } from "./Navigation"
 import { Session } from 'next-auth'
 import ConnectedHeader from "./ConnectedHeader";
+import React from "react";
 
 interface ClientHeaderProps {
   session: Session | null;
 }
+
 export default function ClientHeader({ session }: ClientHeaderProps) {
 
   return (

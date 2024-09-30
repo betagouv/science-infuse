@@ -26,6 +26,7 @@ const StyledMainNavigation = styled(MainNavigation)`
 	}
 	.fr-nav__item:last-child {
 		margin-left: auto;
+		z-index: 1;
 		a.fr-nav__link:hover {
 			background-color: unset !important;
 		}
