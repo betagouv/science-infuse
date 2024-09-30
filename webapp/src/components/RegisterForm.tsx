@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import * as React from 'react';
 
 
-export default function RegisterForm(props: { educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolSubject[] }) {
+export default function RegisterForm(props: { handleCloseModal: () => void, educationLevels: EducationLevel[], academies: Academy[], schoolSubjects: SchoolSubject[] }) {
     const { showSnackbar } = useSnackbar();
     const [user, setUser] = useState<UserFull | null>(null)
     const [email, setEmail] = useState(user?.firstName || "");
@@ -71,7 +71,7 @@ export default function RegisterForm(props: { educationLevels: EducationLevel[],
             })
 
             if (response.ok) {
-                router.push("/") // Redirect to sign-in page after successful registration
+                props.handleCloseModal();
             } else {
                 const data = await response.json()
                 setErrorMessage(data.error || "Une erreur s'est produite lors de l'inscription.");

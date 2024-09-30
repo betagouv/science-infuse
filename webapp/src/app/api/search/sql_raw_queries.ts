@@ -18,7 +18,7 @@ export async function updateBlock(title: string, content: JSONContent, textEmbed
   if (!block) {
     const block = await prisma.block.create({
       data: {
-        id: blockId, 
+        id: blockId,
         title,
         content,
         chapter: {
@@ -63,8 +63,9 @@ export async function searchBlocksWithChapter(embedding: number[]) {
       'updatedAt', "Chapter"."updatedAt",
       'educationLevels', (
         SELECT json_agg(json_build_object('id', "EducationLevel".id, 'name', "EducationLevel".name))
-        FROM "EducationLevel"
-        WHERE "EducationLevel"."chapterId" = "Chapter".id
+        FROM "_ChapterToEducationLevel"
+        JOIN "EducationLevel" ON "EducationLevel".id = "_ChapterToEducationLevel"."B"
+        WHERE "_ChapterToEducationLevel"."A" = "Chapter".id
       ),
       'theme', (
         SELECT json_build_object('id', "Theme".id, 'title', "Theme"."title")

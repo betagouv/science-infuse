@@ -22,6 +22,7 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { ChapterStatus } from '@prisma/client';
 import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
 import { Icon, Trash2 } from 'lucide-react';
+import { RenderChapterTOC } from '@/course_editor/components/CourseSettings/ChapterTableOfContents';
 
 
 const statusToSeverity = {
@@ -42,6 +43,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
   // in this case we do not remove them from db, since it would be hard to know if the block should be re-created, for example if the user do a ctrl+y (redo)
   // so we get all visible blockId in the current chapter's content, and only deal with chapter's blocks from db that do exist in this list.
   const chapterBlockIds = (typeof chapter.content === 'string' ? JSON.parse(chapter.content) : chapter.content).content.filter((c: any) => c.type == 'courseBlock').map((cb: any) => cb.attrs.id)
+  const chapterContent = typeof chapter.content === 'string' ? JSON.parse(chapter.content) : chapter.content;
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -90,19 +92,20 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Titre du bloc</TableCell>
+                    <TableCell>Sommaire</TableCell>
                     <TableCell align="right">Compétences et notions clés</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      {chapter.blocks
+                      <RenderChapterTOC content={chapterContent.content} />
+                      {/* {chapter.blocks
                         .filter(block => chapterBlockIds.includes(block.id))
                         .map((block, index) => (
                           <p key={index} className="text-base text-[#161616] font-medium">{block.title}</p>
                         ))
-                      }
+                      } */}
                     </TableCell>
                     <TableCell align="right" className='!flex'>
                       <div className="h-full w-full flex flex-col justify-end">

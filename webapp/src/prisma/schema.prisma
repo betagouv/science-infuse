@@ -162,12 +162,10 @@ model Activity {
 }
 
 model EducationLevel {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  chapterId String?
-  userId    String?
-  Chapter   Chapter? @relation(fields: [chapterId], references: [id])
-  User      User?    @relation(fields: [userId], references: [id])
+  id       String    @id @default(cuid())
+  name     String    @unique
+  chapters Chapter[]
+  users    User[]
 }
 
 model File {
