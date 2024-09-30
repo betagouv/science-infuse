@@ -1,5 +1,5 @@
 import { SearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
-import { Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
+import { Academy, Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { TableOfContents } from './types';
@@ -277,13 +277,13 @@ class ApiClient {
     return response.data;
   }
 
-  async getSchoolSubject(): Promise<EducationLevel[]> {
-    const response = await this.axiosInstance.get<EducationLevel[]>(`/schoolSubjects`);
+  async getSchoolSubject(): Promise<SchoolSubject[]> {
+    const response = await this.axiosInstance.get<SchoolSubject[]>(`/schoolSubjects`);
     return response.data;
   }
 
-  async getAcademies(): Promise<EducationLevel[]> {
-    const response = await this.axiosInstance.get<EducationLevel[]>(`/academies`);
+  async getAcademies(): Promise<Academy[]> {
+    const response = await this.axiosInstance.get<Academy[]>(`/academies`);
     return response.data;
   }
 }
