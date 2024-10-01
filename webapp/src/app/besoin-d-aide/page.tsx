@@ -23,7 +23,7 @@ const NeedHelp = () => {
 
                             <div className="flex flex-col gap-8 max-w-2xl mt-auto mb-auto">
                                 <p className="m-0">Contactez l’équipe Science Infuse : </p>
-                                <p className="m-0">Par e-mail, Olivier : <b>scienceinfuse@universcience.fr</b> </p>
+                                <p className="m-0">Par e-mail, Olivier : <b>science-infuse@universcience.fr</b> </p>
                                 <p className="m-0">Tous les jours entre 9h30 et 19h, Alexandra : <b>06 69 29 18 66</b> </p>
                                 <p className="m-0">Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d’expérience sont précieux et permettent d’améliorer le service.</p>
                                 <p className="m-0">A bientôt !</p>
