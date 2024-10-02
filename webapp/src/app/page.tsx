@@ -5,6 +5,7 @@ import Section3 from '@/components/home/Section3';
 import Login from '@/components/Login';
 import MainSearch from '@/components/search/MainSearch';
 import { useSession } from 'next-auth/react';
+import React from 'react';
 
 export default function Page() {
     const { data: session } = useSession();
