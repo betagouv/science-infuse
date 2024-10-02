@@ -30,6 +30,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
   const session = await getServerSession(authOptions);
   const user = session?.user
 
+
   let nonce: string | undefined;
   if (csp) {
     nonce = getScriptNonceFromHeader(csp);
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
     <html {...getHtmlAttributes({ defaultColorScheme, lang })} >
       <head>
         <title>Science Infuse</title>
-        <MatomoAnalytics />
+        {process.env.ENVIRONMENT != "dev" && <MatomoAnalytics />}
         <StartDsfr />
         <DsfrHead
           Link={Link}

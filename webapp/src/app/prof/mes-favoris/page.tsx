@@ -3,12 +3,11 @@
 import { Accordion } from "@codegouvfr/react-dsfr/Accordion";
 import { apiClient } from '@/lib/api-client';
 import { useQuery } from '@tanstack/react-query';
-import ChunkRenderer from '@/app/recherche/DocumentChunkFull';
-import { getSearchWords } from '@/app/recherche/text-highlighter';
-import Masonry from '@mui/lab/Masonry';
 import styled from "@emotion/styled";
-import { CircularProgress } from "@mui/material";
-import { MasonaryItem } from "@/components/MasonaryItem";
+import Tabs, { TabType } from "@/app/recherche/Tabs";
+import { ChunkWithScoreUnion } from "@/types/vectordb";
+import { RenderSearchResult } from "@/app/recherche/RenderSearch";
+import { useState } from "react";
 
 
 const StyledAccordion = styled(Accordion)`
@@ -17,6 +16,22 @@ const StyledAccordion = styled(Accordion)`
 }
 `
 
+const RenderStarredKeyword = (props: { keyword: string, chunks: ChunkWithScoreUnion[] }) => {
+    const { keyword, chunks } = props;
+    const [tabType, setTabType] = useState<TabType>(TabType.Documents)
+
+    return (
+        <div data-keyword={keyword} key={keyword} className='flex w-full flex-col gap-4'>
+            <h1>{keyword}</h1>
+            <Tabs blocks={[]} chunks={chunks} selectedTabType={tabType} onTabChange={(newTabType) => setTabType(newTabType)} />
+
+            <div className="overflow-auto w-full">
+                <RenderSearchResult selectedTab={tabType} results={{ chunks, blocks: [], page_count: 1 }} searchWords={[]} resultPerPage={10} />
+            </div>
+        </div>
+    )
+
+}
 export default function StarredDocumentChunks() {
 
     const { data: starredDocumentChunks, isLoading, error } = useQuery({
@@ -24,44 +39,40 @@ export default function StarredDocumentChunks() {
         queryFn: () => apiClient.getStarDocumentChunk()
     });
 
+
+
+
     return (
         <div>
-            <div className="md:p-16 p-8 w-full">
-                <div className='flex w-full flex-col gap-4'>
+            {starredDocumentChunks && <div className="flex flex-row gap-0 max-w-full w-full scroll-smooth">
 
-                    {isLoading ? (
-                        <div className="w-full flex items-center justify-center">
-                            <CircularProgress />
-                        </div>
-                    ) : error ? (
-                        <p>Error: {error.message}</p>
-                    ) : (
-                        Object.entries(starredDocumentChunks || {}).map(([keyword, chunks]) => (
-                            <div key={keyword} className="mb-6">
-                                <StyledAccordion
-                                    defaultExpanded={false}
-                                    label={<span className="text-2xl font-bold text-left text-black">Mot clé “{keyword}” : {chunks.length} élément{chunks.length > 1 ? 's' : ''}</span>}
-                                >
+                <div className="relative p-4 md:p-16 min-w-96">
+                    <div className="flex flex-col" style={{ borderRight: "1px solid #DDDDDD" }}>
+                        <p className="mt-0 pt-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">MOTS-CLÉS</p>
+                        {Object.keys(starredDocumentChunks).map(keyword =>
+                            <p
+                                key={keyword}
+                                className="text-base cursor-pointer font-bold text-left text-[#161616]"
+                                onClick={() => {
+                                    const div = document.querySelector(`[data-keyword="${keyword}"]`);
+                                    if (div) {
+                                        div.scrollIntoView();
+                                    }
+                                }}
+                            >{keyword}</p>
 
-                                    <Masonry columns={3} spacing={2}>
-                                        {chunks
-                                            .sort((a, b) => b.score - a.score)
-                                            .map((result, index) => (
-                                                <MasonaryItem key={index}>
-                                                    <ChunkRenderer chunk={result} searchWords={getSearchWords(keyword)} />
-                                                </MasonaryItem>
-                                            ))}
-                                    </Masonry>
-
-                                </StyledAccordion>
-
-                            </div>
-                        ))
-                    )}
-
-
+                        )}
+                    </div>
                 </div>
-            </div>
+                <div className="relative w-full  p-4 md:p-16">
+                    {
+                        Object.entries(starredDocumentChunks).map(([keyword, chunks]) => {
+                            console.log("KEY CHUNKS", keyword, chunks)
+                            return <RenderStarredKeyword key={keyword} keyword={keyword} chunks={chunks} />
+                        })
+                    }
+                </div>
+            </div>}
         </div>
     );
 }

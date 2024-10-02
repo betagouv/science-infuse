@@ -4,6 +4,7 @@ import SearchBar from "@codegouvfr/react-dsfr/SearchBar"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
+import useWindowSize from "@/course_editor/hooks/useWindowSize";
 
 const StyledSearchBar = styled(SearchBar)`
   .fr-btn {
@@ -51,14 +52,17 @@ export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmp
 
         router.push(`/recherche${searchQuery}`);
     };
+    
+    const {isTablet} = useWindowSize();
 
     if (!isMounted) {
         return null;
     }
 
+
     return (
         <StyledSearchBar
-            className={`w-[40rem] max-w-full ${props.className}`}
+            className={`w-full min-w-[30rem] max-w-full ${props.className}`}
             label="Rechercher une image, une vidéo, un document..."
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (

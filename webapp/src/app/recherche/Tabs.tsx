@@ -2,6 +2,7 @@ import { BlockWithChapter, ChunkWithScoreUnion, MediaType, MediaTypes } from "@/
 import { Tabs } from "@codegouvfr/react-dsfr/Tabs";
 import styled from "@emotion/styled";
 import { signal } from "@preact/signals-react";
+import React from "react";
 
 // Define an enum for tab types
 export enum TabType {
@@ -78,12 +79,12 @@ const StyledTabs = styled.div`
 
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
-const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], chunks: ChunkWithScoreUnion[] }) => {
+const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void }) => {
   const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[], favourites?: boolean) => chunks.filter(c => (mediaTypes.includes(c.mediaType) && (favourites ? c.user_starred : true))).length;
 
 
   const tabs: TabItem[] = [
-    { tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` },
+    ...(props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
     { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
     { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
     { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
@@ -95,9 +96,10 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
   return (
     <StyledTabs>
       <Tabs
-        selectedTabId={selectedTabType.value}
+        selectedTabId={props.selectedTabType}
         tabs={tabs}
-        onTabChange={(tabId) => selectedTabType.value = tabId as TabType}
+        onTabChange={(tabId) => props.onTabChange(tabId as TabType)}
+      // onTabChange={(tabId) => selectedTabType.value = tabId as TabType}
       >
         <></>
       </Tabs>
