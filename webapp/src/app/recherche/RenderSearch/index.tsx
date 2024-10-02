@@ -111,8 +111,6 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
       .filter(chunk => (props.favourites && props.selectedTab == TabType.Favourites) ? chunk.user_starred === true : true);
   }
 
-  console.log("CHUNKS", chunks)
-
   useEffect(() => {
     setPageNumber(1);
   }, [props.selectedTab])
@@ -123,43 +121,48 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
   else
     pageCount = Math.max(1, Math.ceil(chunks.length / props.resultPerPage))
 
-
+  const hasResults = props.selectedTab === TabType.Chapters ? props.results.blocks.length > 0 :
+    props.selectedTab === TabType.Videos ? groupedVideos.length > 0 : chunks.length > 0;
 
   return (
     <>
+      {!hasResults ? (
+        <div className="flex items-center justify-center py-4"><p className="m-0">Aucun résultat</p></div>
+      ) : (
+        <>
+          {props.selectedTab === TabType.Chapters ?
+            <BlockResults
+              onInserted={props.onInserted}
+              blocks={props.results.blocks}
+              searchWords={props.searchWords} /> :
+            props.selectedTab !== TabType.Videos ?
+              <ChunkResults
+                onInserted={props.onInserted}
+                chunks={chunks.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
+                searchWords={props.searchWords}
+              /> :
+              <GroupedVideoChunkResults
+                onInserted={props.onInserted}
+                groupedVideos={groupedVideos.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
+                searchWords={props.searchWords}
+              />
+          }
 
-      {props.selectedTab === TabType.Chapters ?
-        <BlockResults
-          onInserted={props.onInserted}
-          blocks={props.results.blocks}
-          searchWords={props.searchWords} /> :
-        props.selectedTab !== TabType.Videos ?
-          <ChunkResults
-            onInserted={props.onInserted}
-            chunks={chunks.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
-            searchWords={props.searchWords}
-          /> :
-          <GroupedVideoChunkResults
-            onInserted={props.onInserted}
-            groupedVideos={groupedVideos.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
-            searchWords={props.searchWords}
-          />
-      }
-
-      {props.selectedTab != TabType.Chapters && <Pagination
-        className="[&_ul]:justify-around mt-4"
-        count={pageCount}
-        defaultPage={Math.max(pageNumber, 1)}
-        getPageLinkProps={(newPageNumber: number) => ({
-          onClick: (e) => {
-            e.preventDefault();
-            setPageNumber(newPageNumber)
-          },
-          href: ``,
-        })}
-        showFirstLast
-      />}
-
+          {props.selectedTab != TabType.Chapters && <Pagination
+            className="[&_ul]:justify-around mt-4"
+            count={pageCount}
+            defaultPage={Math.max(pageNumber, 1)}
+            getPageLinkProps={(newPageNumber: number) => ({
+              onClick: (e) => {
+                e.preventDefault();
+                setPageNumber(newPageNumber)
+              },
+              href: ``,
+            })}
+            showFirstLast
+          />}
+        </>
+      )}
     </>
   )
 }

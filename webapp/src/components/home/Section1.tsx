@@ -1,16 +1,20 @@
 import { Button } from "@mui/material";
 import StairsContainer from "../StairsContainer";
 import ImageStackWithText from "../ImageStackWithText";
+import useWindowSize from "@/course_editor/hooks/useWindowSize";
+import React from "react";
 
 
 
 export default (props: { reverse?: boolean }) => {
     const color = "#ff8642"
+    const {isMobile} = useWindowSize();
+
     return (
         <StairsContainer color={color}>
-            <div className="flex gap-16" style={{ flexFlow: props.reverse ? "row-reverse" : "row" }}>
+            <div className={`flex ${isMobile ? 'flex-col p-16' : 'gap-16'}`} style={{ flexFlow: !isMobile && props.reverse ? "row-reverse" : isMobile ? "column" : "row" }}>
 
-                <div className="w-5/12 flex flex-col justify-center items-start gap-8">
+                <div className={`${isMobile ? 'w-full mt-8' : 'w-5/12'} flex flex-col justify-center items-start gap-8`}>
                     <div className="flex flex-col gap-10">
                         <h1 className="text-[40px] font-bold text-[#1a1a1a]">
                             Catalogue de cours
@@ -25,7 +29,7 @@ export default (props: { reverse?: boolean }) => {
                 </div>
 
 
-                <div className="w-7/12">
+                <div className={isMobile ? "w-full" : "w-7/12 pr-16"}>
                     <ImageStackWithText
                         stairColor={'#ffa800'}
                         mainImage="/images/home/frame-1.png"

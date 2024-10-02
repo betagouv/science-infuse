@@ -26,7 +26,6 @@ const Search: React.FC = () => {
     enabled: !!query,
   });
 
-  const activeTypes = TabMediaTypeMap[selectedTabType.value] || [];
 
   const resultPerPage = 10
 
@@ -38,7 +37,13 @@ const Search: React.FC = () => {
       <div className="fr-col-12 fr-container main-content-item">
         <div className="py-16 flex flex-col gap-8 md:px-0">
           <SearchHeader query={query} />
-          <Tabs favourites={[]} blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
+          <Tabs
+            favourites={[]}
+            blocks={(results as SearchResults)?.blocks || []}
+            chunks={(results as SearchResults)?.chunks || []}
+            selectedTabType={selectedTabType.value}
+            onTabChange={(newTab) => selectedTabType.value = newTab}
+          />
           {isLoading && <LoadingIndicator />}
           {isError && <ErrorMessage />}
           {!isLoading && !isError && !results && <NoResultsMessage />}

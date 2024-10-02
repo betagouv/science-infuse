@@ -10,6 +10,7 @@ import { Modal, Box } from '@mui/material';
 import RegisterForm from './RegisterForm';
 import { Academy, EducationLevel, SchoolSubject } from '@prisma/client';
 import { apiClient } from '@/lib/api-client';
+import useWindowSize from '@/course_editor/hooks/useWindowSize';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -71,8 +72,10 @@ const Login = () => {
     }, []);
 
 
+    const {isMobile} = useWindowSize();
+
     return (
-        <div className='flex flex-col gap-4'>
+        <div className={`flex flex-col gap-4 ${isMobile && 'px-16 pb-16'}`}>
             <h1 className='text-5xl m-0'>Connectez-vous</h1>
             <p className='color-[#666666] m-0'>Sauf mention contraire, tous les champs sont obligatoires.</p>
 

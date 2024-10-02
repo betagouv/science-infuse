@@ -120,7 +120,7 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
     setIsMounted(true);
   }, []);
 
-  console.log("selectedTabType.value", selectedTabType.value)
+  const [tabType, setTabType] = useState(TabType.Favourites);
 
   return (
     <div className="flex h-full transition-[0.4s] w-full items-center justify-center bg-[#16161686]">
@@ -132,7 +132,13 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
             setQuery(_query)
           }} />
         )}
-        <Tabs favourites={starredItems} blocks={(results as SearchResults)?.blocks || []} chunks={(results as SearchResults)?.chunks || []} />
+        <Tabs
+          selectedTabType={tabType}
+          onTabChange={(newTabType) => setTabType(newTabType)}
+          favourites={starredItems}
+          blocks={(results as SearchResults)?.blocks || []}
+          chunks={(results as SearchResults)?.chunks || []}
+        />
 
         <div className="overflow-auto w-full">
 
@@ -140,13 +146,13 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
           {!isLoading && !isError && results && <RenderSearchResult
             favourites={starredItems}
             onInserted={insertChunk}
-            selectedTab={selectedTabType.value}
+            selectedTab={tabType}
             results={results}
             searchWords={[]}
             resultPerPage={10} />
           }
 
-          {!isLoading && !isError && !results && selectedTabType.value == TabType.Favourites && <ChunkResults
+          {!isLoading && !isError && !results && tabType == TabType.Favourites && <ChunkResults
             onInserted={insertChunk}
             chunks={starredItems}
             searchWords={[]}

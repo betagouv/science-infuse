@@ -8,7 +8,7 @@ export default () => {
     const router = useRouter()
 
     return (
-        <div className="mx-auto w-full flex flex-col items-center gap-8">
+        <div className="mx-auto w-full flex flex-col items-center gap-8 px-4">
             <h1 className="text-4xl md:text-5xl font-bold text-center text-[#161616] mb-4">
                 Bienvenue sur Science Infuse
             </h1>
@@ -17,7 +17,7 @@ export default () => {
                 ressources gratuites de la Cité des sciences et de l'industrie, du Palais de la découverte et de
                 nos partenaires.
             </p>
-            <SearchBar autoFocus={true} />
+            <SearchBar className="px-4 mb-8" autoFocus={true} />
         </div>
     )
 }

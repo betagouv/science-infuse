@@ -1,9 +1,11 @@
 'use client'
+import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import Button from "@codegouvfr/react-dsfr/Button"
 import styled from "@emotion/styled";
-import { Popover, Typography } from "@mui/material"
+import { Popover, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material"
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import React from "react";
 import { useState } from "react";
 
 
@@ -39,16 +41,52 @@ color: black !important;
     }
 }
 `
+
+const StyledAccordionSummary = styled(AccordionSummary)`
+    display: flex;
+    border: 1px solid black;
+    box-shadow: none !important;
+    justify-content: space-between;
+    color: black !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0 !important;
+    background: white !important;
+    height: 3rem !important;
+    &:hover {
+        background: #f5f5f5 !important;
+    }
+    &.active {
+        background: #dab4f4 !important;
+    }
+    &.Mui-expanded {
+        min-height: unset !important;
+        margin: 0!important;
+    }
+    .MuiAccordionSummary-content {
+        &.Mui-expanded {
+            min-height: unset !important;
+            margin: 0!important;
+        }
+        margin: 0;
+    }
+`;
+
 export default () => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [expanded, setExpanded] = useState(false);
     const { data: session } = useSession();
     const router = useRouter();
     const user = session?.user;
-
+    const { isMobile, isTablet } = useWindowSize();
+    console.log('isMobile:', isMobile, 'isTablet:', isTablet);
     if (!user) return;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+        if (isMobile) {
+            setExpanded(!expanded);
+        } else {
+            setAnchorEl(event.currentTarget);
+        }
     };
 
     const handleClose = () => {
@@ -58,66 +96,88 @@ export default () => {
     const open = !!anchorEl;
     const id = open ? 'simple-popover' : undefined;
 
+    const menuContent = <div className="flex flex-col w-full bg-white border-t border-[#e3e3fd] shadow-md">
+        <div className="p-[1rem] flex flex-col gap-2 my-2 items-start">
+            {/* @ts-ignore */}
+            <p className="m-0 text-sm font-bold text-[#161616]">{user?.firstName} {user?.lastName} {user?.name}</p>
+            <p className="m-0 text-xs text-[#666]">{user?.email}</p>
+        </div>
+
+        <div className="flex flex-col">
+
+            {[
+                { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
+                { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
+                { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
+            ].map((item, index) => (
+                <button
+                    onClick={() => {
+                        router.push(item.path)
+                        handleClose();
+                    }}
+                    key={index}
+                    className="flex items-center cursor-pointer p-[1rem]"
+                    style={{ borderTop: `2px solid #DDDDDD` }}>
+                    <i className={`fr-icon ${item.icon} mr-2`} aria-hidden="true"></i>
+                    <p className="m-0 text-sm font-medium text-[#161616]">{item.text}</p>
+                </button>
+            ))}
+
+            <div className="mt-4 pb-4 w-full flex items-center justify-center">
+                <button
+                    onClick={() => signOut()}
+                    className="flex items-center gap-2 border-solid border-[#ddd] text-sm font-medium text-[#000091] w-full mx-4 py-2">
+                    <i className="fr-icon fr-icon-logout-box-r-line mr-2" aria-hidden="true"></i>
+                    Se déconnecter
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     return (
-        <div className="flex" id="connected-header">
+        <div className={`flex ${isTablet && "!pr-0"}`} id="connected-header">
+            {true ? (
+                <Accordion className={`z-[10000] ${isTablet ? "w-full ":"w-[18rem]"} !shadow-none`} expanded={expanded} onChange={() => setExpanded(!expanded)}>
+                    <StyledAccordionSummary
+                        expandIcon={<Arrow active={expanded} />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                    >
 
-            <StyledButton
-                onClick={handleClick}
-                iconId="fr-icon-account-line"
-                priority="secondary"
-                className={`${open && "active"} si-custom flex flex-row gap-4 justify-center items-center`}
-            >
-                Mon espace
-                <Arrow active={open} />
-            </StyledButton>
-            <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-            >
-                <div className="flex flex-col w-full min-w-[20rem] bg-white border-t border-[#e3e3fd] shadow-md">
-                    <div className="p-[1rem] flex flex-col gap-2 my-2">
-                        {/* @ts-ignore */}
-                        <p className="m-0 text-sm font-bold text-[#161616]">{user?.firstName} {user?.lastName} {user?.name}</p>
-                        <p className="m-0 text-xs text-[#666]">{user?.email}</p>
-                    </div>
+                        <i className="fr-icon fr-icon-account-line mr-2" aria-hidden="true"></i>
+                        <p className="m-0">Mon espace</p>
 
-                    <div className="flex flex-col">
-
-                        {[
-                            { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
-                            { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
-                            { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
-                        ].map((item, index) => (
-                            <button
-                                onClick={() => {
-                                    router.push(item.path)
-                                    handleClose();
-                                }}
-                                key={index}
-                                className="flex items-center cursor-pointer p-[1rem]"
-                                style={{ borderTop: `2px solid #DDDDDD` }}>
-                                <i className={`fr-icon ${item.icon} mr-2`} aria-hidden="true"></i>
-                                <p className="m-0 text-sm font-medium text-[#161616]">{item.text}</p>
-                            </button>
-                        ))}
-
-                        <div className="mt-4 pb-4 w-full flex items-center justify-center">
-                            <button
-                                onClick={() => signOut()}
-                                className="flex items-center gap-2 border-solid border-[#ddd] text-sm font-medium text-[#000091] w-full mx-4 py-2">
-                                <i className="fr-icon fr-icon-logout-box-r-line mr-2" aria-hidden="true"></i>
-                                Se déconnecter
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </Popover>
+                    </StyledAccordionSummary>
+                    <AccordionDetails className="!m-0 !p-0">
+                        {menuContent}
+                    </AccordionDetails>
+                </Accordion>
+            ) : (
+                <>
+                    <StyledButton
+                        onClick={handleClick}
+                        iconId="fr-icon-account-line"
+                        priority="secondary"
+                        className={`${open && "active"} si-custom flex flex-row gap-4 justify-center items-center`}
+                    >
+                        Mon espace
+                        <Arrow active={open} />
+                    </StyledButton>
+                    <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                    >
+                        {menuContent}
+                    </Popover>
+                </>
+            )}
         </div>
     )
 }

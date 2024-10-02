@@ -21,6 +21,10 @@ const StyledMainNavigation = styled(MainNavigation)`
 		width: 100%;
 	}
 
+	.fr-nav__item {
+		width: 100%;
+	}
+
 	.fr-nav__item:first-child {
 		/* margin-left: 2rem; */
 	}
@@ -93,9 +97,9 @@ export function Navigation() {
 						linkProps: {
 							href: '#',
 							target: "_self",
-							className: "ml-auto"
+							className: "ml-auto px-0"
 						},
-						text: <div className="max-w-[30rem]">
+						text: <div className="w-full">
 							<SearchBar />
 						</div>
 
