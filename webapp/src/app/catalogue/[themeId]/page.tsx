@@ -10,9 +10,10 @@ interface ServerCatalogueProps {
 }
 
 async function getChaptersFiltersAndTheme(themeId: string) {
+
     const chapters: ChapterWithBlock[] = await prisma.chapter.findMany({
         where: {
-            themeId: themeId,
+            ...(themeId !== "all" && { themeId: themeId }),
             status: "REVIEW"
         },
         include: {
@@ -27,7 +28,6 @@ async function getChaptersFiltersAndTheme(themeId: string) {
             }
         }
     });
-
     const filters = await prisma.educationLevel.findMany();
 
     const theme = await prisma.theme.findUnique({

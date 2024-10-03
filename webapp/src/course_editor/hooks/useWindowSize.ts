@@ -3,19 +3,22 @@ import { useEffect, useState } from 'react';
 
 const useWindowSize = () => {
   const { breakpointsValues } = useBreakpointsValuesPx();
-  const [width, setWidth] = useState(window.innerWidth);
+  const [width, setWidth] = useState(0);
 
   useEffect(() => {
-    const handleResize = () => {
+    if (typeof window !== 'undefined') {
       setWidth(window.innerWidth);
-    };
 
-    window.addEventListener('resize', handleResize);
+      const handleResize = () => {
+        setWidth(window.innerWidth);
+      };
 
-    // Nettoyage de l'événement lors du démontage du composant
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }
   }, []);
 
   return {

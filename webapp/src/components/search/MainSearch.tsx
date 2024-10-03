@@ -17,7 +17,7 @@ export default () => {
                 ressources gratuites de la Cité des sciences et de l'industrie, du Palais de la découverte et de
                 nos partenaires.
             </p>
-            <SearchBar className="px-4 mb-8" autoFocus={true} />
+            <SearchBar className="px-4 mb-8 max-w-[35rem]" autoFocus={true} />
         </div>
     )
 }
