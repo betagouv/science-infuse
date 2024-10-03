@@ -5,8 +5,9 @@ import styled from "@emotion/styled";
 import { Popover, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material"
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useRef } from "react";
 import { useState } from "react";
+import { useOnClickOutside } from "usehooks-ts";
 
 
 const Arrow = (props: { active: boolean }) => (
@@ -27,20 +28,6 @@ const Arrow = (props: { active: boolean }) => (
         />
     </svg>)
 
-const StyledButton = styled(Button)`
-color: black !important;
-&.fr-btn.si-custom {
-    padding: 0.5rem 1rem !important;
-    margin: 0 !important;
-    background: white !important;
-    &:hover {
-        background: #f5f5f5 !important;
-    }
-    &.active {
-        background: #dab4f4 !important;
-    }
-}
-`
 
 const StyledAccordionSummary = styled(AccordionSummary)`
     display: flex;
@@ -51,7 +38,8 @@ const StyledAccordionSummary = styled(AccordionSummary)`
     padding: 0.5rem 1rem !important;
     margin: 0 !important;
     background: white !important;
-    height: 3rem !important;
+    /* height: 2rem !important; */
+    min-height: unset !important;
     &:hover {
         background: #f5f5f5 !important;
     }
@@ -77,6 +65,8 @@ export default () => {
     const router = useRouter();
     const user = session?.user;
     const { isMobile, isTablet } = useWindowSize();
+    const accordionRef = useRef<HTMLDivElement>(null);
+    useOnClickOutside(accordionRef, () => setExpanded(false))
     if (!user) return;
 
 
@@ -86,7 +76,7 @@ export default () => {
 
     return (
         <div className={`flex ${isTablet && "!pr-0"}`} id="connected-header">
-            <Accordion className={`z-[10000] ${isTablet ? "w-full " : "w-[18rem]"} !shadow-none`}
+            <Accordion ref={accordionRef} className={`z-[10000] ${isTablet ? "w-full " : "w-[11rem]"} !shadow-none [&_.MuiCollapse-root]:w-fit`}
                 expanded={expanded}
                 onChange={() => setExpanded(!expanded)}
             >
@@ -100,8 +90,8 @@ export default () => {
                     <p className="m-0">Mon espace</p>
 
                 </StyledAccordionSummary>
-                <AccordionDetails className="!m-0 !p-0">
-                    <div className="flex flex-col w-full bg-white border-t border-[#e3e3fd] shadow-md">
+                <AccordionDetails className="!m-0 !p-0 w-full">
+                    <div className="flex flex-col w-full bg-white border-t border-[#e3e3fd] whitespace-nowrap">
                         <div className="p-[1rem] flex flex-col gap-2 my-2 items-start">
                             {/* @ts-ignore */}
                             <p className="m-0 text-sm font-bold text-[#161616]">{user?.firstName} {user?.lastName} {user?.name}</p>

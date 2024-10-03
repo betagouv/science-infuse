@@ -48,7 +48,7 @@ const NeedHelp = () => {
                                 size="large"
                                 className="mt-8 bg-[#1a1a1a] text-white hover:!bg-[#333] transition-colors"
                             >
-                                Site internet de la Cité
+                                Voir le site internet
                             </Button>
 
                         </div>
@@ -86,7 +86,7 @@ const NeedHelp = () => {
                                 size="large"
                                 className="mt-8 bg-[#1a1a1a] text-white hover:!bg-[#333] transition-colors"
                             >
-                                Site internet des Etiencelles
+                                Voir le site internet
                             </Button>
 
                         </div>

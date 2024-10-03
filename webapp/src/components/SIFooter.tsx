@@ -5,7 +5,7 @@ import useWindowSize from "@/course_editor/hooks/useWindowSize";
 const SIFooter = () => {
     const { isMobile } = useWindowSize();
     return (
-        <div className="w-full m-0 fr-grid-row fr-grid-row--gutters fr-grid-row--center bg-[#6beaf8]">
+        <div className="w-full m-0 fr-grid-row fr-grid-row--gutters fr-grid-row--center ">
             <div className="fr-col-12 fr-col-md-8 main-content-item">
                 <div className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} ${isMobile ? "gap-4":"gap-16"} text-center justify-evenly items-center py-8`}>
                     <a href="/venir-a-universcience" className={`m-0 text-xs font-bold text-[#161616] ${isMobile ? 'mb-4' : ''}`}>

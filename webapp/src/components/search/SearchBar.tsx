@@ -6,15 +6,6 @@ import { useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 
-const StyledSearchBar = styled(SearchBar)`
-  .fr-btn {
-    background: black;
-  }
-
-  .fr-search-bar .fr-input {
-    box-shadow: inset 0 -2px 0 0 var(--border-action-high-blue-france);
-  }
-`
 
 export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -61,8 +52,8 @@ export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmp
 
 
     return (
-        <StyledSearchBar
-            className={`w-full min-w-[30rem] max-w-full ${props.className}`}
+        <SearchBar
+            className={`w-full max-w-full ${props.className}`}
             label="Rechercher une image, une vidéo, un document..."
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (

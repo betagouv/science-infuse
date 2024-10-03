@@ -90,11 +90,11 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
                         </h1>
                     </div>
 
-                    <div className="flex justify-center items-center">
+                    {theme && <div className="flex justify-center items-center">
                         <p className="text-xl md:text-2xl text-center text-black">
                             "{theme?.title}" : {initialChapters.length} chapitre{initialChapters.length > 1 ? 's' : ''}
                         </p>
-                    </div>
+                    </div>}
 
                     <Filters selectedFilter={selectedFilter} onFilterChange={handleFilterChange} filters={filters} />
                     <ChapterResults chapters={filteredChapters} />

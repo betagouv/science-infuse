@@ -36,9 +36,9 @@
   .fr-header__tools-links {
     height: 2.5rem;
   }
-  header.fr-header {
+  /* header.fr-header {
     filter: none;
-  }
+  } */
 
   .fr-nav__list {
     display: flex;
@@ -48,7 +48,7 @@
   #header-menu-modal-fr-header .fr-container {
     padding-right: 0;
   }
-  #header-menu-modal-fr-header {
+  /* #header-menu-modal-fr-header {
     position: relative;
   }
   #header-menu-modal-fr-header::after {
@@ -65,10 +65,10 @@
   .fr-header__menu,
   .fr-header__body {
     background-color: #6beaf8 !important;
-  }
-  header.fr-header .fr-header__menu {
+  } */
+  /* header.fr-header .fr-header__menu {
     box-shadow: none;
-  }
+  } */
 }
 
 /* ------ */

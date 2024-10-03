@@ -1,14 +1,17 @@
-import { Button } from "@mui/material";
 import StairsContainer from "../StairsContainer";
 import ImageStackWithText from "../ImageStackWithText";
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import React from "react";
+import Button from "@codegouvfr/react-dsfr/Button";
+import { useRouter } from "next/navigation";
 
 
 
 export default (props: { reverse?: boolean }) => {
     const color = "#ff8642"
     const {isMobile} = useWindowSize();
+    const router = useRouter()
+
 
     return (
         <StairsContainer color={color}>
@@ -24,7 +27,7 @@ export default (props: { reverse?: boolean }) => {
                             <li>Exportables dans votre ENT (environnement numérique de travail)</li>
                             <li>Editables pour s'adapter à votre manière d'enseigner</li>
                         </ul>
-                        <Button type='submit' className='w-fit px-4 flex items-center justify-center bg-black text-[#fff]'>Accéder au catalogue</Button>
+                        <Button onClick={() => router.push('/catalogue/all')} className='w-fit px-4 flex items-center justify-center'>Accéder au catalogue</Button>
                     </div>
                 </div>
 
