@@ -23,7 +23,7 @@ const Login = () => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!acceptCGU) {
-            showSnackbar(<p className='m-0'>Veuillez accepter les CGU pour continuer.</p>, 'error')
+            showSnackbar(<p className='m-0'>Veuillez accepter les conditions générales d'utilisation pour continuer.</p>, 'error')
             return;
         }
         const result = await signIn("credentials", {
@@ -127,7 +127,7 @@ const Login = () => {
                     className='mt-4'
                     options={[
                         {
-                            label: <p className='m-0 ml-2'>J'accepte les <a href="/conditions-generales-d-utilisation" target='_blank'>CGU</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>Obligatoire</span></p>,
+                            label: <p className='m-0 ml-2'>J'accepte les <a href="/conditions-generales-d-utilisation" target='_blank'>conditions générales d'utilisation</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>Obligatoire</span></p>,
                             nativeInputProps: {
                                 name: 'checkboxes-1',
                                 value: 'value3',

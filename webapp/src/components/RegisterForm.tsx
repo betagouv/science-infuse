@@ -24,6 +24,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const [school, setSchool] = useState("");
     const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
     const [errorMessage, setErrorMessage] = useState("");
+    const [job, setJob] = useState("");
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -39,7 +40,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        if (!email || !firstName || !lastName || !password || !confirmPassword || !academy || schoolSubjects.length === 0) {
+        if (!firstName || !email || !password || !job || !confirmPassword) {
             setErrorMessage("Veuillez remplir tous les champs obligatoires.");
             return;
         }
@@ -114,8 +115,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                 <UserSettingsField
                     isEditable
                     alwaysEditable={true}
-                    required={true}
-                    label="Nom *"
+                    label="Nom"
                     value={lastName}
                     onValidate={async () => { await updateUser({ lastName: lastName }) }}
                     onChange={(_) => setLastName(_ as string)}
@@ -147,9 +147,17 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                 />
 
                 <UserSettingsField
-                    isEditable
-                    label="Académie de rattachement *"
+                    label="Métier *"
                     required={true}
+                    alwaysEditable={true}
+                    value={job}
+                    onChange={(_) => setJob(_ as string)}
+                />
+
+                <UserSettingsField
+                    isEditable
+                    label="Académie de rattachement"
+                    required={false}
                     alwaysEditable={true}
                     isSelect
                     value={academy}
@@ -160,7 +168,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                 />
 
 
-                <UserSettingsField
+                {/* <UserSettingsField
                     isEditable
                     label="Mon école"
                     required={false}
@@ -168,15 +176,15 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     value={school}
                     onChange={(_) => setSchool(_ as string)}
                     onValidate={async () => { await updateUser({ school }) }}
-                />
+                /> */}
 
 
 
 
                 <UserSettingsField
                     isEditable
-                    required={true}
-                    label="Matière enseignée *"
+                    required={false}
+                    label="Matière enseignée"
                     alwaysEditable={true}
                     isMultiSelect
                     value={schoolSubjects}
