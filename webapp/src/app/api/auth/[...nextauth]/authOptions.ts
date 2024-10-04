@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcrypt"
+import { UserRoles } from "@prisma/client"
 
 // Extend the User type to include the fields you want
 type ExtendedUser = {
@@ -10,6 +11,7 @@ type ExtendedUser = {
   email: string
   firstName?: string | null
   lastName?: string | null
+  roles?: UserRoles[]
 }
 
 export const authOptions: AuthOptions = {
@@ -45,6 +47,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          roles: user.roles
         }
       }
     })
@@ -61,6 +64,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id
         token.firstName = (user as ExtendedUser).firstName
         token.lastName = (user as ExtendedUser).lastName
+        token.roles = (user as ExtendedUser).roles
       }
       return token
     },
@@ -69,6 +73,7 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string
         session.user.firstName = token.firstName as string | null | undefined
         session.user.lastName = token.lastName as string | null | undefined
+        session.user.roles = token.roles
       }
       return session
     }

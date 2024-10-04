@@ -60,23 +60,3 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Error saving the file' }, { status: 500 });
     }
 }
-
-// export async function GET(request: NextRequest) {
-//     const fileName = request.nextUrl.searchParams.get('fileName');
-
-//     if (!fileName) {
-//         return NextResponse.json({ error: 'Invalid file name' }, { status: 400 });
-//     }
-
-//     const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
-
-//     try {
-//         const imageBuffer = await readFile(filePath);
-//         return new NextResponse(imageBuffer, {
-//             headers: { 'Content-Type': 'image/jpeg' }, // Adjust content type as needed
-//         });
-//     } catch (error) {
-//         console.error('Error reading file:', error);
-//         return NextResponse.json({ error: 'Image not found' }, { status: 404 });
-//     }
-// }

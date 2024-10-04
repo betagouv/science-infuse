@@ -153,7 +153,6 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
     const { showSnackbar } = useSnackbar();
     const userId = session?.user?.id;
     const [user, setUser] = useState<UserFull | null>(null)
-    // console.log("USERRR el", props.educationLevels)
     const [email, setEmail] = useState(user?.firstName || "");
     const [firstname, setFirstname] = useState(user?.firstName || "");
     const [job, setJob] = useState(user?.job || "");
