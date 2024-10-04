@@ -35,11 +35,12 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { school, firstName, lastName, academyId, educationLevels, schoolSubjects }: Partial<UserFull> = body;
-    console.log("UPDATE USER", schoolSubjects)
+    const { school, firstName, lastName, job, academyId, educationLevels, schoolSubjects }: Partial<UserFull> = body;
+    console.log("UPDATE USER", body)
 
     const updateData: any = {};
     if (school !== undefined) updateData.school = school;
+    if (job !== undefined) updateData.job = job;
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (academyId !== undefined) updateData.academyId = academyId;

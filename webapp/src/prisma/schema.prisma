@@ -209,6 +209,7 @@ model User {
   roles           UserRoles[]            @default([USER])
   school          String?
   lastName        String?
+  job             String?
   email           String?                @unique
   emailVerified   DateTime?
   image           String?

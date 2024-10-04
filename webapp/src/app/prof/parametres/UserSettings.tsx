@@ -85,7 +85,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                         disabled={!isEditable}
                         label={props.label}
                         nativeSelectProps={{
-                            required:props.required,
+                            required: props.required,
                             value: props.value as string,
                             onChange: (e) => handleChange(e.target.value)
                         }}
@@ -98,7 +98,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                         style={{ margin: 0 }}
                         editable={isEditable}
                         nativeInputProps={{
-                            required:props.required,
+                            required: props.required,
                             value: props.value as string,
                             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value)
                         }}
@@ -156,6 +156,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
     // console.log("USERRR el", props.educationLevels)
     const [email, setEmail] = useState(user?.firstName || "");
     const [firstname, setFirstname] = useState(user?.firstName || "");
+    const [job, setJob] = useState(user?.job || "");
     const [lastname, setLastname] = useState(user?.lastName || "");
     const [password, setPassword] = useState("xxxxxxxxx");
     const [academy, setAcademy] = useState("");
@@ -175,6 +176,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
         setLastname(updatedUser.lastName || "")
         setEmail(updatedUser.email || "")
         setSchool(updatedUser?.school || "")
+        setJob(updatedUser?.job || "")
         setAcademy(updatedUser?.academyId || "")
         setEducationLevels(updatedUser?.educationLevels.map(e => e.id) || [])
         setSchoolSubjects(updatedUser?.schoolSubjects.map(e => e.id) || [])
@@ -221,6 +223,13 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                     <UserSettingsField label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
 
                     <UserSettingsField
+                        label="Métier *"
+                        isEditable
+                        value={job}
+                        onValidate={async () => { await updateUser({ job: job }) }}
+                        onChange={(_) => setJob(_ as string)}
+                    />
+                    <UserSettingsField
                         isEditable
                         isSelect
                         label="Académie de rattachement"
@@ -232,17 +241,17 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                     />
 
 
-                    <UserSettingsField
+                    {/* <UserSettingsField
                         isEditable
                         label="Mon école"
                         value={school}
                         onChange={(_) => setSchool(_ as string)}
                         onValidate={async () => { await updateUser({ school }) }}
-                    />
+                    /> */}
 
 
 
-       
+
                     <UserSettingsField
                         isEditable
                         isMultiSelect

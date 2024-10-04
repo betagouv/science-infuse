@@ -30,6 +30,7 @@ export const getUserFull = async (userId: string) => {
         select: {
             id: true,
             firstName: true,
+            job: true,
             email: true,
             roles: true,
             school: true,
@@ -39,7 +40,6 @@ export const getUserFull = async (userId: string) => {
             academyId: true,
             educationLevels: true,
             schoolSubjects: true,
-            // Add other fields you want to include, but exclude password
         }
     });
     return user;

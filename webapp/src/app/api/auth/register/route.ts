@@ -7,7 +7,7 @@ import { User } from "@prisma/client";
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password, firstName, lastName, school, academyId, schoolSubjects, educationLevels }: Partial<User & UserFull> = body;
+    const { email, password, firstName, lastName, job, school, academyId, schoolSubjects, educationLevels }: Partial<User & UserFull> = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: "Vous devez fournir un email et un mot de passe." }, { status: 400 })
@@ -26,16 +26,17 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const userData: any = {};
-    if (school !== undefined) userData.school = school;
-    if (firstName !== undefined) userData.firstName = firstName;
-    if (lastName !== undefined) userData.lastName = lastName;
-    if (academyId !== undefined) userData.academyId = academyId;
-    if (schoolSubjects !== undefined) {
+    if (school) userData.school = school;
+    if (firstName) userData.firstName = firstName;
+    if (lastName) userData.lastName = lastName;
+    if (job) userData.job = job;
+    if (academyId) userData.academyId = academyId;
+    if (schoolSubjects) {
       userData.schoolSubjects = {
         connect: schoolSubjects.map(e => ({ id: e.id }))
       };
     }
-    if (educationLevels !== undefined) {
+    if (educationLevels) {
       userData.educationLevels = {
         connect: educationLevels.map(e => ({ id: e.id }))
       };
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Utilisateur enregistré avec succès." }, { status: 201 })
   } catch (error) {
+    console.log("ERROR", error)
     return NextResponse.json({ error: "Une erreur est survenue." }, { status: 500 })
   }
 }
