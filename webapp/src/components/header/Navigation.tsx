@@ -37,6 +37,21 @@ const StyledMainNavigation = styled(MainNavigation)`
 	}
 `
 
+
+const NavBarSearch = () => {
+	const pathname = usePathname()
+
+	if (pathname === "/") {
+		return null
+	}
+
+	return (
+		<div className="w-full min-w-[30rem]">
+			<SearchBar />
+		</div>
+	)
+}
+
 export function Navigation() {
 
 	const { data: session } = useSession();
@@ -99,9 +114,7 @@ export function Navigation() {
 							target: "_self",
 							className: "ml-auto w-full"
 						},
-						text: <div className="w-full min-w-[30rem]">
-							<SearchBar />
-						</div>
+						text: <NavBarSearch />
 
 					}
 				]}
