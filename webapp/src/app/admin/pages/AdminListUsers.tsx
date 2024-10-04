@@ -38,32 +38,37 @@ const AdminListUsers = () => {
         { flex: 1, field: 'job', headerName: 'Métier', minWidth: 200, editable: true },
         { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
         {
-            field: 'educationLevels',
-            headerName: 'Niveaux d\'éducation',
-            editable: false,
-            minWidth: 200,
-            renderCell: (params) => (
-                <div className='block'>
-                    {params.value.map((el: EducationLevel) => (
-                        <Chip key={el.id} label={el.name} style={{ margin: '2px' }} />
-                    ))}
-                </div>
-            )
-        },
-        {
             field: 'roles',
             headerName: 'Roles',
             editable: false,
             minWidth: 400,
             renderCell: (params) => (
                 <div className='block'>
-                    {params.value.map((role: UserRoles) => (
-                        <Chip key={role} label={role} style={{ margin: '2px' }} />
-                    ))}
+                    {params.value
+                        .sort((a: UserRoles, b: UserRoles) => a.localeCompare(b))
+                        .map((role: UserRoles) => (
+                            <Chip key={role} label={role} style={{ margin: '2px' }} />
+                        ))}
                     <Button onClick={() => handleOpenRolesDialog(params.row)}>Modifier</Button>
                 </div>
             )
         },
+        {
+            field: 'educationLevels',
+            headerName: 'Niveaux d\'éducation',
+            editable: false,
+            minWidth: 200,
+            renderCell: (params) => (
+                <div className='block'>
+                    {params.value
+                        .sort((a: EducationLevel, b: EducationLevel) => a.name.localeCompare(b.name))
+                        .map((el: EducationLevel) => (
+                            <Chip key={el.id} label={el.name} style={{ margin: '2px' }} />
+                        ))}
+                </div>
+            )
+        },
+
     ];
 
     const handleOpenRolesDialog = (user: UserFull) => {
@@ -98,8 +103,9 @@ const AdminListUsers = () => {
     };
 
     return (
-        <div style={{ height: 400 }}>
+        <div>
             <DataGrid
+                style={{ height: "90vh" }}
                 rows={users || []}
                 columns={columns}
                 // checkboxSelection
@@ -111,7 +117,7 @@ const AdminListUsers = () => {
                 slots={{
                     toolbar: () => (
                         <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                            <GridToolbarQuickFilter placeholder='Rechercher' /> 
+                            <GridToolbarQuickFilter placeholder='Rechercher' />
                         </div>
                     ),
                 }}
