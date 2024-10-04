@@ -75,8 +75,8 @@ class ApiClient {
     return response.data;
   }
 
-  async updateUser(userData: Partial<UserFull>): Promise<UserFull> {
-    const response = await this.axiosInstance.put<UserFull>(`/users/me`, userData);
+  async updateUser(userData: Partial<UserFull>, userId?: string): Promise<UserFull> {
+    const response = await this.axiosInstance.put<UserFull>(`/users/${userId || "me"}`, userData);
     return response.data;
   }
 
@@ -284,6 +284,14 @@ class ApiClient {
 
   async getAcademies(): Promise<Academy[]> {
     const response = await this.axiosInstance.get<Academy[]>(`/academies`);
+    return response.data;
+  }
+
+  async getUsers(): Promise<UserFull[]> {
+    console.log("GET USERS")
+    const response = await this.axiosInstance.get<UserFull[]>(`/users`);
+    console.log("GET USERS data", response.data)
+
     return response.data;
   }
 }

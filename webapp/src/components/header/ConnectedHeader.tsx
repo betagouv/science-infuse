@@ -3,6 +3,7 @@ import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import Button from "@codegouvfr/react-dsfr/Button"
 import styled from "@emotion/styled";
 import { Popover, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material"
+import { UserRoles } from "@prisma/client";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useRef } from "react";
@@ -99,10 +100,10 @@ export default () => {
                         </div>
 
                         <div className="flex flex-col">
-
                             {[
                                 { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                                 { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
+                                ...((user.roles||[]).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin" }] : []),
                                 { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
                             ].map((item, index) => (
                                 <button

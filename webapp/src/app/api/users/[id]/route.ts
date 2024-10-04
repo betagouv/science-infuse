@@ -1,42 +1,59 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/authOptions';
 import { UserFull } from '@/lib/api-client';
 import { getUserFull } from '@/lib/utils/db';
+import { userIs } from '../../accessControl';
+import { UserRoles } from '@prisma/client';
 
-export async function GET() {
+export async function GET(request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+
   const session = await getServerSession(authOptions);
+
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const userId = params.id == "me" ? session.user.id : params.id;
+  const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN])
   try {
-    const user = await getUserFull(session.user.id);
+    let user: UserFull | null = null;
+
+    if (isAdmin || session.user.id == userId) {
+      user = await getUserFull(userId);
+    }
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     return NextResponse.json(user);
+
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const userId = params.id == "me" ? session.user.id : params.id;
+  const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN])
+
   try {
     const body = await request.json();
     const { school, firstName, lastName, job, academyId, educationLevels, schoolSubjects }: Partial<UserFull> = body;
-    console.log("UPDATE USER", body)
 
     const updateData: any = {};
     if (school !== undefined) updateData.school = school;
@@ -55,13 +72,15 @@ export async function PUT(request: Request) {
       };
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: updateData,
-    });
+    if (isAdmin || session.user.id == userId) {
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+      });
+      return NextResponse.json(updatedUser);
+    }
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-    
-    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error('Error updating user:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

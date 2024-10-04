@@ -1,3 +1,4 @@
+import { UserRoles } from "@prisma/client"
 import NextAuth from "next-auth"
 
 export interface ConnectedUser {
@@ -5,6 +6,7 @@ export interface ConnectedUser {
   firstName?: string | null
   lastName?: string | null
   email: string,
+  roles?: UserRoles[],
 }
 
 declare module "next-auth" {
