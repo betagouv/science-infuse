@@ -87,12 +87,12 @@ export const getColorFromScore = (score: number) => {
     return `hsl(${hue}, 100%, 50%)`;
 }
 
-const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
+const StarDocumentChunk = (props: { query: string, chunkId: string, starred: boolean }) => {
     const [starred, setStarred] = useState(props.starred);
     const { showSnackbar } = useSnackbar();
 
     const starDocumentChunk = async () => {
-        await apiClient.starDocumentChunk({ documentChunkId: props.chunkId, keyword: props.query })
+        await apiClient.starDocumentChunk(props.chunkId, props.query)
         setStarred(true);
         showSnackbar(
             <p className="m-0">Favori ajouté avec succès</p>,
@@ -101,7 +101,7 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     }
 
     const unStarDocumentChunk = async () => {
-        await apiClient.unStarDocumentChunk({ documentChunkId: props.chunkId })
+        await apiClient.unStarDocumentChunk(props.chunkId);
         setStarred(false);
         showSnackbar(
             <p className="m-0">Favori supprimé avec succès</p>,
@@ -118,6 +118,37 @@ const Star = (props: { query: string, chunkId: string, starred: boolean }) => {
     </Tooltip>
 }
 
+const StarBlock = (props: { query: string, blockId: string, starred: boolean }) => {
+    const [starred, setStarred] = useState(props.starred);
+    const { showSnackbar } = useSnackbar();
+
+    const starBlock = async () => {
+        await apiClient.starBlock(props.blockId, props.query)
+        setStarred(true);
+        showSnackbar(
+            <p className="m-0">Favori ajouté avec succès</p>,
+            'success'
+        )
+    }
+
+    const unStarBlock = async () => {
+        await apiClient.unStarBlock(props.blockId);
+        setStarred(false);
+        showSnackbar(
+            <p className="m-0">Favori supprimé avec succès</p>,
+            'success'
+        )
+
+    }
+    return <Tooltip title={props.starred ? "Supprimer des favoris" : "Ajouter aux favoris"}>
+        {starred ? <svg onClick={unStarBlock} className="cursor-pointer" width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26Z" fill="#161616" />
+        </svg> : <svg onClick={starBlock} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M11.9999 0.5L15.3859 7.84L23.4129 8.792L17.4779 14.28L19.0529 22.208L11.9999 18.26L4.94691 22.208L6.52191 14.28L0.586914 8.792L8.61391 7.84L11.9999 0.5ZM11.9999 5.275L9.96191 9.695L5.12891 10.267L8.70191 13.572L7.75291 18.345L11.9999 15.968L16.2469 18.345L15.2979 13.572L18.8709 10.267L14.0379 9.694L11.9999 5.275Z" fill="#161616" />
+        </svg>}
+    </Tooltip>
+}
+
 export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
@@ -125,7 +156,7 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
         <div className="flex flex-row justify-between gap-4">
             {props.end}
             <div className="flex self-end gap-4 ml-auto">
-                {props.starred != undefined && <Star key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
+                {props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
                 {
                     props.downloadLink && <button
                         onClick={() => window.open(props.downloadLink, '_blank')}
@@ -493,17 +524,22 @@ const RenderTiptapContent = (props: { content: any }) => {
 }
 
 export const RenderChapterBlock = (props: { searchWords: string[], block: BlockWithChapter }) => {
+    const searchParams = useSearchParams();
+    const query = searchParams.get('query') || "";
+
     const { searchWords, block } = props;
+
     const baseImageSrc = 'https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png';
     // const blockImageSrc = JSON.parse(block.content).find((e: any) => e.type == "imageBlock")?.attrs?.src
     // const chapterImageSrc = JSON.parse(block.chapter.content as string).content.find((e: any) => e.type == "imageBlock")?.attrs?.src
     const blockContent = typeof props.block.content === 'string' ? JSON.parse(props.block.content) : props.block.content;
+
     const link = `/prof/chapitres/${block.chapter.id}/view?block=${props.block.id}`
     console.log("BLOCK CONTENT", blockContent)
     return <StyledCardWithoutTitle
         background
         border
-        enlargeLink
+        // enlargeLink
         badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
         start={
             block.chapter.theme ? <ul className="fr-badges-group pt-4 w-full">
@@ -526,16 +562,25 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         imageUrl={props.block.chapter?.coverPath || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
-            < a href={link} id="" >
-                <div className="flex justify-start items-center gap-3 pt-2">
-                    <div className="flex items-center gap-2">
-                        <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
-                        </svg>
-                        <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+            <div className="flex justify-between items-center">
+
+                <a href={link} id="" className="bg-none" >
+                    <div className="flex justify-start items-center gap-3 pt-2">
+                        <div className="flex items-center gap-2">
+                            <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
+                            </svg>
+                            <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+                        </div>
+                    </div>
+                </a >
+                <div className="flex flex-row justify-between gap-4">
+                    <div className="flex self-end gap-4 ml-auto">
+                        {props.block.user_starred != undefined && <StarBlock key={props.block.id} query={query} blockId={props.block.id} starred={props.block.user_starred} />}
                     </div>
                 </div>
-            </a >
+
+            </div>
         }
         size="small"
         title={< div className="flex flex-col gap-2 w-full text-left" >

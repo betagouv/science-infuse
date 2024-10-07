@@ -25,7 +25,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
             const sortedChunks = chunks.slice().sort((a, b) => a.metadata.start - b.metadata.start);
 
             const closestChunk: ChunkWithScore<"video_transcript"> | undefined = sortedChunks.reduce((prev: ChunkWithScore<"video_transcript"> | undefined, curr) => {
-                if (curr.metadata.start <= video.currentTime) {
+                if (curr.metadata.start-1 <= video.currentTime) {
                     return curr;
                 }
                 return prev;
@@ -35,13 +35,29 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
         };
         const updateDuration = () => setDuration(video.duration);
 
+        const onVideoLoaded = () => {
+            if (chunks.length >= 1) {
+                const greatestScoreChunk = chunks.reduce((prev, current) =>
+                    (prev.score > current.score) ? prev : current
+                );
+                console.log("greatestScoreChunk", greatestScoreChunk)
+                handleHotspotClick(greatestScoreChunk);
+            }
+        };
+
+
         video.addEventListener('timeupdate', updateTime);
         video.addEventListener('loadedmetadata', updateDuration);
+        video.addEventListener('loadeddata', onVideoLoaded);
+
+
 
         return () => {
             video.removeEventListener('timeupdate', updateTime);
             video.removeEventListener('loadedmetadata', updateDuration);
+            video.removeEventListener('loadeddata', onVideoLoaded);
         };
+
     }, []);
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -54,11 +70,11 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
         video.currentTime = seekTime;
     };
 
-    const handleHotspotClick = (start: number, index: number) => {
+    const handleHotspotClick = (chunk: ChunkWithScore<"video_transcript">) => {
         if (videoRef.current) {
-            videoRef.current.currentTime = start;
+            videoRef.current.currentTime = chunk.metadata.start;
         }
-        onChunkSelected(chunks[index]);
+        onChunkSelected(chunk);
     };
 
     return (
@@ -82,7 +98,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                     </div>
                 )}
                 {chunks
-                    .sort((a,b) => b.score - a.score)
+                    .sort((a, b) => b.score - a.score)
                     .filter(c => c.metadata)
                     // at least 4
                     // and the best 20%
@@ -111,7 +127,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                                     onMouseLeave={() => { setHoveredVideoChunk(null) }}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleHotspotClick(start, index);
+                                        handleHotspotClick(chunk);
                                     }}
                                 />
                             </Tooltip>

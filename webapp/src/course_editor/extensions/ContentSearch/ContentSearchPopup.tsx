@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
-import { ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
+import { BlockWithChapter, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSIContent } from '@/app/recherche/fetchSIContent';
@@ -100,14 +100,17 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
   useOnClickOutside(ref, handleClosePopup)
 
-  const [starredItems, setStarredItems] = useState<ChunkWithScoreUnion[]>([]);
+  const [starredDocumentChunks, setStarredDocumentChunks] = useState<ChunkWithScoreUnion[]>([]);
+  const [starredBlocks, setStarredBlocks] = useState<BlockWithChapter[]>([]);
 
   useEffect(() => {
     const fetchStarredItems = async () => {
       try {
-        const response = await apiClient.getStarDocumentChunk();
-        if (response)
-          setStarredItems(Object.values(response).flat());
+        const response = await apiClient.getUserStarredContent();
+        if (response) {
+          setStarredDocumentChunks(Object.values(response).map(i => i.documentChunks).flat());
+          setStarredBlocks(Object.values(response).map(i => i.blocks).flat());
+        }
       } catch (error) {
         console.error('Error fetching starred items:', error);
       }
@@ -135,7 +138,7 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
         <Tabs
           selectedTabType={tabType}
           onTabChange={(newTabType) => setTabType(newTabType)}
-          favourites={starredItems}
+          favourites={starredDocumentChunks}
           blocks={(results as SearchResults)?.blocks || []}
           chunks={(results as SearchResults)?.chunks || []}
         />
@@ -144,7 +147,7 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
 
           {!isLoading && !isError && results && <RenderSearchResult
-            favourites={starredItems}
+            favourites={starredDocumentChunks}
             onInserted={insertChunk}
             selectedTab={tabType}
             results={results}
@@ -152,12 +155,18 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
             resultPerPage={10} />
           }
 
-          {!isLoading && !isError && !results && tabType == TabType.Favourites && <ChunkResults
+          {!isLoading && !isError && !results && tabType == TabType.Favourites && <RenderSearchResult
+            selectedTab={tabType}
+            results={{ chunks: starredDocumentChunks, blocks: starredBlocks, page_count: 1 }}
+            searchWords={[]} resultPerPage={10} />
+
+          }
+          {/* {!isLoading && !isError && !results && tabType == TabType.Favourites && <ChunkResults
             onInserted={insertChunk}
-            chunks={starredItems}
+            chunks={starredDocumentChunks}
             searchWords={[]}
           />
-          }
+          } */}
         </div>
 
       </div>

@@ -62,6 +62,20 @@ model StarredDocumentChunk {
   @@unique([userId, documentChunkId, keyword])
 }
 
+model StarredBlock {
+  id        String   @id @default(cuid())
+  keyword   String
+  userId    String
+  comment   String   @default("")
+  blockId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  block     Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blockId, keyword])
+}
+
 model CommentThread {
   id        String    @id @default(cuid())
   chapterId String
@@ -146,6 +160,7 @@ model Block {
   user          User                   @relation(fields: [userId], references: [id])
   keyIdeas      KeyIdea[]              @relation("BlockToKeyIdea")
   tags          Tag[]                  @relation("BlockToTag")
+  StarredBlock  StarredBlock[]
 }
 
 model Activity {
@@ -226,6 +241,7 @@ model User {
   Session         Session[]
   starred         StarredDocumentChunk[]
   academy         Academy?               @relation(fields: [academyId], references: [id])
+  StarredBlock    StarredBlock[]
 }
 
 model Account {

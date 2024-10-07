@@ -67,7 +67,7 @@ export interface WebsiteExperienceMetadata {
 
 
 
-type MetadataType<T extends MediaType> =
+export type MetadataType<T extends MediaType> =
   T extends "pdf_image" ? PdfImageMetadata :
   T extends "raw_image" ? RawImageMetadata :
   T extends "pdf_text" ? PdfTextMetadata :
@@ -145,6 +145,7 @@ export interface ChapterFromBlockFull extends Chapter {
 
 export type BlockWithChapter = {
   id: string,
+  user_starred: boolean,
   title: string,
   score: number,
   content: JSONContent[],
