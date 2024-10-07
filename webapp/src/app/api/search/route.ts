@@ -20,7 +20,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
         const embeddings = await getEmbeddings(params.query)
 
         const chunks = await searchDocumentChunks(user.id, embeddings, params)
-        const blocks = await searchBlocksWithChapter(embeddings);
+        const blocks = await searchBlocksWithChapter(user.id, embeddings);
         return NextResponse.json({ page_count: 1, chunks, blocks })
     } catch (error) {
         console.log("ERRRRROR", error)

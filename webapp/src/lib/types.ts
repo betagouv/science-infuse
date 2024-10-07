@@ -1,3 +1,6 @@
+import { BlockWithChapter, ChunkWithScoreUnion } from "@/types/vectordb";
+import { Block, DocumentChunk } from "@prisma/client";
+
 // TOC
 export interface TOCItem {
     text: string;
@@ -13,3 +16,9 @@ export interface ChunkData {
     title: string;
     page: number;
 }
+
+
+export type GroupedFavorites = {
+    [keyword: string]: { documentChunks: ChunkWithScoreUnion[], blocks: BlockWithChapter[] };
+  };
+  

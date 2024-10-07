@@ -45,7 +45,7 @@ export async function updateBlock(title: string, content: JSONContent, textEmbed
 }
 
 
-export async function searchBlocksWithChapter(embedding: number[]) {
+export async function searchBlocksWithChapter(userId: string, embedding: number[]) {
   const startTime = performance.now();
   const data = await prisma.$queryRaw`
   SELECT
@@ -73,9 +73,11 @@ export async function searchBlocksWithChapter(embedding: number[]) {
         WHERE "Theme".id = "Chapter"."themeId"
       )
     ) as chapter,
-    1 - ("textEmbedding" <=> ${embedding}::vector) as score
-  FROM "Block"
+    1 - ("textEmbedding" <=> ${embedding}::vector) as score,
+    CASE WHEN "StarredBlock".id IS NOT NULL THEN true ELSE false END as user_starred
+FROM "Block"
   LEFT JOIN "Chapter" ON "Chapter"."id" = "Block"."chapterId"
+  LEFT JOIN "StarredBlock" ON "StarredBlock"."blockId" = "Block".id AND "StarredBlock"."userId" = ${userId}
   WHERE "status" = 'REVIEW' AND 1 - ("textEmbedding" <=> ${embedding}::vector) > 0.41
   ORDER BY score DESC
   LIMIT 100
@@ -86,6 +88,7 @@ export async function searchBlocksWithChapter(embedding: number[]) {
 
   return data;
 }
+
 export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
   const limit = Math.min(params.limit || 1000, 1000);
   const startTime = performance.now();

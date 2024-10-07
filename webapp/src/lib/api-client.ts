@@ -2,7 +2,7 @@ import { SearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
 import { Academy, Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
-import { TableOfContents } from './types';
+import { GroupedFavorites, TableOfContents } from './types';
 import { WEBAPP_URL } from '@/config';
 
 
@@ -15,13 +15,6 @@ export interface QueryRequest {
   query: string,
   mediaTypes?: string[],
   limit?: number
-}
-interface StarDocumentChunkRequest {
-  documentChunkId: string;
-  keyword: string;
-}
-interface UnStarDocumentChunkRequest {
-  documentChunkId: string;
 }
 
 interface CreateBlockRequest {
@@ -135,20 +128,40 @@ class ApiClient {
     return response.data;
   }
 
-  async getStarDocumentChunk(): Promise<{ [key: string]: ChunkWithScoreUnion[] }> {
-    const response = await this.axiosInstance.get<{ [key: string]: ChunkWithScoreUnion[] }>('/documentChunks/star');
+  async getUserStarredContent(): Promise<GroupedFavorites> {
+    const response = await this.axiosInstance.get<GroupedFavorites>('/users/me/starred_content');
     return response.data;
   }
 
-  async starDocumentChunk(data: StarDocumentChunkRequest): Promise<boolean> {
-    const response = await this.axiosInstance.post<boolean>(`/documentChunks/star`, data);
+  async starDocumentChunk(id: string, keyword: string): Promise<boolean> {
+    const response = await this.axiosInstance.post<boolean>(`/documentChunks/star/${id}`, {keyword});
     return response.data;
   }
 
-  async unStarDocumentChunk(data: UnStarDocumentChunkRequest): Promise<boolean> {
-    const response = await this.axiosInstance.delete<boolean>(`/documentChunks/star`, { data });
+  async unStarDocumentChunk(id: string): Promise<boolean> {
+    const response = await this.axiosInstance.delete<boolean>(`/documentChunks/star/${id}`);
     return response.data;
   }
+
+  async starBlock(id: string, keyword: string): Promise<boolean> {
+    const response = await this.axiosInstance.post<boolean>(`/course/chapters/blocks/${id}/star`, {keyword});
+    return response.data;
+  }
+
+  async unStarBlock(id: string): Promise<boolean> {
+    const response = await this.axiosInstance.delete<boolean>(`/course/chapters/blocks/${id}/star`);
+    return response.data;
+  }
+
+  // async starBlock(data: StarBlockRequest): Promise<boolean> {
+  //   const response = await this.axiosInstance.post<boolean>(`/block/star`, data);
+  //   return response.data;
+  // }
+
+  // async unStarBlock(data: UnStarDocumentChunkRequest): Promise<boolean> {
+  //   const response = await this.axiosInstance.delete<boolean>(`/block/star`, { data });
+  //   return response.data;
+  // }
   async createThread(data: CreateThreadRequest): Promise<CommentThread> {
     const response = await this.axiosInstance.post<CommentThread>('/comments/thread', data);
     return response.data;
