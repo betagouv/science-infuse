@@ -1,0 +1,138 @@
+---
+title: Locally
+description: Guide to set up and run the project locally
+---
+
+import { PROJECT_NAME } from "@/config.mdx"
+
+# Setting up {PROJECT_NAME}
+
+<Callout type="info">
+{PROJECT_NAME}'s main logic consists of two components:
+
+1. The NextJS backend handles:
+   - Database operations: Storing users, processed documents, chapters, education levels, etc.
+
+2. The Python backend manages:
+   - The document processing pipeline
+</Callout>
+
+{PROJECT_NAME} is a monorepo managed by [Docker Compose](https://docs.docker.com/compose/install/). Follow these steps to get the project running on your local machine.
+
+## Prerequisites
+
+- [Git](https://git-scm.com/downloads)
+- conda with Python 3.9 (you can use venv)
+- npm and Node.js
+- A computer / server with CUDA 12 installed
+- Postgresql
+
+<Callout title="Postgresql" type="info">
+You can run use the docker compose to launch an instance of postgresql
+```sh
+docker compose up postgresql
+``` 
+If you prefer to run it "locally" you can come up with your own instance, by changing the relevant environment variables
+</Callout>
+
+## Installation
+
+1. Clone the repository:
+   
+```sh
+git clone git@github.com:betagouv/science-infuse.git
+```
+
+2. Navigate to the project directory:
+```sh
+cd science-infuse
+```
+
+# The server
+<Callout type="info">
+the server is used in two ways:
+1. To run the processing pipeline in order to index the documents (pdf, video, ...). <br/> It does this using the [AI models](/docs/technology#ai-models) that run locally
+2. To serve the embedding models, used by the web client to process every user queries.
+</Callout>
+
+## Setup the server
+
+1. Create a virtual environment using conda with python 3.9
+```sh
+conda create --name scienceinfuse python=3.9
+conda activate scienceinfuse
+```
+
+2. Go inside the server folder:
+```sh
+cd server
+```
+
+3. Install the required dependencies
+```sh
+pip install -r requirements.txt
+```
+
+<Callout title="Dependency missing" type="warn">
+If when running the server, you encounter a error saying that a dependency is missing.
+1. Make sure that the requirements.txt has been installed correctly (without error)
+2. refer to the Dockerfile (`server/Dockerfile`) to see if a your missing dependency is not specified there (look for a `RUN pip install xxx` inside the Dockerfile)
+</Callout>
+
+4. Make sure you have correctly [set-up the environment variables](/docs/environment)
+
+## Launch the server
+The server needs to access the environment variables. To inject them, you can run it with this command:
+```sh
+env $(grep -v '^#' ../.env | xargs) python app/main.py
+```
+This command will inject the environment variables located in the root folder's .env file into the context of the command.
+
+# The next-app
+<Callout type="info">
+The next-app is built using the following technologies : 
+- [Next.JS](https://nextjs.org/docs/app) 14 (with app router)
+- [Prisma ORM](https://www.prisma.io/docs/getting-started/quickstart#2-model-your-data-in-the-prisma-schema) used to connect to the Postgresql database.
+</Callout>
+
+## Setup the next-app
+
+1. Navigate to the project directory:
+```sh
+cd next-app
+```
+
+2. Install the required dependencies
+```sh
+npm install
+```
+
+3. Sync the database
+```sh
+npx prisma db push
+```
+
+4. Feed the db with initial content
+```sh
+npm run db:seed
+```
+
+## Launch the next-app
+
+```sh
+npm run dev
+```
+
+if everything worked well you can visit [http://localhost:3000/](http://localhost:3000/) and you should see something like this:
+
+![Image](/image.png)
+
+## Troubleshooting
+
+If you encounter any issues during setup, please check the following:
+
+- Ensure all prerequisites are correctly installed.
+- Verify that the required ports are not being used by other applications.
+- Check the logs for any error messages.
+
+If problems persist, please contact [erwan.boehm@beta.gouv.fr](mailto:erwan.boehm@beta.gouv.fr) or [open an issue](https://github.com/betagouv/science-infuse/issues/new) on the GitHub repository.

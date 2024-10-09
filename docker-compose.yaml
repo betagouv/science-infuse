@@ -44,6 +44,13 @@ services:
     volumes:
       - ./postgresql_data:/var/lib/postgresql/data  # Persistent data volume
 
+  documentation:
+    build:
+      context: ./documentation
+    ports:
+      - "8004:3000"
+
+
   webapp:
     depends_on:
       - postgresql

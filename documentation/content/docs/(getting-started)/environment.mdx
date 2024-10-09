@@ -1,0 +1,83 @@
+---
+title: Set-up the environment variables
+---
+
+import {PROJECT_NAME} from "@/config.mdx"
+
+## Development environment
+
+To get started with {PROJECT_NAME} in a development environment, you'll need to set up the following environment variables.
+
+Create a `.env` file at the root of the project, and put the following.
+
+You will have to define :
+1. S3 config : `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`
+2. Postgresql : `POSTGRES_PASSWORD`
+3. Youtube API key [optional] : `YOUR_YOUTUBE_API_KEY`
+4. A [nextauth secret](https://next-auth.js.org/configuration/options#nextauth_secret) : `YOUR_NEXTAUTH_SECRET`
+
+```sh
+FILE_SERVER_URL="http://localhost:8001"
+NEXT_PUBLIC_FILE_SERVER_URL="http://localhost:8001"
+SERVER_URL="http://localhost:8000"
+NEXT_PUBLIC_SERVER_URL="http://localhost:8000"
+WEBAPP_URL="http://localhost:3000"
+NEXT_PUBLIC_WEBAPP_URL="http://localhost:3000"
+YOUTUBE_API_KEY="{YOUR_YOUTUBE_API_KEY}"
+S3_ACCESS_KEY="{YOUR_S3_ACCESS_KEY}"
+S3_SECRET_KEY="{YOUR_S3_SECRET_KEY}"
+S3_ENDPOINT="{YOUR_S3_ENDPOINT}"
+S3_REGION="{YOUR_S3_REGION}"
+S3_BUCKET="{YOUR_S3_BUCKET}"
+ENVIRONMENT="dev"
+POSTGRES_HOST="localhost"
+POSTGRES_DB="scienceinfuse"
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="{YOUR_POSTGRES_PASSWORD}"
+DATABASE_URL="postgresql://postgres:{YOUR_POSTGRES_PASSWORD}@localhost:5432/scienceinfuse?schema=public"
+NEXTAUTH_SECRET="{YOUR_NEXTAUTH_SECRET}"
+NEXTAUTH_URL="http://localhost:3000"
+OLLAMA_URL="http://localhost:11434"
+```
+
+## Production environment
+<Callout type="warn" >
+To run in a production environment it is **highly recommended** to [run the project using docker compose](/docs/docker-compose) 
+</Callout>
+To get started with {PROJECT_NAME} in a production environment, you'll need to set up the following environment variables.
+
+Create a `.env` file at the root of the project, and put the following.
+
+You will have to define :
+1. S3 config : `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`
+2. Postgresql : `POSTGRES_PASSWORD`
+3. Youtube API key [optional] : `YOUR_YOUTUBE_API_KEY`
+4. A [nextauth secret](https://next-auth.js.org/configuration/options#nextauth_secret) : `YOUR_NEXTAUTH_SECRET`
+5. The ip or the domain name of the server : `SERVER_IP` (ie: `51.38.223.168`)
+6. The public url of the project : `PUBLIC_URL` (ie: `https://science-infuse.beta.gouv.fr`)
+
+```sh
+NEXT_PUBLIC_SERVER_URL="http://172.17.0.1:8000"
+SERVER_URL="http://172.17.0.1:8000"
+NEXT_PUBLIC_SERVER_URL="${SERVER_URL}"
+WEBAPP_URL="{PUBLIC_URL}"
+NEXT_PUBLIC_WEBAPP_URL="{PUBLIC_URL}"
+WEAVIATE_URL="172.17.0.1"
+WEAVIATE_PORT="8080"
+WEAVIATE_GRPC_PORT="50051"
+SERVER_IP="{SERVER_IP}"
+# FTP_PASSWORD="{FTP_PASSWORD}"
+YOUTUBE_API_KEY="{YOUR_YOUTUBE_API_KEY}"
+S3_ACCESS_KEY="{YOUR_S3_ACCESS_KEY}"
+S3_SECRET_KEY="{YOUR_S3_SECRET_KEY}"
+S3_ENDPOINT="{YOUR_S3_ENDPOINT}"
+S3_REGION="{YOUR_S3_REGION}"
+S3_BUCKET="{YOUR_S3_BUCKET}"
+ENVIRONMENT="production"
+POSTGRES_PASSWORD="{POSTGRES_PASSWORD}"
+DATABASE_URL="postgresql://postgres:{POSTGRES_PASSWORD}@postgresql:5432/scienceinfuse?schema=public"
+NEXTAUTH_SECRET="{NEXTAUTH_SECRET}"
+NEXTAUTH_URL="{PUBLIC_URL}"
+OLLAMA_URL="http://ollama:11434"
+```
+
