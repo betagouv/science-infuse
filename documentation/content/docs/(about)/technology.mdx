@@ -1,0 +1,70 @@
+---
+title: Technologies
+description: An overview of the AI models and technological components used in our project
+---
+
+import {PROJECT_NAME} from "@/config.mdx"
+
+# AI Models
+
+<Callout title={`All AI models in ${PROJECT_NAME} run locally`}>
+This ensuring data privacy, RGPD compliance, and reducing latency. This approach allows for:
+- Complete control over the models and their versions
+- Enhanced data security by keeping all processing on-premises
+- Adherence to RGPD (General Data Protection Regulation) requirements
+</Callout>
+
+
+## Speech Recognition
+- **[Whisper](https://github.com/openai/whisper)**: State-of-the-art model for transcribing videos into text with high accuracy.
+
+## Image Analysis
+- **[Florence-2](https://huggingface.co/microsoft/Florence-2-large-ft)**: Advanced vision model employed to generate detailed descriptions of images extracted from PDFs.
+
+## Language Translation
+- **[Areeb123/En-Fr_Translation_Model](https://huggingface.co/Areeb123/En-Fr_Translation_Model)**: Specialized model used for translating Florence-2's English output into French.
+
+## PDF Structure Analysis
+- **[Surya](https://github.com/VikParuchuri/surya)**: Sophisticated PDF analyzer that:
+  - Identifies and categorizes text blocks, titles, and images
+  - Determines the optimal reading order of content blocks
+  - Enhances document understanding for further processing
+
+## Text Embeddings
+- **[Solon](https://huggingface.co/OrdalieTech/Solon-embeddings-base-0.1)**: Best open-source model for French semantic search.
+
+## Text Generation
+- **[LLaMa 3.1:8b](https://huggingface.co/meta-llama/Llama-3.1-8B)**: Large Language model utilized for context-aware automatic quiz generation and text auto-completion.
+
+---
+
+# Core Technological Components
+
+## Vector Database
+- **pgvector**: High-performance vector database extension for PostgreSQL chosen for its:
+  - Fast search capabilities
+  - Native support within the existing PostgreSQL infrastructure
+
+## Processing Backend
+- **Python**: Powerful and versatile programming language used for:
+  - Serving AI models
+  - Handling complex data processing pipelines
+
+- **FastAPI**: Modern, fast (high-performance) web framework for building APIs with Python, chosen for:
+  - Asynchronous request handling
+  - Easy integration with AI models
+  - Typed with Pydantic for automatic data validation and serialization
+
+## Web Application Framework
+- **Next.js**: Modern React framework powering both the front-end and back-end of our web application (except for the processing part)
+
+## Document Storage
+- **S3**: Object storage solution used to store all original reference documents (PDF, image, video, etc.), offering:
+  - Scalable and secure storage infrastructure
+  - Easy integration with existing systems
+  - Cost-effective storage for large volumes of data
+  - Compliance with data protection regulations
+
+
+## Deployment
+- **Docker** and **Docker Compose**: Containerized deployment for easy scaling and management

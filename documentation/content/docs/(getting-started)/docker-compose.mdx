@@ -1,0 +1,62 @@
+---
+title: Using docker compose
+description: Guide to set up and run the project locally using docker compose
+---
+
+import { PROJECT_NAME } from "@/config.mdx"
+
+<Callout type="info">
+This is the recommended way of running the project in production
+</Callout>
+
+# Setting up {PROJECT_NAME}
+
+{PROJECT_NAME} is a monorepo managed by [Docker Compose](https://docs.docker.com/compose/install/). Follow these steps to get the project running on your local machine.
+
+## Prerequisites
+
+- [Git](https://git-scm.com/downloads)
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+## Installation
+
+1. Clone the repository:
+   
+```sh
+git clone git@github.com:betagouv/science-infuse.git
+```
+
+2. Navigate to the project directory:
+```sh
+cd science-infuse
+```
+
+3. Build and start the Docker containers:
+   
+```sh
+docker compose up --build
+```
+
+   This command will download necessary images, build the containers, and start the services defined in the `docker-compose.yml` file.
+
+4. Once the build process is complete and the services are running, you can visit [http://localhost:3000/](http://localhost:3000/) and you should see something like this:
+
+![Image](/image.png)
+
+## Development
+
+- To stop the services, use `Ctrl+C` in the terminal where Docker Compose is running.
+- To run the services in detached mode, use `docker compose up -d`.
+- To view logs, use `docker compose logs`.
+- To rebuild the containers after making changes in the code, use `docker compose up --build`.
+
+## Troubleshooting
+
+If you encounter any issues during setup, please check the following:
+
+- Ensure all prerequisites are correctly installed.
+- Verify that the required ports are not being used by other applications.
+- Check the Docker logs for any error messages.
+
+If problems persist, please contact [erwan.boehm@beta.gouv.fr](mailto:erwan.boehm@beta.gouv.fr) or [open an issue](https://github.com/betagouv/science-infuse/issues/new) on the GitHub repository.
