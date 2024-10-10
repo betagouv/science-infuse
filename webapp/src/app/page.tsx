@@ -25,6 +25,7 @@ export default function Page() {
                     </div>
                 }
             </div>
+
             <Section1 />
             {!user && <Section2 />}
             <Section3 reverse={!!user} />
