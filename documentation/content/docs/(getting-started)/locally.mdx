@@ -51,7 +51,7 @@ cd science-infuse
 # The server
 <Callout type="info">
 the server is used in two ways:
-1. To run the processing pipeline in order to index the documents (pdf, video, ...). <br/> It does this using the [AI models](/docs/technology#ai-models) that run locally
+1. To run the processing pipeline in order to index the documents (pdf, video, ...). <br/> It does this using the [AI models](/technology#ai-models) that run locally
 2. To serve the embedding models, used by the web client to process every user queries.
 </Callout>
 
@@ -79,7 +79,7 @@ If when running the server, you encounter a error saying that a dependency is mi
 2. refer to the Dockerfile (`server/Dockerfile`) to see if a your missing dependency is not specified there (look for a `RUN pip install xxx` inside the Dockerfile)
 </Callout>
 
-4. Make sure you have correctly [set-up the environment variables](/docs/environment)
+4. Make sure you have correctly [set-up the environment variables](/environment)
 
 ## Launch the server
 The server needs to access the environment variables. To inject them, you can run it with this command:
@@ -91,8 +91,8 @@ This command will inject the environment variables located in the root folder's 
 # The next-app
 <Callout type="info">
 The next-app is built using the following technologies : 
-- [Next.JS](https://nextjs.org/docs/app) 14 (with app router)
-- [Prisma ORM](https://www.prisma.io/docs/getting-started/quickstart#2-model-your-data-in-the-prisma-schema) used to connect to the Postgresql database.
+- [Next.JS](https://nextjs.org/app) 14 (with app router)
+- [Prisma ORM](https://www.prisma.io/getting-started/quickstart#2-model-your-data-in-the-prisma-schema) used to connect to the Postgresql database.
 </Callout>
 
 ## Setup the next-app
