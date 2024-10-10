@@ -5,7 +5,7 @@ import { type HomeLayoutProps } from 'fumadocs-ui/home-layout';
  *
  * you can configure layouts individually from:
  * Home Layout: app/(home)/layout.tsx
- * Docs Layout: app/docs/layout.tsx
+ * Docs Layout: app/layout.tsx
  */
 export const baseOptions: HomeLayoutProps = {
   nav: {
@@ -14,7 +14,7 @@ export const baseOptions: HomeLayoutProps = {
   links: [
     {
       text: 'Documentation',
-      url: '/docs',
+      url: '/',
       active: 'nested-url',
     },
   ],
