@@ -11,7 +11,7 @@ export default (props: { reverse?: boolean }) => {
 
     return (
         // <StairsContainer color={color}>
-        <div className="w-full relative flex justify-center bg-[#e8edff] py-16">
+        <div className={`w-full relative flex justify-center py-16  ${props.reverse ? "bg-white":"bg-[#e8edff]"}`}>
             <div className="fr-col-12 fr-col-md-8 main-content-item flex flex-col">
                 <div className={`flex ${isMobile ? 'flex-col p-16' : 'gap-16'}`} style={{ flexFlow: !isMobile && props.reverse ? "row-reverse" : isMobile ? "column" : "row" }}>
 
