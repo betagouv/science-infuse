@@ -22,7 +22,7 @@ import { OnInserted } from "../RenderSearch";
 import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/components/CourseSettings/ChapterTableOfContents";
 import { JSONContent } from "@tiptap/core";
 
-const StyledCardWithoutTitle = styled(Card)`
+export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
     padding: 1rem;
     padding-top: 0;
