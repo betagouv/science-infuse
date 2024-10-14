@@ -15,11 +15,12 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
       className=""
       brandTop={<>RÉPUBLIQUE
         <br />FRANÇAISE</>}
-      // operatorLogo={{
-      //   alt: 'logo science infuse',
-      //   imgUrl: '/images/science_infuse_logo.svg',
-      //   orientation: 'horizontal'
-      // }}
+      operatorLogo={{
+        alt: 'logo science infuse',
+        imgUrl: '/images/science_infuse_logo.jpg',
+        // imgUrl: '/images/science_infuse_logo.svg',
+        orientation: 'horizontal'
+      }}
       quickAccessItems={[<ConnectedHeader key="connected-header" />]}
       homeLinkProps={{
         "href": "/",

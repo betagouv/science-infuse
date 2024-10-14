@@ -22,7 +22,7 @@ export default (props: { reverse?: boolean }) => {
                                 <h2 className="text-3xl md:text-4xl font-bold">Création de cours</h2>
                                 <ul className="text-lg space-y-4">
 
-                                    <li>Rédigez les textes, importez vos propres fichiers, choisissez des contenus Science Infuse, créez vos quizz et flashcards...</li>
+                                    <li>Rédigez les textes, choisissez parmi nos propres contenus validés, créez vos quiz, flashcards (carte de mémorisation) etc.</li>
                                     <li>Exportables dans votre ENT (environnement numérique de travail)</li>
                                     <li>Partageables avec la communauté Science Infuse si vous le souhaitez</li>
                                 </ul>
