@@ -20,5 +20,5 @@ export interface ChunkData {
 
 export type GroupedFavorites = {
     [keyword: string]: { documentChunks: ChunkWithScoreUnion[], blocks: BlockWithChapter[] };
-  };
-  
+};
+

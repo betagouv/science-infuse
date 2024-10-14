@@ -4,6 +4,8 @@ import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
 import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
 import AdminListUsers from "./pages/AdminListUsers";
+import IndexFile from "./pages/IndexFile";
+import JobList from "./pages/JobList";
 
 const AdminPage = () => {
     const pathname = usePathname();
@@ -26,6 +28,10 @@ const AdminPage = () => {
         switch (activeHash) {
             case "#utilisateurs":
                 return <AdminListUsers/>
+            case "#index-file":
+                return <IndexFile/>
+            case "#job-list":
+                return <JobList/>
             default:
                 return <div>Sélectionnez une option dans le menu</div>;
         }
@@ -39,7 +45,7 @@ const AdminPage = () => {
                         className="container"
                         style={{
                             width: 300,
-                            minWidth: 200
+                            minWidth: 250
                         }}
                     >
                         <SideMenu
@@ -53,6 +59,20 @@ const AdminPage = () => {
                                         href: "#utilisateurs"
                                     },
                                     text: "Utilisateurs"
+                                },
+                                {
+                                    isActive: activeHash === "#index-file",
+                                    linkProps: {
+                                        href: "#index-file"
+                                    },
+                                    text: "Indexer un fichier"
+                                },
+                                {
+                                    isActive: activeHash === "#job-list",
+                                    linkProps: {
+                                        href: "#job-list"
+                                    },
+                                    text: "Liste des actions"
                                 },
                             ]}
                         />

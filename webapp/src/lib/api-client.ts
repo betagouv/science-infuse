@@ -4,6 +4,7 @@ import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { GroupedFavorites, TableOfContents } from './types';
 import { WEBAPP_URL } from '@/config';
+import { PgBossJobGetIndexFileResponse } from '@/app/api/queueing/data/index-file/types';
 
 
 export interface UserFull extends Omit<User, 'password'> {
@@ -182,6 +183,40 @@ class ApiClient {
     return response.data;
   }
 
+  async fetcheIndexFileJobs(page: number, pageSize: number) {
+    const response = await this.axiosInstance.get<PgBossJobGetIndexFileResponse>(`/queueing/data/index-file?page=${page}&pageSize=${pageSize}`);
+    return response.data;
+  }
+
+  async indexFile(file: File, author?: string): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (author)
+      formData.append('author', author);
+
+    try {
+      const response = await this.axiosInstance.post<string>('/file/index', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data) {
+        return response.data;
+        // url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
+      } else {
+        throw new Error('Upload index failed: No filename received');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Upload index error:', error.response?.data || error.message);
+        throw new Error(`Upload index failed: ${error.response?.data?.error || error.message} `);
+      } else {
+        console.error('Unexpected error while uploading file for indexing:', error);
+        throw new Error('An unexpected error occurred during upload');
+      }
+    }
+  }
   async uploadFile(file: File, author?: string): Promise<DbFile> {
     const formData = new FormData();
     formData.append('file', file);
