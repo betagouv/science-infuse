@@ -7,7 +7,7 @@ import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
 from S3Storage import S3Storage
-from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
+from schemas import BoundingBox, Document, DocumentChunk, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from processing.text.SISurya import SISurya
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
@@ -31,7 +31,7 @@ class PDFProcessor(BaseDocumentProcessor):
         self.s3 = s3
         self.remove_after_upload_to_s3 = remove_after_upload_to_s3
         
-        super().__init__()
+        return super().__init__()
 
     def save_pdf_to_s3(self, pdf_path):
         filename = f"{self.id}.pdf"

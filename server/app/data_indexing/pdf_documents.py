@@ -32,7 +32,6 @@ def is_document_already_indexed(pdf_path):
 
 image_descriptor = SIImageDescription()
 s3 = S3Storage()
-image_descriptor = SIImageDescription()
 translator = SITranslator()
 surya = SISurya()
 

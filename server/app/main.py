@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
 from S3Storage import S3Storage
-from router import rerank, embedding
+from router import rerank, embedding, data_processor
 import logging
 from redis import asyncio as aioredis
 from fastapi_cache import FastAPICache
@@ -62,6 +62,7 @@ async def options_route(request: Request):
 
 app.include_router(embedding.router, prefix="/embedding", tags=["embedding"])
 app.include_router(rerank.router, prefix="/rerank", tags=["rerank"])
+app.include_router(data_processor.router, prefix="/process", tags=["process"])
 
 
 @app.on_event("startup")
