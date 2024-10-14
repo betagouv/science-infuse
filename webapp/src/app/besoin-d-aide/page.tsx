@@ -14,17 +14,15 @@ const NeedHelp = () => {
                         </div>
 
                         <div className="flex flex-col gap-16 items-center text-center p-24 w-full h-full">
-                            
-                            <p className="m-0 w-full text-4xl md:text-5xl font-medium text-center text-[#a243e3]">
-                                Une question ?
-                                <br />
-                                Une remarque ?
+
+                            <p className="m-0 w-full text-4xl md:text-5xl font-medium text-[--text-title-blue-france] text-center">
+                                Vous avez des questions <br /> ou remarques ?
                             </p>
 
                             <div className="flex flex-col gap-8 max-w-2xl mt-auto mb-auto">
-                                <p className="m-0">Contactez l’équipe Science Infuse : </p>
-                                <p className="m-0">Par e-mail, Olivier : <b>science-infuse@universcience.fr</b> </p>
-                                <p className="m-0">Tous les jours entre 9h30 et 19h, Alexandra : <b>06 69 29 18 66</b> </p>
+                                <p className="m-0">Contactez notre équipe :</p>
+                                <p className="m-0">Olivier : par email à : <b>science-infuse@universcience.fr </b></p>
+                                <p className="m-0">Alexandra : par téléphone au <b>06 69 29 18 66</b> (tous les jours entre 9h30 et 19h)</p>
                                 <p className="m-0">Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d’expérience sont précieux et permettent d’améliorer le service.</p>
                                 <p className="m-0">A bientôt !</p>
                             </div>
