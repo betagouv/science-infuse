@@ -33,10 +33,9 @@ const NeedHelp = () => {
                                 La Cité des sciences et de l'industrie
                             </p>
 
-                            <p className="m-0">Bien plus qu'un simple lieu d'exposition, c’est une véritable invitation à l'exploration scientifique pour les élèves et leurs enseignants. Imaginez : plonger au cœur d'un sous-marin avec l'Argonaute, s'émerveiller des expériences ludiques de la Cité des enfants ou encore s'envoler pour un voyage</p>
-                            <p className="m-0">extraordinaire aux confins du cosmos grâce au Planétarium...</p>
+                            <p className="m-0">Bien plus qu'un simple lieu d'exposition, c’est une véritable invitation à l'exploration scientifique pour les élèves et leurs enseignants. Imaginez : plonger au cœur d'un sous-marin avec l'Argonaute, s'émerveiller des expériences ludiques de la Cité des enfants ou encore s'envoler pour un voyage extraordinaire aux confins du cosmos grâce au Planétarium...</p>
                             <p className="m-0">Au-delà de ces expériences phares, la Cité des sciences et de l'industrie offre un éventail d'activités pédagogiques spécialement conçues pour les groupes scolaires, et ce, pour tous les niveaux.</p>
-                            <p className="m-0">Que vous souhaitiez aborder des thématiques scientifiques pointues ou simplement attiser la curiosité de vos élèves, la Cité des sciences et de l'industrie saura vous proposer des activités stimulantes et enrichissantes ?</p>
+                            <p className="m-0">Que vous souhaitiez aborder des thématiques scientifiques pointues ou simplement attiser la curiosité de vos élèves, la Cité des sciences et de l'industrie saura vous proposer des activités stimulantes et enrichissantes.</p>
 
                             <Button
                                 linkProps={{
@@ -69,10 +68,10 @@ const NeedHelp = () => {
                         </div>
 
                         <div className="flex flex-col gap-4 items-center text-center p-24 w-full h-full max-w-3xl">
-                        <img src="/images/palais-decouverte.jpg" alt="Illustration palais de la découverte" className="flex-grow-0 mb-8 flex-shrink-0 w-80 h-auto" />
+                            <img src="/images/palais-decouverte.jpg" alt="Illustration palais de la découverte" className="flex-grow-0 mb-8 flex-shrink-0 w-80 h-auto" />
 
                             <p className="text-5xl font-medium text-center text-[#1a1a1a]">
-                                Etincelles du palais de la découverte
+                                Étincelles du Palais de la découverte
                             </p>
                             <p className="m-0">Au cœur du 15e arrondissement de Paris, les Étincelles du Palais de la découverte vous accueillent pour un voyage extraordinaire au pays de la science ! Bien que le Palais de la découverte soit actuellement fermé pour rénovation, il continue de partager sa passion pour les sciences à travers des expériences spectaculaires et des expositions captivantes. Laissez vos élèves s'émerveiller devant la science en train de se faire, participer à des démonstrations époustouflantes et découvrir les dernières avancées scientifiques. Les Étincelles du Palais de la découverte, c'est une occasion unique de faire vivre la science à vos élèves et de leur donner le goût de la découverte !</p>
 
