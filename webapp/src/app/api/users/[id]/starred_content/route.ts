@@ -75,7 +75,7 @@ export async function GET(request: NextRequest,
           mediaType: documentChunk.mediaType as any,
           document: {
             ...documentChunk.document,
-            documentId: documentChunk.document.id,
+            // documentId: documentChunk.document.id,
             publicPath: documentChunk.document.publicPath || ''
           },
           metadata: documentChunk.metadata as any
