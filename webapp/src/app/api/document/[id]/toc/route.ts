@@ -11,6 +11,13 @@ function createTocStructure(data: { path: string[]; page: number }[]): TableOfCo
         let current = root;
         for (let i = 0; i < item.path.length; i++) {
             const title = item.path[i];
+            if (!title) continue; // Skip empty titles
+            
+            if (current === undefined) {
+                console.error(`Current object is undefined for title: ${title}`);
+                break;
+            }
+
             if (!(title in current)) {
                 if (i === item.path.length - 1) {
                     current[title] = { page: item.page };
@@ -18,7 +25,12 @@ function createTocStructure(data: { path: string[]; page: number }[]): TableOfCo
                     current[title] = { items: {} };
                 }
             }
+
             if (i < item.path.length - 1) {
+                if (!current[title] || !current[title].items) {
+                    console.error(`Unexpected structure for title: ${title}`);
+                    break;
+                }
                 current = current[title].items;
             }
         }
@@ -27,11 +39,17 @@ function createTocStructure(data: { path: string[]; page: number }[]): TableOfCo
     function buildTocItems(node: Record<string, any>): TOCItem[] {
         const items: TOCItem[] = [];
         for (const [text, content] of Object.entries(node)) {
-            if ("page" in content) {
-                items.push({ text, page: content.page });
+            if (content && typeof content === 'object') {
+                if ('page' in content) {
+                    items.push({ text, page: content.page });
+                } else if ('items' in content) {
+                    const subItems = buildTocItems(content.items);
+                    items.push({ text, page: 0, items: subItems });
+                } else {
+                    console.error(`Unexpected content structure for text: ${text}`);
+                }
             } else {
-                const subItems = buildTocItems(content.items);
-                items.push({ text, page: 0, items: subItems });
+                console.error(`Invalid content for text: ${text}`);
             }
         }
         return items;
@@ -39,7 +57,6 @@ function createTocStructure(data: { path: string[]; page: number }[]): TableOfCo
 
     return { items: buildTocItems(root) };
 }
-
 async function getDocumentToc(documentUuid: string): Promise<TableOfContents> {
     const document = await prisma.document.findUnique({
         where: { id: documentUuid },
@@ -55,7 +72,6 @@ async function getDocumentToc(documentUuid: string): Promise<TableOfContents> {
     if (!document) return { items: [] }
     // Remove duplicates, keeping only the first occurrence (min page)
     const uniqueChunks: Record<string, ChunkData> = {};
-
     for (const chunk of document?.documentChunks) {
         const title = chunk.title.trim().replace(/^>/, '').trim();
         const page = chunk.metadata?.pageNumber || -1;

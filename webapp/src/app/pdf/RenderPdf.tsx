@@ -107,7 +107,7 @@ const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number
                 }}
             >
                 {!toc && <div className="flex justify-center items-center flex-col gap-2">
-                    <span className="text-lg font-bold">Chargement du pdf en cours</span>
+                    <span className="text-lg font-bold">Chargement du sommaire</span>
                     <CircularProgress className="ml-2" />
                 </div>
                 }

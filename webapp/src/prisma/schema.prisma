@@ -13,6 +13,7 @@ model Document {
   id             String          @id @default(cuid()) @db.Uuid
   s3ObjectName   String
   originalPath   String
+  deleted        Boolean         @default(false)
   publicPath     String?
   mediaName      String
   source         String          @default("UniverScience")
@@ -21,6 +22,7 @@ model Document {
   documentChunks DocumentChunk[]
   fileHash       String?
 }
+
 model DocumentChunk {
   id                   String                 @id @default(cuid()) @db.Uuid
   text                 String

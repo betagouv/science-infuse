@@ -1,9 +1,12 @@
+'use client';
+
 import { QueryFunction, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataGrid, GridColDef, GridLogicOperator, GridRowModel, GridToolbar, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import { apiClient, UserFull } from '@/lib/api-client'
-import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
+import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material'
 import { useState } from 'react'
 import { EducationLevel, UserRoles } from '@prisma/client'
+import AdminWrapper from '../AdminWrapper';
 
 const fetchUsers: QueryFunction<UserFull[], [string]> = async ({ queryKey }) => {
     const toc = await apiClient.getUsers();
@@ -28,7 +31,9 @@ const AdminListUsers = () => {
         },
     });
 
-    if (usersLoading) return <p>Loading...</p>
+    if (usersLoading) return <div className="w-full h-full flex items-center justify-center py-64">
+        <CircularProgress />
+    </div>
     if (usersError) return <p>Error fetching data</p>
 
     const columns: GridColDef[] = [
@@ -103,7 +108,7 @@ const AdminListUsers = () => {
     };
 
     return (
-        <div>
+        <AdminWrapper>
             <DataGrid
                 style={{ height: "90vh" }}
                 rows={users || []}
@@ -145,7 +150,7 @@ const AdminListUsers = () => {
                     <Button onClick={handleSaveRoles}>Enregistrer</Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </AdminWrapper>
     )
 }
 

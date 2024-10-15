@@ -1,5 +1,5 @@
 import { WEBAPP_URL } from "@/config";
-import { Chapter, EducationLevel, Skill, Theme, User } from "@prisma/client";
+import { Chapter, EducationLevel, Skill, Theme, User, Document } from "@prisma/client";
 import { JSONContent } from "@tiptap/core";
 
 //  this should match schema.py
@@ -106,16 +106,16 @@ export type ChunkWithScoreUnion =
   | (ChunkWithScore<"website_experience"> & { mediaType: "website_experience" })
 
 
-export interface Document {
-  id: string;
-  documentId: string;
-  publicPath: string;
-  originalPath: string;
-  s3ObjectName: string;
-  user_approved?: boolean;
-  user_disapproved?: boolean;
-  mediaName: string;
-}
+// export interface Document {
+//   id: string;
+//   documentId: string;
+//   publicPath: string;
+//   originalPath: string;
+//   s3ObjectName: string;
+//   user_approved?: boolean;
+//   user_disapproved?: boolean;
+//   mediaName: string;
+// }
 export interface DocumentWithChunks extends Document {
   chunks: DocumentChunk[];
 }
