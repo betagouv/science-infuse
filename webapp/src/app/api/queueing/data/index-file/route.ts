@@ -23,6 +23,7 @@ export const GET = withAccessControl(
             id,
             name,
             data,
+            output,
             state,
             started_on,
             created_on,

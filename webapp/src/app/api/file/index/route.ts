@@ -1,13 +1,13 @@
-import { v4 as uuidv4 } from 'uuid'
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile } from 'fs/promises';
-import path from 'path';
-import { authOptions } from '../../auth/[...nextauth]/authOptions';
-import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
-import s3Storage from '../../S3Storage';
-import { File as DbFile } from '@prisma/client';
 import { indexFileJob } from '@/queueing/pgboss/jobs/index-file';
+import fs from "fs";
+import { writeFile } from 'fs/promises';
+import { getServerSession } from 'next-auth/next';
+import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import { authOptions } from '../../auth/[...nextauth]/authOptions';
+const crypto = require('crypto');
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
@@ -33,28 +33,28 @@ export async function POST(request: NextRequest) {
         fileExtensionFromMime = 'pdf'
     }
     const fileExtension = fileExtensionFromMime || file.name.split('.').pop() || ''
-    console.log("FILE EXTENSION FROM MIME", fileExtensionFromMime)
-    console.log("FILE EXTENSION", file.name.split('.').pop() || '')
-    const fileName = `${uuidv4()}.${fileExtension}`
-
-    const localFilePath = path.join(process.cwd(), 'public', fileName);
+    // const fileName = `${uuidv4()}.${fileExtension}`
+    const localFilePath = path.join(process.cwd(), 'public', file.name);
 
     try {
         await writeFile(localFilePath, new Uint8Array(buffer));
+        const fileContent = await fs.promises.readFile(localFilePath);
+        const file = new File([fileContent], localFilePath.split('/').pop() || 'unknown', { type: 'application/octet-stream' });
+        console.log(`Created File object: ${file.name}`);
 
-        // const s3ObjectName = `prof/${user.id}/${fileName}`;
-        // await s3Storage.uploadFile(localFilePath, s3ObjectName)
-
-        // const dbfile = await prisma.file.create({
-        //     data: {
-        //         userId: user.id,
-        //         description: '',
-        //         author: author || `${user.firstName} ${user.lastName}`,
-        //         extension: fileExtension,
-        //         s3ObjectName: s3ObjectName,
-        //         shared: false
-        //     }
-        // })
+        // Calculate the hash of the file
+        const fileHash = crypto.createHash('sha256').update(fileContent).digest('hex') as string;
+        const fileExist = await prisma.document.findFirst({
+            where: {
+                fileHash: fileHash,
+                deleted: false,
+            }
+        })
+        if (fileExist) {
+            // remove and alert
+            await fs.promises.unlink(localFilePath);
+            return NextResponse.json(fileExist, { status: 409 });
+        }
 
         const result = await indexFileJob.emit({
             filePath: localFilePath,
