@@ -13,9 +13,14 @@ model Document {
   id             String          @id @default(cuid()) @db.Uuid
   s3ObjectName   String
   originalPath   String
+  deleted        Boolean         @default(false)
   publicPath     String?
   mediaName      String
+  source         String          @default("UniverScience")
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   documentChunks DocumentChunk[]
+  fileHash       String?
 }
 
 model DocumentChunk {
@@ -242,6 +247,7 @@ model User {
   starred         StarredDocumentChunk[]
   academy         Academy?               @relation(fields: [academyId], references: [id])
   StarredBlock    StarredBlock[]
+  Document        Document[]
 }
 
 model Account {

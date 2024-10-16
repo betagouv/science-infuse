@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // Recommended for the `pages` directory, default in `app`.
+  reactStrictMode: true, // Recommended for the `pages` directory, default in `app`.
   swcMinify: false,
   // swcMinify: true,
   experimental: {
     swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
+    instrumentationHook: true
+
     // appDir: true,
   },
   compiler: {

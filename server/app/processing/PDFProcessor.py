@@ -7,7 +7,7 @@ import re
 from PIL import Image, ImageFile
 from unstructured.partition.pdf import partition_pdf
 from S3Storage import S3Storage
-from schemas import BoundingBox, Document, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
+from schemas import BoundingBox, Document, DocumentChunk, DocumentWithChunks, PdfImageChunk, PdfImageMetadata, PdfTextChunk, PdfTextMetadata, VideoTranscriptChunk, VideoTranscriptMetadata
 from processing.text.SISurya import SISurya
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SIITranslator import SITranslator
@@ -31,7 +31,7 @@ class PDFProcessor(BaseDocumentProcessor):
         self.s3 = s3
         self.remove_after_upload_to_s3 = remove_after_upload_to_s3
         
-        super().__init__()
+        return super().__init__()
 
     def save_pdf_to_s3(self, pdf_path):
         filename = f"{self.id}.pdf"
@@ -65,7 +65,7 @@ class PDFProcessor(BaseDocumentProcessor):
         aspect_ratio = width / height
         res_megapixel = (width * height) / 1_000_000
 
-        if (res_megapixel < 0.05):
+        if (res_megapixel < 0.03):
             return False
 
         # Check if aspect ratio is within an acceptable range
@@ -214,6 +214,7 @@ class PDFProcessor(BaseDocumentProcessor):
             images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
             # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
             images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
+            print("PDFProcessor extract_document images", len(images), len(images_chunks), flush=True)
             translated_images_descriptions = self.translator.en_to_fr_batch([image['description_en'] for image in images_chunks])
             images_with_descriptions = [
                 {**image, "description_fr": translated_description}

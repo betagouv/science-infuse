@@ -1,3 +1,4 @@
+import { CircularProgress } from "@mui/material"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -8,7 +9,9 @@ export function requireAuth(Component: React.ComponentType<any>) {
     const router = useRouter()
 
     if (status === "loading") {
-      return <div>Loading...</div>
+      return <div className="w-full h-full flex items-center justify-center py-64">
+        <CircularProgress />
+      </div>
     }
 
     if (!session) {
