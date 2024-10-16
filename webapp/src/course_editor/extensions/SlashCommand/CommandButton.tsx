@@ -3,7 +3,7 @@ import { icons } from 'lucide-react'
 import { Icon } from '@/course_editor/components/ui/Icon'
 import { cn } from '@/lib/utils'
 
-export type CommandButtonProps = {
+type CommandButtonProps = {
   active?: boolean
   description: string
   icon: keyof typeof icons

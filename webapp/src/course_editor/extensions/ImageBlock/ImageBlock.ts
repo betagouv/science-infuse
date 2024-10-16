@@ -1,18 +1,18 @@
 "use client"
-import { ReactNodeViewRenderer } from '@tiptap/react'
-import { mergeAttributes, Range } from '@tiptap/core'
-import { NodeSelection } from 'prosemirror-state';
-import { ImageBlockView } from './components/ImageBlockView'
-import { Image as TiptapImage } from '../Image'
-import { apiClient } from '@/lib/api-client'
-import { ImageOptions } from '@tiptap/extension-image'
-import { TSeverity } from '@/app/SnackBarProvider'
-import PdfBlock from '../PdfBlock/PdfBlock'
+import { apiClient } from '@/lib/api-client';
+import { TSeverity } from '@/types/snackbar';
 import { s3ToPublicUrl } from '@/types/vectordb';
 import { File as DbFile } from '@prisma/client';
+import { mergeAttributes, Range } from '@tiptap/core';
+import { ImageOptions } from '@tiptap/extension-image';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { NodeSelection } from 'prosemirror-state';
+import { Image as TiptapImage } from '../Image';
+import PdfBlock from '../PdfBlock/PdfBlock';
 import VideoBlock from '../VideoBlock';
+import { ImageBlockView } from './components/ImageBlockView';
 
-export type ImageBlockOptions = ImageOptions & {
+type ImageBlockOptions = ImageOptions & {
   showSnackbar: (message: string, severity: TSeverity) => void;
 };
 declare module '@tiptap/core' {

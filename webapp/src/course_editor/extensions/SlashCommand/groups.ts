@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client'
-import { Group } from './types'
+import { Group } from '@/types/course-editor'
 
 export const GROUPS: Group[] = [
   {

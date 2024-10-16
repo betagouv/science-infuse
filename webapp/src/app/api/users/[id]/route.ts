@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/authOptions';
-import { UserFull } from '@/lib/api-client';
 import { getUserFull } from '@/lib/utils/db';
-import { userIs } from '../../accessControl';
+import { UserFull } from '@/types/api';
 import { UserRoles } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { userIs } from '../../accessControl';
+import { authOptions } from '../../auth/[...nextauth]/authOptions';
 
 export async function GET(request: NextRequest,
   { params }: { params: { id: string } }

@@ -10,16 +10,8 @@ import { useSnackbar } from '@/app/SnackBarProvider';
 import { apiClient } from '@/lib/api-client';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Node as PMNode } from '@tiptap/pm/model'
+import { Question } from '@/types/course-editor';
 
-export interface Option {
-  answer: string;
-  correct: boolean;
-}
-
-export interface Question {
-  question: string;
-  options: Option[];
-}
 
 
 const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup: () => void }) => {

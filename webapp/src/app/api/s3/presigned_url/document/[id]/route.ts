@@ -1,6 +1,5 @@
 import s3Storage from "@/app/api/S3Storage";
 import prisma from "@/lib/prisma";
-import { ChunkData, TableOfContents, TOCItem } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 export async function GET(
     request: NextRequest,

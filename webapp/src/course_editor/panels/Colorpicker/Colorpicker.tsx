@@ -5,7 +5,7 @@ import { themeColors } from '@/config'
 import { Icon } from '@/course_editor/components/ui/Icon'
 import { Toolbar } from '@/course_editor/components/ui/Toolbar'
 
-export type ColorPickerProps = {
+type ColorPickerProps = {
   color?: string
   onChange?: (color: string) => void
   onClear?: () => void

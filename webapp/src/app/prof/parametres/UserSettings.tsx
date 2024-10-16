@@ -1,7 +1,7 @@
 'use client';
 import { useSnackbar } from "@/app/SnackBarProvider";
 import Snackbar from "@/course_editor/components/Snackbar";
-import { apiClient, UserFull } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { Select } from "@codegouvfr/react-dsfr/SelectNext";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
@@ -9,6 +9,7 @@ import { Academy, EducationLevel, SchoolSubject } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import * as React from 'react';
 import CustomMultiSelect from "@/components/CustomMultiSelect";
+import { UserFull } from "@/types/api";
 
 
 const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, isPassword: boolean;[key: string]: any }) => {

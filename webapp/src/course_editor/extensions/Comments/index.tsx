@@ -2,7 +2,7 @@
 import { getMarkRange, Mark, mergeAttributes } from '@tiptap/react';
 import { Plugin, TextSelection } from 'prosemirror-state';
 
-export interface CommentOptions {
+interface CommentOptions {
     HTMLAttributes: Record<string, any>,
 }
 

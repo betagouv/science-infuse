@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { ChunkData, TableOfContents, TOCItem } from "@/lib/types";
+import { ChunkData, TableOfContents, TOCItem } from "@/types/TOC";
 import { NextRequest, NextResponse } from "next/server";
 
 

@@ -1,6 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
-
-export type TSeverity = 'success' | 'info' | 'warning' | 'error';
+import { TSeverity } from '@/types/snackbar';
+import React, { createContext, useContext, useState } from 'react';
 
 interface SnackbarState {
     open: boolean;

@@ -1,12 +1,11 @@
 'use client';
 import { UserSettingsField } from "@/app/prof/parametres/UserSettings";
 import { useSnackbar } from "@/app/SnackBarProvider";
-import Snackbar from "@/course_editor/components/Snackbar";
-import { apiClient, UserFull } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
+import { UserFull } from "@/types/api";
 import Button from "@codegouvfr/react-dsfr/Button";
-import { useEffect, useState } from "@preact-signals/safe-react/react";
+import { useState } from "@preact-signals/safe-react/react";
 import { Academy, EducationLevel, SchoolSubject } from "@prisma/client";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import * as React from 'react';
 

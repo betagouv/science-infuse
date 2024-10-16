@@ -1,9 +1,9 @@
+import { ShouldShowProps } from '@/types/course-editor'
 import { Editor } from '@tiptap/react'
-import { useCallback, useMemo } from 'react'
-import { ShouldShowProps } from '../types'
-import isTextSelected from '../utils/isTextSelected'
+import { useCallback } from 'react'
 import { ImageBlock } from '../extensions/ImageBlock'
 import PdfBlock from '../extensions/PdfBlock/PdfBlock'
+import isTextSelected from '../utils/isTextSelected'
 
 export const isCustomNodeSelected = (editor: Editor, node: HTMLElement) => {
   const customNodes = [

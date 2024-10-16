@@ -1,9 +1,6 @@
-import { TSeverity } from '@/app/SnackBarProvider';
+import { TSeverity } from '@/types/snackbar';
 import { Extension } from '@tiptap/core';
-import { Editor } from '@tiptap/core';
-import axios from 'axios';
 import { handleSave } from './saveToDb';
-import { Skill } from '@prisma/client';
 
 
 declare module "@tiptap/core" {
@@ -19,7 +16,6 @@ export const SaveCourse = Extension.create({
     addOptions() {
         return {
             ...this.parent?.(),
-            showSnackbar: (message: string, severity: TSeverity) => { },
         };
     },
     addCommands() {

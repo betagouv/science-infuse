@@ -1,26 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { Quote } from "@codegouvfr/react-dsfr/Quote";
-import { Card } from "@codegouvfr/react-dsfr/Card";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
-import { findNormalizedChunks } from "../text-highlighter";
-import Highlighter from "react-highlight-words";
-import { WEBAPP_URL } from "@/config";
-import { Typography, Collapse, Tooltip, styled } from '@mui/material';
-
-import styledComponent from '@emotion/styled';
-
-
-import Badge from "@codegouvfr/react-dsfr/Badge";
-// import Button from "@codegouvfr/react-dsfr/Button";
-import { Button } from "@codegouvfr/react-dsfr/Button";
-import { apiClient, ChapterWithBlock } from "@/lib/api-client";
-import { useSnackbar } from "@/app/SnackBarProvider";
-import { useSearchParams } from "next/navigation";
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
+import { useSnackbar } from "@/app/SnackBarProvider";
+import { WEBAPP_URL } from "@/config";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
-import { OnInserted } from "../RenderSearch";
 import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/components/CourseSettings/ChapterTableOfContents";
-import { JSONContent } from "@tiptap/core";
+import { apiClient } from "@/lib/api-client";
+import { ChapterWithBlock } from "@/types/api";
+import { OnInserted } from "@/types/course-editor";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import Badge from "@codegouvfr/react-dsfr/Badge";
+import { Button } from "@codegouvfr/react-dsfr/Button";
+import { Card } from "@codegouvfr/react-dsfr/Card";
+import { Quote } from "@codegouvfr/react-dsfr/Quote";
+import styledComponent from '@emotion/styled';
+import { Collapse, Tooltip, Typography, styled } from '@mui/material';
+import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import Highlighter from "react-highlight-words";
+import { findNormalizedChunks } from "../text-highlighter";
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {

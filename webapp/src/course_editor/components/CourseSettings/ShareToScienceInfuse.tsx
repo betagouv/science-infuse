@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api-client';
+import { ChapterWithoutBlocks } from '@/types/api';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { CircularProgress, Tooltip } from '@mui/material';
 import { ChapterStatus } from '@prisma/client';
 import { Editor } from '@tiptap/react';
-import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
-import { CircularProgress, Tooltip } from '@mui/material';
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 const ShareToScienceInfuse = (props: { editor: Editor }) => {
     const [chapterStatus, setChapterStatus] = useState<ChapterStatus>(props.editor.storage.simetadata.chapterStatus);

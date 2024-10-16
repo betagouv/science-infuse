@@ -1,14 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../../auth/[...nextauth]/authOptions';
-import { UserFull } from '@/lib/api-client';
-import { getUserFull } from '@/lib/utils/db';
-import { userIs } from '../../../accessControl';
-import { Block, DocumentChunk, UserRoles } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { GroupedFavorites } from '@/lib/types';
+import { UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
-import { MetadataType, WebsiteExperienceMetadata } from '@/types/vectordb';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { userIs } from '../../../accessControl';
+import { authOptions } from '../../../auth/[...nextauth]/authOptions';
+import { GroupedFavorites } from '@/types/api';
 
 
 

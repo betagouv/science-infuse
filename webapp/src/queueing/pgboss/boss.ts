@@ -41,7 +41,7 @@ const queue = singleton(
 type JobTypes = typeof JOB_TYPES;
 
 
-export type JobType = {
+type JobType = {
   [Key in keyof JobTypes]: `${Key}.${JobTypes[Key][number]}`;
 }[keyof JobTypes];
 

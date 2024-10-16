@@ -7,7 +7,7 @@ import { ChunkWithScore, s3ToPublicUrl } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { File } from '@prisma/client';
 
-export interface VideoNodeProps {
+interface VideoNodeProps {
   chunk?: ChunkWithScore<'video_transcript'>,
   userFile?: File,
   startOffset: number;

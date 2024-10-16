@@ -5,28 +5,8 @@ import { Toolbar } from '@/course_editor/components/ui/Toolbar'
 import { Icon } from '@/course_editor/components/ui/Icon'
 import { Surface } from '@/course_editor/components/ui/Surface'
 import { DropdownButton, DropdownCategoryTitle } from '@/course_editor/components/ui/Dropdown'
+import { ContentTypePickerCategory, ContentTypePickerOption, ContentTypePickerProps } from '@/types/course-editor'
 
-export type ContentTypePickerOption = {
-  label: string
-  id: string
-  type: 'option'
-  disabled: () => boolean
-  isActive: () => boolean
-  onClick: () => void
-  icon: keyof typeof icons
-}
-
-export type ContentTypePickerCategory = {
-  label: string
-  id: string
-  type: 'category'
-}
-
-export type ContentPickerOptions = Array<ContentTypePickerOption | ContentTypePickerCategory>
-
-export type ContentTypePickerProps = {
-  options: ContentPickerOptions
-}
 
 const isOption = (option: ContentTypePickerOption | ContentTypePickerCategory): option is ContentTypePickerOption =>
   option.type === 'option'

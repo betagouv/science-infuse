@@ -37,7 +37,6 @@ const InspectDocument = () => {
         };
     }, [documentId]);
 
-    console.log("DATA RES", data)
     return (
         <AdminWrapper>
             <div className='flex flex-col gap-8'>

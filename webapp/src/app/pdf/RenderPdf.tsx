@@ -8,8 +8,8 @@ import { Document, Page } from 'react-pdf';
 import { pdfjs } from "react-pdf";
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { TableOfContents, TOCItem } from "@/lib/types";
 import { apiClient } from "@/lib/api-client";
+import { TableOfContents, TOCItem } from "@/types/TOC";
 
 // there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(

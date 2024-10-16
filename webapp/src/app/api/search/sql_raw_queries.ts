@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
 import prisma from "@/lib/prisma"
-import { QueryRequest } from '@/lib/api-client';
 import { JSONContent } from '@tiptap/core';
+import { QueryRequest } from '@/types/api';
 
 export async function updateBlock(title: string, content: JSONContent, textEmbedding: number[], userId: string, blockId: string, chapterId: string) {
   // if block does not exist (or has been deleted)

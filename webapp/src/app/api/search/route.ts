@@ -3,8 +3,8 @@ import { searchBlocksWithChapter, searchDocumentChunks } from "./sql_raw_queries
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import { authOptions } from "../auth/[...nextauth]/authOptions";
-import { QueryRequest } from "@/lib/api-client";
 import { getEmbeddings } from "@/lib/utils/getEmbeddings";
+import { QueryRequest } from "@/types/api";
 
 
 export async function POST(request: NextRequest): Promise<NextResponse<any | { error: string }>> {
