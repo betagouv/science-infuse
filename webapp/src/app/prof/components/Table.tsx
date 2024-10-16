@@ -1,28 +1,13 @@
-import React, { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Collapse,
-  Box,
-  Chip,
-  Typography,
-  Tooltip,
-  Link,
-} from '@mui/material';
+import { RenderChapterTOC } from '@/course_editor/components/CourseSettings/ChapterTableOfContents';
+import { ChapterWithBlock } from '@/types/api';
+import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { ChapterWithBlock, FullBlock } from '@/lib/api-client';
-import Badge from '@codegouvfr/react-dsfr/Badge';
+import { Chip, Collapse, IconButton, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { ChapterStatus } from '@prisma/client';
-import { AlertProps } from '@codegouvfr/react-dsfr/Alert';
-import { Icon, Trash2 } from 'lucide-react';
-import { RenderChapterTOC } from '@/course_editor/components/CourseSettings/ChapterTableOfContents';
+import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 
 const statusToSeverity = {

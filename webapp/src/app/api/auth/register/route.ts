@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcrypt"
-import { UserFull } from "@/lib/api-client";
 import { User } from "@prisma/client";
+import { UserFull } from "@/types/api";
 
 export async function POST(req: Request) {
   try {

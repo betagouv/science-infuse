@@ -1,6 +1,6 @@
 import { NEXT_PUBLIC_SERVER_URL, OLLAMA_URL } from "@/config";
-import { TextWithScore } from "@/lib/api-client";
 import prisma from "@/lib/prisma";
+import { TextWithScore } from "@/types/api";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 

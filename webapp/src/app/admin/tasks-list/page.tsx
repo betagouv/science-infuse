@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { apiClient } from '@/lib/api-client';
-import { PgBossJobGetIndexFileResponse } from '@/app/api/queueing/data/index-file/types';
 import { Chip, CircularProgress } from '@mui/material';
 import AdminWrapper from '../AdminWrapper';
+import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
 
 const columns: GridColDef[] = [
     // { field: 'id', headerName: 'ID', width: 100 },

@@ -1,5 +1,6 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
-import { apiClient, QueryRequest } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
+import { QueryRequest } from "@/types/api";
 import { SearchResults, DocumentSearchResults } from "@/types/vectordb";
 import { QueryFunction } from "@tanstack/react-query";
 

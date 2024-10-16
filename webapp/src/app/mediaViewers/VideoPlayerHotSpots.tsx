@@ -2,7 +2,7 @@ import { ChunkWithScore } from '@/types/vectordb';
 import { Tooltip } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
 
-export interface VideoPlayerProps {
+interface VideoPlayerProps {
     videoUrl: string;
     chunks: ChunkWithScore<"video_transcript">[];
     selectedChunk: ChunkWithScore<"video_transcript"> | undefined,

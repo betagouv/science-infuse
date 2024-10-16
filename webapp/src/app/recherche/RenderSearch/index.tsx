@@ -1,16 +1,14 @@
 
-import React, { useEffect, useMemo, useState } from "react";
-import { ChunkWithScoreUnion, GroupedVideo, BlockWithChapter, ChunkWithScore, SearchResults, MediaType } from "@/types/vectordb";
-import ChunkRenderer, { RenderChapter, RenderChapterBlock, RenderGroupedVideoTranscriptCard } from "../DocumentChunkFull";
-import Masonry from '@mui/lab/Masonry';
-import { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap, TabType } from "../Tabs";
 import { MasonaryItem } from "@/components/MasonaryItem";
-import { ChapterWithBlock } from "@/lib/api-client";
+import { ChapterWithBlock } from "@/types/api";
+import { OnInserted } from "@/types/course-editor";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, MediaType, SearchResults } from "@/types/vectordb";
 import Pagination from "@codegouvfr/react-dsfr/Pagination";
+import Masonry from '@mui/lab/Masonry';
+import React, { useEffect, useMemo, useState } from "react";
+import ChunkRenderer, { RenderChapter, RenderChapterBlock, RenderGroupedVideoTranscriptCard } from "../DocumentChunkFull";
+import { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap, TabType } from "../Tabs";
 
-export type OnInserted = {
-  onInserted?: (chunk: ChunkWithScoreUnion) => void
-}
 
 export const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) => {
   // Group by documentId

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ChapterResults } from "@/app/recherche/RenderSearch";
 import { EducationLevel, Chapter, Block, Theme } from '@prisma/client';
-import { ChapterWithBlock } from '@/lib/api-client';
+import { ChapterWithBlock } from '@/types/api';
 
 interface FiltersProps {
     selectedFilter: string;

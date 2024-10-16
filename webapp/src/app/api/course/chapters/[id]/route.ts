@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { updateBlock } from '@/app/api/search/sql_raw_queries';
 import prisma from '@/lib/prisma';
-import { ChapterWithoutBlocks } from '@/lib/api-client';
+import { getEmbeddings } from '@/lib/utils/getEmbeddings';
+import { ChapterWithoutBlocks } from '@/types/api';
+import { Question } from '@/types/course-editor';
 import { ChapterStatus } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
+import { getServerSession } from 'next-auth/next';
+import { NextResponse } from 'next/server';
 import { getTiptapNodeText } from '../blocks/[id]/getTiptapNodeText';
-import { Question } from '@/course_editor/extensions/Quiz/QuizPopup';
-import { updateBlock } from '@/app/api/search/sql_raw_queries';
-import { getEmbeddings } from '@/lib/utils/getEmbeddings';
 
 export async function GET(
   request: Request,

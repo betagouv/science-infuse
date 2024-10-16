@@ -1,4 +1,4 @@
-import { ChapterWithBlock, UserFull } from "../api-client";
+import { ChapterWithBlock, UserFull } from "@/types/api";
 import prisma from "../prisma";
 
 export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {

@@ -1,4 +1,3 @@
-import { ChapterWithBlock, ChapterWithoutBlocks } from '@/lib/api-client'
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client'
 import { createContext } from 'react'
 

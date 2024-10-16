@@ -1,7 +1,6 @@
-import { Editor, JSONContent } from '@tiptap/core';
-import { TSeverity } from '@/app/SnackBarProvider';
 import { apiClient } from '@/lib/api-client';
-import { EducationLevel, KeyIdea, Skill } from '@prisma/client';
+import { TSeverity } from '@/types/snackbar';
+import { Editor, JSONContent } from '@tiptap/core';
 
 // export const saveBlocks = async (chapterId: string, editorContent: JSONContent) => {
 //     const blocks = editorContent.content?.filter(element => element.type === "courseBlock")

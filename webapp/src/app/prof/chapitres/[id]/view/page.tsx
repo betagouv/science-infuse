@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
 import { JSONContent } from '@tiptap/react';
-import { apiClient, ChapterWithoutBlocks } from '@/lib/api-client';
+import { apiClient } from '@/lib/api-client';
+import { ChapterWithoutBlocks } from '@/types/api';
 
 
 

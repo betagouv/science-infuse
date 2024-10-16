@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { memo, useCallback } from 'react'
 
-export type ColorButtonProps = {
+type ColorButtonProps = {
   color?: string
   active?: boolean
   onColorChange?: (color: string) => void // eslint-disable-line no-unused-vars

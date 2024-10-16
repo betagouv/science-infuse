@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 import { Block } from '@prisma/client';
-import { ChapterWithBlock } from '@/lib/api-client';
+import { ChapterWithBlock } from '@/types/api';
 import ChaptersTable from './components/Table';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { User } from 'next-auth';

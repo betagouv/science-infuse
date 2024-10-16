@@ -9,9 +9,9 @@ import { Node as PMNode } from '@tiptap/pm/model';
 import { Selection, TextSelection } from '@tiptap/pm/state';
 import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import React, { useRef } from 'react';
-import { Question } from '../Quiz/QuizPopup';
 import ActionButtons from './ActionButtons';
 import { apiClient } from '@/lib/api-client';
+import { Question } from '@/types/course-editor';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {

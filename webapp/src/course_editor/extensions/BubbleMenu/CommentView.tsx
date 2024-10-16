@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { useTextmenuStates } from '@/course_editor/hooks/useTextmenuStates';
-import { apiClient, FullCommentThread } from '@/lib/api-client';
+import { apiClient } from '@/lib/api-client';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { Spinner } from '@/course_editor/components/ui/Spinner';
+import { FullCommentThread } from '@/types/api';
 
 const CommentView = (props: { editor: Editor }) => {
     const { editor } = props;

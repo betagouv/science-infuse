@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { ChunkData, TableOfContents, TOCItem } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/authOptions";
 import { getServerSession, User } from "next-auth";

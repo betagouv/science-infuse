@@ -1,11 +1,8 @@
 import { withAccessControl } from '@/app/api/accessControl';
 import prisma from '@/lib/prisma';
-import { queue, queueManager } from '@/queueing/pgboss/boss';
-import { indexFileJob } from '@/queueing/pgboss/jobs/index-file';
+import { PgBossJobGetIndexFileResponse, PgBossJobIndexFile } from '@/types/queueing';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { states } from 'pg-boss';
-import { PgBossJobGetIndexFileResponse, PgBossJobIndexFile } from './types';
 
 
 

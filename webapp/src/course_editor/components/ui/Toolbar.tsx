@@ -2,10 +2,11 @@ import React, { ButtonHTMLAttributes, HTMLProps, forwardRef } from 'react'
 
 import { cn } from '@/lib/utils'
 import { Surface } from './Surface'
-import { Button, ButtonProps } from './Button'
+import { Button } from './Button'
 import Tooltip from './Tooltip'
+import { ButtonProps } from '@/types/course-editor'
 
-export type ToolbarWrapperProps = {
+type ToolbarWrapperProps = {
   shouldShowContent?: boolean
   isVertical?: boolean
 } & HTMLProps<HTMLDivElement>
@@ -30,7 +31,7 @@ const ToolbarWrapper = forwardRef<HTMLDivElement, ToolbarWrapperProps>(
 
 ToolbarWrapper.displayName = 'Toolbar'
 
-export type ToolbarDividerProps = {
+type ToolbarDividerProps = {
   horizontal?: boolean
 } & HTMLProps<HTMLDivElement>
 
@@ -48,7 +49,7 @@ const ToolbarDivider = forwardRef<HTMLDivElement, ToolbarDividerProps>(({ horizo
 
 ToolbarDivider.displayName = 'Toolbar.Divider'
 
-export type ToolbarButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ToolbarButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   active?: boolean
   activeClassname?: string
   tooltip?: string

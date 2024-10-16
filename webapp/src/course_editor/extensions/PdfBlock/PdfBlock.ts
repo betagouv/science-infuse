@@ -1,11 +1,11 @@
+import { apiClient } from '@/lib/api-client'
+import { s3ToPublicUrl } from '@/types/vectordb'
+import { File as DbFile } from '@prisma/client'
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { pdfjs } from 'react-pdf'
 import PdfBlockView from './components/PdfBlockView'
-import { apiClient } from '@/lib/api-client'
-import { TSeverity } from '@/app/SnackBarProvider'
-import { s3ToPublicUrl } from '@/types/vectordb'
-import {File as DbFile} from '@prisma/client';
+import { TSeverity } from '@/types/snackbar'
 
 // there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -15,7 +15,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 
 
-export type PdfBlockOptions = {
+type PdfBlockOptions = {
   showSnackbar: (message: string, severity: TSeverity) => void;
 };
 

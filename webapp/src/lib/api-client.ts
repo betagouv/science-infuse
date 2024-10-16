@@ -1,55 +1,11 @@
-import { SearchResults, ChunkWithScoreUnion, DocumentWithChunks } from '@/types/vectordb';
-import { Academy, Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
-import { JSONContent } from '@tiptap/core';
-import axios from 'axios';
-import { GroupedFavorites, TableOfContents } from './types';
 import { WEBAPP_URL } from '@/config';
-import { PgBossJobGetIndexFileResponse } from '@/app/api/queueing/data/index-file/types';
+import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull } from '@/types/api';
+import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
+import { TableOfContents } from '@/types/TOC';
+import { DocumentWithChunks, SearchResults } from '@/types/vectordb';
+import { Academy, Block, CommentThread, File as DbFile, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
+import axios from 'axios';
 
-
-export interface UserFull extends Omit<User, 'password'> {
-  roles: UserRoles[],
-  educationLevels: EducationLevel[],
-  schoolSubjects: SchoolSubject[],
-}
-export interface QueryRequest {
-  query: string,
-  mediaTypes?: string[],
-  limit?: number
-}
-
-interface CreateBlockRequest {
-  title: string;
-  content: string;
-  chapterId: string;
-}
-
-interface CreateThreadRequest {
-  chapterId: string;
-}
-
-interface CreateMessageRequest {
-  chapterId: string;
-  message: string;
-}
-
-export interface FileUploadResponse {
-  s3ObjectName: string;
-  message: string;
-}
-
-
-export interface TextWithScore {
-  text: string,
-  score: number
-}
-
-export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], tags: Tag[] }
-export type CommentWithUserEmail = Comment & { user: { email: string } }
-export type FullCommentThread = CommentThread & { comments: CommentWithUserEmail[] }
-
-export type ChapterWithoutBlocks = Chapter & { skills: Skill[], educationLevels: EducationLevel[] } | null;
-export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 
 
 class ApiClient {

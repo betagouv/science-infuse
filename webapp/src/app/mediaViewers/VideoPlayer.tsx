@@ -4,7 +4,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
 
-export interface VideoPlayerProps {
+interface VideoPlayerProps {
     videoUrl: string;
     startOffset: number;
     endOffset: number;

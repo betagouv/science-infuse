@@ -1,6 +1,6 @@
 import { PrismaClient, EducationLevel, Chapter, Block, Theme } from '@prisma/client';
 import ClientCatalogue from './ClientCatalogue';
-import { ChapterWithBlock } from '@/lib/api-client';
+import { ChapterWithBlock } from '@/types/api';
 import prisma from '@/lib/prisma';
 
 interface ServerCatalogueProps {

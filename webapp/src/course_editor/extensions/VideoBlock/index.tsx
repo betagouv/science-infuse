@@ -12,7 +12,7 @@ declare module '@tiptap/core' {
   }
 }
 
-export interface VideoAttributes {
+interface VideoAttributes {
   startOffset: number
   endOffset: number
   chunk: any
