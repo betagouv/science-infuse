@@ -115,6 +115,7 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
       WHERE dc."textEmbedding" IS NOT NULL
         ${params.mediaTypes ? Prisma.sql`AND dc."mediaType" = ANY(${params.mediaTypes}::text[])` : Prisma.empty}
         AND 1 - (dc."textEmbedding" <=> ${embedding}::vector) > 0.21
+        AND (d."deleted" IS NOT TRUE)
       ORDER BY dc."textEmbedding" <=> ${embedding}::vector
       LIMIT ${Math.min(params.limit || 1000, 1000)};
       `

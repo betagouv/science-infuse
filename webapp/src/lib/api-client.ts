@@ -1,9 +1,10 @@
-import { SearchResults, ChunkWithScoreUnion } from '@/types/vectordb';
+import { SearchResults, ChunkWithScoreUnion, DocumentWithChunks } from '@/types/vectordb';
 import { Academy, Activity, Block, Chapter, Comment, CommentThread, File as DbFile, DocumentChunk, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, StarredDocumentChunk, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import axios from 'axios';
 import { GroupedFavorites, TableOfContents } from './types';
 import { WEBAPP_URL } from '@/config';
+import { PgBossJobGetIndexFileResponse } from '@/app/api/queueing/data/index-file/types';
 
 
 export interface UserFull extends Omit<User, 'password'> {
@@ -63,6 +64,16 @@ class ApiClient {
     });
   }
 
+  async getDocument(documentId: string): Promise<DocumentWithChunks> {
+    const response = await this.axiosInstance.get<DocumentWithChunks>(`/document/${documentId}`);
+    return response.data;
+  }
+
+  async deleteDocument(documentId: string): Promise<boolean> {
+    const response = await this.axiosInstance.delete<boolean>(`/document/${documentId}`);
+    return response.data;
+  }
+
   async getUser(): Promise<UserFull> {
     const response = await this.axiosInstance.get<UserFull>(`/users/me`);
     return response.data;
@@ -85,11 +96,6 @@ class ApiClient {
 
   async search(queryData: QueryRequest): Promise<SearchResults> {
     const response = await this.axiosInstance.post<SearchResults>(`/search`, queryData);
-    return response.data;
-  }
-
-  async deleteDocument(id: string): Promise<any> {
-    const response = await this.axiosInstance.delete<any>(`/document/${id}`);
     return response.data;
   }
 
@@ -134,7 +140,7 @@ class ApiClient {
   }
 
   async starDocumentChunk(id: string, keyword: string): Promise<boolean> {
-    const response = await this.axiosInstance.post<boolean>(`/documentChunks/star/${id}`, {keyword});
+    const response = await this.axiosInstance.post<boolean>(`/documentChunks/star/${id}`, { keyword });
     return response.data;
   }
 
@@ -144,7 +150,7 @@ class ApiClient {
   }
 
   async starBlock(id: string, keyword: string): Promise<boolean> {
-    const response = await this.axiosInstance.post<boolean>(`/course/chapters/blocks/${id}/star`, {keyword});
+    const response = await this.axiosInstance.post<boolean>(`/course/chapters/blocks/${id}/star`, { keyword });
     return response.data;
   }
 
@@ -180,6 +186,31 @@ class ApiClient {
   async getBlocks(): Promise<Block[]> {
     const response = await this.axiosInstance.get<Block[]>('/course/chapters/blocks');
     return response.data;
+  }
+
+  async fetcheIndexFileJobs(page: number, pageSize: number) {
+    const response = await this.axiosInstance.get<PgBossJobGetIndexFileResponse>(`/queueing/data/index-file?page=${page}&pageSize=${pageSize}`);
+    return response.data;
+  }
+
+  async indexFile(file: File, author?: string): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (author)
+      formData.append('author', author);
+
+    const response = await this.axiosInstance.post<string>('/file/index', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data) {
+      return response.data;
+      // url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
+    } else {
+      throw new Error('Upload index failed: No filename received');
+    }
   }
 
   async uploadFile(file: File, author?: string): Promise<DbFile> {

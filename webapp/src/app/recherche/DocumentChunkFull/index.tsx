@@ -236,7 +236,7 @@ export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; c
                     chunk={chunk}
                     end={
                         <div className="flex">
-                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
+                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
                         </div>
                     }
                     starred={!!chunk?.user_starred}
@@ -255,11 +255,11 @@ export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; c
                 </div >
             }
             linkProps={{
-                href: `/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`,
+                href: `/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`,
                 target: "_blank",
             }}
             size="medium"
-            title={`${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`}
+            title={`${chunk.document.mediaName} - page ${chunk.metadata?.pageNumber}`}
             titleAs="h3"
         />
     )
@@ -282,7 +282,7 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
                 chunk={chunk}
                 end={
                     <div className="flex">
-                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
+                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
                     </div>
                 }
                 starred={!!chunk?.user_starred}

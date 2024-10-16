@@ -11,10 +11,10 @@ from schemas import Document, DocumentChunk
 
 
 class BaseDocumentProcessor(ABC):
-    def __init__(self):
+    def __init__(self) -> tuple[Document, List[DocumentChunk]]:
         self.base_download_folder = os.path.join(os.getcwd(), 'documents')
         self.id = str(uuid.uuid4())
-        self.process_document()
+        # self.process_document()
 
     def save_to_s3(self, s3: S3Storage, input_file_path: str, s3ObjectName: str, remove=True):
         s3.upload_file(input_file_path, s3ObjectName)
@@ -30,7 +30,8 @@ class BaseDocumentProcessor(ABC):
     
     def process_document(self):
         document, chunks = self.extract_document()
-        self.save_document(document, chunks)
+        return document, chunks
+        # self.save_document(document, chunks)
 
     @abstractmethod
     def extract_document(self) -> Tuple[Document, List[DocumentChunk]]:
@@ -49,13 +50,13 @@ class BaseDocumentProcessor(ABC):
         
     # Helper function to insert document
 
-    def save_document(self, document: Document, chunks: List[DocumentChunk]):
+    # def save_document(self, document: Document, chunks: List[DocumentChunk]):
         
-        with SIPostgresClient() as client:
-            document_id = str(uuid.uuid4())
-            db_document = client.insert_document(document_id, document)
-            for chunk in chunks:
-                vector = get_embeddings(chunk.text)
-                print("INSERT CHUNK - ", chunk.text, vector, flush=True)
-                client.insert_chunk(chunk, vector, document_id)
-            client.commit()
+    #     with SIPostgresClient() as client:
+    #         document_id = str(uuid.uuid4())
+    #         db_document = client.insert_document(document_id, document)
+    #         for chunk in chunks:
+    #             vector = get_embeddings(chunk.text)
+    #             print("INSERT CHUNK - ", chunk.text, vector, flush=True)
+    #             client.insert_chunk(chunk, vector, document_id)
+    #         client.commit()
