@@ -14,7 +14,16 @@ export const fetchSIContent: QueryFunction<SearchResults, [string, string[] | un
     mediaTypes: mediaTypes,
     limit,
   }
-
   const response = await apiClient.search(queryData);
+
+  if (window._paq) {
+    const matchCount = response.chunks.length + response.blocks.length
+    window._paq.push(['trackSiteSearch',
+      queryData.query,
+      false,
+      matchCount
+    ]);
+  }
+
   return response;
 };

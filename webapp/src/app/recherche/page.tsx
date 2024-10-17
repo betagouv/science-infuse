@@ -26,7 +26,6 @@ const Search: React.FC = () => {
     enabled: !!query,
   });
 
-
   const resultPerPage = 10
 
 

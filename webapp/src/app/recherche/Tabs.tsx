@@ -1,4 +1,4 @@
-import { BlockWithChapter, ChunkWithScoreUnion, MediaType, MediaTypes } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, MediaType, MediaTypes } from "@/types/vectordb";
 import { Tabs } from "@codegouvfr/react-dsfr/Tabs";
 import styled from "@emotion/styled";
 import { signal } from "@preact/signals-react";
@@ -81,14 +81,14 @@ export const selectedTabType = signal<TabType>(TabType.Chapters);
 
 const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void }) => {
   const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[], favourites?: boolean) => chunks.filter(c => (mediaTypes.includes(c.mediaType) && (favourites ? c.user_starred : true))).length;
-
+  const getVideoCount = (chunks: ChunkWithScoreUnion[]) => new Set(chunks.filter(c => c.mediaType == "video_transcript").map(c => c.document.id)).size
 
   const tabs: TabItem[] = [
     ...(props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
     { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
     { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
     { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
-    { tabId: TabType.Videos, label: `Vidéos (${getCount(props.chunks, TabMediaTypeMap[TabType.Videos])})` },
+    { tabId: TabType.Videos, label: `Vidéos (${getVideoCount(props.chunks)})` },
     { tabId: TabType.Games, label: `Jeux (${getCount(props.chunks, TabMediaTypeMap[TabType.Games])})` },
     { tabId: TabType.Others, label: `Autres (${getCount(props.chunks, TabMediaTypeMap[TabType.Others])})` },
   ];
