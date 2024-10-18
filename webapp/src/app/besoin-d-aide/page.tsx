@@ -8,11 +8,6 @@ const NeedHelp = () => {
 
                     <div className="relative  bg-[#f2f2f2]">
 
-                        <div className="absolute top-0 right-0 w-60">
-                            <div className="w-[120px] h-[111px] absolute top-0 right-0 bg-white" />
-                            <div className="w-60 h-[69px] absolute top-0 right-0 bg-white" />
-                        </div>
-
                         <div className="flex flex-col gap-16 items-center text-center p-24 w-full h-full">
 
                             <p className="m-0 w-full text-4xl md:text-5xl font-medium text-[--text-title-blue-france] text-center">
@@ -26,11 +21,6 @@ const NeedHelp = () => {
                                 <p className="m-0">Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d’expérience sont précieux et permettent d’améliorer le service.</p>
                                 <p className="m-0">A bientôt !</p>
                             </div>
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 w-60">
-                            <div className="w-[120px] h-[145px] absolute bottom-0 left-0 bg-white" />
-                            <div className="w-60 h-[48.67px] absolute bottom-0 left-0 bg-white" />
                         </div>
                     </div>
 
