@@ -4,6 +4,7 @@ public/*.jpeg
 public/*.jpg
 public/*.png
 public/*.mp4
+public/videos/*
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 .npmrc
