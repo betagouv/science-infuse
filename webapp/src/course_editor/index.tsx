@@ -13,7 +13,7 @@ import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
 import { TextMenu } from './extensions/BubbleMenu/TextMenu';
 import CourseSettings from './components/CourseSettings';
 import { apiClient } from '@/lib/api-client';
-import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
+import { ChapterStatus, EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import AddBlockAtEnd from './components/AddBlockAtEnd';
 import { useDebounceValue } from 'usehooks-ts';
 import { ChapterWithBlock, ChapterWithoutBlocks } from '@/types/api';
@@ -110,14 +110,14 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
 
           <StyledEditor id="editor" data-editable={editor.isEditable} className={`relative w-full sm:mb-[calc(20vh)] p-4 md:p-16`} style={{ padding: !editor.isEditable ? "0" : '', }}>
 
-            <CallOut
+            {props?.chapter?.status == ChapterStatus.DELETED && <CallOut
               iconId="fr-icon-warning-line"
               title="Chapitre supprimé"
             >
               Ce chapitre est actuellement supprimé, il ne sera donc pas affiché dans les résultats de recherche. <br />
               Pour re-indexer ce chapitre, faites une demande de partage a l'equipe Science Infuse :
               {props.chapter && <ShareToScienceInfuse chapter={props.chapter} />}
-            </CallOut>
+            </CallOut>}
 
             {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
 
