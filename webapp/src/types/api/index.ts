@@ -7,9 +7,8 @@ export interface CreateChapterBlockRequest {
     chapterId: string;
 }
 
-export interface UserFull extends Omit<User, 'password'> {
-    roles: UserRoles[],
-    educationLevels: EducationLevel[],
+export interface UserFull extends Omit<User, 'password' | 'emailVerified'> {
+    roles: UserRoles[],    educationLevels: EducationLevel[],
     schoolSubjects: SchoolSubject[],
 }
 export interface QueryRequest {
@@ -48,7 +47,7 @@ export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], t
 export type CommentWithUserEmail = Comment & { user: { email: string } }
 export type FullCommentThread = CommentThread & { comments: CommentWithUserEmail[] }
 
-export type ChapterWithoutBlocks = Chapter & { skills: Skill[], educationLevels: EducationLevel[] } | null;
+export type ChapterWithoutBlocks = Chapter & { user: UserFull, skills: Skill[], educationLevels: EducationLevel[] } | null;
 export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 
 

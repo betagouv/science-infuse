@@ -14,12 +14,14 @@ const statusToSeverity = {
   [ChapterStatus.DRAFT]: undefined,
   [ChapterStatus.REVIEW]: "info",
   [ChapterStatus.PUBLISHED]: "success",
+  [ChapterStatus.DELETED]: "error",
 }
 
 const statusToText = {
   [ChapterStatus.DRAFT]: "Brouillon",
   [ChapterStatus.REVIEW]: "En cours de revue",
   [ChapterStatus.PUBLISHED]: "Publié",
+  [ChapterStatus.DELETED]: "Supprimé",
 }
 
 const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, onDeleteChapter: (chapterId: string) => void }) => {

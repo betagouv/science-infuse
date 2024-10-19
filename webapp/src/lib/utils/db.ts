@@ -3,6 +3,7 @@ import { DocumentChunk, Document } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid'; // Make sure to import the uuid library
 import prisma from "../prisma";
 import { getEmbeddings } from "./getEmbeddings";
+import { userFullFields } from "@/app/api/accessControl";
 
 export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {
     return await prisma.chapter.findMany({
@@ -23,6 +24,9 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
             },
             skills: true,
             educationLevels: true,
+            user: {
+                select: userFullFields
+            },
         }
     });
 }
@@ -30,20 +34,7 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
 export const getUserFull = async (userId: string) => {
     const user: UserFull | null = await prisma.user.findUnique({
         where: { id: userId },
-        select: {
-            id: true,
-            firstName: true,
-            job: true,
-            email: true,
-            roles: true,
-            school: true,
-            lastName: true,
-            emailVerified: true,
-            image: true,
-            academyId: true,
-            educationLevels: true,
-            schoolSubjects: true,
-        }
+        select: userFullFields
     });
     return user;
 }

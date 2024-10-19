@@ -8,6 +8,7 @@ import { EMPTY_DOCUMENT } from "@/config";
 import { getChaptersWithBlocks } from "@/lib/utils/db";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import ProfDashboardContent from "../ProfDashboardContent";
+import { ChapterStatus } from "@prisma/client";
 
 export default async function ProfDashboard() {
     const session = await getServerSession(authOptions);
@@ -38,14 +39,20 @@ export default async function ProfDashboard() {
             where: { id: chapterId },
         });
         if (chapter && chapter.userId === session.user.id) {
-            // Delete all blocks associated with the chapter
-            await prisma.block.deleteMany({
-                where: { chapterId: chapterId },
-            });
-            // Now delete the chapter
-            await prisma.chapter.delete({
-                where: { id: chapterId },
-            });
+            await prisma.chapter.update({
+                where: {id: chapterId},
+                data: {
+                    status: ChapterStatus.DELETED,
+                }
+            })
+            // // Delete all blocks associated with the chapter
+            // await prisma.block.deleteMany({
+            //     where: { chapterId: chapterId },
+            // });
+            // // Now delete the chapter
+            // await prisma.chapter.delete({
+            //     where: { id: chapterId },
+            // });
         }
 
         return await getChaptersWithBlocks(session.user.id)

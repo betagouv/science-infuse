@@ -3,11 +3,12 @@
 import { QueryFunction, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataGrid, GridColDef, GridLogicOperator, GridRowModel, GridToolbar, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EducationLevel, UserRoles } from '@prisma/client'
 import AdminWrapper from '../AdminWrapper';
 import { UserFull } from '@/types/api';
 import { apiClient } from '@/lib/api-client';
+import { useSearchParams } from 'next/navigation';
 
 const fetchUsers: QueryFunction<UserFull[], [string]> = async ({ queryKey }) => {
     const toc = await apiClient.getUsers();
@@ -16,6 +17,7 @@ const fetchUsers: QueryFunction<UserFull[], [string]> = async ({ queryKey }) => 
 
 const AdminListUsers = () => {
     const queryClient = useQueryClient();
+    const searchParams = useSearchParams();
     const { data: users, isLoading: usersLoading, error: usersError } = useQuery({
         queryKey: ['users'],
         queryFn: fetchUsers
@@ -24,6 +26,14 @@ const AdminListUsers = () => {
     const [openRolesDialog, setOpenRolesDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserFull | null>(null);
     const [selectedRoles, setSelectedRoles] = useState<UserRoles[]>([]);
+    const [quickFilterValue, setQuickFilterValue] = useState('');
+
+    useEffect(() => {
+        const query = searchParams.get('q');
+        if (query) {
+            setQuickFilterValue(query);
+        }
+    }, [searchParams]);
 
     const updateUserMutation = useMutation({
         mutationFn: (user: UserFull) => apiClient.updateUser(user, user.id),
@@ -38,6 +48,7 @@ const AdminListUsers = () => {
     if (usersError) return <p>Error fetching data</p>
 
     const columns: GridColDef[] = [
+        { flex: 1, field: 'id', headerName: 'id', minWidth: 130, editable: true },
         { flex: 1, field: 'firstName', headerName: 'Prénom', minWidth: 130, editable: true },
         { flex: 1, field: 'lastName', headerName: 'Nom', minWidth: 150, editable: true },
         { flex: 1, field: 'email', headerName: 'Email', minWidth: 250, editable: false },
@@ -114,18 +125,26 @@ const AdminListUsers = () => {
                 style={{ height: "90vh" }}
                 rows={users || []}
                 columns={columns}
-                // checkboxSelection
                 editMode="row"
                 processRowUpdate={handleRowUpdate}
-                // components={{
-                //     Toolbar: GridToolbar, 
-                // }}
                 slots={{
                     toolbar: () => (
                         <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                            <GridToolbarQuickFilter placeholder='Rechercher' />
+                            <GridToolbarQuickFilter 
+                                placeholder='Rechercher' 
+                                value={quickFilterValue}
+                                onChange={(event) => setQuickFilterValue(event.target.value)}
+                            />
                         </div>
                     ),
+                }}
+                initialState={{
+                    filter: {
+                        filterModel: {
+                            items: [],
+                            quickFilterValues: [quickFilterValue],
+                        },
+                    },
                 }}
             />
             <Dialog open={openRolesDialog} onClose={handleCloseRolesDialog}>

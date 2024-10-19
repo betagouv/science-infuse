@@ -4,11 +4,12 @@ import prisma from '@/lib/prisma';
 import { getEmbeddings } from '@/lib/utils/getEmbeddings';
 import { ChapterWithoutBlocks } from '@/types/api';
 import { Question } from '@/types/course-editor';
-import { ChapterStatus } from '@prisma/client';
+import { ChapterStatus, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { getTiptapNodeText } from '../blocks/[id]/getTiptapNodeText';
+import { userIs } from '@/app/api/accessControl';
 
 export async function GET(
   request: Request,
@@ -80,6 +81,7 @@ export async function PUT(
       }));
     }
 
+    const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN])
 
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
@@ -89,7 +91,9 @@ export async function PUT(
     if (skillsAndKeyIdeas !== undefined) updateData.skillsAndKeyIdeas = skillsAndKeyIdeas as string;
     if (additionalInformations !== undefined) updateData.additionalInformations = additionalInformations as string;
     if (themeId !== undefined) updateData.themeId = themeId;
-    if (status !== undefined && [ChapterStatus.DELETED, ChapterStatus.DRAFT, ChapterStatus.REVIEW].includes(status as any)) updateData.status = status;
+    if (status !== undefined && (isAdmin || [ChapterStatus.DELETED, ChapterStatus.DRAFT, ChapterStatus.REVIEW].includes(status as any))) {
+      updateData.status = status;
+    }
     if (skills !== undefined) {
       updateData.skills = {
         set: skills.map((s) => ({ id: s.id })),

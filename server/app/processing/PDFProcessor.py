@@ -250,5 +250,4 @@ class PDFProcessor(BaseDocumentProcessor):
     
             if (self.remove_after_upload_to_s3 is True):
                 os.remove(self.pdf_path)
-            print("RETURNING", document, chunks, flush=True)
             return document, chunks

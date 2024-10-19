@@ -54,7 +54,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
     <div className="py-16">
       <div className='w-full fr-grid-row fr-grid-row--center'>
         <div className="fr-col-12 fr-container main-content-item">
-          {editor && <TiptapEditor chapterId={chapter?.id} editor={editor} />}
+          {editor && <TiptapEditor chapter={chapter} editor={editor} />}
         </div>
       </div>
     </div>

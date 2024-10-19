@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { apiClient } from '@/lib/api-client';
-import { Chip, CircularProgress } from '@mui/material';
+import { Chip, CircularProgress, Tooltip } from '@mui/material';
 import AdminWrapper from '../AdminWrapper';
 import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
 
@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
         }
     },
     { field: 'author', headerName: 'Source', width: 150, valueGetter: (value, row) => row.data?.author },
-    { field: 'documentId', headerName: 'Document', width: 120, renderCell: (params) => params.row.output?.documentId && <a target='_blank' href={`/admin/inspect-document?documentId=${params.row.output.documentId}`}>{params.row.output.documentId.split('-')[0]}</a> },
+    { field: 'documentId', headerName: 'Document', width: 120, renderCell: (params) => params.row.output?.documentId && <Tooltip title="Inspecter ce document"><a target='_blank' href={`/admin/inspect-document?documentId=${params.row.output.documentId}`}>{params.row.output.documentId.split('-')[0]}</a></Tooltip> },
     { field: 'started_on', headerName: 'Démarré le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },
     // { field: 'created_on', headerName: 'Créé le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },
     // { field: 'completed_on', headerName: 'Terminé le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },

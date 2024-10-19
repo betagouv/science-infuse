@@ -3,6 +3,8 @@
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
 import { apiClient } from '@/lib/api-client';
 import { ChapterWithoutBlocks } from '@/types/api';
+import CallOut from '@codegouvfr/react-dsfr/CallOut';
+import { ChapterStatus } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -69,7 +71,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      {editor && <TiptapEditor chapterId={chapter?.id} editor={editor} />}
+      {editor && <TiptapEditor chapter={chapter} editor={editor} />}
     </>
   )
 
