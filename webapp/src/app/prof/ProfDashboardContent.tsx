@@ -79,7 +79,7 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Êtes-vous sûr de vouloir supprimer ce chapitre ? Cette action est irréversible.
+            Êtes-vous sûr de vouloir supprimer ce chapitre ? <br />Il ne sera plus visible dans les résultats de recherche.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

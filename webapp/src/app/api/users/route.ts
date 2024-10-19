@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession, User } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/authOptions';
-import { userIs, withAccessControl } from '../accessControl';
+import { userFullFields, userIs, withAccessControl } from '../accessControl';
 import { UserRoles } from '@prisma/client';
 
 
@@ -11,20 +11,7 @@ export const GET = withAccessControl(
     async (request: NextRequest, { params, user }: { params: { id: string }, user: User }) => {
         try {
             const users = await prisma.user.findMany({
-                select: {
-                    id: true,
-                    firstName: true,
-                    job: true,
-                    email: true,
-                    roles: true,
-                    school: true,
-                    lastName: true,
-                    emailVerified: true,
-                    image: true,
-                    academyId: true,
-                    educationLevels: true,
-                    schoolSubjects: true,
-                }
+                select: userFullFields
             });
 
             return NextResponse.json(users);

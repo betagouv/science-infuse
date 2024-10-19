@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
+import { userFullFields } from '../../accessControl';
 
 export async function POST(request: Request) {
   try {
@@ -42,6 +43,11 @@ export async function GET() {
       where: {
         user: { id: session.user.id },
       },
+      include: {
+        user: {
+          select: userFullFields
+        }
+      }
     });
 
     return NextResponse.json(chapters);

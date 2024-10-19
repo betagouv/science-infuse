@@ -2,6 +2,7 @@ import { PrismaClient, EducationLevel, Chapter, Block, Theme } from '@prisma/cli
 import ClientCatalogue from './ClientCatalogue';
 import { ChapterWithBlock } from '@/types/api';
 import prisma from '@/lib/prisma';
+import { userFullFields } from '@/app/api/accessControl';
 
 interface ServerCatalogueProps {
     params: {
@@ -25,6 +26,9 @@ async function getChaptersFiltersAndTheme(themeId: string) {
                     activities: true,
                     tags: true
                 }
+            },
+            user: {
+                select: userFullFields
             }
         }
     });

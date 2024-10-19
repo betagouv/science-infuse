@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
+import { userFullFields } from '@/app/api/accessControl';
 
 export async function GET(
   request: Request,
@@ -15,13 +16,16 @@ export async function GET(
     }
 
     const chapters = await prisma.chapter.findMany({
-      where: {
+      where: params.id === "all" ? {} : {
         themeId: params.id
       },
       include: {
         skills: true,
         educationLevels: true,
         blocks: true,
+        user: {
+          select: userFullFields
+        }
       }
     });
 

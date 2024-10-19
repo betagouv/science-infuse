@@ -6,28 +6,12 @@ import { ChapterStatus } from '@prisma/client';
 import { Editor } from '@tiptap/react';
 import { useEffect, useState } from 'react';
 
-const ShareToScienceInfuse = (props: { editor: Editor }) => {
-    const [chapterStatus, setChapterStatus] = useState<ChapterStatus>(props.editor.storage.simetadata.chapterStatus);
-    const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
+const ShareToScienceInfuse = (props: { chapter: ChapterWithoutBlocks }) => {
+    const [chapterStatus, setChapterStatus] = useState<ChapterStatus | undefined>(props.chapter?.status);
     const [loadingMessage, setLoadingMessage] = useState("");
+    const chapter = props.chapter;
 
-    useEffect(() => {
-        const fetchChapter = async () => {
-            try {
-                const fetchedChapter = await apiClient.getChapter(props.editor.storage.simetadata.chapterId);
-
-                setChapter(fetchedChapter as ChapterWithoutBlocks);
-                if (fetchedChapter)
-                    setChapterStatus(fetchedChapter.status);
-            } catch (error) {
-                console.error("Error fetching chapter:", error);
-            }
-        };
-
-        fetchChapter();
-    }, [props.editor.storage.simetadata.chapterId]);
-    console.log("chapterStatus", chapterStatus)
-    if (!chapterStatus) return;
+    if (!chapter || !chapterStatus) return;
     return (
         <Tooltip title={chapterStatus === ChapterStatus.REVIEW && <span>Votre cours est en attente de revue.<br />Cliquez pour annuler la demande.</span>}>
             <Button
@@ -47,7 +31,7 @@ const ShareToScienceInfuse = (props: { editor: Editor }) => {
                         expectedStatus == ChapterStatus.REVIEW && setLoadingMessage("Envoie de la demande");
                         expectedStatus == ChapterStatus.DRAFT && setLoadingMessage("Annulation de la demande");
                         console.log("expectedStatus", expectedStatus)
-                        await apiClient.updateChapter(props.editor.storage.simetadata.chapterId, { status: expectedStatus });
+                        await apiClient.updateChapter(chapter.id, { status: expectedStatus });
                         setTimeout(() => {
                             setChapterStatus(expectedStatus);
                             setLoadingMessage("");
@@ -58,8 +42,9 @@ const ShareToScienceInfuse = (props: { editor: Editor }) => {
                 }}>
 
                 {loadingMessage && <>{loadingMessage}  <CircularProgress className='ml-2' size={16} sx={{ color: 'black' }} /></>}
-                {!loadingMessage && chapterStatus == ChapterStatus.DRAFT && "Partager à Science Infuse"}
-                {!loadingMessage && chapterStatus == ChapterStatus.REVIEW && "Demande envoyée"}
+                {!loadingMessage && (
+                    chapterStatus == ChapterStatus.REVIEW ? "Demande envoyée" : "Partager à Science Infuse"
+                )}
             </Button>
         </Tooltip >
     )

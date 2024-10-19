@@ -8,6 +8,21 @@ interface AccessControlOptions {
     allowedRoles: UserRoles[];
 }
 
+export const userFullFields = {
+    id: true,
+    firstName: true,
+    job: true,
+    email: true,
+    roles: true,
+    school: true,
+    lastName: true,
+    // emailVerified: true,
+    image: true,
+    academyId: true,
+    educationLevels: true,
+    schoolSubjects: true,
+}
+
 export const userIs = async (userIdOrUser: string | User | undefined, roles: UserRoles[]) => {
     let user: User | null;
     if (!userIdOrUser) return false;

@@ -46,6 +46,17 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                     text: "Utilisateurs"
                                 },
                                 {
+                                    isActive: activePath === "/admin/chapitres",
+                                    linkProps: {
+                                        href: "/admin/chapitres",
+                                        onClick: (e) => {
+                                            e.preventDefault();
+                                            router.push("/admin/chapitres");
+                                        }
+                                    },
+                                    text: "Chapitres"
+                                },
+                                {
                                     isActive: activePath === "/admin/index-file",
                                     linkProps: {
                                         href: "/admin/index-file",
