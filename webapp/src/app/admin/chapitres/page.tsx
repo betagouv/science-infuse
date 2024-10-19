@@ -42,7 +42,7 @@ const AdminChapters = () => {
     if (chaptersError) return <p>Error fetching data</p>
 
     const columns: GridColDef[] = [
-        { flex: 1, field: 'title', headerName: 'Titre', minWidth: 250, editable: true, renderCell: (params) => params.row.title && <a target='_blank' href={`/prof/chapitres/${params.row.id}`}>{params.row.title}</a> },
+        { flex: 1, field: 'title', headerName: 'Titre', minWidth: 450, editable: true, renderCell: (params) => params.row.title && <a target='_blank' href={`/prof/chapitres/${params.row.id}`}>{params.row.title}</a> },
         {
             field: 'status',
             headerName: 'Statut',
