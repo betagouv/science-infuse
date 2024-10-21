@@ -1,8 +1,8 @@
 import { UserFull } from "@/types/api"
 import { sendMail } from "."
 
-const getTemplate = () => {
-  return `<!DOCTYPE html>
+const getTemplate = (passwordResetLink: string) => {
+  return `  <!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:v="urn:schemas-microsoft-com:vml"
@@ -273,7 +273,7 @@ const getTemplate = () => {
         </table>
       </div>
       <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#FFFFFF" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-      <div
+        <div
         style="
           background: #ffffff;
           background-color: #ffffff;
@@ -334,8 +334,7 @@ const getTemplate = () => {
                           <div
                             style="
                               font-family: Arial, sans-serif;
-                              font-size: 16px;
-                              line-height: 1.5rem;
+                              font-size: 13px;
                               letter-spacing: normal;
                               line-height: 1;
                               text-align: left;
@@ -358,7 +357,9 @@ const getTemplate = () => {
                                   font-size: 24px;
                                   line-height: 28px;
                                 "
-                                ><b>Bienvenue sur Science Infuse</b></span
+                                ><b
+                                  >Réinitialisation de votre mot de passe</b
+                                ></span
                               >
                             </h3>
                           </div>
@@ -378,8 +379,7 @@ const getTemplate = () => {
                           <div
                             style="
                               font-family: Arial, sans-serif;
-                              font-size: 16px;
-                              line-height: 1.5rem;
+                              font-size: 13px;
                               letter-spacing: normal;
                               line-height: 1;
                               text-align: left;
@@ -392,43 +392,19 @@ const getTemplate = () => {
                                 text-align: center;
                                 margin: 10px 0;
                                 margin-top: 10px;
-                              "
-                            >
-                              <span
-                                style="
-                                  color: #000000;
-                                  font-family: Arial;
-                                  font-size: 16px;
-                                  line-height: 1.5rem;
-                                "
-                                >Votre compte Science Infuse a bien été
-                                créé.</span
-                              >
-                            </p>
-                            <p
-                              class="text-build-content"
-                              style="text-align: center; margin: 10px 0"
-                            >
-                              <span
-                                style="
-                                  color: #000000;
-                                  font-family: Arial;
-                                  font-size: 16px;
-                                  line-height: 1.5rem;
-                                "
-                                >Vous pouvez vous connecter en cliquant sur le
-                                lien suivant.</span
-                              >
-                            </p>
-                            <p
-                              class="text-build-content"
-                              style="
-                                text-align: center;
-                                margin: 10px 0;
                                 margin-bottom: 10px;
                               "
                             >
-                              &nbsp;
+                              <span
+                                style="
+                                  color: #495a65;
+                                  font-family: Arial;
+                                  font-size: 16px;
+                                  line-height: 1.5rem;
+                                "
+                                >Cliquez sur le lien suivant pour définir un
+                                nouveau mot de passe.</span
+                              >
                             </p>
                           </div>
                         </td>
@@ -466,14 +442,13 @@ const getTemplate = () => {
                                   valign="middle"
                                 >
                                   <a
-                                    href="https://science-infuse.beta.gouv.fr/connexion"
+                                    href="${passwordResetLink}"
                                     style="
                                       display: inline-block;
                                       background: #000091;
                                       color: #ffffff;
                                       font-family: Arial, sans-serif;
-                                      font-size: 16px;
-                                      line-height: 1.5rem;
+                                      font-size: 13px;
                                       font-weight: normal;
                                       line-height: 120%;
                                       margin: 0;
@@ -485,7 +460,9 @@ const getTemplate = () => {
                                     "
                                     target="_blank"
                                     ><span style="background-color: #000091"
-                                      ><b>Accéder à Science Infuse</b></span
+                                      ><b
+                                        >Définir un nouveau mot de passe</b
+                                      ></span
                                     ></a
                                   >
                                 </td>
@@ -1298,6 +1275,6 @@ const getTemplate = () => {
 </html>`
 }
 
-export const sendMailCreated = async (to: UserFull) => {
-  await sendMail(to, "Inscription à Science Infuse", getTemplate())
+export const sendPasswordResetEmail = async (to: UserFull, passwordResetLink: string) => {
+  await sendMail(to, "Réinitialisation de votre mot de passe", getTemplate(passwordResetLink))
 }
