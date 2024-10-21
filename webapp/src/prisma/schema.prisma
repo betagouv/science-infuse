@@ -224,30 +224,32 @@ model SchoolSubject {
 }
 
 model User {
-  id              String                 @id @default(cuid())
-  firstName       String?
-  roles           UserRoles[]            @default([USER])
-  school          String?
-  lastName        String?
-  job             String?
-  email           String?                @unique
-  emailVerified   DateTime?
-  image           String?
-  password        String?
-  academyId       String?
-  Account         Account[]
-  activities      Activity[]
-  blocks          Block[]
-  chapters        Chapter[]
-  Comment         Comment[]
-  educationLevels EducationLevel[]
-  files           File[]
-  schoolSubjects  SchoolSubject[]
-  Session         Session[]
-  starred         StarredDocumentChunk[]
-  academy         Academy?               @relation(fields: [academyId], references: [id])
-  StarredBlock    StarredBlock[]
-  Document        Document[]
+  id               String                 @id @default(cuid())
+  firstName        String?
+  roles            UserRoles[]            @default([USER])
+  school           String?
+  lastName         String?
+  job              String?
+  email            String?                @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  academyId        String?
+  Account          Account[]
+  activities       Activity[]
+  blocks           Block[]
+  chapters         Chapter[]
+  Comment          Comment[]
+  educationLevels  EducationLevel[]
+  files            File[]
+  schoolSubjects   SchoolSubject[]
+  Session          Session[]
+  starred          StarredDocumentChunk[]
+  academy          Academy?               @relation(fields: [academyId], references: [id])
+  StarredBlock     StarredBlock[]
+  Document         Document[]
 }
 
 model Account {

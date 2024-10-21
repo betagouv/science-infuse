@@ -2,6 +2,7 @@
 import { UserSettingsField } from "@/app/prof/parametres/UserSettings";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { apiClient } from "@/lib/api-client";
+import { validatePassword } from "@/lib/utils";
 import { UserFull } from "@/types/api";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { useState } from "@preact-signals/safe-react/react";
@@ -31,10 +32,6 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
 
     const router = useRouter();
 
-    const validatePassword = (password: string) => {
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-        return regex.test(password);
-    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

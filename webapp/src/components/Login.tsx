@@ -51,7 +51,7 @@ const Login = () => {
         modal.close();
     };
 
-
+    const [resetLinkDisabled, setResetLinkDisabled] = useState(false);
     const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
     const [academies, setAcademies] = useState<Academy[]>([]);
     const [schoolSubjects, setSchoolSubjects] = useState<SchoolSubject[]>([]);
@@ -126,7 +126,9 @@ const Login = () => {
                         />
                     </svg>
                 </div>
-                <p className="text-sm w-fit p-0" >Mot de passe oublié ? Contactez scienceinfuse@universcience.fr</p>
+                <p className="text-sm w-fit p-0" >Mot de passe oublié ?
+                    <a className='ml-2' href="/ask-for-password-reset">Cliquez ici</a>
+                </p>
                 <Checkbox
                     className='mt-4'
                     options={[

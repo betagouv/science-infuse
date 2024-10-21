@@ -45,6 +45,11 @@ class ApiClient {
     return response.data;
   }
 
+  async askForPasswordReset(email: string): Promise<Theme[]> {
+    const response = await this.axiosInstance.post<any>(`/auth/request-password-reset`, { email });
+    return response.data;
+  }
+
   async getChaptersByTheme(themeId: string): Promise<ChapterWithBlock[]> {
     const response = await this.axiosInstance.get<ChapterWithBlock[]>(`/course/chapters/byTheme/${themeId}`);
     return response.data;
