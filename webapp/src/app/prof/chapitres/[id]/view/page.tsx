@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
 import { TiptapEditor, useTiptapEditor } from '@/course_editor';
-import { JSONContent } from '@tiptap/react';
 import { apiClient } from '@/lib/api-client';
 import { ChapterWithoutBlocks } from '@/types/api';
+import { JSONContent } from '@tiptap/react';
+import { useEffect, useState } from 'react';
 
 
 

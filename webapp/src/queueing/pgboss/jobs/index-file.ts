@@ -1,4 +1,3 @@
-import { catchErrorTyped } from "@/app/@errors";
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { insertDocument } from "@/lib/utils/db";
 import { Document, DocumentChunk } from "@prisma/client";
@@ -6,6 +5,8 @@ import axios from "axios";
 import fs from "fs";
 import { z } from "zod";
 import { defineJob, defineWorker, defineWorkerConfig } from "../boss";
+import { catchErrorTyped } from "@/errors";
+
 const crypto = require('crypto');
 
 const config = defineWorkerConfig({
