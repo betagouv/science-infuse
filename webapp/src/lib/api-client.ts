@@ -45,6 +45,11 @@ class ApiClient {
     return response.data;
   }
 
+  async resetPassword(token: string, password: string): Promise<Theme[]> {
+    const response = await this.axiosInstance.post<any>(`/auth/reset-password`, { token, password });
+    return response.data;
+  }
+
   async askForPasswordReset(email: string): Promise<Theme[]> {
     const response = await this.axiosInstance.post<any>(`/auth/request-password-reset`, { email });
     return response.data;

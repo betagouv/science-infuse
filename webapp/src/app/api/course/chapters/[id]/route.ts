@@ -9,7 +9,8 @@ import { JSONContent } from '@tiptap/core';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { getTiptapNodeText } from '../blocks/[id]/getTiptapNodeText';
-import { userIs } from '@/app/api/accessControl';
+import { userFullFields, userIs } from '@/app/api/accessControl';
+import sendMailChapterToReview from '@/mail/sendMailChapterToReview';
 
 export async function GET(
   request: Request,
@@ -29,7 +30,10 @@ export async function GET(
       },
       include: {
         skills: true,
-        educationLevels: true
+        educationLevels: true,
+        user: {
+          select: userFullFields
+        }  
       }
     });
 
@@ -42,6 +46,31 @@ export async function GET(
     console.error('Error fetching course chapter:', error);
     return NextResponse.json({ error: 'Failed to fetch course chapter' }, { status: 500 });
   }
+}
+
+const _sendMailChapterToReview = async (chapterId: string) => {
+  const chapterFull = await prisma.chapter.findUnique({
+    where: {
+      id: chapterId,
+    },
+    include: {
+      skills: true,
+      educationLevels: true,
+      user: {
+        select: userFullFields
+      }
+    }
+  });
+  const allReviewers = await prisma.user.findMany({
+    where: {
+      roles: {
+        has: UserRoles.ADMIN
+      }
+    },
+    select: userFullFields
+  })
+  if (allReviewers.length > 0 && chapterFull)
+    await sendMailChapterToReview(allReviewers, chapterFull)
 }
 
 export async function PUT(
@@ -76,7 +105,6 @@ export async function PUT(
         const blockTextEmbeddings = await getEmbeddings(blockText);
         // const content =  [{"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Exemple de mise en situation", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Il existe de", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(55, 53, 47)", "fontSize": "", "fontFamily": ""}}]}, {"text": " ", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(193, 76, 138)", "fontSize": "", "fontFamily": ""}}]}, {"text": "multiples expressions quand on parle du monde microbien: on parle de microbes, de microorganismes, de bactéries, de virus ou de façon plus ancienne, de germes. Ces mots sont parfois utilisés dans les journaux ou dans les conversations courantes de manière équivalente alors que pourtant, ils peuvent désigner des êtres vivants très différents les uns des autres. Cette ambiguïté met en évidence la difficulté de s’emparer intellectuellement d’un monde qui est invisible à l’oeil nu.", "type": "text"}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Définition", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Le mot microbe forgé à partir du grec ancien μικρός , mikrós (« petit ») et βίος , bíos (« vie ») désigne l’ensemble des êtres vivants invisibles à l’oeil nu, on peut également utiliser le mot microorganisme (ou micro-organisme).", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Problème", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#e74c3c", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Comment distinguer les microbes les uns des autres ?", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(212, 76, 71)", "fontSize": "", "fontFamily": ""}}]}]}]
 
-        console.log("CONTENT", typeof block.content, block.content);
         await updateBlock(blockTitle, block.content, blockTextEmbeddings, session.user.id, block.attrs.id, chapterId);
       }));
     }
@@ -93,6 +121,9 @@ export async function PUT(
     if (themeId !== undefined) updateData.themeId = themeId;
     if (status !== undefined && (isAdmin || [ChapterStatus.DELETED, ChapterStatus.DRAFT, ChapterStatus.REVIEW].includes(status as any))) {
       updateData.status = status;
+      if (status == ChapterStatus.REVIEW) {
+        await _sendMailChapterToReview(chapterId);
+      }
     }
     if (skills !== undefined) {
       updateData.skills = {

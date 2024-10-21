@@ -1115,126 +1115,6 @@ const getTemplate = (passwordResetLink: string) => {
         </table>
       </div>
       <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-      <div style="margin: 0px auto; max-width: 600px">
-        <table
-          align="center"
-          border="0"
-          cellpadding="0"
-          cellspacing="0"
-          role="presentation"
-          style="width: 100%"
-        >
-          <tbody>
-            <tr>
-              <td
-                style="
-                  direction: ltr;
-                  font-size: 0px;
-                  padding: 20px 0px 20px 0px;
-                  text-align: center;
-                "
-              >
-                <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-                <div
-                  class="mj-column-per-100 mj-outlook-group-fix"
-                  style="
-                    font-size: 0px;
-                    text-align: left;
-                    direction: ltr;
-                    display: inline-block;
-                    vertical-align: top;
-                    width: 100%;
-                  "
-                >
-                  <table
-                    border="0"
-                    cellpadding="0"
-                    cellspacing="0"
-                    role="presentation"
-                    width="100%"
-                  >
-                    <tbody>
-                      <tr>
-                        <td style="vertical-align: top; padding: 0">
-                          <table
-                            border="0"
-                            cellpadding="0"
-                            cellspacing="0"
-                            role="presentation"
-                            width="100%"
-                          >
-                            <tbody>
-                              <tr>
-                                <td
-                                  align="center"
-                                  style="
-                                    font-size: 0px;
-                                    padding: 10px 25px;
-                                    word-break: break-word;
-                                  "
-                                >
-                                  <div
-                                    style="
-                                      font-family: Verdana, Helvetica, Arial,
-                                        sans-serif;
-                                      font-size: 11px;
-                                      line-height: 1.5rem;
-                                      text-align: center;
-                                      color: #000000;
-                                    "
-                                  >
-                                    <p style="margin: 10px 0">
-                                      Cet email a été envoyé à
-                                      erwan.boehm@gmail.com,
-                                      <a
-                                        href="https://sm1y1.mjt.lu/unsub2?hl=fr&amp;m=CAAABimVlmIAAAAAAAAAAULVgYIAAYCuSdcAAAAAACeeXABnFhpEnTJkEww-RN6VE5UbZKiy2wAkzh4&amp;b=832e71d4&amp;e=8977869b&amp;x=swvzftIe3fR34w9_96qOsF9gVbn_Gmc7Yctxk3j92O0"
-                                        style="
-                                          color: inherit;
-                                          text-decoration: none;
-                                        "
-                                        target="_blank"
-                                        >cliquez ici pour vous désabonner</a
-                                      >.
-                                    </p>
-                                  </div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td
-                                  align="center"
-                                  style="
-                                    font-size: 0px;
-                                    padding: 10px 25px;
-                                    word-break: break-word;
-                                  "
-                                >
-                                  <div
-                                    style="
-                                      font-family: Verdana, Helvetica, Arial,
-                                        sans-serif;
-                                      font-size: 11px;
-                                      line-height: 1.5rem;
-                                      text-align: center;
-                                      color: #000000;
-                                    "
-                                  >
-                                    <p style="margin: 10px 0">FR</p>
-                                  </div>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <!--[if mso | IE]></td></tr></table><![endif]-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
       <!--[if mso | IE]></td></tr></table><![endif]-->
     </div>
     <br /><a
@@ -1275,6 +1155,6 @@ const getTemplate = (passwordResetLink: string) => {
 </html>`
 }
 
-export const sendPasswordResetEmail = async (to: UserFull, passwordResetLink: string) => {
-  await sendMail(to, "Réinitialisation de votre mot de passe", getTemplate(passwordResetLink))
+export default async function sendPasswordResetEmail(to: UserFull, passwordResetLink: string) {
+  await sendMail([to], "Réinitialisation de votre mot de passe", getTemplate(passwordResetLink))
 }

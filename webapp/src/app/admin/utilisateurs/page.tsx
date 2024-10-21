@@ -18,6 +18,7 @@ const fetchUsers: QueryFunction<UserFull[], [string]> = async ({ queryKey }) => 
 const AdminListUsers = () => {
     const queryClient = useQueryClient();
     const searchParams = useSearchParams();
+    const quickFilterValue = searchParams.get('q')
     const { data: users, isLoading: usersLoading, error: usersError } = useQuery({
         queryKey: ['users'],
         queryFn: fetchUsers
@@ -26,14 +27,6 @@ const AdminListUsers = () => {
     const [openRolesDialog, setOpenRolesDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserFull | null>(null);
     const [selectedRoles, setSelectedRoles] = useState<UserRoles[]>([]);
-    const [quickFilterValue, setQuickFilterValue] = useState('');
-
-    useEffect(() => {
-        const query = searchParams.get('q');
-        if (query) {
-            setQuickFilterValue(query);
-        }
-    }, [searchParams]);
 
     const updateUserMutation = useMutation({
         mutationFn: (user: UserFull) => apiClient.updateUser(user, user.id),
@@ -132,8 +125,6 @@ const AdminListUsers = () => {
                         <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
                             <GridToolbarQuickFilter 
                                 placeholder='Rechercher' 
-                                value={quickFilterValue}
-                                onChange={(event) => setQuickFilterValue(event.target.value)}
                             />
                         </div>
                     ),

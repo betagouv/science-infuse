@@ -1,10 +1,9 @@
 import prisma from '@/lib/prisma';
-import { sendPasswordResetEmail } from '@/mail/resetPassword';
+import { getUserFull } from '@/lib/utils/db';
+import sendPasswordResetEmail from '@/mail/sendPasswordResetEmail';
+import { UserFull } from '@/types/api';
 import { randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
-import { userFullFields } from '../../accessControl';
-import { getUserFull } from '@/lib/utils/db';
-import { UserFull } from '@/types/api';
 
 export async function POST(request: Request) {
     const { email } = await request.json();
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
 
     // Generate reset token
     const token = randomBytes(20).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiry
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000 * 24); // 1 day expiry
 
     // Update user with reset token and expiry
     await prisma.user.update({
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
         },
     });
 
-    const passwordResetLink = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/reset-password?token=${token}`;
+    const passwordResetLink = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/reinitialiser-mot-de-passe?token=${token}`;
 
     await sendPasswordResetEmail(userFull, passwordResetLink);
 
