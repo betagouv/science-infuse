@@ -40,7 +40,7 @@ export const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) =>
 
 export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: GroupedVideo[], searchWords: string[] }> = ({ onInserted, groupedVideos, searchWords }) => {
   return (
-    <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+    <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
       {groupedVideos
         .slice()
         .map((video, index) => {
@@ -56,7 +56,7 @@ export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: Gr
 }
 
 export const ChapterResults: React.FC<OnInserted & { chapters: ChapterWithBlock[] }> = ({ chapters }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
     {chapters
       .map((chapter, index) => (
         <MasonaryItem key={index}>
@@ -68,7 +68,7 @@ export const ChapterResults: React.FC<OnInserted & { chapters: ChapterWithBlock[
 };
 
 export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], searchWords: string[] }> = ({ blocks, searchWords }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
     {blocks
       .sort((a, b) => b.score - a.score)
       .map((block, index) => (
@@ -81,7 +81,7 @@ export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], s
 };
 
 export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ onInserted, chunks, searchWords }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value]} spacing={2}>
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
     {chunks
       .sort((a, b) => b.score - a.score)
       .map((result, index) => (

@@ -86,7 +86,6 @@ export default () => {
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-
                     <i className="fr-icon fr-icon-account-line mr-2" aria-hidden="true"></i>
                     <p className="m-0">Mon espace</p>
 
@@ -103,7 +102,7 @@ export default () => {
                             {[
                                 { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                                 { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
-                                ...((user.roles||[]).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }] : []),
+                                ...((user.roles || []).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }] : []),
                                 { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
                             ].map((item, index) => (
                                 <button

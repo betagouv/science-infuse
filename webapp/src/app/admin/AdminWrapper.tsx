@@ -19,17 +19,12 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
     }, [pathname]);
 
     return (
-        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-            <div className="fr-col-12 fr-col-md-8 main-content-item my-24">
-                <div className="flex flex-row">
-                    <div
-                        className="container"
-                        style={{
-                            width: 300,
-                            minWidth: 250
-                        }}
-                    >
+        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center !m-0">
+            <div className="fr-col-12 fr-col-md-10 fr-col-lg-8 main-content-item !p-0 mx-0 my-24">
+                <div className="flex flex-col md:flex-row">
+                    <div className="w-full md:w-1/4">
                         <SideMenu
+                            className="w-full m-0"
                             title="Admin"
                             align="left"
                             burgerMenuButtonText="Dans cette rubrique"
@@ -92,7 +87,7 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                             ]}
                         />
                     </div>
-                    <div className="w-full">
+                    <div className="w-full md:w-3/4 mt-4 md:mt-0 px-8 md:px-0">
                         {children}
                     </div>
                 </div>
