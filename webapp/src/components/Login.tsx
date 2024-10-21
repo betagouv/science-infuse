@@ -143,14 +143,14 @@ const Login = () => {
                     state="default"
                 />
 
-                <Button type='submit' className='w-full flex items-center justify-center bg-black text-[#fff]'>Se connecter</Button>
+                <Button type='submit' className='w-full flex items-center justify-center'>Se connecter</Button>
             </form>
 
             <div className="flex flex-col gap-4">
                 <hr className="p-4 mt-4 border-t border-[#DDDDDD]" />
                 <h2 className="m-0 text-3xl font-bold">Vous n'avez pas de compte ?</h2>
 
-                <Button onClick={handleOpenModal} className='w-full flex items-center justify-center bg-black text-[#fff]'>S'inscrire</Button>
+                <Button onClick={handleOpenModal} className='w-full flex items-center justify-center'>S'inscrire</Button>
 
             </div>
             <Snackbar />
