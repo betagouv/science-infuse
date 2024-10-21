@@ -73,6 +73,10 @@ services:
         - S3_ENDPOINT=${S3_ENDPOINT}
         - S3_REGION=${S3_REGION}
         - S3_BUCKET=${S3_BUCKET}
+        - SCW_ACCESS_KEY=${SCW_ACCESS_KEY}
+        - SCW_SECRET_KEY=${SCW_SECRET_KEY}
+        - SCW_PROJECT_ID=${SCW_PROJECT_ID}
+        - SCW_REGION=${SCW_REGION}
     ports:
       - "8002:3000"
     environment:

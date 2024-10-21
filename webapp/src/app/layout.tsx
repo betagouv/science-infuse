@@ -1,36 +1,36 @@
 import "./css/globals.css";
 import "./css/lists.scss";
 
-import { Providers } from "./providers"
-import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
+import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { defaultColorScheme } from "./defaultColorScheme";
+import { Providers } from "./providers";
 // import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
-import { Footer } from "@codegouvfr/react-dsfr/Footer";
-import { headerFooterDisplayItem, addDisplayTranslations } from "@codegouvfr/react-dsfr/Display";
-import Link from "next/link";
-import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "./consentManagement";
-import { ClientFooterItem } from "../ui/ClientFooterItem";
-import { headers } from "next/headers";
-import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
-import style from "./main.module.css";
-import { cx } from '@codegouvfr/react-dsfr/tools/cx';
-import StartDsfr from "./StartDsfr";
+import MatomoAnalytics from "@/components/MatomoAnalytics";
 import SIFooter from "@/components/SIFooter";
 import SIHeader from "@/components/header/SIHeader";
+import { catchErrorTyped } from "@/errors";
+import { addDisplayTranslations, headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
+import { Footer } from "@codegouvfr/react-dsfr/Footer";
+import { cx } from '@codegouvfr/react-dsfr/tools/cx';
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/authOptions";
-import MatomoAnalytics from "@/components/MatomoAnalytics";
+import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
+import { headers } from "next/headers";
+import Link from "next/link";
 import { MuiDsfrThemeProvider } from "./MuiDsfrThemeProvider";
+import StartDsfr from "./StartDsfr";
+import { authOptions } from "./api/auth/[...nextauth]/authOptions";
+import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "./consentManagement";
+import style from "./main.module.css";
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");
   const session = await getServerSession(authOptions);
   const user = session?.user
 
-
+catchErrorTyped
   let nonce: string | undefined;
   if (csp) {
     nonce = getScriptNonceFromHeader(csp);

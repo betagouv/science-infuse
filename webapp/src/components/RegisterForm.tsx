@@ -72,6 +72,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
 
             if (response.ok) {
                 props.handleCloseModal();
+                showSnackbar(<p className="m-0">Compte créé avec succès. <br />Veuillez vérifier vos e-mails pour confirmer votre inscription.</p>, 'success')
             } else {
                 const data = await response.json()
                 setErrorMessage(data.error || "Une erreur s'est produite lors de l'inscription.");
@@ -92,13 +93,10 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
 
     return (
         <div className="flex w-full flex-col gap-8">
-            <p className="m-0 text-2xl font-bold text-left text-[#161616]">
-                S'inscrire à Science Infuse
-            </p>
             <p className="m-0 text-sm text-left text-[#666]">
                 Tous les champs mentionnés avec une * sont obligatoires.
             </p>
-            {errorMessage && <p className="m-0 text-red-500 sticky top-[-4rem] bg-white z-[1] text-center py-6">{errorMessage}</p>}
+            {errorMessage && <p className="m-0 text-red-500 sticky top-[0rem] bg-white z-[1] text-center py-6">{errorMessage}</p>}
             <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
 
                 <UserSettingsField

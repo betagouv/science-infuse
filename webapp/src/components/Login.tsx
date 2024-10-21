@@ -1,21 +1,25 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Input } from "@codegouvfr/react-dsfr/Input";
-import { Button } from '@codegouvfr/react-dsfr/Button';
-import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from '@/course_editor/components/Snackbar';
-import { Modal, Box } from '@mui/material';
-import RegisterForm from './RegisterForm';
-import { Academy, EducationLevel, SchoolSubject } from '@prisma/client';
-import { apiClient } from '@/lib/api-client';
 import useWindowSize from '@/course_editor/hooks/useWindowSize';
+import { apiClient } from '@/lib/api-client';
+import { Button } from '@codegouvfr/react-dsfr/Button';
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
+import { Input } from "@codegouvfr/react-dsfr/Input";
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { Academy, EducationLevel, SchoolSubject } from '@prisma/client';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useEffect, useState } from 'react';
+import RegisterForm from './RegisterForm';
+
+const modal = createModal({
+    id: "register-modal",
+    isOpenedByDefault: false
+});
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [openModal, setOpenModal] = useState(false);
     const [acceptCGU, setAcceptCGU] = useState(false);
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
@@ -40,11 +44,11 @@ const Login = () => {
     }
 
     const handleOpenModal = () => {
-        setOpenModal(true);
+        modal.open()
     };
 
     const handleCloseModal = () => {
-        setOpenModal(false);
+        modal.close();
     };
 
 
@@ -72,7 +76,7 @@ const Login = () => {
     }, []);
 
 
-    const {isMobile} = useWindowSize();
+    const { isMobile } = useWindowSize();
 
     return (
         <div className={`flex flex-col gap-4 ${isMobile && 'px-16 pb-16'}`}>
@@ -150,21 +154,9 @@ const Login = () => {
 
             </div>
             <Snackbar />
-
-            <Modal
-                open={openModal}
-                onClose={handleCloseModal}
-                aria-labelledby="inscription"
-                className='flex items-center justify-center'
-            >
-                <div className="relative bg-white">
-                    <button onClick={handleCloseModal} className="absolute top-6 right-6 flex-grow-0 flex-shrink-0 text-sm font-medium text-center text-[#000091]">Fermer</button>
-
-                    <div className="max-h-[80vh] w-[600px] max-w-full  overflow-y-auto p-16">
-                        <RegisterForm handleCloseModal={handleCloseModal} educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
-                    </div>
-                </div>
-            </Modal>
+            <modal.Component title="S'inscrire à Science Infuse">
+                <RegisterForm handleCloseModal={handleCloseModal} educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
+            </modal.Component>
         </div>
     )
 }

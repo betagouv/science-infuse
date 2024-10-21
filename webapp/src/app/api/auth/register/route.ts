@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import { User } from "@prisma/client";
 import { UserFull } from "@/types/api";
+import { sendMailCreated } from "@/mail/accountCreated";
+import { userFullFields } from "../../accessControl";
 
 export async function POST(req: Request) {
   try {
@@ -48,8 +50,11 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         ...userData
-      }
+      },
+      select: userFullFields
     })
+
+    await sendMailCreated(user)
 
     return NextResponse.json({ message: "Utilisateur enregistré avec succès." }, { status: 201 })
   } catch (error) {

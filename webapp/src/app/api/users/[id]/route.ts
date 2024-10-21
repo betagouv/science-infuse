@@ -6,6 +6,8 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { userIs } from '../../accessControl';
 import { authOptions } from '../../auth/[...nextauth]/authOptions';
+import { sendMail } from '@/mail';
+import { sendMailCreated } from '@/mail/accountCreated';
 
 export async function GET(request: NextRequest,
   { params }: { params: { id: string } }
@@ -27,6 +29,7 @@ export async function GET(request: NextRequest,
       user = await getUserFull(userId);
     }
 
+    
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
