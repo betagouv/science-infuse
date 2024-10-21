@@ -36,7 +36,7 @@ const Filters: React.FC<FiltersProps> = ({ selectedFilter, onFilterChange, filte
             <div className="flex flex-wrap">
                 <button
                     className={`px-4 py-[1.5rem] m-0 text-sm hover:text-black ${selectedFilter === ''
-                        ? 'bg-black text-white'
+                        ? 'bg-[#000091] text-white'
                         : 'bg-white text-[#161616] hover:bg-gray-100'
                         }`}
                     onClick={() => onFilterChange('')}
@@ -47,7 +47,7 @@ const Filters: React.FC<FiltersProps> = ({ selectedFilter, onFilterChange, filte
                     <button
                         key={filter.id}
                         className={`px-4 py-[1.5rem] m-0 text-sm hover:text-black ${selectedFilter === filter.id
-                            ? 'bg-black text-white'
+                            ? 'bg-[#000091] text-white'
                             : 'bg-white text-[#161616] hover:bg-gray-100'
                             }`}
                         onClick={() => onFilterChange(filter.id)}
