@@ -85,8 +85,8 @@ const AdminChapters = () => {
                 </div>
             )
         },
-        { flex: 1, field: 'id', headerName: 'Id', minWidth: 300, editable: true},
-        
+        { flex: 1, field: 'id', headerName: 'Id', minWidth: 300, editable: true },
+
     ];
 
     const handleOpenRolesDialog = (chapter: Chapter) => {
@@ -121,14 +121,15 @@ const AdminChapters = () => {
     return (
         <AdminWrapper>
             <DataGrid
-                style={{ height: "90vh" }}
+                style={{ minHeight: "90vh" }}
                 rows={chapters || []}
                 columns={columns}
                 editMode="row"
                 processRowUpdate={handleRowUpdate}
                 slots={{
                     toolbar: () => (
-                        <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                        <div className='w-full [&>*:first-child]:w-full'
+                            style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
                             <GridToolbarQuickFilter
                                 placeholder='Rechercher'
                             />

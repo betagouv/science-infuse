@@ -74,6 +74,7 @@ const columns: GridColDef[] = [
             <div className='flex flex-col'>
                 <h1>Liste des tâches</h1>
                 <DataGrid
+                    style={{ minHeight: "90vh" }}
                     rows={data?.jobs || []}
                     columns={columns}
                     paginationMode="server"

@@ -26,14 +26,14 @@ export const TabMediaTypeMap: Record<TabType, MediaType[]> = {
   [TabType.Others]: [MediaTypes.WebsiteQa],
 }
 
-export const ColumnsMediaTypeMap: Record<TabType, number> = {
-  [TabType.Favourites]: 2,
-  [TabType.Chapters]: 2,
-  [TabType.Documents]: 2,
-  [TabType.Pictures]: 4,
-  [TabType.Videos]: 3,
-  [TabType.Games]: 2,
-  [TabType.Others]: 2,
+export const ColumnsMediaTypeMap: Record<TabType, (isMobile: boolean) => number> = {
+  [TabType.Favourites]: (isMobile: boolean) => isMobile ? 1:2,
+  [TabType.Chapters]: (isMobile: boolean) => isMobile ? 1:2,
+  [TabType.Documents]: (isMobile: boolean) => isMobile ? 1:2,
+  [TabType.Pictures]: (isMobile: boolean) => isMobile ? 1:4,
+  [TabType.Videos]: (isMobile: boolean) => isMobile ? 1:3,
+  [TabType.Games]: (isMobile: boolean) => isMobile ? 1:2,
+  [TabType.Others]: (isMobile: boolean) => isMobile ? 1:2,
 }
 
 // Define an interface for tab items
