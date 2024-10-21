@@ -64,7 +64,7 @@ const _sendMailChapterToReview = async (chapterId: string) => {
   const allReviewers = await prisma.user.findMany({
     where: {
       roles: {
-        has: UserRoles.ADMIN
+        has: UserRoles.REVIEWER
       }
     },
     select: userFullFields
