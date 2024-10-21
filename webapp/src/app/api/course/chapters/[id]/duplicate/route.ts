@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { ChapterStatus, Prisma } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
+import { userFullFields } from '@/app/api/accessControl';
 
 
 const createNewCourseBlockIds = (obj: any): any => {
@@ -46,7 +47,10 @@ export async function GET(
       },
       include: {
         skills: true,
-        educationLevels: true
+        educationLevels: true,
+        user: {
+          select: userFullFields
+        }
       }
     });
 
@@ -54,16 +58,13 @@ export async function GET(
       return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
     }
 
-    const { id, createdAt, updatedAt, content, userId, status, ...chapterData } = chapter;
+    const { id, createdAt, updatedAt, content, userId, status, user, ...chapterData } = chapter;
 
     if (userId == session.user.id) {
       return NextResponse.json({ error: 'Ce chapitre vous appartient déjà' }, { status: 409 })
     }
 
     const updatedContent = createNewCourseBlockIds(content);
-    console.log("        CONTENT", JSON.stringify(content))
-    console.log("UPDATED CONTENT", JSON.stringify(updatedContent))
-
 
 
     const duplicatedChapter = await prisma.chapter.create({
@@ -72,7 +73,7 @@ export async function GET(
         title: `${chapter.title} (Copie)`,
         // chapter now belong to new user;
         userId: session.user.id,
-        status: "DRAFT",
+        status: ChapterStatus.DRAFT,
         skills: {
           connect: chapter.skills.map(skill => ({ id: skill.id }))
         },
@@ -83,7 +84,10 @@ export async function GET(
       },
       include: {
         skills: true,
-        educationLevels: true
+        educationLevels: true,
+        user: {
+          select: userFullFields
+        }
       }
     });
 

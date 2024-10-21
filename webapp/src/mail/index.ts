@@ -31,12 +31,12 @@ interface EmailData {
     additional_headers?: AdditionalHeader[]
 }
 
-export async function sendMail(to: UserFull, subject: string, html: string): Promise<void> {
+export async function sendMail(to: UserFull[], subject: string, html: string): Promise<void> {
     const region = process.env.SCW_REGION
     const scwSecretKey = process.env.SCW_SECRET_KEY;
     const scwProjectId = process.env.SCW_PROJECT_ID;
     // TODO: custom exception use @errors/
-    if (!to.email) return;
+    if (to.length === 0) return;
     if (!region || !scwSecretKey || !scwProjectId) {
         throw new Error('REGION, SCW_SECRET_KEY and SCW_PROJECT_ID must be set in environment variables')
     }
@@ -46,12 +46,10 @@ export async function sendMail(to: UserFull, subject: string, html: string): Pro
             name: `Science Infuse`,
             email: `contact@science-infuse.beta.gouv.fr`
         },
-        to: [
-            {
-                name: `${to.firstName} ${to.lastName}`,
-                email: to.email
-            }
-        ],
+        to: to.filter(user => user.email !== null).map(user => ({
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email as string
+        })),
         subject: subject,
         project_id: scwProjectId,
         html: html,

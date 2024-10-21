@@ -6,9 +6,10 @@ import { Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, D
 import { DataGrid, GridColDef, GridRowModel, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import { Chapter, ChapterStatus, EducationLevel } from '@prisma/client';
 import { QueryFunction, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminWrapper from '../AdminWrapper';
 import { Badge } from "@codegouvfr/react-dsfr/Badge";
+import { useSearchParams } from 'next/navigation';
 
 const fetchCourses: QueryFunction<Chapter[], [string]> = async ({ queryKey }) => {
     const toc = await apiClient.getChaptersByTheme("all");
@@ -17,6 +18,8 @@ const fetchCourses: QueryFunction<Chapter[], [string]> = async ({ queryKey }) =>
 
 const AdminChapters = () => {
     const queryClient = useQueryClient();
+    const searchParams = useSearchParams();
+    const quickFilterValue = searchParams.get('q')
     const { data: chapters, isLoading: chapterLoading, error: chaptersError } = useQuery({
         queryKey: ['chapters'],
         queryFn: fetchCourses
@@ -82,7 +85,8 @@ const AdminChapters = () => {
                 </div>
             )
         },
-
+        { flex: 1, field: 'id', headerName: 'Id', minWidth: 300, editable: true},
+        
     ];
 
     const handleOpenRolesDialog = (chapter: Chapter) => {
@@ -122,17 +126,22 @@ const AdminChapters = () => {
                 columns={columns}
                 editMode="row"
                 processRowUpdate={handleRowUpdate}
-                initialState={{
-                    sorting: {
-                        sortModel: [{ field: 'status', sort: 'asc' }],
-                    },
-                }}
                 slots={{
                     toolbar: () => (
                         <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                            <GridToolbarQuickFilter placeholder='Rechercher' />
+                            <GridToolbarQuickFilter
+                                placeholder='Rechercher'
+                            />
                         </div>
                     ),
+                }}
+                initialState={{
+                    filter: {
+                        filterModel: {
+                            items: [],
+                            quickFilterValues: [quickFilterValue],
+                        },
+                    },
                 }}
             />
 

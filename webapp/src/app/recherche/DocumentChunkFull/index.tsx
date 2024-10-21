@@ -531,7 +531,6 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
     const blockContent = typeof props.block.content === 'string' ? JSON.parse(props.block.content) : props.block.content;
 
     const link = `/prof/chapitres/${block.chapter.id}/view?block=${props.block.id}`
-    console.log("BLOCK CONTENT", blockContent)
     return <StyledCardWithoutTitle
         background
         border

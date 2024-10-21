@@ -127,7 +127,7 @@ const Login = () => {
                     </svg>
                 </div>
                 <p className="text-sm w-fit p-0" >Mot de passe oublié ?
-                    <a className='ml-2' href="/ask-for-password-reset">Cliquez ici</a>
+                    <a className='ml-2' href="/mot-de-passe-oublie">Cliquez ici</a>
                 </p>
                 <Checkbox
                     className='mt-4'

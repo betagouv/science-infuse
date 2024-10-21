@@ -1,13 +1,14 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useSnackbar } from '../SnackBarProvider';
+import { catchErrorTyped } from '@/errors';
+import { apiClient } from '@/lib/api-client';
+import { validatePassword } from '@/lib/utils';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import Input from '@codegouvfr/react-dsfr/Input';
-import { validatePassword } from '@/lib/utils';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useSnackbar } from '../SnackBarProvider';
 
 export default function ResetPassword() {
     const [password, setPassword] = useState('');
@@ -35,16 +36,14 @@ export default function ResetPassword() {
             setErrorMessage('Les mots de passe ne correspondent pas.');
             return;
         }
+        const [error, result] = await catchErrorTyped(
+            apiClient.resetPassword(token!, password)
+            ,
+            [Error]
+        );
 
-        const res = await fetch('/api/auth/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, password }),
-        });
-
-        if (!res.ok) {
-            const data = await res.json();
-            setErrorMessage(data.error);
+        if (error) {
+            setErrorMessage(error.message);
             return;
         }
 

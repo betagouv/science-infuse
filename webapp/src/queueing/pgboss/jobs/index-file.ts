@@ -1,11 +1,11 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
+import { catchErrorTyped } from "@/errors";
 import { insertDocument } from "@/lib/utils/db";
 import { Document, DocumentChunk } from "@prisma/client";
 import axios from "axios";
 import fs from "fs";
 import { z } from "zod";
 import { defineJob, defineWorker, defineWorkerConfig } from "../boss";
-import { catchErrorTyped } from "@/errors";
 
 const crypto = require('crypto');
 

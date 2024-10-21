@@ -103,7 +103,7 @@ export default () => {
                             {[
                                 { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                                 { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
-                                ...((user.roles||[]).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin" }] : []),
+                                ...((user.roles||[]).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }] : []),
                                 { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
                             ].map((item, index) => (
                                 <button
