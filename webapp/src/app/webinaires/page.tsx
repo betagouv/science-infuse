@@ -8,7 +8,8 @@ import { useRef } from 'react';
 
 
 const videos = [
-    { src: "/videos/comment-fonctionner-en-classe-autonome.mp4", srt: "/videos/comment-fonctionner-en-classe-autonome.srt" },
+    { title: "Comment fonctionner en classe autonome ?", src: "/videos/comment-fonctionner-en-classe-autonome.mp4", srt: "/videos/comment-fonctionner-en-classe-autonome.srt" },
+    { title: "Améliorez l'apprentissage des élèves grâce à la ludification.", src: "/videos/webinaire-ludification-camille.mp4", srt: "/videos/webinaire-ludification-camille.srt" },
 ]
 
 const StyledCallout = styled(CallOut)`
@@ -31,7 +32,7 @@ const Webinaires = () => {
                     <h1>Webinaires Science Infuse</h1>
                     {user && videos.map(v => (
                         <div key={v.src} className="relative p-8 bg-[#f2f2f2] rounded-xl">
-                            <h2>Comment fonctionner en classe autonome?</h2>
+                            <h2>{v.title}</h2>
                             <video ref={videoRef} controls className="w-full mb-4">
                                 <source src={v.src} type="video/mp4" />
                                 <track kind="subtitles" src={v.srt} srcLang="fr" label="Français" default />
