@@ -14,6 +14,7 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
             createdAt: 'desc',
         },
         include: {
+            theme: true,
             commentThread: true,
             blocks: {
                 include: {

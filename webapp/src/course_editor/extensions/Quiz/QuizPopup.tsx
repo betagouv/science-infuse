@@ -2,10 +2,11 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Editor } from '@tiptap/react';
 import { useOnClickOutside } from 'usehooks-ts'
 import { useEffect } from '@preact-signals/safe-react/react';
-import { Checkbox, CircularProgress, IconButton } from '@mui/material';
+import { CircularProgress, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
+import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { apiClient } from '@/lib/api-client';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -210,7 +211,6 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
               <Button
                 iconId="fr-icon-sparkling-2-line"
                 iconPosition="right"
-                className='bg-black'
                 disabled={isGenerating}
                 onClick={() => handleGenerateQuiz('fullChapter')}
               >
@@ -238,38 +238,48 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
                 <DeleteIcon />
               </IconButton>
               <p className="m-0 mb-4 text-lg text-center text-black underline">Question {questionIndex + 1}</p>
-              <Input
-                label=" "
-                nativeInputProps={{
-                  value: question.question,
-                  onChange: (e) => updateQuestion(questionIndex, e.target.value),
-                  required: true,
-                  placeholder: "Rédiger la question.",
-                }}
-              />
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="flex items-center w-full mb-4">
-                  <Checkbox
-                    checked={option.correct}
-                    onChange={() => toggleCorrectOption(questionIndex, optionIndex)}
-                    className="mr-2"
-                  />
-                  <Input
+
+              <div className="mt-4">
+                <Checkbox
+                  legend={<Input
                     label=" "
-                    className='!m-0 [&_input]:!m-0 w-full'
                     nativeInputProps={{
-                      className: 'm-0',
-                      value: option.answer,
-                      onChange: (e) => updateOption(questionIndex, optionIndex, e.target.value),
+                      value: question.question,
+                      onChange: (e) => updateQuestion(questionIndex, e.target.value),
                       required: true,
-                      placeholder: "Compléter avec une réponse.",
+                      placeholder: "Rédiger la question.",
                     }}
-                  />
-                  <IconButton onClick={() => removeOption(questionIndex, optionIndex)} className="text-red-500">
-                    <DeleteIcon />
-                  </IconButton>
-                </div>
-              ))}
+                  />}
+                  options={question.options.map((option, optionIndex) => ({
+                    label: <div className='flex w-full'>
+                      <Input
+                        label=""
+                        className='!m-0 !p-0 [&_input]:!m-0 w-full'
+                        nativeInputProps={{
+                          className: 'm-0',
+                          value: option.answer,
+                          onChange: (e) => updateOption(questionIndex, optionIndex, e.target.value),
+                          required: true,
+                          placeholder: "Compléter avec une réponse.",
+                        }}
+                      />
+                      <IconButton
+                        onClick={() => removeOption(questionIndex, optionIndex)}
+                        className="text-red-500"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+
+                    </div>,
+                    nativeInputProps: {
+                      name: `question-${questionIndex}`,
+                      checked: option.correct,
+                      onChange: () => toggleCorrectOption(questionIndex, optionIndex)
+                    }
+                  }))}
+                  state="default"
+                />
+              </div>
               <Button
                 className='w-full flex items-center justify-center mt-8'
                 priority='secondary'
@@ -281,7 +291,6 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
           ))}
 
           <div className="flex flex-col w-full gap-4">
-
             <Button
               className='w-full flex items-center justify-center'
               priority='secondary'
@@ -298,11 +307,8 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
             </Button>
           </div>
         </div>
-
-
       </div>
     </div>
-
   );
 };
 

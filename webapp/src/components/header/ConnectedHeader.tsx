@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 import { Popover, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material"
 import { UserRoles } from "@prisma/client";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useRef } from "react";
 import { useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
@@ -63,12 +63,21 @@ const StyledAccordionSummary = styled(AccordionSummary)`
 export default () => {
     const [expanded, setExpanded] = useState(false);
     const { data: session } = useSession();
+    const pathName = usePathname();
     const router = useRouter();
     const user = session?.user;
     const { isMobile, isTablet } = useWindowSize();
     const accordionRef = useRef<HTMLDivElement>(null);
     useOnClickOutside(accordionRef, () => setExpanded(false))
-    if (!user) return;
+
+    if (!user) {
+        if (pathName != '/')
+            return <Button linkProps={{ href: '/' }}>
+                Connexion
+            </Button>
+
+        return "";
+    }
 
 
     const handleClose = () => {
@@ -101,7 +110,7 @@ export default () => {
                         <div className="flex flex-col">
                             {[
                                 { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
-                                { icon: "fr-icon-image-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
+                                { icon: "fr-icon-star-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
                                 ...((user.roles || []).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }] : []),
                                 { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
                             ].map((item, index) => (
@@ -121,7 +130,7 @@ export default () => {
 
                             <div className="mt-4 pb-4 w-full flex items-center justify-center">
                                 <button
-                                    onClick={() => { handleClose(); signOut(); }}
+                                    onClick={() => { handleClose(); signOut(); router.push('/') }}
                                     className="flex items-center gap-2 border-solid border-[#ddd] text-sm font-medium text-[#000091] w-full mx-4 py-2">
                                     <i className="fr-icon fr-icon-logout-box-r-line mr-2" aria-hidden="true"></i>
                                     Se déconnecter

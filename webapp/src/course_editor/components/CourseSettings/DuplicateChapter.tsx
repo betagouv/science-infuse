@@ -1,6 +1,7 @@
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { apiClient } from '@/lib/api-client';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { Tooltip } from '@mui/material';
 import { Editor } from '@tiptap/react';
 import { useState } from 'react';
 
@@ -29,15 +30,17 @@ const DuplicateChapter = (props: { chapterId: string, editor: Editor }) => {
   };
 
   return (
-    <Button
-      iconId="fr-icon-clipboard-fill"
-      iconPosition="right"
-      disabled={isDuplicated}
-      className='bg-black w-full flex justify-center h-fit'
-      onClick={() => {
-        handleDuplicate();
-      }}>Réutiliser</Button>
-  )
+    <Tooltip title="Dupliquer ce chapitre">
+      <Button
+        iconId="fr-icon-clipboard-fill"
+        iconPosition="right"
+        disabled={isDuplicated}
+        priority='secondary'
+        className='w-full flex justify-center h-fit'
+        onClick={() => {
+          handleDuplicate();
+        }}>Réutiliser</Button>
+    </Tooltip>)
 }
 
 

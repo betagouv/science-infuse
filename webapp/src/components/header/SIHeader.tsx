@@ -13,8 +13,8 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
   return (
     <Header
       className=""
-      brandTop={<>RÉPUBLIQUE
-        <br />FRANÇAISE</>}
+      brandTop={<>MINISTÈRE DE
+        <br />LA CULTURE</>}
       operatorLogo={{
         alt: 'logo science infuse',
         imgUrl: '/images/science_infuse_logo.jpg',

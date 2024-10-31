@@ -47,6 +47,7 @@ export async function GET(
       },
       include: {
         skills: true,
+        theme: true,
         educationLevels: true,
         user: {
           select: userFullFields
@@ -58,7 +59,7 @@ export async function GET(
       return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
     }
 
-    const { id, createdAt, updatedAt, content, userId, status, user, ...chapterData } = chapter;
+    const { id, createdAt, updatedAt, content, userId, status, user, theme, ...chapterData } = chapter;
 
     if (userId == session.user.id) {
       return NextResponse.json({ error: 'Ce chapitre vous appartient déjà' }, { status: 409 })
@@ -66,12 +67,11 @@ export async function GET(
 
     const updatedContent = createNewCourseBlockIds(content);
 
-
     const duplicatedChapter = await prisma.chapter.create({
       data: {
         ...chapterData,
         title: `${chapter.title} (Copie)`,
-        // chapter now belong to new user;
+        themeId: chapter.themeId,
         userId: session.user.id,
         status: ChapterStatus.DRAFT,
         skills: {

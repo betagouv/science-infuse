@@ -5,6 +5,7 @@ import { apiClient } from "@/lib/api-client";
 import { validatePassword } from "@/lib/utils";
 import { UserFull } from "@/types/api";
 import Button from "@codegouvfr/react-dsfr/Button";
+import Checkbox from "@codegouvfr/react-dsfr/Checkbox";
 import { useState } from "@preact-signals/safe-react/react";
 import { Academy, EducationLevel, SchoolSubject } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [job, setJob] = useState("");
+    const [acceptCGU, setAcceptCGU] = useState(false);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -35,6 +37,11 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setErrorMessage("");
+        if (!acceptCGU) {
+            showSnackbar(<p className='m-0'>Veuillez accepter les conditions générales d'utilisation pour continuer.</p>, 'error')
+            return;
+        }
 
         if (!firstName || !email || !password || !job || !confirmPassword) {
             setErrorMessage("Veuillez remplir tous les champs obligatoires.");
@@ -50,6 +57,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
             setErrorMessage("Le mot de passe doit contenir au moins 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.");
             return;
         }
+
 
         try {
             const response = await fetch("/api/auth/register", {
@@ -93,7 +101,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
             <p className="m-0 text-sm text-left text-[#666]">
                 Tous les champs mentionnés avec une * sont obligatoires.
             </p>
-            {errorMessage && <p className="m-0 text-red-500 sticky top-[0rem] bg-white z-[1] text-center py-6">{errorMessage}</p>}
+            {errorMessage && <p className="m-0 text-red-500 sticky top-[0rem] bg-white z-[999] text-center py-6">{errorMessage}</p>}
             <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
 
                 <UserSettingsField
@@ -201,9 +209,27 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     hint="Plusieurs choix possible. Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
                 />
 
+
+                <Checkbox
+                    className='mt-4'
+                    options={[
+                        {
+                            label: <p className='m-0 ml-2'>J'accepte les <a href="/conditions-generales-d-utilisation" target='_blank'>conditions générales d'utilisation</a><br /><span className='self-stretch flex-grow-0 flex-shrink-0 w-[258px] text-xs text-left text-[#666]'>* Obligatoire</span></p>,
+                            nativeInputProps: {
+                                name: 'checkboxes-1',
+                                value: 'value3',
+                                onChange: (e) => setAcceptCGU(e.target.checked),
+                                required: true,
+                            }
+                        }
+                    ]}
+                    state="default"
+                />
+
+
                 <div className="flex justify-end gap-4">
-                    <Button type="button" onClick={() => router.push("/")} priority="secondary">Annuler</Button>
-                    <Button className="bg-black" type="submit" priority="primary">S'inscrire</Button>
+                    <Button type="button" onClick={() => { props.handleCloseModal(); router.push("/") }} priority="secondary">Annuler</Button>
+                    <Button type="submit" priority="primary">S'inscrire</Button>
                 </div>
             </form>
         </div>

@@ -164,7 +164,7 @@ const ExportToPdf = (props: { editor: Editor }) => {
     <Button
       iconId="fr-icon-download-fill"
       iconPosition="right"
-      className='bg-black w-full flex justify-center h-fit items-center'
+      className='w-full flex justify-center h-fit items-center'
       onClick={handleExport}
       disabled={isLoading}
     >

@@ -535,11 +535,11 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         background
         border
         // enlargeLink
-        badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
+        badge={(block.chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#ececfe] text-[#000091] text-sm capitalize" key={index}>{e.name}</Badge>)}
         start={
             block.chapter.theme ? <ul className="fr-badges-group pt-4 w-full">
                 <li className="w-full overflow-hidden">
-                    <Badge className="bg-[#f5ece9] text-[#ff8742] whitespace-nowrap overflow-hidden text-ellipsis max-w-full inline-block">
+                    <Badge className="bg-[#ececfe] text-[#000091] whitespace-nowrap overflow-hidden text-ellipsis max-w-full inline-block">
                         {props.block.chapter?.theme?.title || ""}
                     </Badge>
                 </li>
@@ -563,9 +563,9 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
                     <div className="flex justify-start items-center gap-3 pt-2">
                         <div className="flex items-center gap-2">
                             <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
+                                <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#000091" />
                             </svg>
-                            <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+                            <p className="m-0 text-xs text-[#000091]">Détail</p>
                         </div>
                     </div>
                 </a >
@@ -599,7 +599,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         background
         enlargeLink
         border
-        badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#f7dfd8] text-[#ff8742] text-sm capitalize" key={index}>{e.name}</Badge>)}
+        badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#ececfe] text-[#000091] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
                 <p className="text-start text-4xl text-black">{chapter.title}</p>
@@ -615,9 +615,9 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
                 <div className="flex justify-start items-center gap-3 pt-2">
                     <div className="flex items-center gap-2">
                         <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#FF8742" />
+                            <path d="M10.7812 7.33336L7.20517 3.75736L8.14784 2.8147L13.3332 8.00003L8.14784 13.1854L7.20517 12.2427L10.7812 8.6667H2.6665V7.33336H10.7812Z" fill="#000091" />
                         </svg>
-                        <p className="m-0 text-xs text-[#ff8742]">Détail</p>
+                        <p className="m-0 text-xs text-[#000091]">Détail</p>
                     </div>
                 </div>
             </a>

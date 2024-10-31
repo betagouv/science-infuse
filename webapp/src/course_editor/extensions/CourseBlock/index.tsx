@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Checkbox, Collapse, TextareaAutosize } from '@mui/material';
+import { Collapse, TextareaAutosize } from '@mui/material';
 import { useState } from '@preact-signals/safe-react/react';
 import { KeyIdea } from '@prisma/client';
 import { Editor, Node, mergeAttributes } from '@tiptap/core';
@@ -12,6 +12,7 @@ import React, { useRef } from 'react';
 import ActionButtons from './ActionButtons';
 import { apiClient } from '@/lib/api-client';
 import { Question } from '@/types/course-editor';
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -304,7 +305,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   const parentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <NodeViewWrapper data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block"
+    <NodeViewWrapper id={node.attrs.id} data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block"
       onClick={handleClick}
     >
       {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
@@ -313,7 +314,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       {/* Bloc Title */}
       {editor.isEditable && (
         <TextareaAutosize
-          placeholder="Titre du bloc"
+          placeholder="Donner un titre au bloc"
           className="mt-8 text-[2.25rem] font-bold text-left text-black w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
           value={node.attrs.title}
           onChange={(e) => {
@@ -377,17 +378,22 @@ const RenderBlockQuiz = ({ editor, questions, openQuizPopup }: { editor: Editor,
               {questions.map((question, questionIndex) => (
                 <div key={questionIndex} className="mb-6 p-6 bg-white rounded-lg shadow-md relative">
                   <p className="m-0 mb-4 text-lg font-semibold text-gray-800">Question {questionIndex + 1}</p>
-                  <p className='m-0 py-4 text-xl text-gray-700'>{question.question}</p>
-                  {question.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center w-full hover:bg-gray-50 transition-colors duration-200 rounded-md p-2">
-                      <Checkbox
-                        checked={option.correct}
-                        className="mr-3"
-                        sx={{ color: 'black', '&.Mui-checked': { color: 'black' } }}
-                      />
-                      <p className='m-0 text-gray-600'>{option.answer}</p>
-                    </div>
-                  ))}
+                  {/* <div key={optionIndex} className="flex items-center w-full hover:bg-gray-50 transition-colors duration-200 rounded-md p-2"> */}
+                  <Checkbox
+                    legend={<p className=' py-4 text-xl text-gray-700'>{question.question}</p>}
+                    options={question.options.map((option, optionIndex) => (
+                      {
+                        label: option.answer,
+                        nativeInputProps: {
+                          name: `question-${questionIndex}`,
+                          value: optionIndex.toString(),
+                          checked: option.correct
+                        }
+                      })
+                    )}
+                    state="default"
+                  />
+                  {/* </div> */}
                 </div>
               ))}
             </div>

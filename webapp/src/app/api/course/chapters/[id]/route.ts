@@ -31,6 +31,7 @@ export async function GET(
       include: {
         skills: true,
         educationLevels: true,
+        theme: true,
         user: {
           select: userFullFields
         }  
@@ -56,6 +57,7 @@ const _sendMailChapterToReview = async (chapterId: string) => {
     include: {
       skills: true,
       educationLevels: true,
+      theme: true,
       user: {
         select: userFullFields
       }
