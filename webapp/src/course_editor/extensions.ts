@@ -149,7 +149,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
                 return ""
             },
             showOnlyWhenEditable: true,
-            showOnlyCurrent: true,
+            showOnlyCurrent: false,
             includeChildren: true
         }),
     ]

@@ -6,11 +6,11 @@ import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, Dialo
 import { useState, useEffect } from 'react'
 import { EducationLevel, UserRoles } from '@prisma/client'
 import AdminWrapper from '../AdminWrapper';
-import { UserFull } from '@/types/api';
+import { UserFull, UserFullWithChapterCount } from '@/types/api';
 import { apiClient } from '@/lib/api-client';
 import { useSearchParams } from 'next/navigation';
 
-const fetchUsers: QueryFunction<UserFull[], [string]> = async ({ queryKey }) => {
+const fetchUsers: QueryFunction<UserFullWithChapterCount[], [string]> = async ({ queryKey }) => {
     const toc = await apiClient.getUsers();
     return toc;
 };
@@ -45,6 +45,7 @@ const AdminListUsers = () => {
         { flex: 1, field: 'firstName', headerName: 'Prénom', minWidth: 130, editable: true },
         { flex: 1, field: 'lastName', headerName: 'Nom', minWidth: 150, editable: true },
         { flex: 1, field: 'email', headerName: 'Email', minWidth: 250, editable: false },
+        { flex: 1, field: 'chapterCount', type: 'number', headerName: 'Chapitres', minWidth: 130, editable: false },
         { flex: 1, field: 'job', headerName: 'Métier', minWidth: 200, editable: true },
         { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
         {

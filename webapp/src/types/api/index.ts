@@ -1,4 +1,4 @@
-import { Activity, Block, Chapter, Comment, CommentThread, EducationLevel, KeyIdea, SchoolSubject, Skill, Tag, User, UserRoles } from '@prisma/client';
+import { Activity, Block, Chapter, Comment, CommentThread, EducationLevel, KeyIdea, SchoolSubject, Skill, Tag, Theme, User, UserRoles } from '@prisma/client';
 import { BlockWithChapter, ChunkWithScoreUnion } from '../vectordb';
 
 export interface CreateChapterBlockRequest {
@@ -8,9 +8,14 @@ export interface CreateChapterBlockRequest {
 }
 
 export interface UserFull extends Omit<User, 'password' | 'emailVerified' | 'resetToken' | 'resetTokenExpiry'> {
-    roles: UserRoles[],    educationLevels: EducationLevel[],
+    roles: UserRoles[], educationLevels: EducationLevel[],
     schoolSubjects: SchoolSubject[],
 }
+
+export interface UserFullWithChapterCount extends UserFull {
+    chapterCount: number
+}
+
 export interface QueryRequest {
     query: string,
     mediaTypes?: string[],
@@ -47,7 +52,7 @@ export type FullBlock = Block & { keyIdeas: KeyIdea[], activities: Activity[], t
 export type CommentWithUserEmail = Comment & { user: { email: string } }
 export type FullCommentThread = CommentThread & { comments: CommentWithUserEmail[] }
 
-export type ChapterWithoutBlocks = Chapter & { user: UserFull, skills: Skill[], educationLevels: EducationLevel[] } | null;
+export type ChapterWithoutBlocks = Chapter & { user: UserFull, skills: Skill[], educationLevels: EducationLevel[], theme: Theme | null } | null;
 export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 
 

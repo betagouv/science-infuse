@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import * as React from 'react';
 import CustomMultiSelect from "@/components/CustomMultiSelect";
 import { UserFull } from "@/types/api";
+import Button from "@codegouvfr/react-dsfr/Button";
 
 
 const CustomInput = ({ isPassword, editable, ...props }: { editable: boolean, isPassword: boolean;[key: string]: any }) => {
@@ -72,7 +73,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
 
     return (
         <div className="relative flex flex-col gap-4">
-            <div className="relative">
+            <div className="relative z-50">
                 {props.isMultiSelect ? (
                     <CustomMultiSelect
                         disabled={!isEditable}
@@ -114,6 +115,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                     <svg
                         width={14}
                         height={14}
+                        style={{ minWidth: 14, minHeight: 14 }}
                         viewBox="0 0 14 14"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +125,7 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
                             fillRule="evenodd"
                             clipRule="evenodd"
                             d="M12.0003 0.666748H2.00033C1.26395 0.666748 0.666992 1.2637 0.666992 2.00008V12.0001C0.666992 12.7365 1.26395 13.3334 2.00033 13.3334H12.0003C12.7367 13.3334 13.3337 12.7365 13.3337 12.0001V2.00008C13.3337 1.2637 12.7367 0.666748 12.0003 0.666748ZM7.66699 3.66675H6.33366V5.00008H7.66699V3.66675ZM7.66699 6.33341H6.33366V10.3334H7.66699V6.33341Z"
-                            fill="black"
+                            fill="#0063CB"
                         />
                     </svg>
                     <span className="text-sm">{props.hint}</span>
@@ -131,17 +133,19 @@ export const UserSettingsField: React.FC<FieldProps> = (props) => {
             )}
             {!props.alwaysEditable && props.isEditable && (
                 <div className="flex w-full justify-end">
-                    <button
-                        onClick={() => {
+                    <Button
+                        className="italic"
+                        onClick={function noRefCheck() {
                             if (isEditable) {
                                 props.onValidate && props.onValidate();
                             }
                             setEditable(!isEditable);
+
                         }}
-                        className="italic"
+                        priority="tertiary"
                     >
                         {isEditable ? "Valider" : "Modifier"}
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

@@ -2,23 +2,25 @@
 
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { EMPTY_DOCUMENT } from '@/config';
+import { apiClient } from '@/lib/api-client';
+import { ChapterWithoutBlocks } from '@/types/api';
+import Button from "@codegouvfr/react-dsfr/Button";
+import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import styled from '@emotion/styled';
+import { ChapterStatus, EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import { Content, Editor, EditorContent, useEditor } from '@tiptap/react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AddBlockAtEnd from './components/AddBlockAtEnd';
+import CourseSettings from './components/CourseSettings';
+import ShareToScienceInfuse from './components/CourseSettings/ShareToScienceInfuse';
 import Snackbar from './components/Snackbar';
 import { EditorContext } from './context/EditorContext';
 import "./editor.scss";
 import { getExtensions } from './extensions';
 import FileBubbleMenu from './extensions/BubbleMenu/FileBubbleMenu';
 import { TextMenu } from './extensions/BubbleMenu/TextMenu';
-import CourseSettings from './components/CourseSettings';
-import { apiClient } from '@/lib/api-client';
-import { ChapterStatus, EducationLevel, SchoolSubject, Theme } from '@prisma/client';
-import AddBlockAtEnd from './components/AddBlockAtEnd';
-import { useDebounceValue } from 'usehooks-ts';
-import { ChapterWithBlock, ChapterWithoutBlocks } from '@/types/api';
-import CallOut from '@codegouvfr/react-dsfr/CallOut';
-import ShareToScienceInfuse from './components/CourseSettings/ShareToScienceInfuse';
+import ChapterCover from './components/ui/ChapterCover';
 
 const StyledEditor = styled.div`
 `
@@ -62,10 +64,11 @@ export const useTiptapEditor = (params: { preview?: boolean }) => {
 
 
 export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Editor }) => {
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const { editor } = props;
   const menuContainerRef = useRef(null)
-
   const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [schoolSubjects, setSchoolSubjects] = useState<SchoolSubject[]>([]);
@@ -99,6 +102,23 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
     }
   }, [themes, educationLevels])
 
+
+  if (!user) return <div className="flex justify-center flex-row mt-8">
+    <CallOut
+      iconId="fr-icon-warning-line"
+      title="Accès restreint"
+    // colorVariant='pink-tuile'
+    >
+      <div className="flex flex-col gap-4 mt-4">
+
+        <p className='m-0'>
+          Veuillez vous connecter pour accéder au contenu.
+        </p>
+        <Button priority="secondary" className='!m-0'><a href="/">Connexion</a></Button>
+      </div>
+    </CallOut>
+  </div>
+
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
       <EditorContext.Provider value={providerValue}>
@@ -117,9 +137,10 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
               Ce chapitre est actuellement supprimé, il ne sera donc pas affiché dans les résultats de recherche. <br />
               Pour re-indexer ce chapitre, faites une demande de partage a l'equipe Science Infuse :
               {props.chapter && <ShareToScienceInfuse chapter={props.chapter} />}
-            </CallOut>}
+            </CallOut>
+            }
 
-            {!editor.isEditable && editor.storage.simetadata.coverPath && <img className={'w-full'} src={editor.storage.simetadata.coverPath} />}
+            {!editor.isEditable && props.chapter && <ChapterCover chapter={props.chapter}/>}
 
 
             <div className="flex flex-col" ref={menuContainerRef}>

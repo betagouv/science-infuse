@@ -1,5 +1,5 @@
 import { WEBAPP_URL } from '@/config';
-import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull } from '@/types/api';
+import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { DocumentWithChunks, SearchResults } from '@/types/vectordb';
@@ -297,9 +297,9 @@ class ApiClient {
     return response.data;
   }
 
-  async getUsers(): Promise<UserFull[]> {
+  async getUsers(): Promise<UserFullWithChapterCount[]> {
     console.log("GET USERS")
-    const response = await this.axiosInstance.get<UserFull[]>(`/users`);
+    const response = await this.axiosInstance.get<UserFullWithChapterCount[]>(`/users`);
     console.log("GET USERS data", response.data)
 
     return response.data;

@@ -51,7 +51,7 @@ const Webinaires = () => {
                                 Connectez-vous à votre compte Science Infuse pour accéder aux webinaires.
                             </span>
                             <span className="flex flex-row gap-4">
-                                <Button priority="secondary"><a href="/">Me connecter</a></Button>
+                                <Button priority="secondary"><a href="/">Connexion</a></Button>
                                 <Button><a href="/">Créer un compte</a></Button>
                             </span>
                         </StyledCallout>

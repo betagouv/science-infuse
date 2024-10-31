@@ -189,7 +189,7 @@ const SkillsAndKeyIdeasPicker = (props: { editor: Editor, chapter: ChapterWithou
                             value: value,
                             onChange: (e) => setValue(e.target.value),
                             required: true,
-                            placeholder: "A compléter...",
+                            placeholder: "À compléter...",
                         }}
                         textArea
                     />
@@ -230,7 +230,7 @@ const AdditionalInformationsPicker = (props: { editor: Editor, chapter: ChapterW
                             value: value,
                             onChange: (e) => setValue(e.target.value),
                             required: true,
-                            placeholder: "",
+                            placeholder: "À compléter...",
                         }}
                         textArea
                     />
@@ -430,7 +430,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                                     {selected &&
                                                         <div className="absolute w-full h-full z-[1] bg-opacity-50 bg-white">
                                                             <div className="flex w-full h-full items-center justify-center">
-                                                                <Button className="bg-black" onClick={async (e) => {
+                                                                <Button onClick={async (e) => {
                                                                     e.preventDefault();
                                                                     e.stopPropagation();
                                                                     await props.updateChapter({ coverPath: imageUrl })
@@ -490,7 +490,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                     <div className="flex flex-col gap-4 w-full items-center">
                                         <RenderImportedImage isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
                                         <ImportedFileSource source={source} setSource={setSource} />
-                                        <Button className="bg-black" onClick={async (e) => {
+                                        <Button onClick={async (e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             await uploadFileAndSetAsCover(droppedFile);

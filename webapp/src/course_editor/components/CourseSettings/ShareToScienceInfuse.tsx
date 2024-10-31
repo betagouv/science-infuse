@@ -18,10 +18,6 @@ const ShareToScienceInfuse = (props: { chapter: ChapterWithoutBlocks }) => {
                 iconId="fr-icon-group-fill"
                 iconPosition="right"
                 className='w-full flex justify-center h-fit'
-                style={{
-                    background: "white",
-                    color: "black",
-                }}
                 disabled={!!loadingMessage}
                 priority="secondary"
                 // priority={!loadingMessage || chapterStatus == ChapterStatus.REVIEW ? "secondary" : "primary"}

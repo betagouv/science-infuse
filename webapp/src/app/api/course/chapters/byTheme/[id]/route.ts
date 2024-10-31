@@ -22,6 +22,7 @@ export async function GET(
       include: {
         skills: true,
         educationLevels: true,
+        theme: true,
         blocks: true,
         user: {
           select: userFullFields

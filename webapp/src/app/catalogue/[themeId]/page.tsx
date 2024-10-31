@@ -19,6 +19,7 @@ async function getChaptersFiltersAndTheme(themeId: string) {
         },
         include: {
             skills: true,
+            theme: true,
             educationLevels: true,
             blocks: {
                 include: {
