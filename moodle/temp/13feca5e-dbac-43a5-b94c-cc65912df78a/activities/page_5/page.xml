@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<activity id="5" moduleid="5" modulename="page" contextid="20">
+  <page id="1">
+    <name>Cours</name>
+    <intro />
+    <introformat>1</introformat>
+    <content>&lt;div&gt;&lt;h1&gt;titre du cours&lt;/h1&gt; &lt;p&gt;contenu du cours&lt;/p&gt;&lt;/div&gt;</content>
+    <contentformat>1</contentformat>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>5</display>
+    <displayoptions>a:2:{s:10:"printintro";s:1:"0";s:17:"printlastmodified";s:1:"1";}</displayoptions>
+    <revision>2</revision>
+    <timemodified>1730642211</timemodified>
+  </page>
+</activity>

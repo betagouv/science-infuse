@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="1" moduleid="5" modulename="page" contextid="20">
+  <page id="1">
+    <name>Cours</name>
+    <intro></intro>
+    <introformat>1</introformat>
+    <content>&lt;div id="cm1idz871001nte4psunyql76" class="chapter-course-block" data-title="Introduction" data-quizquestions="[]" data-keyideas="[]" data-type="chapter-course-block" data-pm-slice="2 2 []"&gt;
+&lt;div class="course-block-content"&gt;
+&lt;div id="cm1nxyw4n0000w482il0qrx18" class="chapter-course-block" data-title="1. Les besoins nutritifs des végétaux" data-quizquestions="[]" data-keyideas="[]" data-type="chapter-course-block" data-pm-slice="2 2 []"&gt;
+&lt;div class="course-block-content"&gt;
+&lt;p&gt;&lt;u&gt;Idée-clé&lt;/u&gt; : les végétaux chlorophylliens ont besoin de CO2, d’eau, de sels minéraux et d’énergie lumineuse pour produire de la matière organique et se développer, cette matière organique peut être stockée.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h4&gt;Activité 1 : synthèse sur les besoins des végétaux&lt;/h4&gt;
+&lt;p&gt;&lt;u&gt;Compétences&lt;/u&gt; : pratiquer des démarches scientifiques&lt;/p&gt;
+&lt;p&gt;&lt;u&gt;Consignes&lt;/u&gt; : A l’aide du logiciel, réaliser les 4 expériences et compléter la fiche récapitulative fournie.&lt;/p&gt;
+&lt;p&gt;&lt;u&gt;Ressources&lt;/u&gt; :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Logiciel “Plante4” : &lt;a href="http://svt.ac-besancon.fr/logiciel-plante/" target="_blank" rel="noopener noreferrer nofollow"&gt;Logiciel Plante – SVT – Académie de Besançon (&lt;/a&gt;&lt;a href="http://ac-besancon.fr" target="_blank" rel="noopener noreferrer nofollow"&gt;ac-besancon.fr&lt;/a&gt;&lt;a href="http://svt.ac-besancon.fr/logiciel-plante/" target="_blank" rel="noopener noreferrer nofollow"&gt;)&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Fiche de résultats à distribuer :&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="block-image"&gt;
+&lt;div&gt;&lt;img src="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zel864000c11styasoildy/2fba688c-0b87-48c2-bfa7-3d77951c7530.png" data-isexternalfile="false" data-shared="false" data-s3objectname="" data-filesource="" data-id="" data-filetypes="" data-width="100%" data-align="center"&gt;&lt;a href="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zel864000c11styasoildy/2fba688c-0b87-48c2-bfa7-3d77951c7530.png" target="_blank" rel="noopener noreferrer"&gt;télécharger l'image&lt;/a&gt;
+&lt;p class="file-source"&gt;Source : Camille Magrey&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;p&gt;&lt;u&gt;Bilan&lt;/u&gt; :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Pour se développer, les végétaux verts ont besoin d’eau, de CO2, des sels minéraux et de la lumière.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Une partie de la matière organique produite dans les feuilles est stockée dans des organes de réserve, tels que les tubercules. Cette matière organique sera nécessaire pour le développement de certaines plantes l’année suivante.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;br&gt;&lt;strong&gt;Problème : Comment les végétaux se reproduisent-ils ?&lt;/strong&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</content>
+    <contentformat>1</contentformat>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>5</display>
+    <displayoptions>a:2:{s:10:"printintro";s:1:"0";s:17:"printlastmodified";s:1:"1";}</displayoptions>
+    <revision>2</revision>
+    <timemodified>1730642211</timemodified>
+  </page>
+</activity>

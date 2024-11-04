@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<module id="5" version="2024042200">
+  <modulename>page</modulename>
+  <sectionid>4</sectionid>
+  <sectionnumber>0</sectionnumber>
+  <idnumber />
+  <added>1730633912</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>0</completion>
+  <completiongradeitemnumber>$@NULL@$</completiongradeitemnumber>
+  <completionpassgrade>0</completionpassgrade>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <availability>$@NULL@$</availability>
+  <showdescription>0</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang />
+  <tags>
+  </tags>
+</module>
