@@ -105,7 +105,6 @@ export async function PUT(
         const blockQuizText = blockQuizQuestions.map(q => `${q.question}\n${q.options.filter(o => o.correct).map(o => o.answer).join('\n')}`).join('\n')
         const blockText = `${title}\n${blockTitle}\n${blockTextContent}\n${blockQuizText}`;
         const blockTextEmbeddings = await getEmbeddings(blockText);
-        // const content =  [{"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Exemple de mise en situation", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Il existe de", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(55, 53, 47)", "fontSize": "", "fontFamily": ""}}]}, {"text": " ", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(193, 76, 138)", "fontSize": "", "fontFamily": ""}}]}, {"text": "multiples expressions quand on parle du monde microbien: on parle de microbes, de microorganismes, de bactéries, de virus ou de façon plus ancienne, de germes. Ces mots sont parfois utilisés dans les journaux ou dans les conversations courantes de manière équivalente alors que pourtant, ils peuvent désigner des êtres vivants très différents les uns des autres. Cette ambiguïté met en évidence la difficulté de s’emparer intellectuellement d’un monde qui est invisible à l’oeil nu.", "type": "text"}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Définition", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#3498db", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Le mot microbe forgé à partir du grec ancien μικρός , mikrós (« petit ») et βίος , bíos (« vie ») désigne l’ensemble des êtres vivants invisibles à l’oeil nu, on peut également utiliser le mot microorganisme (ou micro-organisme).", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "", "fontSize": "", "fontFamily": ""}}]}]}, {"type": "heading", "attrs": {"level": 1}, "content": [{"text": "Problème", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "#e74c3c", "fontSize": null, "fontFamily": null}}]}]}, {"type": "paragraph", "attrs": {"class": null}, "content": [{"text": "Comment distinguer les microbes les uns des autres ?", "type": "text", "marks": [{"type": "textStyle", "attrs": {"color": "rgb(212, 76, 71)", "fontSize": "", "fontFamily": ""}}]}]}]
 
         await updateBlock(blockTitle, block.content, blockTextEmbeddings, session.user.id, block.attrs.id, chapterId);
       }));
@@ -148,6 +147,6 @@ export async function PUT(
     return NextResponse.json(updatedChapter);
   } catch (error) {
     console.error('Error updating course chapter:', error);
-    return NextResponse.json({ error: 'Failed to update course chapter' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update course chapter', message: (error as Error).message }, { status: 500 });
   }
 }
