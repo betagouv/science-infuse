@@ -10,6 +10,7 @@ import { useRef } from 'react';
 const videos = [
     { title: "Comment fonctionner en classe autonome ?", src: "/videos/comment-fonctionner-en-classe-autonome.mp4", srt: "/videos/comment-fonctionner-en-classe-autonome.srt" },
     { title: "Améliorez l'apprentissage des élèves grâce à la ludification.", src: "/videos/webinaire-ludification-camille.mp4", srt: "/videos/webinaire-ludification-camille.srt" },
+    { title: "L'IA au service de vos cours.", src: "/videos/webinaire-ia-erwan.mp4", srt: "/videos/webinaire-ia-erwan.srt" },
 ]
 
 const StyledCallout = styled(CallOut)`
