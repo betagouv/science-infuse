@@ -15,7 +15,7 @@ async function getChaptersFiltersAndTheme(themeId: string) {
     const chapters: ChapterWithBlock[] = await prisma.chapter.findMany({
         where: {
             ...(themeId !== "all" && { themeId: themeId }),
-            status: "REVIEW"
+            status: "PUBLISHED"
         },
         include: {
             skills: true,
