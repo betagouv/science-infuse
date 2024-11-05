@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { CircularProgress } from '@mui/material';
 import { Editor } from '@tiptap/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const style = `
 
@@ -125,7 +125,7 @@ const buildHtml = (content: string) => {
 `
 }
 
-const ExportToPdf = (props: { editor: Editor }) => {
+const ExportToMbz = (props: { editor: Editor }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleExport = async () => {
@@ -136,23 +136,13 @@ const ExportToPdf = (props: { editor: Editor }) => {
       // await navigator.clipboard.writeText(htmlContent);
       console.log('HTML content copied to clipboard');
 
-      const response = await fetch('/api/export/pdf', {
+      const response = await fetch('/api/export/mbz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ html: htmlContent }),
       });
-      const title = props.editor?.state.doc.firstChild?.textContent || "document sans titre"
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `${title}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -169,10 +159,10 @@ const ExportToPdf = (props: { editor: Editor }) => {
       disabled={isLoading}
     >
       {isLoading && <CircularProgress className="mr-2" size={16} />}
-      {isLoading ? "Téléchargement en cours" : "Télécharger en PDF"}
+      {isLoading ? "Téléchargement en cours" : "Télécharger en MBZ"}
     </Button>
   );
 };
 
 
-export default ExportToPdf;
+export default ExportToMbz;
