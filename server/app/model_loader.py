@@ -1,5 +1,5 @@
 from S3Storage import S3Storage
-from processing.text import SIReranker
+from processing.text.SIReranker import SIReranker
 from processing.image.SIImageDescription import SIImageDescription
 from processing.text.SISurya import SISurya
 from processing.text.SIITranslator import SITranslator
