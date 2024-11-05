@@ -116,7 +116,7 @@ export async function searchBlocksWithChapter(
 	// TODO: might need to oprimise if number of chapters get's huge : ie: store chapter raw text at save time
   const blocksWithContent = data.map(block => ({
     ...block,
-    extractedContent: `${block.title} ${extractTextFromTipTap(block.content)}`
+    extractedContent: `${block.chapter.title} ${block.title} ${extractTextFromTipTap(block.content)}`
   }));
 
   // Reranking logic
