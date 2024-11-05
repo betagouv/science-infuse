@@ -147,7 +147,7 @@ const AdminChapters = () => {
             />
 
             <Dialog open={openStatusDialog} onClose={handleCloseRolesDialog}>
-                <DialogTitle>Modifier les rôles</DialogTitle>
+                <DialogTitle>Modifier le statut</DialogTitle>
                 <DialogContent>
                     <RadioButtons
                         legend="Sélectionnez un statut"
