@@ -7,33 +7,33 @@ import { NEXT_PUBLIC_SERVER_URL } from '@/config';
 import { extractTextFromTipTap } from '@/lib/utils';
 
 export async function updateBlock(title: string, content: JSONContent, textEmbedding: number[], userId: string, blockId: string, chapterId: string) {
-	// if block does not exist (or has been deleted)
-	// create one
-	const block = await prisma.block.findUnique({
-		where: {
-			id: blockId,
-		},
-	});
-	if (block && block?.userId != userId) {
-		throw new Error("User does not have permission to update this block")
-	}
-	if (!block) {
-		const block = await prisma.block.create({
-			data: {
-				id: blockId,
-				title,
-				content,
-				chapter: {
-					connect: { id: chapterId }
-				},
-				user: {
-					connect: { id: userId },
-				},
-			},
-		});
-	}
+  // if block does not exist (or has been deleted)
+  // create one
+  const block = await prisma.block.findUnique({
+    where: {
+      id: blockId,
+    },
+  });
+  if (block && block?.userId != userId) {
+    throw new Error("User does not have permission to update this block")
+  }
+  if (!block) {
+    const block = await prisma.block.create({
+      data: {
+        id: blockId,
+        title,
+        content,
+        chapter: {
+          connect: { id: chapterId }
+        },
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+  }
 
-	const updatedBlock = await prisma.$queryRaw`
+  const updatedBlock = await prisma.$queryRaw`
   UPDATE "Block"
   SET 
     "title" = ${title},
@@ -43,7 +43,7 @@ export async function updateBlock(title: string, content: JSONContent, textEmbed
   WHERE 
     "id" = ${blockId} AND "userId" = ${userId};
     `;
-	return updatedBlock;
+  return updatedBlock;
 }
 
 
@@ -61,15 +61,15 @@ interface BlockWithScore extends Block {
 }
 
 export async function searchBlocksWithChapter(
-  userId: string, 
-  embedding: number[], 
-  query: string, 
+  userId: string,
+  embedding: number[],
+  query: string,
   rerank: boolean = false,
-	threshold: number=0.41,
-	reranker_threshold: number=0.15,
+  threshold: number = 0.41,
+  reranker_threshold: number = 0.15,
 ): Promise<BlockWithScore[]> {
   const startTime = performance.now();
-  
+
   const data: BlockWithScore[] = await prisma.$queryRaw`
   SELECT
     "Block".id,
@@ -113,7 +113,7 @@ export async function searchBlocksWithChapter(
   }
 
   // Extract text content once for all blocks
-	// TODO: might need to oprimise if number of chapters get's huge : ie: store chapter raw text at save time
+  // TODO: might need to oprimise if number of chapters get's huge : ie: store chapter raw text at save time
   const blocksWithContent = data.map(block => ({
     ...block,
     extractedContent: `${block.chapter.title} ${block.title} ${extractTextFromTipTap(block.content)}`
@@ -141,8 +141,8 @@ export async function searchBlocksWithChapter(
 
     // Clean up the extracted content before returning
     return rerankResult
-		.map(({ extractedContent, ...block }) => ({...block, score: scoreMap.get(extractedContent) ?? 0}))
-		.filter(block => block.score >= reranker_threshold)
+      .map(({ extractedContent, ...block }) => ({ ...block, score: scoreMap.get(extractedContent) ?? 0 }))
+      .filter(block => block.score >= reranker_threshold)
   } catch (error) {
     console.error('Reranking failed:', error);
     return data; // Fallback to vector similarity results if reranking fails
@@ -150,11 +150,11 @@ export async function searchBlocksWithChapter(
 }
 
 export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
-	const limit = Math.min(params.limit || 1000, 1000);
-	const startTime = performance.now();
-	const [_, data] = await prisma.$transaction([
-		prisma.$executeRaw`SET LOCAL hnsw.ef_search = 1000`,
-		prisma.$queryRaw`
+  const limit = Math.min(params.limit || 1000, 1000);
+  const startTime = performance.now();
+  const [_, data] = await prisma.$transaction([
+    prisma.$executeRaw`SET LOCAL hnsw.ef_search = 1000`,
+    prisma.$queryRaw`
       SELECT
         dc."text",
         dc."title",
@@ -179,11 +179,11 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
       ORDER BY dc."textEmbedding" <=> ${embedding}::vector
       LIMIT ${Math.min(params.limit || 1000, 1000)};
       `
-	])
+  ])
 
-	const endTime = performance.now();
-	const executionTime = endTime - startTime;
-	console.log(`Execution time documentChunks: ${executionTime} milliseconds`);
+  const endTime = performance.now();
+  const executionTime = endTime - startTime;
+  console.log(`Execution time documentChunks: ${executionTime} milliseconds`);
 
-	return data;
+  return data;
 }
