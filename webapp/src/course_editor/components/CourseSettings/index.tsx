@@ -1,5 +1,6 @@
 import { Editor } from "@tiptap/react";
 import ExportToPdf from "./ExportToPdf";
+import ExportToMbz from "./ExportToMbz";
 import CourseInformations from "./CourseInformations";
 import ShareToScienceInfuse from "./ShareToScienceInfuse";
 import DuplicateChapter from "./DuplicateChapter";
@@ -11,6 +12,7 @@ const CourseSettings = (props: { chapter?: ChapterWithoutBlocks, editor: Editor 
         <div className="flex flex-col gap-4 sticky bottom-0 pb-4 w-full items-center justify-center z-[20] bg-white mt-auto">
             {props.chapter?.id && !props.editor.isEditable && <DuplicateChapter chapterId={props.chapter.id} editor={props.editor} />}
             <ExportToPdf editor={props.editor} />
+            <ExportToMbz editor={props.editor} />
             {props.editor.isEditable && props.chapter && <ShareToScienceInfuse chapter={props.chapter} />}
         </div>
     </div>

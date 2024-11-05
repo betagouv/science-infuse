@@ -560,7 +560,7 @@ class local_sync_service_external extends external_api {
                 'courseid' => new external_value( PARAM_TEXT, 'id of course' ),
                 'sectionnum' => new external_value( PARAM_TEXT, 'relative number of the section' ),
                 'urlname' => new external_value( PARAM_TEXT, 'displayed mod name' ),
-                'content' => new external_value( PARAM_TEXT, 'Content to insert' ),
+                'content' => new external_value( PARAM_RAW, 'Content to insert' ),
                 'time' => new external_value( PARAM_TEXT, 'defines the mod. visibility', VALUE_DEFAULT, null ),
                 'visible' => new external_value( PARAM_TEXT, 'defines the mod. visibility' ),
                 'beforemod' => new external_value( PARAM_TEXT, 'mod to set before', VALUE_DEFAULT, null ),
@@ -585,7 +585,7 @@ class local_sync_service_external extends external_api {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/mod/' . '/page' . '/lib.php');
 
-        debug("local_sync_service_add_new_course_module_page");
+        // debug("local_sync_service_add_new_course_module_page");
 
 
         // Parameter validation.
@@ -630,7 +630,7 @@ class local_sync_service_external extends external_api {
         $instance->intro = null;
         $instance->introformat = \FORMAT_HTML;
         $instance->intro = '<p>'.$params['urlname'].'</p>';
-        $instance->page = array('format' => \FORMAT_TEXT,'text' => $content, 'itemid' => false);
+        $instance->page = array('format' => \FORMAT_MARKDOWN,'text' => $content, 'itemid' => false);
         $instance->coursemodule = $cmid;
         $instance->id = page_add_instance($instance, $instance);
 
@@ -1153,8 +1153,8 @@ class local_sync_service_external extends external_api {
         return new external_function_parameters(
             array(
                 'cmid' => new external_value( PARAM_TEXT, 'id of module' ),
-                'content' => new external_value( PARAM_TEXT, 'HTML or Markdown code'  ),
-                'format' => new external_value( PARAM_TEXT, 'Markdown or HTML', VALUE_DEFAULT, \FORMAT_MARKDOWN  ),
+                'content' => new external_value( PARAM_RAW, 'HTML or Markdown code'  ),
+                'format' => new external_value( PARAM_RAW, 'Markdown or HTML', VALUE_DEFAULT, \FORMAT_MARKDOWN  ),
             )
         );
     }
@@ -1172,7 +1172,12 @@ class local_sync_service_external extends external_api {
         require_once($CFG->dirroot . '/mod/' . '/page' . '/lib.php');
         require_once($CFG->dirroot . '/course/' . '/modlib.php');
 
-        //debug("local_sync_service_update_course_module_page\n");
+        // debug("-=-=-=-=-=-\n");
+        // debug("local_sync_service_update_course_module_page content \n");
+        // debug($content);
+        // debug("local_sync_service_update_course_module_page format \n");
+        // debug("-=-=-=-=-=-\n");
+        // debug($format);
         // Parameter validation.
         $params = self::validate_parameters(
             self::local_sync_service_update_course_module_page_parameters(),
