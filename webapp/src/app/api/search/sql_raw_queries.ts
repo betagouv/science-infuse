@@ -115,11 +115,10 @@ export async function searchBlocksWithChapter(
 	// TODO: might need to oprimise if number of chapters get's huge : ie: store chapter raw text at save time
   const blocksWithContent = data.map(block => ({
     ...block,
-    extractedContent: extractTextFromTipTap(block.content)
+    extractedContent: `${block.title} ${extractTextFromTipTap(block.content)}`
   }));
 
   // Reranking logic
-  const rerankStartTime = performance.now();
   try {
     const response = await axios.post<RerankResponse[]>(`${NEXT_PUBLIC_SERVER_URL}/rerank/text`, {
       texts: blocksWithContent.map(block => block.extractedContent!),
@@ -138,9 +137,6 @@ export async function searchBlocksWithChapter(
       return scoreB - scoreA;
     });
 
-    const rerankTime = performance.now() - startTime;
-    console.log(`Reranking execution time: ${rerankTime}ms`);
-    console.log(`Total execution time: ${performance.now() - startTime}ms`);
 
     // Clean up the extracted content before returning
     return rerankResult
