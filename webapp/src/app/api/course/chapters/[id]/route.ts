@@ -34,7 +34,7 @@ export async function GET(
         theme: true,
         user: {
           select: userFullFields
-        }  
+        }
       }
     });
 
@@ -86,10 +86,24 @@ export async function PUT(
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+
     const data: Partial<ChapterWithoutBlocks> = await request.json();
     if (!data) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 404 });
     }
+    
+    const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN]);
+    
+    // If user is not admin, verify they own the chapter
+    if (!isAdmin) {
+      const chapter = await prisma.chapter.findUnique({
+        where: { id: chapterId }
+      });
+      if (chapter?.userId !== session.user.id) {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+      }
+    }
+
     const { status, title, content, skills, educationLevels, themeId, schoolSubjectId, skillsAndKeyIdeas, additionalInformations, coverPath } = data;
 
     // blocks
@@ -109,8 +123,6 @@ export async function PUT(
         await updateBlock(blockTitle, block.content, blockTextEmbeddings, session.user.id, block.attrs.id, chapterId);
       }));
     }
-
-    const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN])
 
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
@@ -133,17 +145,20 @@ export async function PUT(
     }
     if (educationLevels !== undefined) {
       updateData.educationLevels = {
-        set: educationLevels.map(el => ({ id: el.id }))
+        set: educationLevels.map(el => ({ id: el.id })),
       };
     }
 
+    const whereClause = {
+      id: chapterId,
+      ...(isAdmin ? {} : { userId: session.user.id }),
+    };
+
     const updatedChapter = await prisma.chapter.update({
-      where: {
-        id: chapterId,
-        userId: session.user.id,
-      },
+      where: whereClause,
       data: updateData,
     });
+    
     return NextResponse.json(updatedChapter);
   } catch (error) {
     console.error('Error updating course chapter:', error);

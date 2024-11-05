@@ -101,7 +101,7 @@ export async function searchBlocksWithChapter(
   FROM "Block"
     LEFT JOIN "Chapter" ON "Chapter"."id" = "Block"."chapterId"
     LEFT JOIN "StarredBlock" ON "StarredBlock"."blockId" = "Block".id AND "StarredBlock"."userId" = ${userId}
-    WHERE "status" = 'REVIEW' AND 1 - ("textEmbedding" <=> ${embedding}::vector) > ${threshold}
+    WHERE "status" = 'PUBLISHED' AND 1 - ("textEmbedding" <=> ${embedding}::vector) > ${threshold}
     ORDER BY score DESC
     LIMIT 100`;
 
