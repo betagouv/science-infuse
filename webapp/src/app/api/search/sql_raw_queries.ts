@@ -66,7 +66,7 @@ export async function searchBlocksWithChapter(
   query: string, 
   rerank: boolean = false,
 	threshold: number=0.41,
-	reranker_threshold: number=0.2,
+	reranker_threshold: number=0.15,
 ): Promise<BlockWithScore[]> {
   const startTime = performance.now();
   
