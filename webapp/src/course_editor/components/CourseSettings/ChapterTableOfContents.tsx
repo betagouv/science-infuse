@@ -1,5 +1,6 @@
 import CourseBlockNode from '@/course_editor/extensions/CourseBlock';
 import { Summary } from "@codegouvfr/react-dsfr/Summary";
+import styled from '@emotion/styled';
 import { Editor, JSONContent } from '@tiptap/react';
 import { ChevronRight } from 'lucide-react';
 
@@ -74,6 +75,14 @@ export const RenderChapterBlockTOC = (props: { content: JSONContent[] }) => {
         </div>
     );
 }
+
+const StyledSummary = styled(Summary)`
+ol > li > a:before {
+    content: "•";
+    padding-right: 8px;
+}
+`
+
 const ChapterTableOfContents = (props: { editor: Editor, content: JSONContent[] }) => {
     let blocks: { title: string; id: string }[] = [];
     const { content } = props;
@@ -87,7 +96,7 @@ const ChapterTableOfContents = (props: { editor: Editor, content: JSONContent[] 
             });
     }
 
-    return (<Summary
+    return (<StyledSummary
         className='bg-white p-0'
         links={blocks.map(b => ({
             linkProps: {
