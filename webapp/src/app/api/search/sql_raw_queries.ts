@@ -66,6 +66,7 @@ export async function searchBlocksWithChapter(
   query: string, 
   rerank: boolean = false,
 	threshold: number=0.41,
+	reranker_threshold: number=0.2,
 ): Promise<BlockWithScore[]> {
   const startTime = performance.now();
   
@@ -141,7 +142,7 @@ export async function searchBlocksWithChapter(
     // Clean up the extracted content before returning
     return rerankResult
 		.map(({ extractedContent, ...block }) => ({...block, score: scoreMap.get(extractedContent) ?? 0}))
-		.filter(block => block.score > threshold)
+		.filter(block => block.score >= reranker_threshold)
   } catch (error) {
     console.error('Reranking failed:', error);
     return data; // Fallback to vector similarity results if reranking fails
