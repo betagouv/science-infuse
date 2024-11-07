@@ -188,8 +188,12 @@ const PdfBlock = Node.create<PdfBlockOptions>({
     }
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'pdf' })]
+  renderHTML({ HTMLAttributes, node }) {
+    return ['div', { class: 'chapter-course-inline-pdf', dataSrc: node.attrs.src }, ['a', mergeAttributes(HTMLAttributes, {
+      'href': node.attrs.src,
+      'download': '',
+      'data-type': 'pdf',
+    }), 'Télécharger le PDF']]
   },
 
   addNodeView() {
