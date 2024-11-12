@@ -1,0 +1,1 @@
+dans H5PConfig.ts on peut changer h5pVersion

@@ -1,0 +1,22 @@
+
+{{! we set the title and instructions}}
+<div class="container">
+
+    <div class="solo_introcontent">{{{introcontent}}}</div>
+
+    <div class="mod_solo_activity_stepper">
+        <!-- TEMPORARY - This text shouldn't be static ↓ -->
+        <div class="mod_solo_activity_stepper_text">Step {{stepdata.currentstep}} of {{stepdata.totalsteps}}</div>
+        <div class="mod_solo_activity_stepper_buttons">
+        {{#buttons}}
+            <div class="solo_steptitle {{class}}">
+            </div>
+        {{/buttons}}
+        </div>
+        <div class="mod_solo_activity_stepper_lines">
+            <div class="mod_solo_activity_stepper_line_behind"></div>
+            <div class="mod_solo_activity_stepper_line_front" style="width: {{stepdata.percentcomplete}}%;"></div>
+        </div>
+    </div>
+
+</div>
