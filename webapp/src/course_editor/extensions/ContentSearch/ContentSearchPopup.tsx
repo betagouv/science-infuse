@@ -157,6 +157,7 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
           {!isLoading && !isError && !results && tabType == TabType.Favourites && <RenderSearchResult
             selectedTab={tabType}
+            onInserted={insertChunk}
             results={{ chunks: starredDocumentChunks, blocks: starredBlocks, page_count: 1 }}
             searchWords={[]} resultPerPage={10} />
 
