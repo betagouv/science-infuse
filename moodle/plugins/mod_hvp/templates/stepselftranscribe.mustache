@@ -1,0 +1,201 @@
+
+{{! we set the base form fields common to each step}}
+{{>mod_solo/stepbase}}
+
+{{! we set the title and instructions}}
+<div class="container mod_solo_step_type">
+
+    <div class="row">
+        <div class="col-sm mx-auto"> 
+            <span class="mod_solo_step_title_eyebrow">Step {{stepno}}</span>
+            <h2 class="mod_solo_step_title">
+            {{#str}}attempt_transcribe, mod_solo{{/str}}
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 mx-auto">
+            <div class="solo_stepinstructions">
+                {{^prerecording}}
+                    {{#str}}step_selftranscribeinstructions, mod_solo{{/str}}
+                {{/prerecording}}
+                {{#prerecording}}
+                    {{#str}}step_prerecord_transcribeinstructions, mod_solo{{/str}}
+                {{/prerecording}}
+            </div>
+        </div>
+    </div>
+
+
+    {{#prerecording}}
+        {{>mod_solo/stepprompt}}
+    {{/prerecording}}
+
+    <div class="row">
+        <div class="col-sm">
+            <div class='mod_solo_transcripteditor'>
+                {{#audiofilename}}
+                    {{>mod_solo/audioplayer}}
+                    <!-- Only depending on the new player's characteristics -->
+                    <!--div class='mod_solo_maybereloadaudio'>{{#str}}toggleplayinstructions, mod_solo{{/str}}</div-->
+                {{/audiofilename}}
+                {{^audiofilename}}
+                    <div class='mod_solo_maybereloadaudio'>{{#str}}prerecordtranscriptinstructions, mod_solo{{/str}}</div>
+                {{/audiofilename}}
+                <div class="solo-spinner-overlay">
+                    <textarea name="selftranscript" id="{{uniqid}}_selftranscript" class="form-control" rows="5" cols="80" disabled="true">{{selftranscript}}</textarea>
+                    <div class="solo-spinner" id="solo-spinner" style="display: none;"></div>
+                </div>
+                <div id="{{uniqid}}_checkboxholder" style="display: none;">
+                    <input type="checkbox" id="{{uniqid}}_dontwaitfortranscript">
+                    <label for="{{uniqid}}_dontwaitfortranscript">{{#str}}donotwaitfortranscript, mod_solo{{/str}}</label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    {{#prerecording}}
+        <div class="row">
+            <div class="col-sm">
+                {{>mod_solo/grammarsuggestions}}
+            </div>
+        </div>
+    {{/prerecording}}
+
+    <div class="mx-auto mod_solo_stepsubmit">
+        <button class="btn" id="{{uniqid}}_button" type="button">{{#str}}submit, mod_solo{{/str}}</button>
+    </div>
+
+
+</div>
+{{^element.frozen}}
+    {{#js}}
+        //<script>
+        require(['jquery', 'core/log','core/notification' ,'core/ajax','core/templates'],
+            function($, log, Notification, Ajax, Templates) {
+
+                //this submits the form data by ajax
+                $('#' + '{{uniqid}}_button').click(function(){
+                    var data = {};
+                    data.selftranscript = $('#' + '{{uniqid}}_selftranscript').val();
+                    //lets not let people leave the page with an empty transcript
+                    if(data.selftranscript.trim()===''){
+                        Notification.alert('{{#str}}important, mod_solo{{/str}}',"{{#str}}noemptyselftranscript, mod_solo{{/str}}");
+                        return false;
+                    }
+
+                    data.attemptid ={{attemptid}};
+                    data.activitytype = 3; // {{type}}
+                    var cmid={{cmid}};
+                    var id={{id}};
+                    var step={{stepno}};
+                    var action = 'submitstep';
+
+                    //turn the caption into a spinner
+                    $(this).html('<i class="fa fa-spinner fa-spin "></i>');
+                    $(this).prop('disabled',true);
+
+                   var ret = Ajax.call([{
+                        methodname: 'mod_solo_submit_step',
+                        args: {
+                            cmid: cmid,
+                            step: step,
+                            action: action,
+                            data: JSON.stringify(data)
+                        },
+                        done:  function(a){window.location='{{{nexturl}}}';},
+                        fail: function(e){
+                            Notification.exception(e);
+                            var btn = $('#' + '{{uniqid}}_button');
+                            btn.html('{{#str}}submit, mod_solo{{/str}}');
+                            btn.prop('disabled',true);
+                        }
+                   }]);
+
+                });
+
+                //this stops or starts the  audio player by pressing the ESC key
+                $(document).on('keyup', function(e) {
+                    if (e.key == "Escape"){
+                       var aplayer = $('#mod_solo_passageaudioplayer')[0];
+                       aplayer.paused ? aplayer.play() : aplayer.pause();
+                    }
+                });
+
+                //this checks for the transcript becoming available and pops it into the text area
+                //we only do this if the text area has not been loaded, the
+                var selftranscriptarea = $('#' + '{{uniqid}}_selftranscript');
+                if('{{preloadtranscript}}'=='1' && '{{prerecording}}'!=='1' && '{{selftranscript}}'==='') {
+                    //first disable the text area, until we have our transcript back
+                    selftranscriptarea.prop('disabled', true);
+                    selftranscriptarea.attr('placeholder','{{#str}}fetching_auto_transcript, mod_solo{{/str}}');
+                    $('#solo-spinner').show();
+
+                    //show our "just let me type checkbox"
+                    $('#{{uniqid}}_checkboxholder').show();
+                    $('#{{uniqid}}_dontwaitfortranscript').change(function() {
+                        if ($(this).is(':checked')) {
+                            //enable the text area, and hide the spinner
+                            selftranscriptarea.prop('disabled', false);
+                            $('#solo-spinner').hide();
+                            selftranscriptarea.attr('placeholder','');
+                        }
+                    });
+
+
+                    var xhr = new XMLHttpRequest();
+                    var retryTimer;
+                    var retryInterval = 2000;
+                    var autotranscripturl = '{{audiofilename}}.txt';
+                    var check_for_autotranscript = function () {
+                        //cancel if the user has checked the "just let me type" box
+                        if($('#{{uniqid}}_dontwaitfortranscript').is(':checked')) {
+                            return;
+                        }
+
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    var autotranscript = xhr.responseText;
+
+                                    //enable the text area, and hide the spinner
+                                    selftranscriptarea.prop('disabled', false);
+                                    $('#solo-spinner').hide();
+                                    selftranscriptarea.attr('placeholder','');
+                                    //set the transcript
+                                    selftranscriptarea.val(autotranscript);
+
+                                } else {
+                                    retryTimer = setTimeout(check_for_autotranscript, retryInterval);
+                                }
+                            }
+                        };
+                        xhr.open('GET', autotranscripturl, true);
+                        xhr.send();
+                    }
+                    check_for_autotranscript();
+                }else{
+                    selftranscriptarea.prop('disabled', false);
+                }
+
+
+
+                //this prevents students pasting into the text area
+                if('{{nopasting}}'=='1')
+                {
+                    $('#' + '{{uniqid}}_selftranscript').bind("cut copy paste", function(e) {
+                        e.preventDefault();
+                       // alert("You cannot paste into this text field.");
+                        $('#' + '{{uniqid}}_selftranscript').bind("contextmenu", function(e) {
+                            e.preventDefault();
+                        });
+                    });
+                }
+
+
+            }
+        );
+    {{/js}}
+{{/element.frozen}}
