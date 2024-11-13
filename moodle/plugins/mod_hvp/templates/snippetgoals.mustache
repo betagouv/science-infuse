@@ -1,0 +1,42 @@
+
+<div class="time-words-goals">
+    {{! Target speaking time }}
+    <div class="mod_solo_step_card time-goal">
+        <div class="mod_solo_step_card_tag">
+            {{#str}}targetspeakingtime, mod_solo{{/str}}
+        </div>
+        <div class="mod_solo_step_card_content mod_solo_readonly">
+                {{#str}}xmins, mod_solo, {{convlength}}{{/str}}
+        </div>
+        <div class="mod_solo_timer_illustration"></div>
+    </div>
+        
+
+    {{! Total words goal }}
+    <div class="mod_solo_step_card words-goal">
+        <div class="mod_solo_step_card_tag">
+            {{#str}}gradewordgoal, mod_solo{{/str}}
+        </div>
+        <div class="mod_solo_step_card_content">
+                <!-- This is temporarily static -->
+                <span>{{gradewordgoal}}</span>
+            {{#str}}words, mod_solo, {{gradewordgoal}}{{/str}}
+
+        </div>
+        <div class="mod_solo_target_illustration"></div>
+    </div>
+</div>
+
+{{! Target words }}
+<div class="mod_solo_step_card target-words">
+    <div class="mod_solo_step_card_tag">
+        {{#str}}targetwords, mod_solo{{/str}}
+    </div>
+    <div class="mod_solo_step_card_content">
+        <div id="mod_solo_targetwordsdisplay" class="solo_targetwords">
+            {{>mod_solo/targetwords}}
+        </div>
+    </div>
+</div>
+
+

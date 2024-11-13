@@ -51,6 +51,15 @@ $functions = array(
         'ajax' => true,
         'capabilities' => 'mod/resource:addinstance',
     ),
+    'local_course_add_h5p_to_course' => array(
+        'classname' => 'local_sync_service_external',
+        'methodname' => 'local_sync_service_add_h5p_to_course',
+        'classpath' => 'local/sync_service/externallib.php',
+        'description' => 'Add H5P to course',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/resource:addinstance',
+    ),
     'local_course_move_module_to_specific_position' => array(
         'classname' => 'local_sync_service_external',
         'methodname' => 'local_sync_service_move_module_to_specific_position',

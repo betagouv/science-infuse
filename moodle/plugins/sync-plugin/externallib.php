@@ -232,6 +232,151 @@ class local_sync_service_external extends external_api {
         );
     }
 
+    public static function local_sync_service_add_h5p_to_course_returns() {
+        return new external_single_structure(
+            array(
+                'message' => new external_value(PARAM_TEXT, 'if the execution was successful'),
+                'id' => new external_value(PARAM_TEXT, 'cmid of the new H5P activity'),
+            )
+        );
+    }
+    
+    /**
+     * Defines the necessary method parameters.
+     * @return external_function_parameters
+     */
+    public static function local_sync_service_add_h5p_to_course_parameters() {
+        return new external_function_parameters(
+            array(
+                'courseid' => new external_value( PARAM_TEXT, 'id of course' ),
+                'sectionnum' => new external_value( PARAM_TEXT, 'relative number of the section' ),
+                'itemid' => new external_value( PARAM_TEXT, 'id of the upload' ),
+                'displayname' => new external_value( PARAM_TEXT, 'displayed mod name' ),
+                'time' => new external_value( PARAM_TEXT, 'defines the mod. availability', VALUE_DEFAULT, null ),
+                'visible' => new external_value( PARAM_TEXT, 'defines the mod. visibility' ),
+                'beforemod' => new external_value( PARAM_TEXT, 'mod to set before', VALUE_DEFAULT, null ),
+            )
+        );
+    }
+
+    /**
+     * Method to add h5p to course.
+     *
+     * @param $courseid The course id.
+     * @param $sectionnum The number of the section inside the course.
+     * @param $itemid File to publish.
+     * @param $displayname Displayname of the Module.
+     * @param $time availability time.
+     * @param $visible visible for course members.
+     * @param $beforemod Optional parameter, a Module where the new Module should be placed before.
+     * @return $update Message: Successful and $cmid of the new Module.
+     */
+    public static function local_sync_service_add_h5p_to_course($courseid, $sectionnum, $itemid, $displayname, $time = null, $visible, $beforemod = null) {
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . '/mod/h5pactivity/lib.php');
+        require_once($CFG->libdir . '/gradelib.php');
+
+        // Parameter validation.
+        $params = self::validate_parameters(
+            self::local_sync_service_add_h5p_to_course_parameters(),
+            array(
+                'courseid' => $courseid,
+                'sectionnum' => $sectionnum,
+                'itemid' => $itemid,
+                'displayname' => $displayname,
+                'time' => $time,
+                'visible' => $visible,
+                'beforemod' => $beforemod,
+            )
+        );
+
+        $h5pactivity = new stdClass();
+        $h5pactivity->course = $params['courseid'];;
+        $h5pactivity->name = $params['displayname'];;
+        $h5pactivity->timecreated = time();
+        $h5pactivity->timemodified = time();
+        $h5pactivity->intro = null;
+        $h5pactivity->introformat = \FORMAT_HTML;
+        // $instance->coursemodule = $cmid;
+        // $h5pactivity->grade = intval($hvpgradeitem->grademax);
+        // if ($hvpgradeitem->grademax == 0) {
+        //     $h5pactivity->grademethod = 0; // Use "Don't calculate a grade" when maxgrade is set to 0 in mod_hvp.
+        // } else {
+        //     $h5pactivity->grademethod = 1; // Use highest attempt result for grading.
+        // }
+
+        // $h5pactivity->displayoptions = $hvp->disable;
+        $h5pactivity->enabletracking = 1; // Enabled.
+
+        // Create the H5P file as a draft, simulating how mod_form works.
+        // $h5pfile = self::prepare_draft_file_from_hvp($hvp, $copy2cb);
+        // $h5pactivity->packagefile = $h5pfile->get_itemid();
+        $h5pactivity->packagefile = $params['itemid'];
+
+        // Create the course-module with the correct information.
+        // $hvpmodule = $DB->get_record('modules', ['name' => 'hvp'], '*', MUST_EXIST);
+        $h5pmodule = $DB->get_record('modules', ['name' => 'h5pactivity'], '*', MUST_EXIST);
+        // $params = ['module' => $hvpmodule->id, 'instance' => $hvp->id];
+        // $hvpcm = $DB->get_record('course_modules', $params, '*', MUST_EXIST);
+        
+        
+        $cm = new \stdClass();
+        $cm->course     = $params['courseid'];
+        $cm->module     = $DB->get_field('modules', 'id', array( 'name' => 'h5pactivity' ));
+        $cm->section    = $params['sectionnum'];
+        if (!is_null($params['time'])) {
+            $cm->availability = "{\"op\":\"&\",\"c\":[{\"type\":\"date\",\"d\":\">=\",\"t\":" . $params['time'] . "}],\"showc\":[" . $params['visible'] . "]}";
+        } else if ( $params['visible'] === 'false' ) {
+            $cm->visible = 0;
+        }
+        $cm->id = add_course_module($cm);
+
+        
+        $h5pactivity->cm = $cm;
+        $h5pactivity->coursemodule = $h5pactivity->cm->id;
+        $h5pactivity->module = $h5pmodule->id;
+        $h5pactivity->modulename = $h5pmodule->name;
+
+        // Create mod_h5pactivity entry.
+        $h5pactivity->id = h5pactivity_add_instance($h5pactivity);
+        $h5pactivity->cm->instance = $h5pactivity->id;
+
+        if (empty($h5pactivity->id)) {
+            throw new moodle_exception("Cannot create H5P activity");
+        }
+
+        // We use the same timecreated as hvp to know what is the original activity.
+        $DB->set_field('h5pactivity', 'timecreated', time(), ['id' => $h5pactivity->id]);
+
+        // // Copy intro files.
+        // self::copy_area_files($hvp, $hvpcm, $h5pactivity);
+
+        // // Copy grade-item.
+        // $h5pactivity->gradeitem = self::duplicate_grade_item($hvpgradeitem, $h5pactivity);
+
+        // Update couse_module information.
+        // $h5pcm = self::add_course_module_to_section($hvpcm, $h5pactivity->cm->id);
+        $h5pcm = get_coursemodule_from_id('', $h5pcmid, $params['courseid']);
+        // if (!$h5pcm) {
+        //     return false;
+        // }
+        $section = $DB->get_record('course_sections', ['id' => $h5pcm->section]);
+        // if (!$section) {
+        //     return false;
+        // }
+
+        $h5pcm->section = course_add_cm_to_section($h5pcm->course, $h5pcm->id, $section->section);
+
+        // Make sure visibility is set correctly.
+        set_coursemodule_visible($h5pcm->id, $h5pcm->visible);
+
+        $update = [
+            'message' => 'Successful',
+            'id' => $cmid,
+        ];
+        return $update;
+    }
     /**
      * Method to create a new course module containing a file.
      *
@@ -1437,7 +1582,7 @@ class local_sync_service_external extends external_api {
             array(
                 'cmid' => new external_value( PARAM_INT, 'id of module' ),
                 'pageid' => new external_value( PARAM_INT, 'pageid of lesson content' ),
-                'title' => new external_value( PARAM_TEXT, 'title of lesson content page',VALUE_OPTIONAL ),
+                'title' => new external_value( PARAM_TEXT, 'title of lesson content page' ),
                 'content' => new external_value( PARAM_TEXT, 'HTML or Markdown code'  ),
                
             )
