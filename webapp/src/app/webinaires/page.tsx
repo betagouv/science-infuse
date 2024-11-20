@@ -11,6 +11,7 @@ const videos = [
     { title: "Comment fonctionner en classe autonome ?", src: "/videos/comment-fonctionner-en-classe-autonome.mp4", srt: "/videos/comment-fonctionner-en-classe-autonome.srt" },
     { title: "Améliorez l'apprentissage des élèves grâce à la ludification.", src: "/videos/webinaire-ludification-camille.mp4", srt: "/videos/webinaire-ludification-camille.srt" },
     { title: "L'IA au service de vos cours.", src: "/videos/webinaire-ia-erwan.mp4", srt: "/videos/webinaire-ia-erwan.srt" },
+    { title: "Enseignements scientifiques et musées : enrichir vos séquences de cours et dynamiser les apprentissages", src: "/videos/webinaire-philippe.mp4", srt: "/videos/webinaire-philippe.srt" },
 ]
 
 const StyledCallout = styled(CallOut)`
