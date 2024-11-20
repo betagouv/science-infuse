@@ -1,3 +1,5 @@
+import { ExportUrlResponse } from '@/types/api';
+import { ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
 import { Question } from '@/types/course-editor';
 import { NextRequest, NextResponse } from "next/server";
 
@@ -5,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 
 const createH5P = async (data: any) => {
-    const response = await fetch("http://localhost:8080/h5p/new", {
+    const response = await fetch(`${process.env.H5P_URL}/h5p/new`, {
         "headers": {
             "accept": "*/*",
             "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -18,7 +20,7 @@ const createH5P = async (data: any) => {
             "sec-fetch-site": "same-origin",
             "x-requested-with": "XMLHttpRequest",
             "cookie": "next-auth.csrf-token=625f8523c316835570dfd2590e60b8ef36b62537e05f851529d8a98c64747720%7C57e454cb334b4b6b5dfbda6edf3243691dba59542e1e526bc37405f29f943fa5; token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQxZDk1MGMxLTUxMTUtNDc5Yy04ZWQzLWQ4YTJkMmUyZThlNSJ9.3_RFthNOAewvWJ4bBiMAmosXZYatW00sEIV_yrG4kk8; __stripe_mid=7b0394fd-b6c1-4a3f-91f3-841c79aed4daebbee3; _pk_id.145.1fff=1a46da9cd2dae0a0.1727283837.; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2F; MoodleSession=a656cf8186snopqnbkhc66eo6c; MOODLEID1_=sodium%3APk09HAO8VwL9IJ1TyAdxAeTrMumXhPU4Lr%2BEJvjMuV6Y12w%2FjOQgOT0BQNk%3D; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..s6I4mhg_6MiF-28N.SmQVxc_8RFWEBBdV9RgUgn9leBm3W6mttZepE57wYng9w_tb9YtLEydcMTfcO0RoAK_O3zzZdlr7ux6RzINcUGeZ9rptp4nt-4BbAtzvFaW5ekJXFoFtNFhhcAJbLLA2sEv9lZED3hFr3NNW2JBQXoH7qz5SYXsfStcmHU6DbXKtlik3S8ti1CeXaaCR7KGiJ5kEK1S_Sn0ArIpsToXQ8JqdbKiJfS_Yi7pPn73SsY7Pwobsc1vJiA-sk7aiZDRMoGhfBK0vXc8GL0eYAnspJi0m1IlzRtnb9mrW7dJK7pdWtGgOgSR_7NbokKIqoS9gRdGUmCrQbA.OJ1QsA4uQwhCXkpppYhVaw",
-            "Referer": "http://localhost:8080/h5p/new",
+            "Referer": `${process.env.H5P_URL}/h5p/new`,
             "Referrer-Policy": "strict-origin-when-cross-origin"
         },
         "body": JSON.stringify(data),
@@ -525,14 +527,41 @@ const createQuestionSet = async (questions: Question[]) => {
     return await createH5P(data)
 }
 
+function isQuestionRequest(body: ExportH5PRequestBody): body is ExportH5PQuestionRequest {
+    return body.type === 'question';
+}
+
+// create h5p content using h5p docker micro-service
+// returns the download url
+export async function POST(request: NextRequest) {
+    const body: ExportH5PRequestBody = await request.json();
+
+    if (isQuestionRequest(body)) {
+        const game = await createQuestionSet(body.data);
+        const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=qcm-science-infuse`;
+        return NextResponse.json({ url: downloadUrl } as ExportUrlResponse);
+    } else {
+        throw new Error(`Unsupported type: ${body.type}`);
+    }
+}
+
+// route to download the h5p by id
 export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const name = searchParams.get('name');
+    
+    if (!id) {
+        throw new Error('id is required');
+    }
 
-    const game = await createQuestionSet([ { "options": [ { "answer": "Dioxygène et glucose", "correct": true }, { "answer": "Dioxyde de carbone et eau", "correct": false }, { "answer": "Protéines et lipides", "correct": false }, { "answer": "Vitamines et minéraux", "correct": false } ], "question": "Quels sont les principaux besoins des muscles pour fonctionner ?" }, { "options": [ { "answer": "Dioxygène", "correct": false }, { "answer": "Dioxyde de carbone et urée", "correct": true }, { "answer": "Nutriments", "correct": false }, { "answer": "Eau", "correct": false } ], "question": "Que rejettent les muscles dans le sang après avoir utilisé le dioxygène et le glucose ?" }, { "options": [ { "answer": "Produire des hormones", "correct": false }, { "answer": "Produire des globules rouges", "correct": false }, { "answer": "Réguler la température corporelle", "correct": false }, { "answer": "Filtrer le sang pour éliminer les déchets", "correct": true } ], "question": "Quelle est la principale fonction des reins ?" }, { "options": [ { "answer": "Dioxyde de carbone", "correct": false }, { "answer": "Urée", "correct": true }, { "answer": "Glucose", "correct": false }, { "answer": "Acides aminés", "correct": false } ], "question": "Quel déchet principal est éliminé par les reins ?" }, { "options": [ { "answer": "Dioxyde de carbone", "correct": false }, { "answer": "Azote", "correct": false }, { "answer": "Dioxygène", "correct": true }, { "answer": "Hélium", "correct": false } ], "question": "Quel gaz est absorbé par le sang au niveau des alvéoles pulmonaires ?" }, { "options": [ { "answer": "Dioxygène", "correct": false }, { "answer": "Azote", "correct": false }, { "answer": "Dioxyde de carbone", "correct": true }, { "answer": "Hélium", "correct": false } ], "question": "Quel gaz est rejeté par le sang au niveau des alvéoles pulmonaires ?" }, { "options": [ { "answer": "Produire des enzymes digestives", "correct": false }, { "answer": "Absorber les nutriments", "correct": true }, { "answer": "Produire des hormones", "correct": false }, { "answer": "Stocker les aliments", "correct": false } ], "question": "Quelle est la fonction principale des villosités dans l’intestin grêle ?" }, { "options": [ { "answer": "Leur longueur", "correct": false }, { "answer": "Leur épaisseur", "correct": false }, { "answer": "Leur couleur", "correct": false }, { "answer": "Leur surface", "correct": true } ], "question": "Quelle caractéristique des villosités augmente leur efficacité dans l’absorption des nutriments ?" } ]);
-
-    console.log("GAMMEEE", game)
-
-
-
-    return NextResponse.redirect(`http://localhost:8080/h5p/download/${game.contentId}`);
-
+    const downloadUrl = `${process.env.H5P_URL}/h5p/download/${id}`;
+    const response = await fetch(downloadUrl);
+    
+    return new NextResponse(response.body, {
+        headers: {
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename="${name}-${id}.h5p"`
+        }
+    });
 }

@@ -237,6 +237,7 @@ model User {
   resetToken       String?
   resetTokenExpiry DateTime?
   academyId        String?
+  creationDate     DateTime              @default(now())
   Account          Account[]
   activities       Activity[]
   blocks           Block[]
