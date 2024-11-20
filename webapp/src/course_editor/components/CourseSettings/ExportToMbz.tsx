@@ -1,3 +1,4 @@
+import { apiClient } from '@/lib/api-client';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { CircularProgress } from '@mui/material';
 import { Editor } from '@tiptap/react';
@@ -128,38 +129,19 @@ const buildHtml = (content: string) => {
 const ExportToMbz = (props: { editor: Editor }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleExport = async () => {
-    setIsLoading(true);
-    const htmlContent = buildHtml(props.editor.getHTML());
-
-    try {
-      // await navigator.clipboard.writeText(htmlContent);
-      console.log('HTML content copied to clipboard');
-
-      const response = await fetch('/api/export/mbz', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ html: htmlContent }),
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <Button
       iconId="fr-icon-download-fill"
       iconPosition="right"
+      onClick={async () => {
+        const htmlContent = buildHtml(props.editor.getHTML());
+        const data = await apiClient.exportMbz({ html: htmlContent })
+        window.open(data.url, '_blank')
+      }}
       className='w-full flex justify-center h-fit items-center'
-      onClick={handleExport}
-      disabled={isLoading}
     >
-      {isLoading && <CircularProgress className="mr-2" size={16} />}
-      {isLoading ? "Téléchargement en cours" : "Télécharger en MBZ"}
+      Télécharger en MBZ
     </Button>
   );
 };

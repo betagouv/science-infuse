@@ -1,16 +1,44 @@
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
 import { NextRequest, NextResponse } from "next/server";
-
+import { ExportUrlResponse } from '@/types/api';
+import axios from 'axios';
 const { JSDOM } = require('jsdom');
 
+// const Docker = require('dockerode');
+// const docker = new Docker();
+// async function runCommandInMoodle(command: string) {
+//     const container = docker.getContainer('moodle');
+//     const exec = await container.exec({
+//         Cmd: ['bash', '-c', command],
+//         AttachStdout: true,
+//         AttachStderr: true
+//     });
 
-interface CourseParams {
-    fullname: string;
-    shortname: string;
-    categoryid: number;
-    format: string;
-    numsections: number;
-}
+//     const stream = await exec.start();
+//     container.modem.demuxStream(stream, process.stdout, process.stderr);
+// }
+
+const { exec } = require('child_process');
+
+// Execute command in Moodle container
+const runCommandInMoodle = async (command: string, raw?: boolean) => {
+    return new Promise((resolve, reject) => {
+        const final_cmd = raw == true ? command : `docker exec moodle sh -c '${command}'`
+        // console.log("final_cmd\n", final_cmd)
+        exec(final_cmd, (error: any, stdout: any) => {
+            // console.log("STDOUT", stdout)
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(stdout);
+        });
+    });
+};
+
+
+
 
 interface SectionParams {
     courseid: number;
@@ -143,11 +171,9 @@ class MoodleCourseCreator {
     }
 }
 
-const MOODLE_URL = "http://localhost:8081/"
-const TOKEN = "3e532616b29a4a6e322f7c05ee407c79"
+const moodleCourseCreator = new MoodleCourseCreator(`${process.env.MOODLE_URL}`, `${process.env.MOODLE_TOKEN}`)
 
-const creator = new MoodleCourseCreator(MOODLE_URL, TOKEN)
-
+const moodleDockerBackupPath = `/home`
 export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
     const { html } = await request.json();
@@ -158,9 +184,9 @@ export async function POST(request: NextRequest) {
     const slug = `${title.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, '-')}-${uuidv4().split('-')[0]}`;
     const containerContents = Array.from(containers).map((container: any) => container.innerHTML);
 
-    const cours = await creator.createCourse(title, slug, 1, 0);
+    const courseId = await moodleCourseCreator.createCourse(title, slug, 1, 0);
 
-    if (cours) {
+    if (courseId) {
         for (let i = 0; i < containerContents.length; i++) {
             const sectionTitle = containers[i].querySelector('.course-block-title')?.textContent || '';
             const contentContainer = containers[i].cloneNode(true) as Element;
@@ -170,11 +196,55 @@ export async function POST(request: NextRequest) {
             if (quizElement) {
                 quizElement.remove();
             }
-            
-            await creator.addSectionToCourse(cours, sectionTitle, i + 1)
-            await creator.addPageToSection(cours, i + 1, "Cours", contentContainer.innerHTML);
+
+            await moodleCourseCreator.addSectionToCourse(courseId, sectionTitle, i + 1)
+            await moodleCourseCreator.addPageToSection(courseId, i + 1, "Cours", contentContainer.innerHTML);
         }
     }
 
-    return NextResponse.json({ containers: containerContents, title, cours });
+    const {backupId} = (await axios.get(`${process.env.MOODLE_NODE_SERVER_URL}/backup_course?courseId=${courseId}`)).data
+    console.log("BACKUP ID", backupId);
+    const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/mbz?id=${backupId}&name=cours-science-infuse`;
+    return NextResponse.json({ url: downloadUrl } as ExportUrlResponse);
+}
+
+
+export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const name = searchParams.get('name') || 'cours';
+    const fs = require('fs');
+    
+    
+    const response = await axios.get(`${process.env.MOODLE_NODE_SERVER_URL}/get_backup?id=${id}`, {
+        responseType: 'arraybuffer'
+    })
+
+    // Save the file locally
+    const localBackupPath = `/tmp/${id}.mbz`
+    fs.writeFileSync(localBackupPath, response.data)
+
+    // Get the backup file path
+    const mbzFilePath = localBackupPath
+
+    if (!mbzFilePath.trim()) {
+        return NextResponse.json({ error: "Backup file not found" }, { status: 404 });
+    }
+
+    if (!fs.existsSync(localBackupPath)) {
+        return NextResponse.json({ error: "File not found" }, { status: 500 });
+    }
+
+    const fileContent = fs.readFileSync(localBackupPath);
+
+    // delete after read
+    fs.unlinkSync(localBackupPath);
+
+    // return file
+    return new NextResponse(fileContent, {
+        headers: {
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename="${name}-${id}.mbz"`,
+        },
+    });
 }

@@ -1,5 +1,6 @@
 import { WEBAPP_URL } from '@/config';
-import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
+import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
+import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { DocumentWithChunks, SearchResults } from '@/types/vectordb';
@@ -97,6 +98,16 @@ class ApiClient {
 
   async createBlock(data: CreateBlockRequest): Promise<Block> {
     const response = await this.axiosInstance.post<Block>('/course/chapters/blocks', data);
+    return response.data;
+  }
+
+  async exportH5p(data: ExportH5PRequestBody): Promise<ExportUrlResponse> {
+    const response = await this.axiosInstance.post<ExportUrlResponse>('/export/h5p', data);
+    return response.data;
+  }
+
+  async exportMbz(data: ExportMbzRequestBody): Promise<ExportUrlResponse> {
+    const response = await this.axiosInstance.post<ExportUrlResponse>('/export/mbz', data);
     return response.data;
   }
 

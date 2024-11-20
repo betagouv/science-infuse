@@ -1,0 +1,17 @@
+{
+    "extends": ["config:base"],
+    "labels": ["[type] chore", "[status] needs review"],
+    "lockFileMaintenance": {
+        "enabled": true
+    },
+    "packageRules": [
+        {
+            "updateTypes": ["minor", "patch", "pin", "digest", "lockFileMaintenance"],
+            "automerge": true
+        }
+    ],
+    "prConcurrentLimit": 0,
+    "prHourlyLimit": 50,
+    "semanticCommits": true,
+    "semanticCommitType": "chore"
+}

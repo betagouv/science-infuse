@@ -59,3 +59,5 @@ export type ChapterWithBlock = ChapterWithoutBlocks & { blocks: FullBlock[] };
 export type GroupedFavorites = {
     [keyword: string]: { documentChunks: ChunkWithScoreUnion[], blocks: BlockWithChapter[] };
 };
+
+export type ExportUrlResponse = { url: string }
