@@ -5,7 +5,7 @@ RUN mkdir -p /app/public
 
 ENV PATH /app/node_modules/.bin:$PATH
 
-COPY . .
+COPY H5P-Nodejs-library .
 
 RUN npm install
 

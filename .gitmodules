@@ -1,0 +1,3 @@
+[submodule "h5p/H5P-Nodejs-library"]
+	path = h5p/H5P-Nodejs-library
+	url = git@github.com:Lumieducation/H5P-Nodejs-library.git
