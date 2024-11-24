@@ -1,6 +1,7 @@
 # Science Infuse
 Le projet [Science Infuse](https://science-infuse.beta.gouv.fr/) a pour but d'accompagner le corps enseignant dans la création de contenus pédagogiques scientifiques
 
+
 ## Installation et utilisation
 This monorepo is managed by docker compose, have it installed and run 
 ```
