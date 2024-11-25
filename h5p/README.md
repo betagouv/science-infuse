@@ -1,1 +1,1 @@
-dans H5PConfig.ts on peut changer h5pVersion
+dans H5PConfig.ts on peut changer coreApiVersion
