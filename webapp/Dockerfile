@@ -109,8 +109,8 @@ RUN chmod +x /entrypoint.sh
 RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
-USER appuser
 RUN npx puppeteer browsers install
+USER appuser
 
 EXPOSE 3000
 
