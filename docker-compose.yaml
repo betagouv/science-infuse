@@ -150,6 +150,9 @@ services:
       context: ./h5p
     ports:
       - "8006:8080"
+    volumes:
+      - ./h5p:/app/h5p
+      - ./public:/app/public
 
   mariadb:
     image: docker.io/bitnami/mariadb:11.4
