@@ -5,3 +5,4 @@ weaviate_data/*
 postgresql_data/
 .env*
 documents/
+.talismanrc

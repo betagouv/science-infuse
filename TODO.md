@@ -8,8 +8,4 @@
 - [ ] Ajouter [Autre] dans "Matière enseignée" inscription
 
 
-#NOTE:
-- currently i need to find a way to run shell command from inside webapp docker to moodle 
-
 - [ ] https://www.anthropic.com/news/contextual-retrieval
-- [ ] add a validated field to user, default true, admin can set to false

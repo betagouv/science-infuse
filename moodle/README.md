@@ -1,6 +1,6 @@
 # getting started
 ```
-sudo tar --numeric-owner -xzf data.tar.gz
+sudo tar --numeric-owner -xzf archive.tar.gz
 docker compose up
 ```
 
@@ -9,10 +9,10 @@ This Moodle instance exposes web services that allow creating and exporting cour
 
 All required plugins have been installed from the plugins folder into the Moodle instance. These plugins provide the additional capabilities needed by the web service to create and manage courses.
 
-All the state of the moodle instance is stored in `data.tar.gz` using the following command:
+All the state of the moodle instance is stored in `archive.tar.gz` using the following command:
 
 ```
-sudo tar --numeric-owner -czf data.tar.gz data
+sudo tar --numeric-owner -czf archive.tar.gz data
 ```
 If you want to update moodle settings and backup it's state efficiently using this method, you **need** to use a compression method that stores the user ID (UID) of the file owner (`--numeric-owner`) and the file permission. (this is what the command does. The sudo is needed because some db backup files are protected.)
 

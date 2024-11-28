@@ -84,6 +84,17 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                     },
                                     text: "Inspecter un document"
                                 },
+                                {
+                                    isActive: activePath === "/admin/file-explorer",
+                                    linkProps: {
+                                        href: "/admin/file-explorer",
+                                        onClick: (e) => {
+                                            e.preventDefault();
+                                            router.push("/admin/file-explorer");
+                                        }
+                                    },
+                                    text: "Explorer les fichiers"
+                                },
                             ]}
                         />
                     </div>
