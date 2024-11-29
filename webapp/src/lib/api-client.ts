@@ -87,6 +87,7 @@ class ApiClient {
   }
 
   async getChapter(chapterId: string): Promise<ChapterWithoutBlocks> {
+    if (!chapterId) return null;
     const response = await this.axiosInstance.get<ChapterWithoutBlocks>(`/course/chapters/${chapterId}`);
     return response.data;
   }

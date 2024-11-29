@@ -26,6 +26,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [job, setJob] = useState("");
+    const [otherSchoolSubject, setOtherSchoolSubject] = useState("");
     const [acceptCGU, setAcceptCGU] = useState(false);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
@@ -71,6 +72,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     school,
                     academyId: academy,
                     schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)),
+                    otherSchoolSubject,
                     educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)),
                 }),
             })
@@ -165,7 +167,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     value={academy}
                     onChange={(_) => setAcademy(_ as string)}
                     onValidate={async () => { await updateUser({ academyId: academy }) }}
-                    options={props.academies.map(a => ({ value: a.id, label: a.name }))}
+                    options={props.academies.map(a => ({ value: a.id, label: a.name })).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))}
                     hint="Cette information permettra d'exporter les contenus et les cours vers l'ENT."
                 />
 
@@ -182,19 +184,28 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
 
 
 
+                <div className="flex flex-col py-4 gap-2">
+                    <UserSettingsField
+                        isEditable
+                        required={false}
+                        label="Matière enseignée"
+                        alwaysEditable={true}
+                        isMultiSelect
+                        value={schoolSubjects}
+                        onChange={(value) => setSchoolSubjects(value as string[])}
+                        options={schoolSubjectsOptions}
+                        onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
+                    />
 
-                <UserSettingsField
-                    isEditable
-                    required={false}
-                    label="Matière enseignée"
-                    alwaysEditable={true}
-                    isMultiSelect
-                    value={schoolSubjects}
-                    onChange={(value) => setSchoolSubjects(value as string[])}
-                    options={schoolSubjectsOptions}
-                    onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
-                    hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
-                />
+                    <UserSettingsField
+                        label="Précision si vous avez choisi 'Autre'"
+                        required={false}
+                        alwaysEditable={true}
+                        value={otherSchoolSubject}
+                        onChange={(_) => setOtherSchoolSubject(_ as string)}
+                        hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
+                    />
+                </div>
 
                 <UserSettingsField
                     isEditable

@@ -19,9 +19,9 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
+    // if (!session || !session.user) {
+    //   return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    // }
 
     const chapter = await prisma.chapter.findUnique({
       where: {

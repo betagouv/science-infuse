@@ -136,7 +136,7 @@ const Login = () => {
 
             </div>
             <Snackbar />
-            <modal.Component className='z-[2]' title="S'inscrire à Science Infuse">
+            <modal.Component className='z-[800]' title="S'inscrire à Science Infuse">
                 <RegisterForm handleCloseModal={handleCloseModal} educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
             </modal.Component>
         </div>

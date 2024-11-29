@@ -167,6 +167,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
     const [educationLevels, setEducationLevels] = useState<string[]>([]);
     const [school, setSchool] = useState("");
     const [schoolSubjects, setSchoolSubjects] = useState<string[]>([]);
+    const [otherSchoolSubject, setOtherSchoolSubject] = useState(user?.otherSchoolSubject);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -184,6 +185,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
         setAcademy(updatedUser?.academyId || "")
         setEducationLevels(updatedUser?.educationLevels.map(e => e.id) || [])
         setSchoolSubjects(updatedUser?.schoolSubjects.map(e => e.id) || [])
+        setOtherSchoolSubject(updatedUser?.otherSchoolSubject)
     }
 
     useEffect(() => {
@@ -240,7 +242,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
                         value={academy}
                         onChange={(_) => setAcademy(_ as string)}
                         onValidate={async () => { await updateUser({ academyId: academy }) }}
-                        options={props.academies.map(a => ({ value: a.id, label: a.name }))}
+                        options={props.academies.map(a => ({ value: a.id, label: a.name })).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))}
                         hint="Cette information permettra d'exporter les contenus et les cours vers l'ENT."
                     />
 
@@ -256,16 +258,26 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
 
 
 
-                    <UserSettingsField
-                        isEditable
-                        isMultiSelect
-                        label="Matière enseignée"
-                        value={schoolSubjects}
-                        onChange={(value) => setSchoolSubjects(value as string[])}
-                        options={schoolSubjectsOptions}
-                        onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
-                        hint="Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
-                    />
+                    <div className="flex flex-col py-4 gap-2">
+                        <UserSettingsField
+                            isEditable
+                            label="Matière enseignée"
+                            isMultiSelect
+                            value={schoolSubjects}
+                            onChange={(value) => setSchoolSubjects(value as string[])}
+                            options={schoolSubjectsOptions}
+                            onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
+                        />
+
+                        <UserSettingsField
+                            isEditable
+                            label="Précision si vous avez choisi 'Autre'"
+                            required={false}
+                            value={otherSchoolSubject || ""}
+                            onValidate={async () => { await updateUser({ otherSchoolSubject }) }}
+                            onChange={(_) => setOtherSchoolSubject(_ as string)}
+                        />
+                    </div>
 
                     <UserSettingsField
                         isEditable

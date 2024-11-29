@@ -22,6 +22,9 @@ class SIReranker:
 
     def sort_raw_texts(self, query: RerankTextQuery) -> List[TextWithScore]:
         pairs = [[query.query, text] for text in query.texts]
+        if len(pairs) == 0:
+            return []
+
         scores = self.model.predict(pairs)
         
         sorted_texts_with_scores = sorted(

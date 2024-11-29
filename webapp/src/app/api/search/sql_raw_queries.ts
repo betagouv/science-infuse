@@ -163,15 +163,15 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
         to_json(dcm.*) as "metadata",
         to_json(d.*) as "document",
         1 - (dc."textEmbedding" <=> ${embedding}::vector) as score,
-        CASE 
+        ${userId ? Prisma.sql`CASE 
           WHEN sdc."id" IS NOT NULL THEN true 
           ELSE false 
-        END as "user_starred"
+        END` : Prisma.sql`false`} as "user_starred"
       FROM "DocumentChunk" dc
       LEFT JOIN "DocumentChunkMeta" dcm ON dc."id" = dcm."documentChunkId"
       LEFT JOIN "Document" d ON d."id" = dc."documentId"
-      LEFT JOIN "StarredDocumentChunk" sdc
-        ON dc."id" = sdc."documentChunkId" AND sdc."userId" = ${userId}
+      ${userId ? Prisma.sql`LEFT JOIN "StarredDocumentChunk" sdc
+        ON dc."id" = sdc."documentChunkId" AND sdc."userId" = ${userId}` : Prisma.sql``}
       WHERE dc."textEmbedding" IS NOT NULL
         ${params.mediaTypes ? Prisma.sql`AND dc."mediaType" = ANY(${params.mediaTypes}::text[])` : Prisma.empty}
         AND 1 - (dc."textEmbedding" <=> ${embedding}::vector) > 0.21

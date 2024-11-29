@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryFunction, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DataGrid, GridColDef, GridLogicOperator, GridRowModel, GridToolbar, GridToolbarQuickFilter } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridLogicOperator, GridRowModel, GridToolbar, GridToolbarExport, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { EducationLevel, UserRoles } from '@prisma/client'
@@ -66,21 +66,19 @@ const AdminListUsers = () => {
         },
         {
             field: 'educationLevels',
-            headerName: 'Niveaux d\'éducation',
+            headerName: "Niveaux d'éducation",
             editable: false,
             minWidth: 200,
+            valueGetter: (value, row) => row.educationLevels.map((el: EducationLevel) => el.name).join(', '),
             renderCell: (params) => (
                 <div className='block'>
-                    {params.value
-                        .sort((a: EducationLevel, b: EducationLevel) => a.name.localeCompare(b.name))
-                        .map((el: EducationLevel) => (
-                            <Chip key={el.id} label={el.name} style={{ margin: '2px' }} />
-                        ))}
+                    {params.value.split(', ').map((name: string) => (
+                        <Chip key={name} label={name} style={{ margin: '2px' }} />
+                    ))}
                 </div>
             )
         },
-
-    ];
+        { flex: 1, field: 'creationDate', headerName: 'Création', minWidth: 200, editable: false, valueFormatter: (value) => new Date(value).toLocaleDateString('fr-FR'), sortComparator: (v1, v2) => new Date(v1).getTime() - new Date(v2).getTime() },];
 
     const handleOpenRolesDialog = (user: UserFull) => {
         setSelectedUser(user);
@@ -124,9 +122,11 @@ const AdminListUsers = () => {
                 slots={{
                     toolbar: () => (
                         <div style={{ padding: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                            <GridToolbarQuickFilter 
-                                placeholder='Rechercher' 
+                            <GridToolbarQuickFilter
+                                placeholder='Rechercher'
                             />
+                            <GridToolbarExport />
+
                         </div>
                     ),
                 }}

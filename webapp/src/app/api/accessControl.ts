@@ -17,10 +17,12 @@ export const userFullFields = {
     school: true,
     lastName: true,
     // emailVerified: true,
+    creationDate: true,
     image: true,
     academyId: true,
     educationLevels: true,
     schoolSubjects: true,
+    otherSchoolSubject: true
 }
 
 export const userIs = async (userIdOrUser: string | User | undefined, roles: UserRoles[]) => {

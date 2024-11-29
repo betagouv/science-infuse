@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest,
 
   try {
     const body = await request.json();
-    const { school, firstName, roles, lastName, job, academyId, educationLevels, schoolSubjects }: Partial<UserFull> = body;
+    const { school, firstName, roles, lastName, job, academyId, educationLevels, schoolSubjects, otherSchoolSubject }: Partial<UserFull> = body;
 
     const updateData: any = {};
     if (school !== undefined) updateData.school = school;
@@ -63,6 +63,7 @@ export async function PUT(request: NextRequest,
     if (isAdmin && roles !== undefined) updateData.roles = roles;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (academyId !== undefined) updateData.academyId = academyId;
+    if (otherSchoolSubject !== undefined) updateData.otherSchoolSubject = otherSchoolSubject;
     if (schoolSubjects !== undefined) {
       updateData.schoolSubjects = {
         connect: schoolSubjects.map(e => ({ id: e.id }))

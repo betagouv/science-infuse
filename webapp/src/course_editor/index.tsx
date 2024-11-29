@@ -67,6 +67,31 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
   const { data: session } = useSession();
   const user = session?.user;
 
+  // prevent copy if user not logged in
+  useEffect(() => {
+    if (!user) {
+      const preventCopy = (e: Event) => {
+        e.preventDefault();
+        return false;
+      };
+      
+      const preventKeyboardCopy = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          return false;
+        }
+      };
+
+      document.addEventListener('contextmenu', preventCopy);
+      document.addEventListener('keydown', preventKeyboardCopy);
+
+      return () => {
+        document.removeEventListener('contextmenu', preventCopy);
+        document.removeEventListener('keydown', preventKeyboardCopy);
+      };
+    }
+  }, [user]);
+
   const { editor } = props;
   const menuContainerRef = useRef(null)
   const [educationLevels, setEducationLevels] = useState<EducationLevel[]>([]);
@@ -102,22 +127,6 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
     }
   }, [themes, educationLevels])
 
-
-  if (!user) return <div className="flex justify-center flex-row mt-8">
-    <CallOut
-      iconId="fr-icon-warning-line"
-      title="Accès restreint"
-    // colorVariant='pink-tuile'
-    >
-      <div className="flex flex-col gap-4 mt-4">
-
-        <p className='m-0'>
-          Veuillez vous connecter pour accéder au contenu.
-        </p>
-        <Button priority="secondary" className='!m-0'><a href="/">Connexion</a></Button>
-      </div>
-    </CallOut>
-  </div>
 
   return (
     <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>

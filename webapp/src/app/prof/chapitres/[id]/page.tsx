@@ -18,6 +18,8 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
 
 
   useEffect(() => {
+    console.log("PARAMSSS", params)
+    if (!params.id) return;
     const fetchChapter = async () => {
       apiClient.getChapter(params.id).then(chapter => {
         setChapter(chapter);

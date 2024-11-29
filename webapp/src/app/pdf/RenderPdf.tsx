@@ -10,6 +10,11 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { apiClient } from "@/lib/api-client";
 import { TableOfContents, TOCItem } from "@/types/TOC";
+import { useSession } from "next-auth/react";
+import Button from "@codegouvfr/react-dsfr/Button";
+import CallOut from "@codegouvfr/react-dsfr/CallOut";
+import styled from "@emotion/styled";
+import RegisteredUserFeature from "@/components/RegisteredUserFeature";
 
 // there is your `/legacy/build/pdf.worker.min.mjs` url
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -51,7 +56,11 @@ const fetchTableOfContents: QueryFunction<TableOfContents, [string, string]> = a
     return toc;
 };
 
+
+
 const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number }) => {
+    const { data: session } = useSession();
+    const user = session?.user;
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(props.defaultPage);
     const [loading, setLoading] = useState<boolean>(true);
@@ -95,6 +104,13 @@ const RenderPdf = (props: { pdfUrl: string, pdfUuid: string, defaultPage: number
         queryFn: fetchTableOfContents,
         enabled: !!documentUuid,
     });
+
+    if (!user)
+        return <div className="fr-col-12 fr-container main-content-item py-4">
+            <RegisteredUserFeature />
+        </div>
+
+
 
 
     return (

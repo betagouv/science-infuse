@@ -14,12 +14,7 @@ const videos = [
     { title: "Enseignements scientifiques et musées : enrichir vos séquences de cours et dynamiser les apprentissages", src: "/videos/webinaire-philippe.mp4", srt: "/videos/webinaire-philippe.srt" },
 ]
 
-const StyledCallout = styled(CallOut)`
-    .fr-callout__text {
-        display: flex;
-        flex-flow: column;
-    }
-`
+
 
 const Webinaires = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -32,7 +27,7 @@ const Webinaires = () => {
                 <div className="py-16 flex flex-col gap-16 md:px-0">
 
                     <h1>Webinaires Science Infuse</h1>
-                    {user && videos.map(v => (
+                    {videos.map(v => (
                         <div key={v.src} className="relative p-8 bg-[#f2f2f2] rounded-xl">
                             <h2>{v.title}</h2>
                             <video ref={videoRef} controls className="w-full mb-4">
@@ -43,7 +38,7 @@ const Webinaires = () => {
                             <a href={v.srt} download>Télécharger les sous-titres</a>
                         </div>
                     ))}
-
+{/* 
                     {!user && (
                         <StyledCallout
                             iconId="ri-information-line"
@@ -57,7 +52,7 @@ const Webinaires = () => {
                                 <Button><a href="/">Créer un compte</a></Button>
                             </span>
                         </StyledCallout>
-                    )}
+                    )} */}
 
                 </div>
             </div>

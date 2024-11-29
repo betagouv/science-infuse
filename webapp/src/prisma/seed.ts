@@ -35,7 +35,7 @@ const createAcademies = async () => {
 }
 
 const createSchoolSubjects = async () => {
-  const subjects = ["Sciences de la Vie et de la Terre"]//,"Mathématiques", "Français", "Histoire-Géographie", "Sciences", "Anglais", "Arts Plastiques", "Éducation Physique", "Musique", "Technologie", "Philosophie", "Sciences Économiques", "Langues Vivantes", "Latin-Grec", "Physique-Chimie"]
+  const subjects = ["Sciences de la Vie et de la Terre", "Autre"]//,"Mathématiques", "Français", "Histoire-Géographie", "Sciences", "Anglais", "Arts Plastiques", "Éducation Physique", "Musique", "Technologie", "Philosophie", "Sciences Économiques", "Langues Vivantes", "Latin-Grec", "Physique-Chimie"]
 
   await prisma.schoolSubject.createMany({
     data: subjects.map(subject => ({ name: subject })),

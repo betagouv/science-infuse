@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
+import { useSession } from "next-auth/react";
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -148,13 +149,16 @@ const StarBlock = (props: { query: string, blockId: string, starred: boolean }) 
 export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
+    const { data: session } = useSession();
+    const user = session?.user;
+
     return (
         <div className="flex flex-row justify-between gap-4">
             {props.end}
             <div className="flex self-end gap-4 ml-auto">
-                {props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
+                {user && props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
                 {
-                    props.downloadLink && <button
+                    props.downloadLink && user && <button
                         onClick={() => window.open(props.downloadLink, '_blank')}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -5,14 +5,33 @@ import CourseInformations from "./CourseInformations";
 import ShareToScienceInfuse from "./ShareToScienceInfuse";
 import DuplicateChapter from "./DuplicateChapter";
 import { ChapterWithoutBlocks } from "@/types/api";
+import { useSession } from "next-auth/react";
+import CallOut from "@codegouvfr/react-dsfr/CallOut";
+import Button from "@codegouvfr/react-dsfr/Button";
 
 const CourseSettings = (props: { chapter?: ChapterWithoutBlocks, editor: Editor }) => {
+    const { data: session } = useSession();
+    const user = session?.user;
+
     return <div className="sticky top-8 h-full bg-white z-[1] flex flex-col gap-8 w-[300px]">
         <CourseInformations editor={props.editor} />
         <div className="flex flex-col gap-4 sticky bottom-0 pb-4 w-full items-center justify-center z-[20] bg-white mt-auto">
-            {props.chapter?.id && !props.editor.isEditable && <DuplicateChapter chapterId={props.chapter.id} editor={props.editor} />}
-            <ExportToPdf editor={props.editor} />
-            <ExportToMbz editor={props.editor} />
+            {user ? <>
+                {props.chapter?.id && !props.editor.isEditable && <DuplicateChapter chapterId={props.chapter.id} editor={props.editor} />}
+                <ExportToPdf editor={props.editor} />
+                <ExportToMbz editor={props.editor} />
+            </> : <CallOut
+                iconId="ri-information-line"
+                className="flex flex-col [&.fr-callout__text]:flex-col"
+            >
+                <span>
+                    Connectez-vous pour exporter le cours en PDF ou MBZ et les quiz en H5P.
+                </span>
+                <span className="flex flex-row gap-4">
+                    <Button priority="secondary"><a href="/">Connexion</a></Button>
+                    {/* <Button><a href="/">Créer un compte</a></Button> */}
+                </span>
+            </CallOut>}
             {props.editor.isEditable && props.chapter && <ShareToScienceInfuse chapter={props.chapter} />}
         </div>
     </div>

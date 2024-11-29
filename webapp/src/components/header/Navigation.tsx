@@ -29,7 +29,7 @@ const StyledMainNavigation = styled(MainNavigation)`
 		/* margin-left: 2rem; */
 	}
 	.fr-nav__item:last-child {
-		margin-left: auto;
+		margin-left: auto !important;
 		z-index: 1;
 		a.fr-nav__link:hover {
 			background-color: unset !important;
@@ -40,8 +40,10 @@ const StyledMainNavigation = styled(MainNavigation)`
 
 const NavBarSearch = () => {
 	const pathname = usePathname()
+    const { data: session } = useSession();
+    const user = session?.user;
 
-	if (pathname === "/") {
+	if (user && pathname === "/") {
 		return null
 	}
 
@@ -76,7 +78,6 @@ export function Navigation() {
 
 
 	const segment = useSelectedLayoutSegment();
-	if (!user) return ""
 
 	return (
 		<div className="flex flex-row items-center">
@@ -94,12 +95,21 @@ export function Navigation() {
 							text: t.title || "Theme"
 						}))
 					},
+					...(!user ? [] : [
+						{
+							linkProps: {
+								href: '/prof/mes-cours',
+								target: '_self'
+							},
+							text: 'Création de cours'
+						}
+					]),
 					{
 						linkProps: {
-							href: '/prof/mes-cours',
+							href: '/webinaires',
 							target: '_self'
 						},
-						text: 'Création de cours'
+						text: `Webinaires`
 					},
 					{
 						linkProps: {
@@ -115,7 +125,6 @@ export function Navigation() {
 							className: "ml-auto w-full"
 						},
 						text: <NavBarSearch />
-
 					}
 				]}
 			/>

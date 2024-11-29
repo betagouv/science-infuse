@@ -6,6 +6,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { userIs } from '@/app/api/accessControl';
 import AdminWrapper from '../AdminWrapper';
 import FileExplorer from './FileExplorer';
+import prisma from '@/lib/prisma';
 
 export default async function FileExplorerPage() {
     const session = await getServerSession(authOptions);
@@ -15,8 +16,6 @@ export default async function FileExplorerPage() {
     if (!isAdmin) {
         redirect('/');
     }
-
-    const prisma = new PrismaClient();
 
     try {
         // Fetch only required fields to optimize query
