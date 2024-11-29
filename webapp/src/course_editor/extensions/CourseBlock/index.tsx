@@ -371,14 +371,16 @@ const RenderBlockQuiz = ({ editor, questions, openQuizPopup }: { editor: Editor,
           {editor.isEditable && <div className="mb-4 text-center">
             <p className="text-gray-600 italic">Ceci est un aperçu du quiz. Pour apporter des modifications, cliquez sur le bouton ci-dessous.</p>
             <div className="flex  justify-center gap-4">
-              <Button onClick={() => { setIsExpanded(false); openQuizPopup() }}>Modifier le quiz</Button>
-              <Button priority='secondary' iconId="fr-icon-download-fill" iconPosition="right" onClick={async () => {
-                const data = await apiClient.exportH5p({ type: 'question', data: questions })
-                window.open(data.url, '_blank')
-              }}>Télécharger en H5P</Button>
+              <Button className='w-56 justify-center' onClick={() => { setIsExpanded(false); openQuizPopup() }}>Modifier le quiz</Button>
             </div>
 
           </div>}
+          <div className="flex justify-center">
+            <Button className='w-56 justify-center' priority='secondary' iconId="fr-icon-download-fill" iconPosition="right" onClick={async () => {
+              const data = await apiClient.exportH5p({ type: 'question', data: questions })
+              window.open(data.url, '_blank')
+            }}>Télécharger en H5P</Button>
+          </div>
 
           <div className="cursor-not-allowed">
             <div className='pointer-events-none'>

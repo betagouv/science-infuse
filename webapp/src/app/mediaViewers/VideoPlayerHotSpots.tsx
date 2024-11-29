@@ -119,7 +119,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
                                     style={{
                                         left: `${(start / duration) * 100}%`,
                                         backgroundColor: starred ? '#f7d000' : selected ? 'black' : `rgb(${255 - (score * 1.5) * 255}, ${255 - (score * 1.5) * 255}, ${255 - (score * 1.5) * 255})`,
-                                        zIndex: starred ? 1001 : Math.floor(score * 1000),
+                                        zIndex: starred ? 201 : Math.floor(score * 200),
                                         outline: `${selected ? '2px solid black' : 'none'}`,
                                         border: `${selected ? '2px solid white' : 'none'}`
                                     }}
