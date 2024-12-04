@@ -95,6 +95,17 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                     },
                                     text: "Explorer les fichiers"
                                 },
+                                {
+                                    isActive: activePath === "/admin/document-tags",
+                                    linkProps: {
+                                        href: "/admin/document-tags",
+                                        onClick: (e) => {
+                                            e.preventDefault();
+                                            router.push("/admin/document-tags");
+                                        }
+                                    },
+                                    text: "Tags des documents"
+                                },
                             ]}
                         />
                     </div>

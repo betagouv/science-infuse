@@ -67,9 +67,16 @@ export async function removeAllTagsFromDocuments(documentIds: string[]) {
         await prisma.$disconnect();
     }
 }
+
 export async function getAllDocumentTags() {
     try {
-        const tags = await prisma.documentTag.findMany();
+        const tags = await prisma.documentTag.findMany({
+            include: {
+                _count: {
+                    select: { documents: true }
+                }
+            }
+        });
         return tags;
     } catch (error) {
         console.error('Error fetching tags:', error);
@@ -77,7 +84,65 @@ export async function getAllDocumentTags() {
     } finally {
         await prisma.$disconnect();
     }
-    
+}
+
+
+export async function createDocumentTag(data: { 
+    title: string, 
+    description: string 
+}) {
+    try {
+        const newTag = await prisma.documentTag.create({
+            data: {
+                title: data.title,
+                description: data.description
+            }
+        });
+        return newTag;
+    } catch (error) {
+        console.error('Error creating tag:', error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function updateDocumentTag(
+    id: string, 
+    data: { 
+        title?: string, 
+        description?: string 
+    }
+) {
+    try {
+        const updatedTag = await prisma.documentTag.update({
+            where: { id },
+            data: {
+                title: data.title,
+                description: data.description
+            }
+        });
+        return updatedTag;
+    } catch (error) {
+        console.error('Error updating tag:', error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function deleteDocumentTag(id: string) {
+    try {
+        await prisma.documentTag.delete({
+            where: { id }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }
 
 export async function desindexDocuments(documentIds: string[]) {
@@ -121,3 +186,4 @@ export async function indexDocuments(documentIds: string[]) {
         await prisma.$disconnect()
     }
 }
+

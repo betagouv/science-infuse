@@ -1,9 +1,9 @@
 'use client';
 
 import { QueryFunction, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DataGrid, GridColDef, GridLogicOperator, GridRowModel, GridToolbar, GridToolbarExport, GridToolbarQuickFilter } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRowModel, GridToolbarExport, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import { Chip, Checkbox, FormGroup, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { EducationLevel, UserRoles } from '@prisma/client'
 import AdminWrapper from '../AdminWrapper';
 import { UserFull, UserFullWithChapterCount } from '@/types/api';
