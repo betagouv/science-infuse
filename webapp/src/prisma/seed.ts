@@ -153,6 +153,17 @@ const createKeyIdeas = async () => {
   })
 }
 
+const createDocumentTag = async () => {
+  const documentTags = [
+    { title: "REVUE_DECOUVERTE", description: "Revue decouverte pdf" },
+    { title: "INTERACTIF", description: "Contenu interactif" },
+  ]
+  await prisma.documentTag.createMany({
+    data: documentTags,
+    skipDuplicates: true,
+  })
+}
+
 
 async function main() {
   await createThemes();
@@ -162,6 +173,7 @@ async function main() {
   await createFileTypes();
   await createAcademies();
   await createSchoolSubjects();
+  await createDocumentTag();
 }
 
 main()

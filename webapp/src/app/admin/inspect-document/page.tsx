@@ -80,7 +80,7 @@ const InspectDocument = () => {
                                     }
                                 }}
                             >
-                                Supprimer le document
+                                Désindexer le document
                             </Button> 
 
                         }

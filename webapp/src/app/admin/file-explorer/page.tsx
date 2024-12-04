@@ -7,6 +7,7 @@ import { userIs } from '@/app/api/accessControl';
 import AdminWrapper from '../AdminWrapper';
 import FileExplorer from './FileExplorer';
 import prisma from '@/lib/prisma';
+import { FileExplorerDocument } from './file-utils';
 
 export default async function FileExplorerPage() {
     const session = await getServerSession(authOptions);
@@ -18,19 +19,21 @@ export default async function FileExplorerPage() {
     }
 
     try {
-        // Fetch only required fields to optimize query
-        const documents = await prisma.document.findMany({
-            where: { deleted: false },
+        const documents: FileExplorerDocument[] = await prisma.document.findMany({
+            // where: { deleted: false },
             select: {
                 id: true,
                 originalPath: true,
+                deleted: true,
                 s3ObjectName: true,
+                tags: true,
+                mediaName: true
             },
         });
 
         return (
             <AdminWrapper>
-                <h1 className="text-xl font-semibold">File Explorer</h1>
+                <h1>Explorateur de fichiers</h1>
                 <div className="p-4 bg-white shadow-md rounded-lg">
                     <FileExplorer documents={documents} />
                 </div>
@@ -40,8 +43,8 @@ export default async function FileExplorerPage() {
         console.error('Error fetching documents:', error);
         return (
             <AdminWrapper>
-                <h1 className="text-xl font-semibold">File Explorer</h1>
-                <p className="text-red-500">Error loading file explorer. Please try again later.</p>
+                <h1>Explorateur de fichiers</h1>
+                <p className="text-red-500">Erreur lors du chargement de l'explorateur de fichiers. Veuillez réessayer plus tard.</p>
             </AdminWrapper>
         );
     } finally {
