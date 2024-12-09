@@ -5,7 +5,7 @@ import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Autocomplete, Chip, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import { assignTagsToDocuments, getAllDocumentTags } from "./actions";
+import { assignTagsToDocuments, getAllDocumentTags } from "@/lib/utils/db";
 
 const modal = createModal({
     id: "assign-document-tags-modal",

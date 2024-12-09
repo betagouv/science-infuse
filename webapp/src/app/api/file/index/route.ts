@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
                 deleted: false,
             }
         })
+
         if (fileExist) {
-            // remove and alert
             await fs.promises.unlink(localFilePath);
             return NextResponse.json(fileExist, { status: 409 });
         }

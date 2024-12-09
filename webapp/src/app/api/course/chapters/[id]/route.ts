@@ -1,7 +1,7 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { updateBlock } from '@/app/api/search/sql_raw_queries';
 import prisma from '@/lib/prisma';
-import { getEmbeddings } from '@/lib/utils/getEmbeddings';
+import { getEmbeddings } from '@/lib/utils/embeddings';
 import { ChapterWithoutBlocks } from '@/types/api';
 import { Question } from '@/types/course-editor';
 import { ChapterStatus, UserRoles } from '@prisma/client';

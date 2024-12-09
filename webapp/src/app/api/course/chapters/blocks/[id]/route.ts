@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { getTiptapNodeText } from './getTiptapNodeText';
-import { getEmbeddings } from '@/lib/utils/getEmbeddings';
+import { getEmbeddings } from '@/lib/utils/embeddings';
 import { updateBlock } from '@/app/api/search/sql_raw_queries';
 import prisma from '@/lib/prisma';
 

@@ -46,8 +46,9 @@ const columns: GridColDef[] = [
                 return `${Math.floor(timeDiff / 60000)} min ${Math.floor((timeDiff % 60000) / 1000)} sec`;
             }
             return 'N/A';
-        }
+        },
     },
+    { field: 'message', headerName: 'Message', width: 200, valueGetter: (value, row) => row.output?.message },
 ]; const JobList: React.FC = () => {
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
         page: 0,

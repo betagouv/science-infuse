@@ -10,6 +10,7 @@
     "postinstall": "copy-dsfr-to-public",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons",
+    "db:recompute_embeddings": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' src/scripts/recompute-embeddings.ts",
     "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' src/prisma/seed.ts",
     "db:init-pgvector": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' src/pgvector/pgvector-setup.ts"
   },
@@ -68,6 +69,7 @@
     "@types/react-linkify": "^1.0.4",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
+    "cli-progress": "^3.12.0",
     "framer-motion": "^11.3.22",
     "jsdom": "^25.0.1",
     "lodash": "^4.17.21",
@@ -102,6 +104,7 @@
     "@emotion/babel-plugin": "^11.12.0",
     "@preact/signals-react-transform": "^0.3.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/cli-progress": "^3.11.6",
     "@types/jsdom": "^21.1.7",
     "@types/lodash": "^4.17.7",
     "@types/node": "^20",

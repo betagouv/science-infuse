@@ -3,7 +3,7 @@
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { indexDocuments } from "./actions";
+import { indexDocuments } from "@/lib/utils/db";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 
 const modal = createModal({

@@ -108,6 +108,7 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
       .filter(chunk => activeTypes.includes(chunk.mediaType as MediaType))
       .filter(chunk => (props.favourites && props.selectedTab == TabType.Favourites) ? chunk.user_starred === true : true);
   }
+  chunks = chunks.sort((a,b) => b.score - a.score)
 
   useEffect(() => {
     setPageNumber(1);

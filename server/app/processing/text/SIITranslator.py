@@ -1,7 +1,9 @@
+import os
 from typing import List
 from transformers import pipeline
 import torch
 
+TRANSLATOR_BATCH_SIZE = 1 if os.environ.get('ENVIRONMENT', '').lower().startswith('dev') else 10
 
 
 class SITranslator:
@@ -11,9 +13,9 @@ class SITranslator:
     def clean_output(self, text:str):
         return text.replace('& #160;', '')
 
-    def en_to_fr_batch(self, texts: List[str], batch_size=10):
+    def en_to_fr_batch(self, texts: List[str], batch_size=TRANSLATOR_BATCH_SIZE):
         translations = self.pipe(texts, batch_size=batch_size, max_length=512, truncation=True)
         return [self.clean_output(translation['translation_text']) for translation in translations]
 
     def en_to_fr(self, text: str):
-        return self.clean_output(self.en_to_fr([text])[0])
+        return self.clean_output(self.en_to_fr_batch([text])[0])

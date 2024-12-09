@@ -20,7 +20,7 @@ export const TabMediaTypeMap: Record<TabType, MediaType[]> = {
   [TabType.Favourites]: allTypes,
   [TabType.Chapters]: [],
   [TabType.Documents]: [MediaTypes.PdfText],
-  [TabType.Pictures]: [MediaTypes.PdfImage, MediaTypes.RawImage],
+  [TabType.Pictures]: [MediaTypes.PdfImage, MediaTypes.RawImage, MediaTypes.Image],
   [TabType.Videos]: [MediaTypes.VideoTranscript],
   [TabType.Games]: [MediaTypes.WebsiteExperience],
   [TabType.Others]: [MediaTypes.WebsiteQa],

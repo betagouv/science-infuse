@@ -1,14 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { DataGrid, GridColDef, GridRowModel, GridToolbarExport, GridToolbarQuickFilter, GridActionsCellItem, GridRowId, } from '@mui/x-data-grid';
+import { createDocumentTag, deleteDocumentTag, getAllDocumentTags, updateDocumentTag } from "@/lib/utils/db";
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
-
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowModel, GridToolbarQuickFilter } from '@mui/x-data-grid';
+import React, { useEffect, useState } from 'react';
 import AdminWrapper from '../AdminWrapper';
-
-// Server actions
-import { getAllDocumentTags, createDocumentTag, updateDocumentTag, deleteDocumentTag } from '../file-explorer/actions';
 
 interface DocumentTag {
     id: string;

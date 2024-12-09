@@ -1,25 +1,22 @@
-from typing import List
-from faster_whisper import WhisperModel
-import matplotlib.pyplot as plt
-import time
-import datetime
-from pydub import AudioSegment
-from tqdm import tqdm
-import numpy as np
-import pydantic
+import os
 from transformers import AutoProcessor, AutoModelForCausalLM 
 import torch
 from PIL.Image import Image
 
+FLORENCE_MODEL = "microsoft/Florence-2-base-ft" if os.environ.get('ENVIRONMENT', '').lower().startswith('dev') else "microsoft/Florence-2-large-ft"
 
 # TODO Add batch for better perfs
 class SIImageDescription:
     def __init__(self):
-        self.model = AutoModelForCausalLM.from_pretrained("microsoft/Florence-2-large-ft", trust_remote_code=True, torch_dtype=torch.float16).to(torch.cuda.current_device())
-        self.processor = AutoProcessor.from_pretrained("microsoft/Florence-2-large-ft", trust_remote_code=True)
+        self.model = AutoModelForCausalLM.from_pretrained(FLORENCE_MODEL, trust_remote_code=True, torch_dtype=torch.float16).to(torch.cuda.current_device())
+        self.processor = AutoProcessor.from_pretrained(FLORENCE_MODEL, trust_remote_code=True)
     
     def get_description(self, base_64_image:Image):
         try:
+            # Convert image to RGB mode to ensure consistent channel format
+            if base_64_image.mode != 'RGB':
+                base_64_image = base_64_image.convert('RGB')
+                
             task = "<MORE_DETAILED_CAPTION>"
             inputs = self.processor(text=task, images=base_64_image, return_tensors="pt").to(torch.cuda.current_device(), dtype=torch.float16)
             generated_ids = self.model.generate(

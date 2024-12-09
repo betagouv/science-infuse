@@ -3,8 +3,8 @@
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { desindexDocuments } from "./actions";
 import Alert from "@codegouvfr/react-dsfr/Alert";
+import { desindexDocuments } from "@/lib/utils/db";
 
 const modal = createModal({
     id: "desindex-documents-modal",

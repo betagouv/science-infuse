@@ -1,3 +1,4 @@
+import os
 from surya.model.detection.segformer import load_model, load_processor
 from surya.model.ordering.processor import load_processor as load_order_processor
 from surya.model.ordering.model import load_model as load_order_model
@@ -15,6 +16,7 @@ from surya.model.ordering.model import load_model as load_order_model
 from PIL import Image
 from surya.settings import settings
 
+SURYA_BATCH_SIZE = 1 if os.environ.get('ENVIRONMENT', '').lower().startswith('dev') else 10
 class SISurya:
     def __init__(self):
         self.det_model, self.det_processor = self.load_det_cached()
@@ -49,7 +51,7 @@ class SISurya:
 
         return '\n'.join(result)
     
-    def process_images(self, images: List[Image.Image], batch_size=5):
+    def process_images(self, images: List[Image.Image], batch_size=SURYA_BATCH_SIZE):
         return self.order_detection(images, batch_size=batch_size)
 
     def load_det_cached(self):
@@ -62,16 +64,16 @@ class SISurya:
     def load_order_cached(self):
         return load_order_model(), load_order_processor()
     
-    def texts_detection(self, images: List[Image.Image], batch_size=10) -> List[TextDetectionResult]:
+    def texts_detection(self, images: List[Image.Image], batch_size=SURYA_BATCH_SIZE) -> List[TextDetectionResult]:
         preds = batch_text_detection(images, self.det_model, self.det_processor, batch_size=batch_size)
         return preds
 
-    def layout_detection(self, images: List[Image.Image], batch_size=10) -> List[LayoutResult]:
+    def layout_detection(self, images: List[Image.Image], batch_size=SURYA_BATCH_SIZE) -> List[LayoutResult]:
         _det_preds = self.texts_detection(images, batch_size=batch_size)
         preds = batch_layout_detection(images, self.layout_model, self.layout_processor, _det_preds, batch_size=batch_size)
         return preds
 
-    def order_detection(self, images: List[Image.Image], batch_size=10) -> Tuple[List[Image.Image], List[OrderResult], List[List[str]]]:
+    def order_detection(self, images: List[Image.Image], batch_size=SURYA_BATCH_SIZE) -> Tuple[List[Image.Image], List[OrderResult], List[List[str]]]:
         layout_preds = self.layout_detection(images, batch_size=batch_size)
         all_bboxes: List[List[List[float]]] = []
         all_labels: List[List[str]] = []

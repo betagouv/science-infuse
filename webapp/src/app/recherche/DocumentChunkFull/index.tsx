@@ -6,7 +6,7 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
@@ -277,17 +277,49 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
             border
             imageAlt={chunk.text}
             imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-            end={<BuildCardEnd
-                onInserted={onInserted}
-                chunk={chunk}
-                end={
-                    <div className="flex">
-                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
-                    </div>
-                }
-                starred={!!chunk?.user_starred}
-                downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-            />}
+            end={<>
+                {chunk.score}
+
+                <BuildCardEnd
+                    onInserted={onInserted}
+                    chunk={chunk}
+                    end={
+                        <div className="flex">
+                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
+                        </div>
+                    }
+                    starred={!!chunk?.user_starred}
+                    downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+                />
+            </>}
+            size="medium"
+            title=""
+            titleAs="h3"
+        />
+
+    )
+};
+
+export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"image"> }> = ({ onInserted, chunk }) => {
+    const path = chunk.document.originalPath.split('ftp-data')[1]?.split('/') || chunk.document.originalPath.split('/')
+    if (chunk.title) {
+        path.push(...chunk.title.toLowerCase().split('>'))
+    }
+    return (
+        <StyledImageCard
+            background
+            border
+            imageAlt={chunk.text}
+            imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            end={<>
+                {chunk.score}
+                <BuildCardEnd
+                    onInserted={onInserted}
+                    chunk={chunk}
+                    starred={!!chunk?.user_starred}
+                    downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+                />
+            </>}
             size="medium"
             title=""
             titleAs="h3"
@@ -637,6 +669,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
 }
 
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, chunk, searchWords }) => {
+    if (isImageChunk(chunk)) return <RenderImageCard onInserted={onInserted} chunk={chunk} />;
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard onInserted={onInserted} chunk={chunk} />;
     if (isPdfTextChunk(chunk)) return <RenderPdfTextCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;

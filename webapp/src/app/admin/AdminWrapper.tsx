@@ -2,10 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from 'next/navigation';
-import AdminListUsers from "./utilisateurs/page";
-import IndexFile from "./index-file/page";
-import JobList from "./tasks-list/page";
-import InspectDocument from "./inspect-document/page";
 import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
 
 
@@ -52,15 +48,15 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                     text: "Chapitres"
                                 },
                                 {
-                                    isActive: activePath === "/admin/index-file",
+                                    isActive: activePath === "/admin/index-content",
                                     linkProps: {
-                                        href: "/admin/index-file",
+                                        href: "/admin/index-content",
                                         onClick: (e) => {
                                             e.preventDefault();
-                                            router.push("/admin/index-file");
+                                            router.push("/admin/index-content");
                                         }
                                     },
-                                    text: "Indexer un fichier"
+                                    text: "Indexer du contenu"
                                 },
                                 {
                                     isActive: activePath === "/admin/tasks-list",

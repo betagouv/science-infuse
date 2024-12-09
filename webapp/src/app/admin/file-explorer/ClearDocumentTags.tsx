@@ -3,9 +3,7 @@
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { Autocomplete, Chip, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
-import { assignTagsToDocuments, getAllDocumentTags, removeAllTagsFromDocuments } from "./actions";
+import { removeAllTagsFromDocuments } from "@/lib/utils/db";
 
 const modal = createModal({
     id: "clear-document-tags-modal",

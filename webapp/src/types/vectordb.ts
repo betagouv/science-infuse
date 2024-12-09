@@ -4,6 +4,7 @@ import { JSONContent } from "@tiptap/core";
 
 //  this should match schema.py
 export const MediaTypes = {
+  Image: "image",
   PdfImage: "pdf_image",
   RawImage: "raw_image",
   PdfText: "pdf_text",
@@ -47,6 +48,10 @@ export interface PdfImageMetadata {
   bbox: BoundingBox;
 }
 
+export interface ImageMetadata {
+  s3ObjectName: string;
+}
+
 export interface PdfTextMetadata {
   pageNumber: number;
   bbox: BoundingBox;
@@ -68,6 +73,7 @@ export interface WebsiteExperienceMetadata {
 
 
 export type MetadataType<T extends MediaType> =
+  T extends "image" ? ImageMetadata :
   T extends "pdf_image" ? PdfImageMetadata :
   T extends "raw_image" ? RawImageMetadata :
   T extends "pdf_text" ? PdfTextMetadata :
@@ -78,6 +84,7 @@ export type MetadataType<T extends MediaType> =
 
 export type VideoTranscriptChunk = BaseDocumentChunk<"video_transcript">;
 export type PdfImageChunk = BaseDocumentChunk<"pdf_image">;
+export type ImageChunk = BaseDocumentChunk<"image">;
 export type RawImageChunk = BaseDocumentChunk<"raw_image">;
 export type PdfTextChunk = BaseDocumentChunk<"pdf_text">;
 export type WebsiteQAChunk = BaseDocumentChunk<"website_qa">;
@@ -98,6 +105,7 @@ export interface GroupedVideo {
 
 
 export type ChunkWithScoreUnion =
+  | (ChunkWithScore<"image"> & { mediaType: "image" })
   | (ChunkWithScore<"pdf_image"> & { mediaType: "pdf_image" })
   | (ChunkWithScore<"raw_image"> & { mediaType: "raw_image" })
   | (ChunkWithScore<"pdf_text"> & { mediaType: "pdf_text" })
@@ -173,6 +181,10 @@ export const isTextChunk = (chunk: ChunkWithScoreUnion) => {
 
 export const isPdfImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_image"> => {
   return chunk.mediaType == "pdf_image";
+}
+
+export const isImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"image"> => {
+  return chunk.mediaType == "image";
 }
 
 export const isPdfTextChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_text"> => {

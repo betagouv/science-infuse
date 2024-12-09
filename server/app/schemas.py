@@ -12,11 +12,13 @@ class BoundingBox(BaseModel):
 # ==============
 
 class MediaType(str, Enum):
+    IMAGE = "image"
     PDF_IMAGE = "pdf_image"
     RAW_IMAGE = "raw_image"
     PDF_TEXT = "pdf_text"
     VIDEO_TRANSCRIPT = "video_transcript"
     WEBSITE_QA = "website_qa"
+    WEBSITE = "website"
     WEBSITE_EXPERIENCE = "website_experience"
 
 # ==============
@@ -58,6 +60,14 @@ class PdfImageChunk(BaseDocumentChunk):
     mediaType: MediaType = MediaType.PDF_IMAGE
     metadata: PdfImageMetadata
 
+
+class ImageMetadata(BaseModel):
+    s3ObjectName: str
+
+class ImageChunk(BaseDocumentChunk):
+    mediaType: MediaType = MediaType.IMAGE
+    metadata: ImageMetadata
+
 class RawImageMetadata(BaseModel):
     s3ObjectName: str
 
@@ -72,6 +82,13 @@ class PdfTextMetadata(BaseModel):
 class PdfTextChunk(BaseDocumentChunk):
     mediaType: MediaType = MediaType.PDF_TEXT
     metadata: PdfTextMetadata
+
+class WebsiteMetadata(BaseModel):
+    url: str
+
+class WebsiteChunk(BaseDocumentChunk):
+    mediaType: MediaType = MediaType.WEBSITE
+    metadata: WebsiteMetadata
 
 class WebsiteQAMetadata(BaseModel):
     question: str
@@ -92,8 +109,8 @@ class WebsiteExperienceChunk(BaseDocumentChunk):
     mediaType: MediaType = MediaType.WEBSITE_EXPERIENCE
     metadata: WebsiteExperienceMetadata
 
-DocumentChunkMetadata = Union[RawImageMetadata, PdfImageMetadata, PdfTextMetadata, VideoTranscriptMetadata, WebsiteQAMetadata, WebsiteExperienceMetadata]
-DocumentChunk = Union[RawImageChunk, PdfImageChunk, PdfTextChunk, VideoTranscriptChunk, WebsiteQAChunk, WebsiteExperienceChunk]
+DocumentChunkMetadata = Union[RawImageMetadata, PdfImageMetadata, ImageMetadata, PdfTextMetadata, VideoTranscriptMetadata, WebsiteQAMetadata, WebsiteMetadata, WebsiteExperienceMetadata]
+DocumentChunk = Union[RawImageChunk, PdfImageChunk, ImageChunk, PdfTextChunk, VideoTranscriptChunk, WebsiteQAChunk, WebsiteExperienceChunk,  WebsiteChunk]
 
 class DocumentWithChunks(Document):
     chunks: List[DocumentChunk]

@@ -33,7 +33,18 @@ interface SideMenuItemProps {
 
 
 const convertTOCToSideMenuItems = (tocItems: TOCItem[], activePage: number, setPage: (page: number) => void): SideMenuItemProps[] => {
-    return tocItems.map(item => ({
+    const getEffectivePage = (item: TOCItem): number => {
+        if (item.page && item.page !== 0) return item.page;
+        if (item.items && item.items.length > 0) {
+            const childrenPages = item.items.map(getEffectivePage).filter(p => p !== 0);
+            return childrenPages.length > 0 ? Math.min(...childrenPages) : 0;
+        }
+        return 0;
+    };
+
+    return tocItems
+    .sort((a, b) => getEffectivePage(a) - getEffectivePage(b))
+    .map(item => ({
         text: <div className="flex w-full justify-between">
             <span>{item.text.charAt(0).toUpperCase() + item.text.slice(1).toLowerCase().replaceAll("\\", '')}</span>
             {item.page !== 0 && <span className="ml-2 text-gray-500">{item.page}</span>}
@@ -48,7 +59,6 @@ const convertTOCToSideMenuItems = (tocItems: TOCItem[], activePage: number, setP
         ...(item.items && { items: convertTOCToSideMenuItems(item.items, activePage, setPage) })
     }));
 };
-
 
 const fetchTableOfContents: QueryFunction<TableOfContents, [string, string]> = async ({ queryKey }) => {
     const [_, documentUuid] = queryKey;
