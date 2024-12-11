@@ -42,7 +42,7 @@ async def _process_pdf(file: UploadFile = File(...)):
         chunks=chunks
     )
 
-    os.remove(pdf_path)
+    # os.remove(pdf_path)
     return response
 
 @router.post("/picture", response_model=[])
