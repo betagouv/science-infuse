@@ -67,6 +67,30 @@ RUN apt-get install -y libcudnn8
 RUN apt-get install -y libcudnn8-dev
 
 
+# install chrome for selenium
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    curl \
+    unzip
+
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable
+
+# Install ChromeDriver
+RUN CHROME_MAJOR_VERSION=$(google-chrome --version | cut -d ' ' -f 3 | cut -d '.' -f 1) \
+    && LATEST_STABLE_CHROMEDRIVER=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE) \
+    && echo "Chrome version: $CHROME_MAJOR_VERSION" \
+    && echo "Latest stable ChromeDriver: $LATEST_STABLE_CHROMEDRIVER" \
+    && wget -q https://chromedriver.storage.googleapis.com/${LATEST_STABLE_CHROMEDRIVER}/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/chromedriver \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm chromedriver_linux64.zip
+
+
 COPY requirements.txt .
 
 # RUN pip install --no-cache-dir -r requirements.txt
