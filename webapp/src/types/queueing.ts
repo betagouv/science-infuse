@@ -1,9 +1,9 @@
-export interface PgBossJobIndexFile {
+export interface PgBossJobIndexContent {
     id: string,
     name: string,
     data: {
         author: string,
-        filePath: string,
+        path: string,
     },
     state: 'created' | 'retry' | 'active' | 'completed' | 'cancelled' | 'failed',
     started_on: Date,
@@ -11,8 +11,8 @@ export interface PgBossJobIndexFile {
     completed_on: Date
 }
 
-export interface PgBossJobGetIndexFileResponse {
-    jobs: PgBossJobIndexFile[],
+export interface PgBossJobGetIndexContentResponse {
+    jobs: PgBossJobIndexContent[],
     pagination: {
         currentPage: number,
         totalPages: number,
@@ -20,3 +20,10 @@ export interface PgBossJobGetIndexFileResponse {
         totalCount: number
     }
 }
+
+export enum IndexingContentType {
+    url = 'url',
+    file = 'file',
+    youtube = 'youtube'
+  }
+  

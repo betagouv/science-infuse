@@ -5,6 +5,8 @@ import Snackbar from '@/course_editor/components/Snackbar';
 import AdminWrapper from '../AdminWrapper';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import IndexFile from './IndexFile';
+import IndexUrls from './IndexUrls';
+import IndexYoutubeVideos from './IndexYoutubeVideos';
 
 
 const IndexContent = (props: {}) => {
@@ -23,12 +25,12 @@ const IndexContent = (props: {}) => {
                         label: 'Fichier'
                     },
                     {
-                        content: <p>Content of tab2</p>,
+                        content: <IndexYoutubeVideos/>,
                         iconId: 'fr-icon-youtube-line',
-                        label: 'Video Youtube'
+                        label: 'Vidéos Youtube'
                     },
                     {
-                        content: <p>Content of tab3</p>,
+                        content: <IndexUrls />,
                         iconId: 'fr-icon-links-fill',
                         label: 'Site web'
                     }

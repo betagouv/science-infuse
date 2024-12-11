@@ -23,7 +23,7 @@ export const TabMediaTypeMap: Record<TabType, MediaType[]> = {
   [TabType.Pictures]: [MediaTypes.PdfImage, MediaTypes.RawImage, MediaTypes.Image],
   [TabType.Videos]: [MediaTypes.VideoTranscript],
   [TabType.Games]: [MediaTypes.WebsiteExperience],
-  [TabType.Others]: [MediaTypes.WebsiteQa],
+  [TabType.Others]: [MediaTypes.WebsiteQa, MediaTypes.Website],
 }
 
 export const ColumnsMediaTypeMap: Record<TabType, (isMobile: boolean) => number> = {

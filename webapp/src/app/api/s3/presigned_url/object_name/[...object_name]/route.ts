@@ -39,7 +39,7 @@ const getResizedAndWatermarkedImageBuffer = async (imageBuffer: ArrayBuffer) => 
                         <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
                               font-family="Arial" font-size="24" font-weight="bold"
                               fill="rgba(255, 0, 0, 0.5)" transform="rotate(-45, ${svgWidth / 2}, ${svgHeight / 2})">
-                            UniverScience
+                            Universcience
                         </text>
                     </svg>`;
 

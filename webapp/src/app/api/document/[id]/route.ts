@@ -10,6 +10,7 @@ export const GET = withAccessControl(
         const document = await prisma.document.findUnique({
             where: { id: params.id },
             include: {
+                tags: true,
                 documentChunks: {
                     include: {
                         metadata: true,

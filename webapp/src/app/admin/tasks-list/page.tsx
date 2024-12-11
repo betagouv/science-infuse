@@ -6,12 +6,12 @@ import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { apiClient } from '@/lib/api-client';
 import { Chip, CircularProgress, Tooltip } from '@mui/material';
 import AdminWrapper from '../AdminWrapper';
-import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
+import { PgBossJobGetIndexContentResponse } from '@/types/queueing';
 
 const columns: GridColDef[] = [
     // { field: 'id', headerName: 'ID', width: 100 },
     //   { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'filePath', headerName: 'Fichier', width: 200, valueGetter: (value, row) => row.data?.filePath.split('/').pop() },
+    { field: 'path', headerName: 'Fichier', width: 200, valueGetter: (value, row) => row.data?.path.split('/').pop() },
     {
         field: 'state',
         headerName: 'Etat',
@@ -55,7 +55,7 @@ const columns: GridColDef[] = [
         pageSize: 10,
     });
 
-    const { data, isLoading, isError } = useQuery<PgBossJobGetIndexFileResponse>({
+    const { data, isLoading, isError } = useQuery<PgBossJobGetIndexContentResponse>({
         queryKey: ['jobs', paginationModel.page, paginationModel.pageSize],
         queryFn: () => apiClient.fetcheIndexFileJobs(paginationModel.page + 1, paginationModel.pageSize),
         refetchInterval: 10000,

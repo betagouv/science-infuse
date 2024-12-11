@@ -41,12 +41,15 @@ export const getUserFull = async (userId: string) => {
     return user;
 }
 
-export const insertDocument = async (document: Document, chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[], hash: string): Promise<string> => {
-
+export const insertDocument = async (document: Document, chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[], documentTagIds: string[], hash?: string): Promise<string> => {
+    console.log("insertDocument", documentTagIds)
     const createdDocument = await prisma.document.create({
         data: {
             ...document,
             fileHash: hash,
+            tags: {
+                connect: documentTagIds.map(id => ({ id }))
+            },
         },
     });
 
@@ -55,7 +58,7 @@ export const insertDocument = async (document: Document, chunks: (DocumentChunk 
         const chunkId = uuidv4();
         const textToEmbeed = getTextToEmbeed({ ...chunk, id, document, metadata });
         const textEmbedding = await getEmbeddings(textToEmbeed);
-        console.log("INSERTING DOCUMENT", textToEmbeed)
+        console.log("INSERTING DOCUMENT")
         // insert using queryRaw since vector is unsupported as a type.
         await prisma.$queryRaw`
         INSERT INTO "DocumentChunk" (
@@ -86,7 +89,6 @@ export const insertDocument = async (document: Document, chunks: (DocumentChunk 
     }));
     return createdDocument.id;
 }
-
 export async function assignTagsToDocuments(documentIds: string[], tagIds: string[]) {
     try {
         // Verify that all tag IDs exist

@@ -1,10 +1,10 @@
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
-import { PgBossJobGetIndexFileResponse } from '@/types/queueing';
+import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { DocumentWithChunks, SearchResults } from '@/types/vectordb';
-import { Academy, Block, CommentThread, File as DbFile, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
+import { Academy, Block, CommentThread, File as DbFile, DocumentTag, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
 
 
@@ -167,17 +167,20 @@ class ApiClient {
   }
 
   async fetcheIndexFileJobs(page: number, pageSize: number) {
-    const response = await this.axiosInstance.get<PgBossJobGetIndexFileResponse>(`/queueing/data/index-file?page=${page}&pageSize=${pageSize}`);
+    const response = await this.axiosInstance.get<PgBossJobGetIndexContentResponse>(`/queueing/data/index-content?page=${page}&pageSize=${pageSize}`);
     return response.data;
   }
 
-  async indexFile(file: File, author?: string): Promise<string> {
+  async indexContent(content: File | string, type: IndexingContentType, author: string, documentTags: DocumentTag[]): Promise<string> {
+    console.log("selectedDocumentTags", documentTags)
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('content', content);
+    formData.append('type', type);
+    formData.append('documentTags', JSON.stringify(documentTags));
     if (author)
       formData.append('author', author);
 
-    const response = await this.axiosInstance.post<string>('/file/index', formData, {
+    const response = await this.axiosInstance.post<string>('/index-content', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

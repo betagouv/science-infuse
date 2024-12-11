@@ -25,6 +25,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
             yt = YouTube(self.youtube_url, use_oauth=True, allow_oauth_cache=True)
         else:
             yt = YouTube(self.youtube_url)
+        print("YT", yt)
         video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
         return file_path, video_name

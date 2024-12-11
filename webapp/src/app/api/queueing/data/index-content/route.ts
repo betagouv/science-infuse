@@ -1,6 +1,6 @@
 import { withAccessControl } from '@/app/api/accessControl';
 import prisma from '@/lib/prisma';
-import { PgBossJobGetIndexFileResponse, PgBossJobIndexFile } from '@/types/queueing';
+import { PgBossJobGetIndexContentResponse, PgBossJobIndexContent } from '@/types/queueing';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -15,7 +15,7 @@ export const GET = withAccessControl(
       const offset = (page - 1) * pageSize;
 
       const [jobs, totalCount] = await Promise.all([
-        prisma.$queryRaw<PgBossJobIndexFile[]>`
+        prisma.$queryRaw<PgBossJobIndexContent[]>`
           SELECT 
             id,
             name,
@@ -26,7 +26,7 @@ export const GET = withAccessControl(
             created_on,
             completed_on
           FROM captable_queue.job 
-          WHERE name = 'data.index-file'
+          WHERE name = 'data.index-content'
           ORDER BY created_on DESC
           LIMIT ${pageSize}
           OFFSET ${offset}
@@ -34,7 +34,7 @@ export const GET = withAccessControl(
         prisma.$queryRaw<[{ count: bigint }]>`
           SELECT COUNT(*) 
           FROM captable_queue.job 
-          WHERE name = 'data.index-file'
+          WHERE name = 'data.index-content'
         `
       ]);
 
@@ -48,7 +48,7 @@ export const GET = withAccessControl(
           pageSize,
           totalCount: Number(totalCount[0].count)
         }
-      } as PgBossJobGetIndexFileResponse);
+      } as PgBossJobGetIndexContentResponse);
     } catch (error) {
       console.error('Error in GET request:', error);
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

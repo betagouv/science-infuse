@@ -27,7 +27,8 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         "title": "Accueil - Science Infuse"
       }}
       serviceTitle="Science Infuse"
-      serviceTagline="Création de cours pour les enseignants de SVT au collège"
+      serviceTagline={<>Contenus multimédias gratuit <br />par la Cité des Sciences et le Palais de la Découverte"</>}
+      // serviceTagline="Création de cours pour les enseignants de SVT au collège"
       navigation={<Navigation />}
     />
   )

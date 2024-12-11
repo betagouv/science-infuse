@@ -60,9 +60,9 @@ const InspectDocument = () => {
                 </p>}
                 {data && (
                     <div className='flex flex-col gap-8' >
-
-
-
+                        <h2 className='m-0'>TAGS</h2>
+                        {data.tags.map(t => <Badge key={t.id}>{t.title}</Badge>)}
+                        
                         <h2 className='m-0'>Actions</h2>
                         {data.deleted && <Badge severity="error">Document supprimé (désindexé)</Badge>}
                         {
@@ -81,7 +81,7 @@ const InspectDocument = () => {
                                 }}
                             >
                                 Désindexer le document
-                            </Button> 
+                            </Button>
 
                         }
 
@@ -110,14 +110,14 @@ const InspectDocument = () => {
                                         <TableCell component="th" scope="row"><strong>Hash du fichier</strong></TableCell>
                                         <TableCell>{data.fileHash}</TableCell>
                                     </TableRow>
-                                    <TableRow>
+                                    {data.s3ObjectName && <TableRow>
                                         <TableCell component="th" scope="row"><strong>Lien public</strong></TableCell>
                                         <TableCell>
                                             <a target="_blank" href={s3ToPublicUrl(data.s3ObjectName)} download>
                                                 {data.s3ObjectName}
                                             </a>
                                         </TableCell>
-                                    </TableRow>
+                                    </TableRow>}
                                 </TableBody>
                             </Table>
                         </TableContainer>

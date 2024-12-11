@@ -2,11 +2,15 @@
 
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import RenderImportedImage from '@/course_editor/components/CourseSettings/components/RenderImportedImage';
+import RenderImportedFile from '@/course_editor/components/CourseSettings/components/RenderImportedFile';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { apiClient } from '@/lib/api-client';
 import { useSnackbar } from '@/app/SnackBarProvider';
 import { useSession } from 'next-auth/react';
+import Input from '@codegouvfr/react-dsfr/Input';
+import { IndexingContentType } from '@/types/queueing';
+import DocumentTagPicker from './DocumentTagPicker';
+import { DocumentTag } from '@prisma/client';
 
 interface FileInfo {
     id: string;
@@ -25,6 +29,7 @@ const IndexFile = () => {
     const [files, setFiles] = useState<FileInfo[]>([]);
     const [source, setSource] = useState(user ? `${user.firstName} ${user.lastName}` : '');
     const [isGlobalIndexing, setIsGlobalIndexing] = useState(false);
+    const [selectedDocumentTags, setSelectedDocumentTags] = useState<DocumentTag[]>([]);
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const newFiles = acceptedFiles.map(file => ({
@@ -36,7 +41,7 @@ const IndexFile = () => {
         }));
 
         setFiles(prevFiles => {
-            const uniqueFiles = newFiles.filter(newFile => 
+            const uniqueFiles = newFiles.filter(newFile =>
                 !prevFiles.some(prevFile => prevFile.file.name === newFile.file.name)
             );
             return [...prevFiles, ...uniqueFiles];
@@ -58,7 +63,7 @@ const IndexFile = () => {
         setIsGlobalIndexing(true);
         const indexPromises = files.map(async (fileInfo) => {
             try {
-                await apiClient.indexFile(fileInfo.file, source);
+                await apiClient.indexContent(fileInfo.file, IndexingContentType.file, source, selectedDocumentTags);
                 return true;
             } catch (error: any) {
                 console.error(`Error indexing ${fileInfo.file.name}:`, error);
@@ -86,6 +91,8 @@ const IndexFile = () => {
     const removeFile = (fileId: string) => {
         setFiles(prevFiles => prevFiles.filter(fi => fi.id !== fileId));
     }
+
+
 
     return (
 
@@ -122,17 +129,21 @@ const IndexFile = () => {
                 </div>
             </div>
 
-            <input
-                type="text"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                placeholder="Source"
-                className="w-full p-2 border rounded"
+            <Input
+                label="Source"
+                nativeInputProps={{
+                    type: "text",
+                    value: source,
+                    onChange: (e) => setSource(e.target.value),
+                    placeholder: "Source",
+                }}
+                className="w-full"
             />
+            <DocumentTagPicker selectedDocumentTags={selectedDocumentTags} setSelectedDocumentTags={setSelectedDocumentTags} />
 
             {files.map((fileInfo) => (
                 <div key={fileInfo.id} className="flex flex-col gap-4 w-full items-center">
-                    <RenderImportedImage
+                    <RenderImportedFile
                         isUploading={fileInfo.isUploading}
                         file={fileInfo.file}
                         onRemove={() => removeFile(fileInfo.id)}

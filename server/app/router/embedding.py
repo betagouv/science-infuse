@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from fastapi import APIRouter
 from typing import List
 
@@ -13,9 +15,16 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 router = APIRouter()
 
-def get_embeddings(text: str):
-    embeddings = model.encode(text)
-    return embeddings.tolist()
+executor = ThreadPoolExecutor()
+
+def blocking_encode(text: str):
+    return model.encode(text).tolist()
+
+async def get_embeddings(text: str):
+    loop = asyncio.get_event_loop()
+    embeddings = await loop.run_in_executor(executor, blocking_encode, text)
+    return embeddings
+
     # inputs = tokenizer(
     #     text,
     #     padding=True,
@@ -31,4 +40,4 @@ def get_embeddings(text: str):
 
 @router.post("/", response_model=List[float])
 async def _embedding(query: EmbeddingQuery):
-    return get_embeddings(query.text)
+    return await get_embeddings(query.text)

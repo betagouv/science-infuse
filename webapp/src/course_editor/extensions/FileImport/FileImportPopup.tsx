@@ -6,7 +6,7 @@ import { WEBAPP_URL } from '@/config';
 import { useOnClickOutside } from 'usehooks-ts'
 import { useEffect } from '@preact-signals/safe-react/react';
 import { useDropzone } from 'react-dropzone';
-import RenderImportedImage from '@/course_editor/components/CourseSettings/components/RenderImportedImage';
+import RenderImportedFile from '@/course_editor/components/CourseSettings/components/RenderImportedFile';
 import ImportedFileSource from '@/course_editor/components/CourseSettings/components/ImportedFileSource';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { useSession } from 'next-auth/react';
@@ -181,7 +181,7 @@ const FileImport = (props: { pos: number, editor: Editor; closePopup: () => void
           </div>
           {droppedFile && (
             <div className="flex flex-col gap-4 w-full items-center">
-              <RenderImportedImage isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
+              <RenderImportedFile isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
               <ImportedFileSource source={source} setSource={setSource} />
               <Button className="bg-black" onClick={async (e) => {
                 e.preventDefault();

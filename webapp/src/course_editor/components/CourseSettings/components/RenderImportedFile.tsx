@@ -1,6 +1,6 @@
 import { CircularProgress } from "@mui/material";
 
-const RenderImportedImage = (props: { file: File, isUploading: boolean, onRemove: () => void }) => {
+const RenderImportedFile = (props: { file: File, isUploading: boolean, onRemove: () => void }) => {
     const fileSizeInMB = (props.file.size / (1024 * 1024)).toFixed(2);
 
     return (
@@ -57,4 +57,4 @@ const RenderImportedImage = (props: { file: File, isUploading: boolean, onRemove
         </div>
     )
 }
-export default RenderImportedImage;
+export default RenderImportedFile;

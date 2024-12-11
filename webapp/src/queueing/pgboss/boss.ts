@@ -15,7 +15,7 @@ export const JOB_TYPES = {
   email: [
   ],
   data: [
-    "index-file",
+    "index-content",
     "index-url"
   ],
 } as const;

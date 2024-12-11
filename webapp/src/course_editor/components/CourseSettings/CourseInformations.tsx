@@ -22,7 +22,7 @@ import { useDropzone } from 'react-dropzone';
 import { useDebounceValue } from "usehooks-ts";
 import ChapterTableOfContents from "./ChapterTableOfContents";
 import ImportedFileSource from "./components/ImportedFileSource";
-import RenderImportedImage from "./components/RenderImportedImage";
+import RenderImportedFile from "./components/RenderImportedFile";
 import { ChapterWithoutBlocks } from "@/types/api";
 
 const EducationLevelPicker = (props: { editor: Editor, availablEducationLevel: EducationLevel[], chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
@@ -488,7 +488,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                 </div>
                                 {droppedFile && (
                                     <div className="flex flex-col gap-4 w-full items-center">
-                                        <RenderImportedImage isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
+                                        <RenderImportedFile isUploading={isUploading} file={droppedFile} onRemove={() => setDroppedFile(null)} />
                                         <ImportedFileSource source={source} setSource={setSource} />
                                         <Button onClick={async (e) => {
                                             e.preventDefault();

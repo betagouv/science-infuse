@@ -1,5 +1,5 @@
 import { WEBAPP_URL } from "@/config";
-import { Chapter, EducationLevel, Skill, Theme, User, Document } from "@prisma/client";
+import { Chapter, EducationLevel, Skill, Theme, User, Document, DocumentTag } from "@prisma/client";
 import { JSONContent } from "@tiptap/core";
 
 //  this should match schema.py
@@ -9,6 +9,7 @@ export const MediaTypes = {
   RawImage: "raw_image",
   PdfText: "pdf_text",
   VideoTranscript: "video_transcript",
+  Website: "website",
   WebsiteQa: "website_qa",
   WebsiteExperience: "website_experience",
 } as const;
@@ -63,6 +64,10 @@ export interface WebsiteQAMetadata {
   url: string;
 }
 
+export interface WebsiteMetadata {
+  url: string;
+}
+
 export interface WebsiteExperienceMetadata {
   description: string;
   title: string;
@@ -79,6 +84,7 @@ export type MetadataType<T extends MediaType> =
   T extends "pdf_text" ? PdfTextMetadata :
   T extends "video_transcript" ? VideoTranscriptMetadata :
   T extends "website_qa" ? WebsiteQAMetadata :
+  T extends "website" ? WebsiteMetadata :
   T extends "website_experience" ? WebsiteExperienceMetadata :
   never;
 
@@ -88,9 +94,10 @@ export type ImageChunk = BaseDocumentChunk<"image">;
 export type RawImageChunk = BaseDocumentChunk<"raw_image">;
 export type PdfTextChunk = BaseDocumentChunk<"pdf_text">;
 export type WebsiteQAChunk = BaseDocumentChunk<"website_qa">;
+export type WebsiteChunk = BaseDocumentChunk<"website">;
 export type WebsiteExperienceChunk = BaseDocumentChunk<"website_experience">;
 
-export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk | PdfTextChunk | WebsiteQAChunk;
+export type DocumentChunk = VideoTranscriptChunk | PdfImageChunk | RawImageChunk | PdfTextChunk | WebsiteQAChunk | WebsiteChunk;
 
 export interface ChunkWithScore<T extends MediaType> extends BaseDocumentChunk<T> {
   score: number;
@@ -111,6 +118,7 @@ export type ChunkWithScoreUnion =
   | (ChunkWithScore<"pdf_text"> & { mediaType: "pdf_text" })
   | (ChunkWithScore<"video_transcript"> & { mediaType: "video_transcript" })
   | (ChunkWithScore<"website_qa"> & { mediaType: "website_qa" })
+  | (ChunkWithScore<"website"> & { mediaType: "website" })
   | (ChunkWithScore<"website_experience"> & { mediaType: "website_experience" })
 
 
@@ -124,7 +132,11 @@ export type ChunkWithScoreUnion =
 //   user_disapproved?: boolean;
 //   mediaName: string;
 // }
-export interface DocumentWithChunks extends Document {
+
+interface DocumentFull extends Document {
+  tags: DocumentTag[]
+}
+export interface DocumentWithChunks extends DocumentFull {
   chunks: DocumentChunk[];
 }
 
@@ -197,6 +209,10 @@ export function isVideoTranscriptChunk(chunk: ChunkWithScoreUnion): chunk is Chu
 
 export function isWebsiteQAChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_qa"> {
   return chunk.mediaType === "website_qa";
+}
+
+export function isWebsiteChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website"> {
+  return chunk.mediaType === "website";
 }
 
 export function isWebsiteExperienceChunk(chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"website_experience"> {

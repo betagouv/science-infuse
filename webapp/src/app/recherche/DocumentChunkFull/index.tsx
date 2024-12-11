@@ -6,7 +6,7 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
@@ -219,9 +219,6 @@ export const BaseCard: React.FC<OnInserted & BaseCardProps> = ({ onInserted, end
 
 export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; chunk: ChunkWithScore<"pdf_text"> }> = ({ onInserted, searchWords, chunk }) => {
     const path = chunk.title.toLowerCase().split('>');
-    if (!chunk.metadata) {
-        console.log("CHUNKKK", chunk)
-    }
     return (
 
         <Card
@@ -260,6 +257,54 @@ export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; c
             }}
             size="medium"
             title={`${chunk.document.mediaName} - page ${chunk.metadata?.pageNumber}`}
+            titleAs="h3"
+        />
+    )
+};
+
+export const RenderWebsiteChunk: React.FC<OnInserted & { searchWords: string[]; chunk: ChunkWithScore<"website"> }> = ({ onInserted, searchWords, chunk }) => {
+    let textHash = ``
+    const txt = chunk.text.slice(chunk.title.length, chunk.text.length);
+    // textHash += encodeURIComponent(chunk.title)
+    // textHash += `-,`
+    textHash += encodeURIComponent(txt.split(' ').slice(0, 5).join(' ').trim())
+    return (
+
+        <Card
+            background
+            border
+            className="text-left"
+
+            end={
+                <BuildCardEnd
+                    onInserted={onInserted}
+                    chunk={chunk}
+                    end={
+                        <div className="flex">
+                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.url}`} target="_blank">source</a>
+                        </div>
+                    }
+                    starred={!!chunk?.user_starred}
+                    downloadLink={chunk.document.originalPath.includes('RevueDecouverte') ? undefined : `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
+                />
+            }
+            desc={
+                < div className="relative" >
+                    <Highlighter
+                        highlightClassName="highlightSearch"
+                        searchWords={searchWords}
+                        autoEscape={false}
+                        textToHighlight={chunk.text}
+                        findChunks={findNormalizedChunks}
+                    />
+                </div >
+            }
+            linkProps={{
+                href: `${chunk.metadata.url}#:~:text=${textHash}`,
+                target: "_blank",
+            }}
+            size="medium"
+            title={chunk.title}
             titleAs="h3"
         />
     )
@@ -674,6 +719,7 @@ export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onIns
     if (isPdfTextChunk(chunk)) return <RenderPdfTextCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     if (isWebsiteQAChunk(chunk)) return <RenderWebsiteQAChunk onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
+    if (isWebsiteChunk(chunk)) return <RenderWebsiteChunk onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     if (isWebsiteExperienceChunk(chunk)) return <RenderWebsiteExperienceChunk onInserted={onInserted} chunk={chunk} searchWords={searchWords} />;
     return null;
 };
