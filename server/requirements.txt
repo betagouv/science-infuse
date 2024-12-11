@@ -56,3 +56,4 @@ psycopg2-binary==2.9.9
 selenium==4.27.1
 webdriver-manager==4.0.2
 sentence-transformers==3.0.1
+aiofiles==24.1.0
