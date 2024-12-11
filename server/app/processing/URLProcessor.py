@@ -46,10 +46,7 @@ class URLProcessor(BaseDocumentProcessor):
             print(f"An error occurred: {e}")
             return None
 
-    def get_page_title(self, html: str):
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(html, 'html.parser')
-        
+    def get_page_title(self, soup):        
         # Try to get h1 first, if not found get title
         h1_tag = soup.find('h1')
         if h1_tag:
@@ -135,11 +132,11 @@ class URLProcessor(BaseDocumentProcessor):
         chunks = []
 
         html = self.extract_html_from_url(self.url)
-        page_title = self.get_page_title(html)
 
-        mediaName = page_title or self.url
 
         soup = self.clean_html_content(html)
+        page_title = self.get_page_title(soup)
+        mediaName = page_title or self.url
         
         sections = self.extract_sections_by_titles(soup)
         

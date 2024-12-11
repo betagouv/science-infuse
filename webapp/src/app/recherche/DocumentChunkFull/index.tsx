@@ -322,21 +322,17 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
             border
             imageAlt={chunk.text}
             imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-            end={<>
-                {chunk.score}
-
-                <BuildCardEnd
-                    onInserted={onInserted}
-                    chunk={chunk}
-                    end={
-                        <div className="flex">
-                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
-                        </div>
-                    }
-                    starred={!!chunk?.user_starred}
-                    downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-                />
-            </>}
+            end={<BuildCardEnd
+                onInserted={onInserted}
+                chunk={chunk}
+                end={
+                    <div className="flex">
+                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
+                    </div>
+                }
+                starred={!!chunk?.user_starred}
+                downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            />}
             size="medium"
             title=""
             titleAs="h3"
@@ -356,15 +352,12 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
             border
             imageAlt={chunk.text}
             imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-            end={<>
-                {chunk.score}
-                <BuildCardEnd
-                    onInserted={onInserted}
-                    chunk={chunk}
-                    starred={!!chunk?.user_starred}
-                    downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
-                />
-            </>}
+            end={<BuildCardEnd
+                onInserted={onInserted}
+                chunk={chunk}
+                starred={!!chunk?.user_starred}
+                downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            />}
             size="medium"
             title=""
             titleAs="h3"
