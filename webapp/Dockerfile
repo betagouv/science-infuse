@@ -39,8 +39,11 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
     && apt-get install -y google-chrome-stable
 
 # Install ChromeDriver
-RUN CHROMEDRIVER_VERSION=131.0.6778.85 \
-    && wget -q https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip \
+RUN CHROME_MAJOR_VERSION=$(google-chrome --version | cut -d ' ' -f 3 | cut -d '.' -f 1) \
+    && LATEST_STABLE_CHROMEDRIVER=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE) \
+    && echo "Chrome version: $CHROME_MAJOR_VERSION" \
+    && echo "Latest stable ChromeDriver: $LATEST_STABLE_CHROMEDRIVER" \
+    && wget -q https://chromedriver.storage.googleapis.com/${LATEST_STABLE_CHROMEDRIVER}/chromedriver_linux64.zip \
     && unzip chromedriver_linux64.zip \
     && mv chromedriver /usr/local/bin/chromedriver \
     && chmod +x /usr/local/bin/chromedriver \
