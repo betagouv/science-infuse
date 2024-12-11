@@ -56,6 +56,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
           }).then(response => response.data),
           [Error]
         )
+        break;
       case "image/jpeg":
       case "image/png":
         [processingError, processingResponse] = await catchErrorTyped(
