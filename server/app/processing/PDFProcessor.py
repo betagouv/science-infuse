@@ -172,7 +172,28 @@ class PDFProcessor(BaseDocumentProcessor):
                         if pil_image.mode != "RGB":
                             pil_image = pil_image.convert("RGB")
                         
-                        x0, y0, x1, y1 = page.get_image_bbox(item[7])
+                        # Get transformation matrix and bounding box
+
+                        # Fix issues where extracted images are mirrored.
+                        # Check for mirroring and rotation using the matrix
+                        bbox, transform = page.get_image_bbox(item, transform=True)
+                        # See : https://github.com/pymupdf/PyMuPDF/issues/385
+                        if min(transform.a, transform.d) < 0:
+                            if transform.a < 0:  # Horizontal flip
+                                pil_image = pil_image.transpose(Image.FLIP_LEFT_RIGHT)
+                            if transform.d < 0:  # Vertical flip
+                                pil_image = pil_image.transpose(Image.FLIP_TOP_BOTTOM)
+
+                        # Apply rotation based on matrix
+                        if transform.a != transform.d:
+                            if transform.a < 0 and transform.d < 0:
+                                pil_image = pil_image.rotate(180)
+                            elif transform.a == 0 and transform.d > 0:
+                                pil_image = pil_image.rotate(90)
+                            elif transform.a > 0 and transform.d == 0:
+                                pil_image = pil_image.rotate(-90)
+                        
+                        x0, y0, x1, y1 = bbox
                         width = x1 - x0
                         height = y1 - y0
                         if (self.keep_image_based_on_size(width, height) and not self.is_single_color(pil_image)):
