@@ -176,7 +176,7 @@ class PDFProcessor(BaseDocumentProcessor):
 
                         # Fix issues where extracted images are mirrored.
                         # Check for mirroring and rotation using the matrix
-                        bbox, transform = page.get_image_bbox(item, transform=True)
+                        bbox, transform = page.get_image_bbox(item[7], transform=True)
                         # See : https://github.com/pymupdf/PyMuPDF/issues/385
                         if min(transform.a, transform.d) < 0:
                             if transform.a < 0:  # Horizontal flip
