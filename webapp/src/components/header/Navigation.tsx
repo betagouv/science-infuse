@@ -41,9 +41,8 @@ const StyledMainNavigation = styled(MainNavigation)`
 const NavBarSearch = () => {
 	const pathname = usePathname()
     const { data: session } = useSession();
-    const user = session?.user;
 
-	if (user && pathname === "/") {
+	if (pathname === "/") {
 		return null
 	}
 

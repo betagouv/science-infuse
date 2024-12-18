@@ -71,12 +71,11 @@ export default () => {
     useOnClickOutside(accordionRef, () => setExpanded(false))
 
     if (!user) {
-        if (pathName != '/')
-            return <Button linkProps={{ href: '/' }}>
-                Connexion
-            </Button>
+        if (pathName == '/connexion') return "";
+        return <Button className="!min-w-[11rem] !p-2 flex items-center !justify-center" priority="secondary" size="large" linkProps={{ href: '/connexion' }}>
+            Me connecter
+        </Button>
 
-        return "";
     }
 
 
