@@ -76,7 +76,6 @@ const createInteractiveVideo = async (input: InteractiveVideoData) => {
                                             "disableImageZooming": false
                                         },
                                         "answers": question.questions[0].answers.map(answer => ({
-
                                             "correct": answer.correct,
                                             "tipsAndFeedback": {
                                                 "tip": "",
@@ -149,7 +148,7 @@ const createInteractiveVideo = async (input: InteractiveVideoData) => {
                                         "extraTitle": question.questions[0].question
                                     }
                                 },
-                                "pause": false,
+                                "pause": true,
                                 "displayType": "button",
                                 "buttonOnMobile": false,
                                 "adaptivity": {
