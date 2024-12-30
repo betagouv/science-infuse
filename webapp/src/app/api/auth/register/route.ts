@@ -9,7 +9,7 @@ import { userFullFields } from "../../accessControl";
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password, firstName, lastName, job, school, academyId, schoolSubjects, educationLevels, otherSchoolSubject }: Partial<User & UserFull> = body;
+    const { email, password, firstName, lastName, job, school, academyId, schoolSubjects, educationLevels, otherSchoolSubject, acceptMail }: Partial<User & UserFull> = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: "Vous devez fournir un email et un mot de passe." }, { status: 400 })
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     if (firstName) userData.firstName = firstName;
     if (lastName) userData.lastName = lastName;
     if (job) userData.job = job;
+    if (acceptMail !== undefined) userData.acceptMail = acceptMail;
     if (academyId) userData.academyId = academyId;
     if (schoolSubjects) {
       userData.schoolSubjects = {

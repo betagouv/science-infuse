@@ -28,6 +28,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const [job, setJob] = useState("");
     const [otherSchoolSubject, setOtherSchoolSubject] = useState("");
     const [acceptCGU, setAcceptCGU] = useState(false);
+    const [acceptMail, setAcceptMail] = useState(false);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -70,6 +71,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     firstName,
                     lastName,
                     school,
+                    acceptMail,
                     academyId: academy,
                     schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)),
                     otherSchoolSubject,
@@ -230,6 +232,24 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                                 name: 'checkboxes-1',
                                 value: 'value3',
                                 onChange: (e) => setAcceptCGU(e.target.checked),
+                                checked: acceptCGU,
+                                required: true,
+                            }
+                        }
+                    ]}
+                    state="default"
+                />
+
+                <Checkbox
+                    className='mt-0'
+                    options={[
+                        {
+                            label: <p className='m-0 ml-2'>Je souhaite recevoir des informations sur les nouvelles fonctionnalités et contenus de Science Infuse. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr" target="_blank">science-infuse@universcience.fr</a></p>,
+                            nativeInputProps: {
+                                name: 'checkboxes-1',
+                                value: 'value3',
+                                onChange: (e) => setAcceptMail(e.target.checked),
+                                checked: acceptMail,
                                 required: true,
                             }
                         }

@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { CircularProgress } from "@mui/material";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SearchResults, ChunkWithScore, GroupedVideo, MediaType } from "@/types/vectordb";
 import { getSearchWords } from "./text-highlighter";
 import { fetchSIContent } from "./fetchSIContent";
@@ -18,13 +18,22 @@ import { BlockResults, ChunkResults, GroupedVideoChunkResults, RenderSearchResul
 const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get('query') || "";
+  const urlTabType = searchParams.get('tab') || "";
   const searchWords = getSearchWords(query);
+  const { push } = useRouter();
 
   const { data: results, isLoading, isError } = useQuery({
     queryKey: [query, undefined, 1000] as const,
     queryFn: fetchSIContent,
     enabled: !!query,
   });
+
+  useEffect(() => {
+    if (!urlTabType) return;
+    setTimeout(() => {
+      selectedTabType.value = urlTabType as TabType;
+    }, 1)
+  }, [urlTabType])
 
   const resultPerPage = 10
 
@@ -41,7 +50,13 @@ const Search: React.FC = () => {
             blocks={(results as SearchResults)?.blocks || []}
             chunks={(results as SearchResults)?.chunks || []}
             selectedTabType={selectedTabType.value}
-            onTabChange={(newTab) => selectedTabType.value = newTab}
+            onTabChange={(newTab) => {
+              console.log("TABTYPEEE", newTab)
+              const url = new URL(window.location.href);
+              url.searchParams.set('tab', newTab);
+              push(url.toString());
+              selectedTabType.value = newTab;
+            }}
           />
           {isLoading && <LoadingIndicator />}
           {isError && <ErrorMessage />}
@@ -61,6 +76,7 @@ const Search: React.FC = () => {
     </div>
   );
 };
+
 const SearchHeader: React.FC<{ query: string }> = ({ query }) => (
   <div className="flex flex-col items-center text-center px-4 sm:px-0">
     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession, User } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/authOptions';
-import { userFullFields, userIs, withAccessControl } from '../accessControl';
-import { UserRoles } from '@prisma/client';
+import { User } from 'next-auth';
+import { userFullFields, withAccessControl } from '../accessControl';
 import { UserFullWithChapterCount } from '@/types/api';
 
 

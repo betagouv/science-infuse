@@ -16,6 +16,7 @@ export const userFullFields = {
     roles: true,
     school: true,
     lastName: true,
+    acceptMail: true,
     // emailVerified: true,
     creationDate: true,
     image: true,
