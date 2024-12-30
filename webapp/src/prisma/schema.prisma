@@ -246,6 +246,7 @@ model User {
   resetTokenExpiry   DateTime?
   academyId          String?
   creationDate       DateTime               @default(now())
+  acceptMail         Boolean?
   Account            Account[]
   activities         Activity[]
   blocks             Block[]

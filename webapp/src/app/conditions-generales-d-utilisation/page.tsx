@@ -18,6 +18,7 @@ const CGU = () => {
                     <h3>2.1 Inscription</h3>
                     <p>Pour accéder aux services de la plateforme, les enseignants doivent fournir les informations personnelles suivantes : prénom, nom, courriel professionnel, mot de passe, académie de rattachement, nom de l’établissement scolaire, niveaux enseignés pour l’année en cours, et la matière enseignée.</p>
                     <p>La collecte de ces données est nécessaire à la création et à la gestion de votre compte utilisateur, ainsi qu'à l'accès aux fonctionnalités de la plateforme. Pour plus d'informations sur les données collectées et les finalités de traitement, veuillez consulter notre <a href="https://science-infuse.beta.gouv.fr/politique-de-confidentialite">Politique de Confidentialité</a>.</p>
+                    <p>En cochant la case dédiée lors de l’inscription, vous acceptez de recevoir des informations sur les nouvelles fonctionnalités et contenus de Science Infuse. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr">science-infuse@universcience.fr</a></p>
                     <h3>2.2 Authentification</h3>
                     <p>L’accès aux fonctionnalités de la plateforme, telles que le moteur de recherche ou le module de création de cours, nécessite une authentification de l’utilisateur en renseignant son adresse électronique et un mot de passe.</p>
                     <h3>2.3 Conservation des données des utilisateurs</h3>

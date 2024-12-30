@@ -2,6 +2,7 @@ import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, MediaType, Media
 import { Tabs } from "@codegouvfr/react-dsfr/Tabs";
 import styled from "@emotion/styled";
 import { signal } from "@preact/signals-react";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 // Define an enum for tab types
@@ -27,13 +28,13 @@ export const TabMediaTypeMap: Record<TabType, MediaType[]> = {
 }
 
 export const ColumnsMediaTypeMap: Record<TabType, (isMobile: boolean) => number> = {
-  [TabType.Favourites]: (isMobile: boolean) => isMobile ? 1:2,
-  [TabType.Chapters]: (isMobile: boolean) => isMobile ? 1:2,
-  [TabType.Documents]: (isMobile: boolean) => isMobile ? 1:2,
-  [TabType.Pictures]: (isMobile: boolean) => isMobile ? 1:4,
-  [TabType.Videos]: (isMobile: boolean) => isMobile ? 1:3,
-  [TabType.Games]: (isMobile: boolean) => isMobile ? 1:2,
-  [TabType.Others]: (isMobile: boolean) => isMobile ? 1:2,
+  [TabType.Favourites]: (isMobile: boolean) => isMobile ? 1 : 2,
+  [TabType.Chapters]: (isMobile: boolean) => isMobile ? 1 : 2,
+  [TabType.Documents]: (isMobile: boolean) => isMobile ? 1 : 2,
+  [TabType.Pictures]: (isMobile: boolean) => isMobile ? 1 : 4,
+  [TabType.Videos]: (isMobile: boolean) => isMobile ? 1 : 3,
+  [TabType.Games]: (isMobile: boolean) => isMobile ? 1 : 2,
+  [TabType.Others]: (isMobile: boolean) => isMobile ? 1 : 2,
 }
 
 // Define an interface for tab items
@@ -80,11 +81,14 @@ const StyledTabs = styled.div`
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
 const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void }) => {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const getCount = (chunks: ChunkWithScoreUnion[], mediaTypes: MediaType[], favourites?: boolean) => chunks.filter(c => (mediaTypes.includes(c.mediaType) && (favourites ? c.user_starred : true))).length;
   const getVideoCount = (chunks: ChunkWithScoreUnion[]) => new Set(chunks.filter(c => c.mediaType == "video_transcript").map(c => c.document.id)).size
 
   const tabs: TabItem[] = [
-    ...(props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
+    ...(user && props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
     { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
     { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
     { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
@@ -99,7 +103,6 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
         selectedTabId={props.selectedTabType}
         tabs={tabs}
         onTabChange={(tabId) => props.onTabChange(tabId as TabType)}
-      // onTabChange={(tabId) => selectedTabType.value = tabId as TabType}
       >
         <></>
       </Tabs>

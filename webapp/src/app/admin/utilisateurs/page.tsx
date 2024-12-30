@@ -45,6 +45,7 @@ const AdminListUsers = () => {
         { flex: 1, field: 'firstName', headerName: 'Prénom', minWidth: 130, editable: true },
         { flex: 1, field: 'lastName', headerName: 'Nom', minWidth: 150, editable: true },
         { flex: 1, field: 'email', headerName: 'Email', minWidth: 250, editable: false },
+        { flex: 1, field: 'acceptMail', headerName: 'Mailing', minWidth: 25, editable: true },
         { flex: 1, field: 'chapterCount', type: 'number', headerName: 'Chapitres', minWidth: 130, editable: false },
         { flex: 1, field: 'job', headerName: 'Métier', minWidth: 200, editable: true },
         { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
