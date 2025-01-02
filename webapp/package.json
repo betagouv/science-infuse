@@ -90,6 +90,7 @@
     "react-dropzone": "^14.2.3",
     "react-highlight-words": "^0.20.0",
     "react-hot-toast": "^2.4.1",
+    "react-intersection-observer": "^9.14.1",
     "react-link-parser": "^1.1.6",
     "react-linkify": "^1.0.0-alpha",
     "react-pdf": "^9.1.0",

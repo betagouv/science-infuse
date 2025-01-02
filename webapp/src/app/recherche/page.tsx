@@ -12,6 +12,7 @@ import Tabs, { selectedTabType, TabMediaTypeMap, TabType } from "./Tabs";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import { BlockResults, ChunkResults, GroupedVideoChunkResults, RenderSearchResult } from "./RenderSearch";
+import { useSession } from "next-auth/react";
 
 
 
@@ -21,6 +22,8 @@ const Search: React.FC = () => {
   const urlTabType = searchParams.get('tab') || "";
   const searchWords = getSearchWords(query);
   const { push } = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const { data: results, isLoading, isError } = useQuery({
     queryKey: [query, undefined, 1000] as const,
@@ -32,8 +35,8 @@ const Search: React.FC = () => {
     if (!urlTabType) return;
     setTimeout(() => {
       selectedTabType.value = urlTabType as TabType;
-    }, 1)
-  }, [urlTabType])
+    }, 1000)
+  }, [urlTabType, user])
 
   const resultPerPage = 10
 

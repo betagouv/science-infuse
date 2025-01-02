@@ -15,7 +15,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
         self.s3 = s3
         self.use_oauth = use_oauth
         super().__init__()
-        
+
     def download_youtube_video(self):
         output_path = os.path.join(self.base_download_folder, 'youtube')
         os.makedirs(output_path, exist_ok=True)
@@ -38,7 +38,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
         # save video to s3
         self.whisper.set_paragraph_pause_threshold(self.paragraph_pause_threshold)
         segments = self.whisper.get_paragraphs_from_audio_path(video_path)
-        
+
         self.save_to_s3(self.s3, video_path, video_s3ObjectName)
         # print("EXTRACT DOCUMNET YOUTUBE video_s3ObjectName 2", video_s3ObjectName)
 

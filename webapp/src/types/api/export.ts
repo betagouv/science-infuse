@@ -1,3 +1,4 @@
+import { InteractiveVideoData } from "@/app/api/export/h5p/contents/interactiveVideo";
 import { Question } from "../course-editor";
 
 export type ExportH5PQuestionRequest = {
@@ -7,9 +8,7 @@ export type ExportH5PQuestionRequest = {
 
 export type ExportH5PInteractiveVideoRequest = {
     type: "interactive-video";
-    data: {
-        documentId: string
-    };
+    data: InteractiveVideoData
 };
 
 export type ExportH5PGenericRequest = {

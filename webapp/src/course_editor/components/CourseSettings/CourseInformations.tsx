@@ -448,7 +448,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                                             chunk={chunk}
                                                             end={
                                                                 <div className="flex">
-                                                                    <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
+                                                                    <a className="m-0" href={`/media/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
                                                                 </div>
                                                             }
                                                             starred={!!chunk?.user_starred}

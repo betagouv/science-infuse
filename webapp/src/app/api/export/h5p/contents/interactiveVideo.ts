@@ -1,3 +1,5 @@
+"use server";
+
 import prisma from "@/lib/prisma";
 import { PrismaClient } from "@prisma/client";
 
@@ -21,32 +23,32 @@ const callGroq = async (text: string, model: string = "llama-3.3-70b-versatile")
     return chatCompletion.choices[0].message.content;
 }
 
-interface Answer {
+export interface InteractiveVideoAnswer {
     answer: string;
     correct: boolean;
 }
 
-interface Question {
+export interface InteractiveVideoQuestion {
     question: string;
-    answers: Answer[];
+    answers: InteractiveVideoAnswer[];
 }
 
-interface QuestionGroup {
+export interface InteractiveVideoQuestionGroup {
     timestamp: number;
-    questions: Question[];
+    questions: InteractiveVideoQuestion[];
 }
 
 export interface InteractiveVideoData {
     videoPublicUrl: string,
     videoTitle: string,
-    questions: QuestionGroup[]
+    questions: InteractiveVideoQuestionGroup[]
 }
 
-const parseQuestions = (input: string): QuestionGroup[] => {
+const parseQuestions = (input: string): InteractiveVideoQuestionGroup[] => {
     const lines = input.split('\n').filter(line => line.trim());
-    const groupedQuestions = new Map<number, Question[]>();
+    const groupedQuestions = new Map<number, InteractiveVideoQuestion[]>();
 
-    let currentQuestion: Question | null = null;
+    let currentQuestion: InteractiveVideoQuestion | null = null;
 
     lines.forEach(line => {
         const timestampMatch = line.match(/^(?:\d+\) )?timestamp \[(\d+); (\d+)\] => (.+)$/);
@@ -111,8 +113,10 @@ D) X Réponse D
 Mets un astérix (*) devant les réponses correctes et un X devant les réponses fausses.
 Fait bien attention de ne mettre que **un seul** timestamp (timestamp [start; end]) par question.
 Les questions et les réponses sont courtes.
-Les questions doivent se baser uniquement sur le contenu de la vidéo. N'essaie pas d'inventer, base toi uniquement sur les informations contenues dans la transcription. Si un paragraphe ne contient pas d'information importante, ne produit pas de question.
-Tu peux faire un QCU basé sur plusieurs paragraphes. Dans ce cas la indique le dernier paragraphe.
+Les questions doivent se baser uniquement sur le contenu de la vidéo.
+N'essaie pas d'inventer, base-toi uniquement sur les informations scientifiques contenues dans la transcription.
+Les noms de personnes ne sont pas importants, le but est que l'élève apprenne une notion spécifique. Ignore les informations futiles.
+Si un paragraphe ne contient pas d'information importante, ne produis pas de question.Tu peux faire un QCU basé sur plusieurs paragraphes. Dans ce cas la indique le dernier paragraphe.
 Fais bien attention à répondre en français, sans fautes d'orthographe.
 
 Transcription de la vidéo:
