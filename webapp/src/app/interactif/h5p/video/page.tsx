@@ -31,10 +31,14 @@ interface ContentDumpProps {
 function H5pEditor() {
   const [state, setState] = React.useState(initialState);
   const h5pEditor: React.RefObject<H5PEditorUI> = React.createRef();
-  const contentService = new ContentService('http://localhost:8006/h5p')
+  const contentService = new ContentService('http://localhost:8020/h5p')
   return (
     <div className="App">
-      <H5PEditorUI
+      <H5PPlayerUI
+        contentId="1016044042"
+        loadContentCallback={contentService.getPlay}
+      />
+      {/* <H5PEditorUI
         contentId="new"
         ref={h5pEditor}
         loadContentCallback={contentService.getEdit}
@@ -42,7 +46,7 @@ function H5pEditor() {
         onSaved={(contentId: string, metadata: any) => {
           console.log(contentId);
         }}
-      />
+      /> */}
     </div>
   );
 }

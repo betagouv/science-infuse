@@ -68,7 +68,7 @@ export class ContentService implements IContentService {
             throw new Error(`${res.status} ${res.statusText}`);
         }
         const text = await res.text();
-        const content = JSON.parse(text.replaceAll(`"/`, `"http://localhost:8006/`));
+        const content = JSON.parse(text.replaceAll(`"/`, `"http://localhost:8020/`));
         console.log(content);
         return content;
     };

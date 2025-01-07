@@ -1,8 +1,8 @@
 import { createH5P } from "."
 import { InteractiveVideoData } from "../contents/interactiveVideo"
+import { v4 as uuidv4 } from 'uuid';
 
 export default async (input: InteractiveVideoData) => {
-
     const data = {
         "library": "H5P.InteractiveVideo 1.27",
         "params": {
@@ -10,7 +10,7 @@ export default async (input: InteractiveVideoData) => {
                 "interactiveVideo": {
                     "video": {
                         "startScreenOptions": {
-                            "title": input.videoTitle,
+                            "title": "Ma Vidéo interactive",
                             "hideStartTitle": false
                         },
                         "textTracks": {},
@@ -26,172 +26,149 @@ export default async (input: InteractiveVideoData) => {
                         ]
                     },
                     "assets": {
-                        "interactions": input.questions.flatMap(q => q).map(question => {
-                            // ------------
-                            return {
-                                "x": 46.899608660939826,
-                                "y": 46.52921162067061,
-                                "width": 10,
-                                "height": 10,
-                                "duration": {
-                                    "from": question.timestamp,
-                                    "to": question.timestamp + 5
-                                },
-                                "libraryTitle": "Choix multiple (Multiple Choice)",
-                                "action": {
-                                    "library": "H5P.MultiChoice 1.16",
-                                    "params": {
-                                        "media": {
-                                            "type": {
-                                                "params": {}
-                                            },
-                                            "disableImageZooming": false
+                        "interactions": [
+                            ...input.definitions.map((groupedDefinitions) => {
+                                const { timestamp, definitions } = groupedDefinitions;
+                                return definitions.map((definition, i) => ({
+                                    "x": 5.453442867551143,
+                                    "y": 7.756086588950678 + i * 10,
+                                    "width": 10,
+                                    "height": 10,
+                                    "duration": {
+                                        "from": timestamp+2,
+                                        "to": timestamp+2 + 5
+                                    },
+                                    "libraryTitle": "Texte",
+                                    "action": {
+                                        "library": "H5P.Text 1.1",
+                                        "params": {
+                                            "text": `<p>${definition.definition}</p>\n`
                                         },
-                                        "answers": question.questions[0].answers.map(answer => ({
-                                            "correct": answer.correct,
-                                            "tipsAndFeedback": {
-                                                "tip": "",
-                                                "chosenFeedback": "",
-                                                "notChosenFeedback": ""
-                                            },
-                                            "text": `<div>${answer.answer}</div>\n`
+                                        "subContentId": "5ad83f7a-9ac7-4f3e-8716-10c561c5ba55",
+                                        "metadata": {
+                                            "contentType": "Texte",
+                                            "license": "U",
+                                            "title": "Sans titre Texte",
+                                            "authors": [],
+                                            "changes": []
+                                        }
+                                    },
+                                    "pause": false,
+                                    "displayType": "button",
+                                    "buttonOnMobile": false,
+                                    "visuals": {
+                                        "backgroundColor": "rgb(255, 255, 255)",
+                                        "boxShadow": true
+                                    },
+                                    "goto": {
+                                        "url": {
+                                            "protocol": "http://"
+                                        },
+                                        "visualize": false,
+                                        "type": ""
+                                    },
+                                    "label": `<p>${definition.notion}</p>\n`
+                                }))
 
-                                        })),
-                                        "overallFeedback": [
-                                            {
-                                                "from": 0,
-                                                "to": 100
+                            }).flatMap(d => d),
+
+                            ...input.questions.map(groupedQuestions => {
+                                const { timestamp, questions } = groupedQuestions;
+                                return {
+                                    "x": 17.451017176163656,
+                                    "y": 17.451194825139027,
+                                    "width": 22.14437793702515,
+                                    "height": 16.44819753104577,
+                                    "duration": {
+                                        "from": timestamp,
+                                        "to": timestamp + 5
+                                    },
+                                    "libraryTitle": "Ensemble (Single Choice Set)",
+                                    "action": {
+                                        "library": "H5P.SingleChoiceSet 1.11",
+                                        "params": {
+                                            "choices": [
+                                                ...questions.map((question) => {
+                                                    console.log("question", question)
+                                                    return {
+                                                        "subContentId": uuidv4(),
+                                                        "question": `<p>${question.question}</p>\n`,
+                                                        "answers": question.answers
+                                                            .sort((a, b) => Number(b.correct) - Number(a.correct))
+                                                            .map(answer => `<p>${answer.answer}</p>`)
+                                                    };
+                                                }),
+                                            ],
+                                            "overallFeedback": [
+                                                {
+                                                    "from": 0,
+                                                    "to": 100
+                                                }
+                                            ],
+                                            "behaviour": {
+                                                "autoContinue": true,
+                                                "timeoutCorrect": 2000,
+                                                "timeoutWrong": 3000,
+                                                "soundEffectsEnabled": true,
+                                                "enableRetry": true,
+                                                "enableSolutionsButton": true,
+                                                "passPercentage": 100
+                                            },
+                                            "l10n": {
+                                                "nextButtonLabel": "Question suivante",
+                                                "showSolutionButtonLabel": "Voir la solution",
+                                                "retryButtonLabel": "Correction",
+                                                "solutionViewTitle": "Recommencer",
+                                                "correctText": "Correct !",
+                                                "incorrectText": "Incorrect !",
+                                                "shouldSelect": "Should have been selected",
+                                                "shouldNotSelect": "Should not have been selected",
+                                                "muteButtonLabel": "Couper les retours sons",
+                                                "closeButtonLabel": "Fermer",
+                                                "slideOfTotal": "Diapositive :num sur :total",
+                                                "scoreBarLabel": "Vous avez :num points sur un total de :total",
+                                                "solutionListQuestionNumber": "Question :num",
+                                                "a11yShowSolution": "Show the solution. The task will be marked with its correct solution.",
+                                                "a11yRetry": "Retry the task. Reset all responses and start the task over again."
                                             }
-                                        ],
-                                        "behaviour": {
-                                            "enableRetry": true,
-                                            "enableSolutionsButton": true,
-                                            "enableCheckButton": true,
-                                            "type": "auto",
-                                            "singlePoint": false,
-                                            "randomAnswers": true,
-                                            "showSolutionsRequiresInput": true,
-                                            "confirmCheckDialog": false,
-                                            "confirmRetryDialog": false,
-                                            "autoCheck": false,
-                                            "passPercentage": 100,
-                                            "showScorePoints": true
                                         },
-                                        "UI": {
-                                            "checkAnswerButton": "Vérifier",
-                                            "submitAnswerButton": "Envoyer",
-                                            "showSolutionButton": "Afficher la solution",
-                                            "tryAgainButton": "Recommencer",
-                                            "tipsLabel": "Afficher les indices",
-                                            "scoreBarLabel": "You got :num out of :total points",
-                                            "tipAvailable": "Indice disponible",
-                                            "feedbackAvailable": "Retour disponible",
-                                            "readFeedback": "Lire le commentaire",
-                                            "wrongAnswer": "Mauvaise réponse",
-                                            "correctAnswer": "Bonne réponse",
-                                            "shouldCheck": "Il fallait cocher ici",
-                                            "shouldNotCheck": "Il ne fallait pas cocher ici !",
-                                            "noInput": "Veuillez répondre avant de consulter la solution",
-                                            "a11yCheck": "Vérifiez les réponses. Les réponses seront marquées comme correctes, incorrectes ou sans réponse.",
-                                            "a11yShowSolution": "Montrez la solution. La tâche sera marquée avec sa solution correcte.",
-                                            "a11yRetry": "Réessayer la tâche. Réinitialiser toutes les réponses et recommencer la tâche."
-                                        },
-                                        "confirmCheck": {
-                                            "header": "Terminer ?",
-                                            "body": "Êtes-vous certain de vouloir terminer ?",
-                                            "cancelLabel": "Annuler",
-                                            "confirmLabel": "Terminer"
-                                        },
-                                        "confirmRetry": {
-                                            "header": "Recommencer ?",
-                                            "body": "Êtes-vous certain de vouloir recommencer ?",
-                                            "cancelLabel": "Annuler",
-                                            "confirmLabel": "Confirmer"
-                                        },
-                                        "question": `<p>${question.questions[0].question}</p>\n`
+                                        "subContentId": "3975ebbf-baeb-4f14-acd9-d04a3b3d2824",
+                                        "metadata": {
+                                            "contentType": "Ensemble (Single Choice Set)",
+                                            "license": "U",
+                                            "title": "Sans titre Ensemble (Single Choice Set)",
+                                            "authors": [],
+                                            "changes": [],
+                                            "extraTitle": "Sans titre Ensemble (Single Choice Set)"
+                                        }
                                     },
-                                    "subContentId": "31d8a6d7-b826-4760-b892-5ae10c28f6f0",
-                                    "metadata": {
-                                        "contentType": "Choix multiple (Multiple Choice)",
-                                        "license": "U",
-                                        "title": question.questions[0].question,
-                                        "authors": [],
-                                        "changes": [],
-                                        "extraTitle": question.questions[0].question
-                                    }
-                                },
-                                "pause": true,
-                                "displayType": "button",
-                                "buttonOnMobile": false,
-                                "adaptivity": {
-                                    "correct": {
-                                        "allowOptOut": false,
-                                        "message": ""
+                                    "pause": true,
+                                    "displayType": "poster",
+                                    "buttonOnMobile": false,
+                                    "adaptivity": {
+                                        "correct": {
+                                            "allowOptOut": false,
+                                            "message": ""
+                                        },
+                                        "wrong": {
+                                            "allowOptOut": false,
+                                            "message": ""
+                                        },
+                                        "requireCompletion": false
                                     },
-                                    "wrong": {
-                                        "allowOptOut": false,
-                                        "message": ""
-                                    },
-                                    "requireCompletion": false
-                                },
-                                "label": ""
-                            }
-                            // ------------
-                        }),
+                                    "label": ""
+                                }
 
-
+                            }),
+                        ],
                         "bookmarks": [],
-                        // "endscreens": [
-                        //     {
-                        //         "time": 393,
-                        //         "label": "6:33 Écran de soumission"
-                        //     }
-                        // ]
+                        "endscreens": [
+                            {
+                                "time": 172.617143,
+                                "label": "2:52 Écran de soumission"
+                            }
+                        ]
                     },
-                    // "summary": {
-                    //     "task": {
-                    //         "library": "H5P.Summary 1.10",
-                    //         "params": {
-                    //             "intro": "Choisissez l'affirmation exacte.",
-                    //             "summaries": [
-                    //                 {
-                    //                     "subContentId": "f9e7c52a-797a-44aa-953b-ac6de6b58790",
-                    //                     "summary": [
-                    //                         "<p>A retenir : affirmation 1</p>\n",
-                    //                         "<p>A retenir : affirmation 2</p>\n"
-                    //                     ],
-                    //                     "tip": ""
-                    //                 }
-                    //             ],
-                    //             "overallFeedback": [
-                    //                 {
-                    //                     "from": 0,
-                    //                     "to": 100
-                    //                 }
-                    //             ],
-                    //             "solvedLabel": "Progression :",
-                    //             "scoreLabel": "Erreurs :",
-                    //             "resultLabel": "Votre résultat :",
-                    //             "labelCorrect": "Correct.",
-                    //             "labelIncorrect": "Incorrect! Please try again.",
-                    //             "alternativeIncorrectLabel": "Incorrect",
-                    //             "labelCorrectAnswers": "Réponses correctes.",
-                    //             "tipButtonLabel": "Montrer l'indice",
-                    //             "scoreBarLabel": "Vous avez :num points sur un total de :total",
-                    //             "progressText": "Progression de :num sur :total"
-                    //         },
-                    //         "subContentId": "ead98d95-61f1-4230-9e9d-558b90b480a2",
-                    //         "metadata": {
-                    //             "contentType": "Résumé (Summary)",
-                    //             "license": "U",
-                    //             "title": "Sans titre Résumé (Summary)",
-                    //             "authors": [],
-                    //             "changes": [],
-                    //             "extraTitle": "Sans titre Résumé (Summary)"
-                    //         }
-                    //     },
-                    //     "displayAt": 3
-                    // }
                 },
                 "override": {
                     "autoplay": false,
@@ -256,11 +233,13 @@ export default async (input: InteractiveVideoData) => {
                 "license": "U",
                 "authors": [],
                 "changes": [],
-                "extraTitle": input.videoTitle,
-                "title": input.videoTitle
+                "extraTitle": "VIDEO INTERACTIVE",
+                "title": "VIDEO INTERACTIVE"
             }
         }
     }
+
+
     return await createH5P(data)
 
 }

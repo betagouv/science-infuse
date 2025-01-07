@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import useWindowSize from '@/course_editor/hooks/useWindowSize';
 
 const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
     const [isSticky, setIsSticky] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const [elementHeight, setElementHeight] = useState(0);
+    const { isMobile } = useWindowSize();
 
     useEffect(() => {
         const updateHeight = () => {
@@ -51,15 +53,15 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
                 className={`content-wrapper ${className}`}
                 animate={isSticky ? {
                     position: 'fixed',
-                    top: 16,
-                    right: 16,
-                    width: 400,
+                    top: isMobile ? 0 : 60,
+                    right: 0,
+                    width: isMobile ? "100%" : 400,
                     height: 250,
                     zIndex: 9999,
                     backgroundColor: 'white',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     borderRadius: '0.5rem',
-                    scale: 0.8
+                    scale: 1
                 } : {
                     position: 'relative',
                     top: 0,

@@ -37,7 +37,7 @@ export default function VideoPage({
     }, [video, id]);
 
     return <div className="w-full fr-grid-row fr-grid-row--center">
-        <div className="fr-col-8 fr-container main-content-item my-8">
+        <div className="fr-col-12 md:fr-col-8 fr-container main-content-item my-8">
             {isLoading && <div>Chargement...</div>}
             {error && <div>Erreur lors du chargement du document</div>}
 
@@ -45,16 +45,20 @@ export default function VideoPage({
 
                 <h1>{video?.mediaName}</h1>
                 {/* <MiniatureWrapper> */}
-                    <RenderGroupedVideoTranscriptCard
-                        defaultSelectedChunk={selectedChunk}
-                        video={groupedVideo}
-                        searchWords={[]}
-                    />
+                <RenderGroupedVideoTranscriptCard
+                    defaultSelectedChunk={selectedChunk}
+                    video={groupedVideo}
+                    searchWords={[]}
+                />
                 {/* </MiniatureWrapper> */}
 
-                <div className="relative w-full bg-[#f6f6f6] p-8 rounded-xl">
-                    {video && <InteractiveVideoGenerator video={video} />}
-                </div>
+                {video && <>
+                    <h2 className="m-0">Vidéo interactive</h2>
+                    <div className="relative w-full bg-[#f6f6f6] p-0 md:p-8 rounded-xl">
+                        <InteractiveVideoGenerator video={video} />
+                    </div>
+                </>
+                }
 
                 <h2 className="m-0">Transcription</h2>
                 <div className="flex flex-col gap-0">
