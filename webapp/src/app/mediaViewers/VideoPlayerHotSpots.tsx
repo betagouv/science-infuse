@@ -17,6 +17,11 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
     const [hoveredVideoChunk, setHoveredVideoChunk] = useState<ChunkWithScore<"video_transcript"> | null>(null);
 
     useEffect(() => {
+        if (!selectedChunk) return;
+        handleHotspotClick(selectedChunk)
+    }, [selectedChunk])
+
+    useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
 
@@ -25,7 +30,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
             const sortedChunks = chunks.slice().sort((a, b) => a.metadata.start - b.metadata.start);
 
             const closestChunk: ChunkWithScore<"video_transcript"> | undefined = sortedChunks.reduce((prev: ChunkWithScore<"video_transcript"> | undefined, curr) => {
-                if (curr.metadata.start-1 <= video.currentTime) {
+                if (curr.metadata.start - 1 <= video.currentTime) {
                     return curr;
                 }
                 return prev;

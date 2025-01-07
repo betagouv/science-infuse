@@ -233,7 +233,7 @@ export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; c
                     chunk={chunk}
                     end={
                         <div className="flex">
-                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
+                            <a className="m-0" href={`/media/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
                         </div>
                     }
                     starred={!!chunk?.user_starred}
@@ -252,7 +252,7 @@ export const RenderPdfTextCard: React.FC<OnInserted & { searchWords: string[]; c
                 </div >
             }
             linkProps={{
-                href: `/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`,
+                href: `/media/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`,
                 target: "_blank",
             }}
             size="medium"
@@ -281,7 +281,7 @@ export const RenderWebsiteChunk: React.FC<OnInserted & { searchWords: string[]; 
                     chunk={chunk}
                     end={
                         <div className="flex">
-                            <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata.url}`} target="_blank">source</a>
+                            <a className="m-0" href={`/media/pdf/${chunk.document.id}/${chunk.metadata.url}`} target="_blank">source</a>
                         </div>
                     }
                     starred={!!chunk?.user_starred}
@@ -327,7 +327,7 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
                 chunk={chunk}
                 end={
                     <div className="flex">
-                        <a className="m-0" href={`/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
+                        <a className="m-0" href={`/media/pdf/${chunk.document.id}/${chunk.metadata?.pageNumber}`} target="_blank">source</a>
                     </div>
                 }
                 starred={!!chunk?.user_starred}
@@ -366,14 +366,20 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
     )
 };
 
-export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[] }> = ({ onInserted, video, searchWords }) => {
+export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[], defaultSelectedChunk?: ChunkWithScore<"video_transcript"> }> = ({ onInserted, video, defaultSelectedChunk, searchWords }) => {
     const firstChunk = video.items[0];
     const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${firstChunk.document.s3ObjectName}`
     let originalPath = firstChunk.document.originalPath;
-    const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(undefined)
+    const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(defaultSelectedChunk)
     if (originalPath.includes("youtube") && selectedChunk) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(selectedChunk.metadata.start)}`
     }
+    
+    useEffect(() => {
+        if (!defaultSelectedChunk) return;
+        console.log("defaultSelectedChunk", defaultSelectedChunk.text)
+        setSelectedChunk(defaultSelectedChunk)
+    }, [defaultSelectedChunk])
 
     return (
         <StyledGroupedVideoCard
@@ -382,7 +388,8 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
                 chunk={selectedChunk || video.items[0]}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
-                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{firstChunk.title}</a>
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`/media/video/${video.documentId}`} target="_blank">{firstChunk.title}</a>
+                        {/* <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{firstChunk.title}</a> */}
                         <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p>
                     </div>
                 }
@@ -402,6 +409,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
         />
     )
 }
+
 export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ onInserted, chunk, searchWords }) => {
     let originalPath = chunk.document.originalPath;
     const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`

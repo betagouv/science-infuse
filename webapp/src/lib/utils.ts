@@ -47,3 +47,14 @@ export const extractTextFromTipTap = (node: any): string => {
 
   return text;
 }
+
+export const secondsToTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return { hours: h, minutes: m, seconds: s };
+};
+
+export const timeToSeconds = (h: number, m: number, s: number) => {
+  return h * 3600 + m * 60 + s;
+};
