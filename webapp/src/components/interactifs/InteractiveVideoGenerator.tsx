@@ -300,21 +300,21 @@ const DefinitionEditor = (props: { initialQuestionGroup: InteractiveVideoDefinit
                     <p className="m-0 mb-4 text-lg text-center text-black underline">Définition {qIndex + 1}</p>
 
                     <Input
-                        label="Question"
+                        label="Notion"
+                        className="!m-0 w-full"
                         nativeInputProps={{
-                            value: d.definition,
-                            onChange: (e) => handleDefinitionChange(qIndex, e.target.value),
+                            value: d.notion,
+                            onChange: (e) => handleNotionChange(qIndex, e.target.value),
                             required: true,
                         }}
                     />
 
                     <div className="mt-4">
                         <Input
-                            label=""
-                            className="!m-0 w-full"
+                            label="Définition"
                             nativeInputProps={{
-                                value: d.notion,
-                                onChange: (e) => handleNotionChange(qIndex, e.target.value),
+                                value: d.definition,
+                                onChange: (e) => handleDefinitionChange(qIndex, e.target.value),
                                 required: true,
                             }}
                         />
@@ -360,7 +360,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
             const questionSegments: ChunkWithScore<"video_transcript">[] = ivQuestions.map(qs => ({
                 score: 0,
                 id: "-",
-                text: `Questions: ${qs.questions.map(q=>q.question).join(', ')}`,
+                text: `Questions: ${qs.questions.map(q => q.question).join(', ')}`,
                 title: video.mediaName,
                 document: document,
                 mediaType: "video_transcript",
@@ -372,15 +372,16 @@ export default ({ video }: { video: DocumentWithChunks }) => {
             const definitionSegments: ChunkWithScore<"video_transcript">[] = ivDefinitions.map(qs => ({
                 score: 0,
                 id: "-",
-                text: `Définitions: ${qs.definitions.map(d=>d.notion).join(', ')}`,
+                text: `Définitions: ${qs.definitions.map(d => d.notion).join(', ')}`,
                 title: video.mediaName,
                 document: document,
                 mediaType: "video_transcript",
-                metadata: { start: qs.timestamp+5, end: qs.timestamp+5 }
+                metadata: { start: qs.timestamp + 5, end: qs.timestamp + 5 }
             }));
             segments = [...segments, ...definitionSegments]
         }
-        return segments;    }
+        return segments;
+    }
 
     const groupedVideo: GroupedVideo = {
         documentId: "",
