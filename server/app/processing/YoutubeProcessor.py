@@ -7,6 +7,14 @@ import os
 
 from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
+proxies = None
+if os.environ.get("YOUTUBE_PROXY"):
+    proxies = {
+        "http": os.environ.get("YOUTUBE_PROXY"),
+        "https": os.environ.get("YOUTUBE_PROXY")
+    }
+
+
 class YoutubeProcessor(BaseDocumentProcessor):
     def __init__(self, whisper: SIWhisperModel, s3: S3Storage, youtube_url: str, paragraph_pause_threshold: float = 1, use_oauth: bool = False):
         self.whisper = whisper
@@ -22,10 +30,9 @@ class YoutubeProcessor(BaseDocumentProcessor):
         filename = f"{self.id}.mp4"
         file_path = os.path.join(output_path, filename)
         if (self.use_oauth is True):
-            yt = YouTube(self.youtube_url, use_oauth=True, allow_oauth_cache=True)
+            yt = YouTube(self.youtube_url, proxies=proxies, use_oauth=True, allow_oauth_cache=True)
         else:
-            yt = YouTube(self.youtube_url)
-        print("YT", yt)
+            yt = YouTube(self.youtube_url, proxies=proxies)
         video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
         return file_path, video_name
