@@ -1,0 +1,28 @@
+---
+title: Data representation
+---
+
+import {PROJECT_NAME} from "@/config.mdx"
+
+
+<Callout title={`Note`}>
+All the processing logic is done in the **server** microservice,
+
+All processing class inherit BaseDocumentProcessor.
+
+They should implement the function `extract_document` which returns a tuple `[document, chunks]`
+</Callout>
+
+## Data types
+{PROJECT_NAME} can deal with multiple kind of docuemnts:
+- Pdfs
+- Images
+- Youtube Videos
+- Websites
+- ...
+
+
+
+
+
+
