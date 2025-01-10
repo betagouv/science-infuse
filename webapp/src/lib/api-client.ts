@@ -1,5 +1,5 @@
 import { WEBAPP_URL } from '@/config';
-import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
+import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
@@ -102,8 +102,8 @@ class ApiClient {
     return response.data;
   }
 
-  async exportH5p(data: ExportH5PRequestBody): Promise<ExportUrlResponse> {
-    const response = await this.axiosInstance.post<ExportUrlResponse>('/export/h5p', data);
+  async exportH5p(data: ExportH5PRequestBody): Promise<ExportH5pResponse> {
+    const response = await this.axiosInstance.post<ExportH5pResponse>('/export/h5p', data);
     return response.data;
   }
 

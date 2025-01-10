@@ -378,7 +378,7 @@ const RenderBlockQuiz = ({ editor, questions, openQuizPopup }: { editor: Editor,
           <div className="flex justify-center">
             <Button className='w-56 justify-center' priority='secondary' iconId="fr-icon-download-fill" iconPosition="right" onClick={async () => {
               const data = await apiClient.exportH5p({ type: 'question', data: questions })
-              window.open(data.url, '_blank')
+              window.open(data.downloadUrl, '_blank')
             }}>Télécharger en H5P</Button>
           </div>
 
