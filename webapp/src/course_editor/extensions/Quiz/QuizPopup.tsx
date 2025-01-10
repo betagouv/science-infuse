@@ -308,7 +308,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
 
             <Button className='w-full flex items-center justify-center' priority='tertiary no outline' iconId="fr-icon-download-fill" iconPosition="right" onClick={async () => {
                 const data = await apiClient.exportH5p({ type: 'question', data: questions })
-                window.open(data.url, '_blank')
+                window.open(data.downloadUrl, '_blank')
               }}>Télécharger en H5P</Button>
 
           </div>

@@ -9,6 +9,7 @@ import { RenderGroupedVideoTranscriptCard } from "@/app/recherche/DocumentChunkF
 import MiniatureWrapper from "@/app/media/video/[id]/MiniatureWrapper";
 import { apiClient } from "@/lib/api-client";
 import { secondsToTime, timeToSeconds } from "@/lib/utils";
+import CallOut from "@codegouvfr/react-dsfr/CallOut";
 
 const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup, onChange: (updated: InteractiveVideoQuestionGroup) => void }) => {
     const [questionGroup, setQuestionGroup] = useState<InteractiveVideoQuestionGroup>(props.initialQuestionGroup);
@@ -79,7 +80,7 @@ const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup,
     const time = secondsToTime(questionGroup.timestamp);
 
     return (
-        <div className="overflow-auto p-8  flex flex-col items-center gap-4 rounded-lg shadow-lg bg-white">
+        <div className="overflow-auto p-8  flex flex-col items-center gap-4 rounded-lg shadow-lg">
             <p className="self-start">horodatage</p>
             <div className="flex gap-4 self-start justify-start ">
                 <Input
@@ -120,7 +121,7 @@ const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup,
             </div>
 
             {questionGroup.questions.map((q, qIndex) => (
-                <div key={qIndex} className="mb-8 bg-white rounded-lg shadow-sm relative w-full">
+                <div key={qIndex} className="mb-8 rounded-lg shadow-sm relative w-full">
                     <Button
                         onClick={() => removeQuestion(qIndex)}
                         className="text-red-500 !absolute top-2 right-2"
@@ -128,7 +129,7 @@ const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup,
                         priority="tertiary no outline"
                     >{""}</Button>
 
-                    <p className="m-0 mb-4 text-lg text-center text-black underline">Question {qIndex + 1}</p>
+                    <p className="m-0 mb-4 text-lg text-black underline">Question {qIndex + 1}</p>
 
                     <Input
                         label="Question"
@@ -289,7 +290,7 @@ const DefinitionEditor = (props: { initialQuestionGroup: InteractiveVideoDefinit
             </div>
 
             {definitionGroup.definitions.map((d, qIndex) => (
-                <div key={qIndex} className="mb-8 bg-white rounded-lg shadow-sm relative w-full">
+                <div key={qIndex} className="mb-8 rounded-lg shadow-sm relative w-full">
                     <Button
                         onClick={() => removeDefinition(qIndex)}
                         className="text-red-500 !absolute top-2 right-2"
@@ -297,7 +298,7 @@ const DefinitionEditor = (props: { initialQuestionGroup: InteractiveVideoDefinit
                         priority="tertiary no outline"
                     >{""}</Button>
 
-                    <p className="m-0 mb-4 text-lg text-center text-black underline">Définition {qIndex + 1}</p>
+                    <p className="m-0 mb-4 text-lg text-black underline">Définition {qIndex + 1}</p>
 
                     <Input
                         label="Notion"
@@ -337,10 +338,13 @@ export default ({ video }: { video: DocumentWithChunks }) => {
     const [ivQuestions, setIvQuestions] = useState<InteractiveVideoQuestionGroup[] | undefined>(undefined);
     const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const generateInteractiveVideo = async () => {
         if (!video) return;
         setIsLoading(true);
+        setIvQuestions([])
+        setIvDefinitions([])
         try {
             const iv = await generateInteraciveVideoData(video.id);
             if (!iv) return;
@@ -354,40 +358,40 @@ export default ({ video }: { video: DocumentWithChunks }) => {
 
     const document = video.chunks[0].document;
 
-    const getInteractiveVideoSegments = () => {
-        let segments: ChunkWithScore<"video_transcript">[] = [];
-        if (ivQuestions) {
-            const questionSegments: ChunkWithScore<"video_transcript">[] = ivQuestions.map(qs => ({
-                score: 0,
-                id: "-",
-                text: `Questions: ${qs.questions.map(q => q.question).join(', ')}`,
-                title: video.mediaName,
-                document: document,
-                mediaType: "video_transcript",
-                metadata: { start: qs.timestamp, end: qs.timestamp }
-            }));
-            segments = [...segments, ...questionSegments]
-        }
-        if (ivDefinitions) {
-            const definitionSegments: ChunkWithScore<"video_transcript">[] = ivDefinitions.map(qs => ({
-                score: 0,
-                id: "-",
-                text: `Définitions: ${qs.definitions.map(d => d.notion).join(', ')}`,
-                title: video.mediaName,
-                document: document,
-                mediaType: "video_transcript",
-                metadata: { start: qs.timestamp + 5, end: qs.timestamp + 5 }
-            }));
-            segments = [...segments, ...definitionSegments]
-        }
-        return segments;
-    }
+    // const getInteractiveVideoSegments = () => {
+    //     let segments: ChunkWithScore<"video_transcript">[] = [];
+    //     if (ivQuestions) {
+    //         const questionSegments: ChunkWithScore<"video_transcript">[] = ivQuestions.map(qs => ({
+    //             score: 0,
+    //             id: "-",
+    //             text: `Questions: ${qs.questions.map(q => q.question).join(', ')}`,
+    //             title: video.mediaName,
+    //             document: document,
+    //             mediaType: "video_transcript",
+    //             metadata: { start: qs.timestamp, end: qs.timestamp }
+    //         }));
+    //         segments = [...segments, ...questionSegments]
+    //     }
+    //     if (ivDefinitions) {
+    //         const definitionSegments: ChunkWithScore<"video_transcript">[] = ivDefinitions.map(qs => ({
+    //             score: 0,
+    //             id: "-",
+    //             text: `Définitions: ${qs.definitions.map(d => d.notion).join(', ')}`,
+    //             title: video.mediaName,
+    //             document: document,
+    //             mediaType: "video_transcript",
+    //             metadata: { start: qs.timestamp + 5, end: qs.timestamp + 5 }
+    //         }));
+    //         segments = [...segments, ...definitionSegments]
+    //     }
+    //     return segments;
+    // }
 
-    const groupedVideo: GroupedVideo = {
-        documentId: "",
-        items: getInteractiveVideoSegments(),
-        maxScore: 1
-    }
+    // const groupedVideo: GroupedVideo = {
+    //     documentId: "",
+    //     items: getInteractiveVideoSegments(),
+    //     maxScore: 1
+    // }
 
     const handleQuestionGroupChange = (timestamp: number, updated: InteractiveVideoQuestionGroup) => {
         if (!ivQuestions) return;
@@ -408,61 +412,105 @@ export default ({ video }: { video: DocumentWithChunks }) => {
     return <div className="flex flex-col gap-4 relative">
 
 
-        <div className="flex flex-col md:flex-row  self-center sticky gap-4 top-0 z-[2] bg-white w-full p-4 items-center justify-center">
+        <div className="p-6">
+            <h4 className="text-xl font-semibold mb-4 text-center">Créez facilement votre vidéo interactive</h4>
+            <div className="space-y-4 text-gray-700">
+                <p className="">
+                    L'intelligence artificielle de Science Infuse vous accompagne dans la création de contenus interactifs à partir de vos vidéos.
+                </p>
+
+                <h5 className="font-medium mb-2">Comment ça fonctionne ?</h5>
+                <ol className="list-decimal list-inside space-y-2">
+
+                    <li>L'IA de Science Infuse analyse votre vidéo et génère automatiquement :
+                        <ul className="list-disc list-inside ml-4 mt-1">
+                            <li>Des questions pertinentes</li>
+                            <li>Des définitions des notions clés abordées dans la vidéo</li>
+                        </ul>
+                    </li>
+                    <li>Vous personnalisez le contenu selon vos besoins :
+                        <ul className="list-disc list-inside ml-4 mt-1">
+                            <li>Modifiez les questions et réponses</li>
+                            <li>Ajustez les définitions</li>
+                            <li>Définissez les moments d'apparition</li>
+                        </ul>
+                    </li>
+                    <li>Prévisualisez votre vidéo interactive</li>
+                    <li>Exportez au format H5P pour une intégration facile dans votre ENT</li>
+                </ol>
+                <CallOut
+                    iconId="ri-information-line"
+                    title="Important"
+                >
+                    Veuillez noter que l'intelligence artificielle peut parfois commettre des erreurs. Il est essentiel de vérifier et d'ajuster le contenu généré avant de l'utiliser dans vos cours.
+                </CallOut>
+            </div>
+        </div>
+
+        {!previewUrl && <div className="flex flex-col md:flex-row bg-gray-50 self-center sticky gap-4 top-0 z-[2] w-full p-4 items-center justify-center">
             <Button
                 className="w-full justify-center"
+                priority="secondary"
                 onClick={() => { generateInteractiveVideo(); }}
                 disabled={isLoading}
             >
-                {isLoading ? "Génération en cours..." : ivQuestions ? "Regénérer de nouvelles questions pour la vidéo" : "Générer une vidéo interactive"}
+                {isLoading ? "Génération en cours..." : ivQuestions ? "Réessayer" : "Générer une vidéo interactive"}
             </Button>
             {ivQuestions && <Button
                 className="w-full justify-center"
-                priority="secondary"
                 onClick={async () => {
+                    setIsLoading(true);
                     const data = await apiClient.exportH5p({ type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions } })
-                    window.open(data.url, '_blank')
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadUrl(data.downloadUrl);
+                    setIsLoading(false);
                 }}
             >
-                Télécharger en h5p
+                Générer un interactif (h5p)
             </Button>}
-        </div>
+        </div>}
 
-        <p className="m-0  text-center text-black">
-            L'intelligence artificielle de Science Infuse vous propose des questions et réponses d'après la vidéo, identifie les mots importants et ajoute leur définition.
-            Vous pouvez modifier ou supprimer les questions, réponses et définitions proposées et définir quand elles apparaissent dans la vidéo.
-        </p>
+        {previewUrl && <iframe className="w-full aspect-[16/10]" src={previewUrl} />}
+        {downloadUrl && <Button
+            className="w-full justify-center"
+            onClick={async () => {
+                window.open(downloadUrl, '_blank')
+            }}
+        >
+            Télécharger en h5p
+        </Button>}
+        {!previewUrl && <>
+            {/* {(ivQuestions || [])?.length > 0 && <MiniatureWrapper>
+                <RenderGroupedVideoTranscriptCard defaultSelectedChunk={undefined} video={groupedVideo} searchWords={[]} />
+            </MiniatureWrapper>} */}
 
+            <div className="flex flex-col gap-4 bg-white">
+                {ivQuestions?.length ? <h3 className="mt-8 px-8">Questions</h3> : ""}
+                {ivQuestions?.map(qs => (
+                    <>
+                        <QCMEditor
+                            key={qs.timestamp}
+                            initialQuestionGroup={qs}
+                            onChange={(updated) => handleQuestionGroupChange(qs.timestamp, updated)}
+                        />
+                        <hr className="m-0" />
+                    </>
+                ))}
+                {ivDefinitions?.length ? <h3 className="mt-8 px-8">Définitions</h3> : ""}
+                {ivDefinitions?.map(def => (
+                    <>
+                        <DefinitionEditor
+                            key={def.timestamp}
+                            initialQuestionGroup={def}
+                            onChange={(updated) => handleDefinitionGroupChange(def.timestamp, updated)}
+                        />
+                        <hr className="m-0" />
+                    </>
+                ))}
+            </div>
+        </>}
         {isLoading && <CircularProgress className="self-center" />}
 
-        {(ivQuestions || [])?.length > 0 && <MiniatureWrapper>
-            <RenderGroupedVideoTranscriptCard defaultSelectedChunk={undefined} video={groupedVideo} searchWords={[]} />
-        </MiniatureWrapper>}
-
-        <div className="flex flex-col gap-4">
-            {ivQuestions && <h3 className="mt-8">Questions</h3>}
-            {ivQuestions?.map(qs => (
-                <>
-                    <QCMEditor
-                        key={qs.timestamp}
-                        initialQuestionGroup={qs}
-                        onChange={(updated) => handleQuestionGroupChange(qs.timestamp, updated)}
-                    />
-                    <hr className="m-0" />
-                </>
-            ))}
-            {ivDefinitions && <h3 className="mt-8">Définitions</h3>}
-            {ivDefinitions?.map(def => (
-                <>
-                    <DefinitionEditor
-                        key={def.timestamp}
-                        initialQuestionGroup={def}
-                        onChange={(updated) => handleDefinitionGroupChange(def.timestamp, updated)}
-                    />
-                    <hr className="m-0" />
-                </>
-            ))}
-        </div>
 
     </div>
 }

@@ -1,4 +1,4 @@
-import { ExportUrlResponse } from '@/types/api';
+import { ExportH5pResponse } from '@/types/api';
 import { ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
 import { NextRequest, NextResponse } from "next/server";
 import { generateInteraciveVideoData, InteractiveVideoData } from './contents/interactiveVideo';
@@ -24,13 +24,14 @@ export async function POST(request: NextRequest) {
     if (isQuestionRequest(body)) {
         const game = await createQuestionSet(body.data);
         const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=qcm-science-infuse`;
-        return NextResponse.json({ url: downloadUrl } as ExportUrlResponse);
+        return NextResponse.json({ downloadUrl } as ExportH5pResponse);
     } else if (isInteractiveVideoRequest(body)) {
         // const videoQcm = await generateInteraciveVideoData(body.data.documentId)
         // if (!videoQcm) throw new Error(`Unsupported type: ${body.type}`);
         const game = await createInteractiveVideo(body.data);
         const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=interactive-video-science-infuse`;
-        return NextResponse.json({ url: downloadUrl } as ExportUrlResponse);
+        const embedUrl = `${process.env.H5P_URL}/h5p/play/${game.contentId}`;
+        return NextResponse.json({ downloadUrl, embedUrl: embedUrl } as ExportH5pResponse);
     }
     else {
         throw new Error(`Unsupported type: ${body.type}`);

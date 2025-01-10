@@ -61,3 +61,4 @@ export type GroupedFavorites = {
 };
 
 export type ExportUrlResponse = { url: string }
+export type ExportH5pResponse = { downloadUrl: string, embedUrl: string }

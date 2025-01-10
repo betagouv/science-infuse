@@ -9,6 +9,7 @@ import { generateInteraciveVideoData, InteractiveVideoQuestionGroup } from "@/ap
 import Button from "@codegouvfr/react-dsfr/Button";
 import InteractiveVideoGenerator from "@/components/interactifs/InteractiveVideoGenerator";
 import MiniatureWrapper from './MiniatureWrapper'
+import CallOut from "@codegouvfr/react-dsfr/CallOut";
 
 
 export default function VideoPage({
@@ -36,6 +37,8 @@ export default function VideoPage({
         };
     }, [video, id]);
 
+    const textLength = (groupedVideo?.items || []).map(i => i.text).join(' ').length;
+
     return <div className="w-full fr-grid-row fr-grid-row--center">
         <div className="fr-col-12 md:fr-col-8 fr-container main-content-item my-8">
             {isLoading && <div>Chargement...</div>}
@@ -44,18 +47,27 @@ export default function VideoPage({
             {groupedVideo && <div className="flex w-full flex-col gap-8">
 
                 <h1>{video?.mediaName}</h1>
-                {/* <MiniatureWrapper> */}
-                <RenderGroupedVideoTranscriptCard
-                    defaultSelectedChunk={selectedChunk}
-                    video={groupedVideo}
-                    searchWords={[]}
-                />
-                {/* </MiniatureWrapper> */}
+                <MiniatureWrapper>
+                    <RenderGroupedVideoTranscriptCard
+                        defaultSelectedChunk={selectedChunk}
+                        video={groupedVideo}
+                        searchWords={[]}
+                    />
+                </MiniatureWrapper>
 
                 {video && <>
                     <h2 className="m-0">Vidéo interactive</h2>
-                    <div className="relative w-full bg-[#f6f6f6] p-0 md:p-8 rounded-xl">
-                        <InteractiveVideoGenerator video={video} />
+                    <div className="relative w-full bg-gray-50 p-0 md:p-8 rounded-xl">
+                        {textLength < 10000 ?
+                            <InteractiveVideoGenerator video={video} /> :
+                            <CallOut
+                                iconId="ri-information-line"
+                                title="Génération impossible"
+                            >
+                                Cette vidéo est trop longue pour permettre la génération d'une version interactive. Vous pouvez essayer avec une vidéo plus courte.
+                            </CallOut>
+
+                        }
                     </div>
                 </>
                 }
