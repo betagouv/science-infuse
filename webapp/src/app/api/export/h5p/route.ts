@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         // if (!videoQcm) throw new Error(`Unsupported type: ${body.type}`);
         const game = await createInteractiveVideo(body.data);
         const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=interactive-video-science-infuse`;
-        const embedUrl = `${process.env.H5P_URL}/h5p/play/${game.contentId}`;
+        const embedUrl = `${process.env.H5P_PUBLIC_URL}/h5p/play/${game.contentId}`;
         return NextResponse.json({ downloadUrl, embedUrl: embedUrl } as ExportH5pResponse);
     }
     else {
