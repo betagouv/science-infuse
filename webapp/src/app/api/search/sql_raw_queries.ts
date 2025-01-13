@@ -106,7 +106,6 @@ export async function searchBlocksWithChapter(
     LIMIT 100`;
 
   const queryTime = performance.now() - startTime;
-  console.log(`Initial query execution time: ${queryTime}ms`);
 
   if (!rerank) {
     return data;
@@ -183,7 +182,6 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
 
   const endTime = performance.now();
   const executionTime = endTime - startTime;
-  console.log(`Execution time documentChunks: ${executionTime} milliseconds`);
 
   return data;
 }

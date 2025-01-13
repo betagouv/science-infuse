@@ -13,7 +13,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
 
     try {
         const params = await request.json() as QueryRequest;
-        console.log("PARAMS, ", params)
         const embeddings = await getEmbeddings(params.query)
 
         const chunks = await searchDocumentChunks(user?.id||"xxxx", embeddings, params)

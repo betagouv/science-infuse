@@ -454,7 +454,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                 onClick={() => { generateInteractiveVideo(); }}
                 disabled={isLoading}
             >
-                {isLoading ? "Génération en cours..." : ivQuestions ? "Réessayer" : "Générer une vidéo interactive"}
+                {isLoading ? "Génération en cours..." : ivQuestions ? "Réessayer" : "Générer les questions et les définitions"}
             </Button>
             {ivQuestions && <Button
                 className="w-full justify-center"
@@ -466,7 +466,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                     setIsLoading(false);
                 }}
             >
-                Générer un interactif (h5p)
+                Générer la vidéo interactive
             </Button>}
         </div>}
 
