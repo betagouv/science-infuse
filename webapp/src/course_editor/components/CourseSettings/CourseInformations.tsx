@@ -446,11 +446,6 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                                                         imageUrl={imageUrl}
                                                         end={<BuildCardEnd
                                                             chunk={chunk}
-                                                            end={
-                                                                <div className="flex">
-                                                                    <a className="m-0" href={`/media/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`} target="_blank">source</a>
-                                                                </div>
-                                                            }
                                                             starred={!!chunk?.user_starred}
                                                             downloadLink={imageUrl}
                                                         />}

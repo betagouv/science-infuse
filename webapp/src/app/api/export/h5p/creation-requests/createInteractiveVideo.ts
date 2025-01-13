@@ -72,7 +72,7 @@ export default async (input: InteractiveVideoData) => {
 
                             }).flatMap(d => d),
 
-                            ...input.questions.map(groupedQuestions => {
+                            ...input.questions.map((groupedQuestions, groupedQuestionsIndex) => {
                                 const { timestamp, questions } = groupedQuestions;
                                 return {
                                     "x": 17.451017176163656,
@@ -136,10 +136,10 @@ export default async (input: InteractiveVideoData) => {
                                         "metadata": {
                                             "contentType": "Ensemble (Single Choice Set)",
                                             "license": "U",
-                                            "title": "Sans titre Ensemble (Single Choice Set)",
+                                            "title": `Quiz ${groupedQuestionsIndex+1}`,
                                             "authors": [],
                                             "changes": [],
-                                            "extraTitle": "Sans titre Ensemble (Single Choice Set)"
+                                            "extraTitle": `Quiz ${groupedQuestionsIndex+1}`
                                         }
                                     },
                                     "pause": true,
