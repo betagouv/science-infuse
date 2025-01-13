@@ -8,17 +8,17 @@ const StyledCallout = styled(CallOut)`
         flex-flow: column;
     }
 `
-export default () => {
+export default (props: {message?: React.ReactNode}) => {
     return   <StyledCallout
     iconId="ri-information-line"
     className="flex flex-col [&.fr-callout__text]:flex-col"
 >
     <span>
-        Vous devez vous connecter pour accéder à ce contenu.
+        {props.message || "Vous devez vous connecter pour accéder à ce contenu."}
     </span>
     <span className="flex flex-row gap-4">
-        <Button priority="secondary"><a href="/">Connexion</a></Button>
-        <Button><a href="/">Créer un compte</a></Button>
+        <Button priority="secondary"><a href="/connexion">Connexion</a></Button>
+        <Button><a href="/connexion">Créer un compte</a></Button>
     </span>
 </StyledCallout>
 }
