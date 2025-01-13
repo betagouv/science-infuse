@@ -25,6 +25,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.5",
+    "@googleapis/youtube": "^20.0.0",
     "@lumieducation/h5p-html-exporter": "^9.3.2",
     "@lumieducation/h5p-mongos3": "^9.3.2",
     "@lumieducation/h5p-react": "^9.3.2",
