@@ -10,6 +10,8 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import InteractiveVideoGenerator from "@/components/interactifs/InteractiveVideoGenerator";
 import MiniatureWrapper from './MiniatureWrapper'
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
+import RegisteredUserFeature from "@/components/RegisteredUserFeature";
+import { CircularProgress } from "@mui/material";
 
 
 export default function VideoPage({
@@ -38,11 +40,10 @@ export default function VideoPage({
     }, [video, id]);
 
     const textLength = (groupedVideo?.items || []).map(i => i.text).join(' ').length;
-
     return <div className="w-full fr-grid-row fr-grid-row--center">
         <div className="fr-col-12 md:fr-col-8 fr-container main-content-item my-8">
-            {isLoading && <div>Chargement...</div>}
-            {error && <div>Erreur lors du chargement du document</div>}
+            {isLoading && <div className="flex min-h-64 w-full items-center justify-center"><CircularProgress className=""/></div>}
+            {error && <RegisteredUserFeature message={<span>Erreur lors du chargement du document. <br /> Veuillez vous authentifier pour visualiser le contenu</span>} />}
 
             {groupedVideo && <div className="flex w-full flex-col gap-8">
 

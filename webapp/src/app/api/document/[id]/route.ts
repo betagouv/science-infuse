@@ -5,7 +5,7 @@ import { getServerSession, User } from "next-auth";
 import { withAccessControl } from "../../accessControl";
 
 export const GET = withAccessControl(
-    { allowedRoles: ['ADMIN'] },
+    { allowedRoles: ['*'] },
     async (request: NextRequest, { user, params }: { user: User, params: { id: string } }) => {
         const document = await prisma.document.findUnique({
             where: { id: params.id },
