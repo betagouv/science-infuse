@@ -55,7 +55,7 @@ export function withAccessControl(options: AccessControlOptions, handler: Functi
         });
 
 
-        if (!user || (options.allowedRoles[0] !== '*' && !options.allowedRoles.some(role => (user?.roles || []).includes(role)))) {
+        if (!user || !options.allowedRoles.some(role => role === '*' || (user?.roles || []).includes(role))) {
             return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' },
