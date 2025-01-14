@@ -1,5 +1,4 @@
 import prisma from '@/lib/prisma';
-import { indexContentJob } from '@/queueing/pgboss/jobs/index-content';
 import fs from "fs";
 import { writeFile } from 'fs/promises';
 import { getServerSession } from 'next-auth/next';
@@ -9,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { authOptions } from '../auth/[...nextauth]/authOptions';
 import { IndexingContentType } from '@/types/queueing';
 import { DocumentTag } from '.prisma/client';
+import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents';
 
 const crypto = require('crypto');
 
@@ -51,7 +51,9 @@ const indexFile = async (content: File, author: string, documentTags: DocumentTa
             type: IndexingContentType.file,
             documentTagIds: documentTags.map(t => t.id),
             author: author || undefined
-        })
+        },
+            { priority: 1 }
+        )
         console.log("Job emitted:", result);
 
         return NextResponse.json(localFilePath);
@@ -80,7 +82,9 @@ const indexUrl = async (url: string, author: string, documentTags: DocumentTag[]
             type: IndexingContentType.url,
             documentTagIds: documentTags.map(t => t.id),
             author: author
-        })
+        },
+            { priority: 1 }
+        )
 
         console.log("Job emitted:", result);
 
@@ -110,7 +114,9 @@ const indexYoutubeVideo = async (url: string, author: string, documentTags: Docu
             type: IndexingContentType.youtube,
             documentTagIds: documentTags.map(t => t.id),
             author: author || undefined
-        })
+        },
+            { priority: 1 }
+        )
 
         console.log("Job emitted:", result);
 

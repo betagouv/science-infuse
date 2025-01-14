@@ -1,28 +1,43 @@
 ---
-title: Data representation
+title: Data Structure
 ---
 
 import {PROJECT_NAME} from "@/config.mdx"
 
-
 <Callout title={`Note`}>
-All the processing logic is done in the **server** microservice,
-
-All processing class inherit BaseDocumentProcessor.
-
-They should implement the function `extract_document` which returns a tuple `[document, chunks]`
+You can find the data structure in the **Prisma** schema located at `webapp/src/prisma/schema.prisma`. <br/>
+We use PostgreSQL with pgvector extension to store the data.
 </Callout>
 
-## Data types
-{PROJECT_NAME} can deal with multiple kind of docuemnts:
+
+## Types of Documents
+{PROJECT_NAME} can injest multiple types of documents:
 - Pdfs
 - Images
 - Youtube Videos
 - Websites
 - ...
 
+## Document Structure
 
+Documents are processed and stored in a three-level hierarchy:
 
+1. **Document Level**
+   - The top-level entity representing the document
+   - Contains basic file information: i.e. name, original path, s3 access...
+2. **Chunks Level**
+   - Documents are broken down into smaller text chunks for easier indexing
+   - Each chunk's text is transformed into <a href="/technology#text-embeddings" target="_blank">vector embeddings</a>
+   - These embeddings are used for semantic search
 
+3. **Metadata Level**
+   - Each chunk can have associated metadata
+   - Stores contextual information about the chunk: i.e. page number, bounding box
 
+## Semantic Search Implementation
 
+The semantic search capability is enabled by:
+1. Breaking documents into manageable chunks
+2. Converting chunk text into vector embeddings
+3. Storing these embeddings in pgvector
+4. Using vector similarity for search operations

@@ -41,12 +41,19 @@ export const getUserFull = async (userId: string) => {
     return user;
 }
 
-export const insertDocument = async (document: Document, chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[], documentTagIds: string[], hash?: string): Promise<string> => {
+export const insertDocument = async ({ document, chunks, documentTagIds, hash, sourceCreationDate }: {
+    document: Document,
+    chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[],
+    documentTagIds: string[],
+    hash?: string,
+    sourceCreationDate?: Date,
+}): Promise<string> => {
     console.log("insertDocument", documentTagIds)
     const createdDocument = await prisma.document.create({
         data: {
             ...document,
             fileHash: hash,
+            sourceCreationDate: sourceCreationDate,
             tags: {
                 connect: documentTagIds.map(id => ({ id }))
             },
@@ -58,16 +65,14 @@ export const insertDocument = async (document: Document, chunks: (DocumentChunk 
         const chunkId = uuidv4();
         const textToEmbeed = getTextToEmbeed({ ...chunk, id, document, metadata });
         const textEmbedding = await getEmbeddings(textToEmbeed);
-        console.log("INSERTING DOCUMENT")
         // insert using queryRaw since vector is unsupported as a type.
         await prisma.$queryRaw`
         INSERT INTO "DocumentChunk" (
-          id, text, "textEmbedding", test, title, "mediaType", "documentId"
+          id, text, "textEmbedding", title, "mediaType", "documentId"
         ) VALUES (
           ${chunkId}::uuid, 
           ${chunk.text},
           ${textEmbedding}::vector, 
-          ${chunk.test || 'test'}, 
           ${chunk.title}, 
           ${chunk.mediaType}, 
           ${createdDocument.id}::uuid

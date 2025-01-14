@@ -16,9 +16,13 @@ export const JOB_TYPES = {
   ],
   data: [
     "index-content",
-    "index-url"
+    "index-url",
   ],
+  scheduled: [
+    "reindex-youtube"
+  ]
 } as const;
+
 const CONNECTION_URL = process.env.DATABASE_URL as string;
 
 const queue = singleton(
@@ -28,17 +32,15 @@ const queue = singleton(
       connectionString: CONNECTION_URL,
       max: 5,
       retryBackoff: true,
-      retryLimit: 4,
-      archiveCompletedAfterSeconds: 60 * 60 * 24 * 7, // 7 days
-      deleteAfterDays: 7,
-      retentionDays: 7,
+      retryLimit: 2,
+      archiveCompletedAfterSeconds: 60 * 60 * 24 * 30, // 30 days
+      deleteAfterDays: 30,
+      retentionDays: 30,
       schema: "captable_queue",
     }),
 );
 
-
 type JobTypes = typeof JOB_TYPES;
-
 
 type JobType = {
   [Key in keyof JobTypes]: `${Key}.${JobTypes[Key][number]}`;

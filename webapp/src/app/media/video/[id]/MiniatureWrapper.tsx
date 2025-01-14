@@ -26,7 +26,6 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
 
         const element = wrapperRef.current;
         observerRef.current = new IntersectionObserver(([entry]) => {
-            console.log('intersection:', !entry.isIntersecting);
             setIsSticky(!entry.isIntersecting);
         }, options);
 
