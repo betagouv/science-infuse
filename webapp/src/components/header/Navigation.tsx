@@ -28,13 +28,13 @@ const StyledMainNavigation = styled(MainNavigation)`
 	.fr-nav__item:first-child {
 		/* margin-left: 2rem; */
 	}
-	.fr-nav__item:last-child {
+	/* .fr-nav__item:last-child {
 		margin-left: auto !important;
 		z-index: 1;
 		a.fr-nav__link:hover {
 			background-color: unset !important;
 		}
-	}
+	} */
 `
 
 
@@ -47,7 +47,7 @@ const NavBarSearch = () => {
 	}
 
 	return (
-		<div className="w-full min-w-[30rem]">
+		<div className="min-w-[30rem]">
 			<SearchBar />
 		</div>
 	)
@@ -79,7 +79,7 @@ export function Navigation() {
 	const segment = useSelectedLayoutSegment();
 
 	return (
-		<div className="flex flex-row items-center">
+		<div className="flex flex-row items-center py-2 pr-4">
 
 			<StyledMainNavigation
 				className="w-full flex "
@@ -117,16 +117,9 @@ export function Navigation() {
 						},
 						text: `Besoin d'aide`
 					},
-					{
-						linkProps: {
-							href: '#',
-							target: "_self",
-							className: "ml-auto w-full"
-						},
-						text: <NavBarSearch />
-					}
 				]}
 			/>
+			<NavBarSearch />
 		</div>
 	);
 
