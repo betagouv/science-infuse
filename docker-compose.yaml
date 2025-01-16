@@ -133,6 +133,7 @@ services:
       context: ./h5p
     ports:
       - "8006:8080"
+    restart: always
     volumes:
       - ./h5p:/app/h5p
       - ./public:/app/public

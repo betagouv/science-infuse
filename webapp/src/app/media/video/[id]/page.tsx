@@ -48,18 +48,18 @@ export default function VideoPage({
             {groupedVideo && <div className="flex w-full flex-col gap-8">
 
                 <h1>{video?.mediaName}</h1>
-                <MiniatureWrapper>
+                {/* <MiniatureWrapper> */}
                     <RenderGroupedVideoTranscriptCard
                         defaultSelectedChunk={selectedChunk}
                         video={groupedVideo}
                         searchWords={[]}
                     />
-                </MiniatureWrapper>
+                {/* </MiniatureWrapper> */}
 
                 {video && <>
                     <h2 className="m-0">Vidéo interactive</h2>
                     <div className="relative w-full bg-gray-50 p-0 md:p-8 rounded-xl">
-                        {textLength < 10000 ?
+                        {textLength < 100000 ?
                             <InteractiveVideoGenerator video={video} /> :
                             <CallOut
                                 iconId="ri-information-line"

@@ -10,18 +10,19 @@ datasource db {
 }
 
 model Document {
-  id             String          @id @default(cuid()) @db.Uuid
-  s3ObjectName   String
-  originalPath   String
-  deleted        Boolean         @default(false)
-  publicPath     String?
-  mediaName      String
-  source         String          @default("UniverScience")
-  userId         String?
-  user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documentChunks DocumentChunk[]
-  tags           DocumentTag[]   @relation("DocumentToDocumentTag")
-  fileHash       String?
+  id                 String          @id @default(cuid()) @db.Uuid
+  s3ObjectName       String
+  originalPath       String
+  deleted            Boolean         @default(false)
+  publicPath         String?
+  mediaName          String
+  source             String          @default("UniverScience")
+  sourceCreationDate DateTime?
+  userId             String?
+  user               User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentChunks     DocumentChunk[]
+  tags               DocumentTag[]   @relation("DocumentToDocumentTag")
+  fileHash           String?
 }
 
 model DocumentTag {
@@ -35,7 +36,6 @@ model DocumentChunk {
   id                   String                 @id @default(cuid()) @db.Uuid
   text                 String
   textEmbedding        Unsupported("vector")?
-  test                 String                 @default("test")
   title                String
   mediaType            String
   documentId           String                 @db.Uuid

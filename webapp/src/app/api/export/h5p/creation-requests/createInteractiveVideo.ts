@@ -83,13 +83,12 @@ export default async (input: InteractiveVideoData) => {
                                         "from": timestamp,
                                         "to": timestamp + 5
                                     },
-                                    "libraryTitle": "Ensemble (Single Choice Set)",
+                                    "libraryTitle": "Testez vos connaissances",
                                     "action": {
                                         "library": "H5P.SingleChoiceSet 1.11",
                                         "params": {
                                             "choices": [
                                                 ...questions.map((question) => {
-                                                    console.log("question", question)
                                                     return {
                                                         "subContentId": uuidv4(),
                                                         "question": `<p>${question.question}</p>\n`,
@@ -134,7 +133,7 @@ export default async (input: InteractiveVideoData) => {
                                         },
                                         "subContentId": "3975ebbf-baeb-4f14-acd9-d04a3b3d2824",
                                         "metadata": {
-                                            "contentType": "Ensemble (Single Choice Set)",
+                                            "contentType": "Testez vos connaissances",
                                             "license": "U",
                                             "title": `Quiz ${groupedQuestionsIndex+1}`,
                                             "authors": [],

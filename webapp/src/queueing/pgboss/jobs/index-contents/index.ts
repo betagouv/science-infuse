@@ -5,8 +5,10 @@ import { Document, DocumentChunk } from "@prisma/client";
 import axios from "axios";
 import fs from "fs";
 import { z } from "zod";
-import { defineJob, defineWorker, defineWorkerConfig } from "../boss";
+import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
+import { extractYoutubeVideoId } from "@/lib/utils/youtube";
+import indexYoutube from "./index-youtube";
 
 const crypto = require('crypto');
 
@@ -14,12 +16,17 @@ const config = defineWorkerConfig({
   name: "data.index-content",
   schema: z.object({
     path: z.string(),
+    sourceCreationDate: z.date().optional(),
     type: z.nativeEnum(IndexingContentType),
     documentTagIds: z.array(z.string()),
     author: z.string().optional(),
+    metadata: z.object({
+      channelName: z.string().optional(),
+    }).optional(),
   }),
 });
-interface ProcessResult {
+
+export interface ServerProcessingResult {
   document: Document;
   chunks: (DocumentChunk & { document: any, metadata: any })[];
 }
@@ -28,10 +35,10 @@ interface ProcessResult {
 export const indexContentJob = defineJob(config);
 
 export const indexContentWorker = defineWorker(config, async (job) => {
-  const { path, author, type, documentTagIds } = job.data;
+  const { path, author, type, documentTagIds, sourceCreationDate, metadata } = job.data;
 
   let processingError: Error | undefined;
-  let processingResponse: ProcessResult | undefined;
+  let processingResponse: ServerProcessingResult | undefined;
   let fileHash: string | undefined;
 
   if (type == IndexingContentType.file) {
@@ -49,7 +56,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
     switch (mimeType) {
       case "application/pdf":
         [processingError, processingResponse] = await catchErrorTyped(
-          axios.post<ProcessResult>(`${NEXT_PUBLIC_SERVER_URL}/process/pdf`, formData, {
+          axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/pdf`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -60,7 +67,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
       case "image/jpeg":
       case "image/png":
         [processingError, processingResponse] = await catchErrorTyped(
-          axios.post<ProcessResult>(`${NEXT_PUBLIC_SERVER_URL}/process/picture`, formData, {
+          axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/picture`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -73,13 +80,11 @@ export const indexContentWorker = defineWorker(config, async (job) => {
     }
 
     await fs.promises.unlink(path);
-
-
   }
   else if (type == IndexingContentType.url) {
     fileHash = path;
     [processingError, processingResponse] = await catchErrorTyped(
-      axios.post<ProcessResult>(`${NEXT_PUBLIC_SERVER_URL}/process/url`, { url: path }, {
+      axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/url`, { url: path }, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -88,24 +93,21 @@ export const indexContentWorker = defineWorker(config, async (job) => {
     )
   }
   else if (type == IndexingContentType.youtube) {
-    fileHash = path;
-    [processingError, processingResponse] = await catchErrorTyped(
-      axios.post<ProcessResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { url: path }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(response => response.data),
-      [Error]
-    )
+    return await indexYoutube({
+      youtubeUrl: path,
+      channelName: metadata?.channelName,
+      documentTagIds,
+      sourceCreationDate,
+    })
   }
 
-  if (processingError)
-    return { success: false, message: `Error indexing file error: ${processingError}`, fileHash };
+  // if (processingError) 
+  //   throw processingError;
 
-  if (!processingResponse)
-    return { success: false, message: `Error indexing file the processing server returned an empty response`, fileHash };
+  // if (!processingResponse)
+  //   throw new Error("Error indexing file the processing server returned an empty response");
 
-  const documentId = await insertDocument(processingResponse.document, processingResponse.chunks, documentTagIds, fileHash)
+  // if everything goes well, we got the response from the server with the processed document and it's chunks
+  // so we insert it into db
 
-  return { success: true, message: 'Fichier indexé avec succès', documentId, fileHash };
 });

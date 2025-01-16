@@ -1,12 +1,10 @@
 import { generateInteraciveVideoData, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, InteractiveVideoQuestion, InteractiveVideoQuestionGroup } from "@/app/api/export/h5p/contents/interactiveVideo";
-import { ChunkWithScore, DocumentWithChunks, GroupedVideo, s3ToPublicUrl } from "@/types/vectordb";
+import { DocumentWithChunks, s3ToPublicUrl } from "@/types/vectordb";
 import { useState } from "react";
 import Button from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import { CircularProgress } from "@mui/material";
-import { RenderGroupedVideoTranscriptCard } from "@/app/recherche/DocumentChunkFull";
-import MiniatureWrapper from "@/app/media/video/[id]/MiniatureWrapper";
 import { apiClient } from "@/lib/api-client";
 import { secondsToTime, timeToSeconds } from "@/lib/utils";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
@@ -339,7 +337,8 @@ export default ({ video }: { video: DocumentWithChunks }) => {
     const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+    const [downloadH5pUrl, setDownloadH5pUrl] = useState<string | null>(null);
+    const [downloadHTMLUrl, setDownloadHTMLUrl] = useState<string | null>(null);
     const generateInteractiveVideo = async () => {
         if (!video) return;
         setIsLoading(true);
@@ -356,43 +355,6 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         }
     }
 
-    const document = video.chunks[0].document;
-
-    // const getInteractiveVideoSegments = () => {
-    //     let segments: ChunkWithScore<"video_transcript">[] = [];
-    //     if (ivQuestions) {
-    //         const questionSegments: ChunkWithScore<"video_transcript">[] = ivQuestions.map(qs => ({
-    //             score: 0,
-    //             id: "-",
-    //             text: `Questions: ${qs.questions.map(q => q.question).join(', ')}`,
-    //             title: video.mediaName,
-    //             document: document,
-    //             mediaType: "video_transcript",
-    //             metadata: { start: qs.timestamp, end: qs.timestamp }
-    //         }));
-    //         segments = [...segments, ...questionSegments]
-    //     }
-    //     if (ivDefinitions) {
-    //         const definitionSegments: ChunkWithScore<"video_transcript">[] = ivDefinitions.map(qs => ({
-    //             score: 0,
-    //             id: "-",
-    //             text: `Définitions: ${qs.definitions.map(d => d.notion).join(', ')}`,
-    //             title: video.mediaName,
-    //             document: document,
-    //             mediaType: "video_transcript",
-    //             metadata: { start: qs.timestamp + 5, end: qs.timestamp + 5 }
-    //         }));
-    //         segments = [...segments, ...definitionSegments]
-    //     }
-    //     return segments;
-    // }
-
-    // const groupedVideo: GroupedVideo = {
-    //     documentId: "",
-    //     items: getInteractiveVideoSegments(),
-    //     maxScore: 1
-    // }
-
     const handleQuestionGroupChange = (timestamp: number, updated: InteractiveVideoQuestionGroup) => {
         if (!ivQuestions) return;
         const newQuestions = ivQuestions.map(qg =>
@@ -408,6 +370,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         );
         setIvDefinitions(newDefinitions);
     };
+    
 
     return <div className="flex flex-col gap-4 relative">
 
@@ -462,7 +425,8 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                     setIsLoading(true);
                     const data = await apiClient.exportH5p({ type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions } })
                     setPreviewUrl(data.embedUrl);
-                    setDownloadUrl(data.downloadUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
                     setIsLoading(false);
                 }}
             >
@@ -471,19 +435,23 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         </div>}
 
         {previewUrl && <iframe className="w-full aspect-[16/10]" src={previewUrl} />}
-        {downloadUrl && <Button
+        {downloadH5pUrl && <Button
             className="w-full justify-center"
             onClick={async () => {
-                window.open(downloadUrl, '_blank')
+                window.open(downloadH5pUrl, '_blank')
             }}
         >
-            Télécharger en h5p
+            Télécharger en H5P
+        </Button>}
+        {downloadHTMLUrl && <Button
+            className="w-full justify-center"
+            onClick={async () => {
+                window.open(downloadHTMLUrl, '_blank')
+            }}
+        >
+            Télécharger en HTML
         </Button>}
         {!previewUrl && <>
-            {/* {(ivQuestions || [])?.length > 0 && <MiniatureWrapper>
-                <RenderGroupedVideoTranscriptCard defaultSelectedChunk={undefined} video={groupedVideo} searchWords={[]} />
-            </MiniatureWrapper>} */}
-
             <div className="flex flex-col gap-4 bg-white">
                 {ivQuestions?.length ? <h3 className="mt-8 px-8">Questions</h3> : ""}
                 {ivQuestions?.map(qs => (

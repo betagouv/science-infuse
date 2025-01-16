@@ -26,7 +26,6 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
 
         const element = wrapperRef.current;
         observerRef.current = new IntersectionObserver(([entry]) => {
-            console.log('intersection:', !entry.isIntersecting);
             setIsSticky(!entry.isIntersecting);
         }, options);
 
@@ -57,7 +56,7 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
                     right: 0,
                     width: isMobile ? "100%" : 400,
                     height: 250,
-                    zIndex: 9999,
+                    zIndex: 3,
                     backgroundColor: 'white',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     borderRadius: '0.5rem',
@@ -68,7 +67,7 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
                     right: 0,
                     width: '100%',
                     height: '100%',
-                    zIndex: 1,
+                    zIndex: 0,
                     boxShadow: 'none',
                     borderRadius: 0,
                     scale: 1
