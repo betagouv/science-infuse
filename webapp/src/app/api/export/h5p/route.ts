@@ -20,41 +20,48 @@ function isInteractiveVideoRequest(body: ExportH5PRequestBody): body is ExportH5
 // returns the download url
 export async function POST(request: NextRequest) {
     const body: ExportH5PRequestBody = await request.json();
-
+    let game;
+    let type = "";
     if (isQuestionRequest(body)) {
-        const game = await createQuestionSet(body.data);
-        const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=qcm-science-infuse`;
-        return NextResponse.json({ downloadUrl } as ExportH5pResponse);
+        game = await createQuestionSet(body.data);
+        type = "quiz";
     } else if (isInteractiveVideoRequest(body)) {
         // const videoQcm = await generateInteraciveVideoData(body.data.documentId)
         // if (!videoQcm) throw new Error(`Unsupported type: ${body.type}`);
-        const game = await createInteractiveVideo(body.data);
-        const downloadUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=interactive-video-science-infuse`;
-        const embedUrl = `${process.env.H5P_PUBLIC_URL}/h5p/play/${game.contentId}`;
-        return NextResponse.json({ downloadUrl, embedUrl: embedUrl } as ExportH5pResponse);
+        game = await createInteractiveVideo(body.data);
+        type = "video";
     }
     else {
         throw new Error(`Unsupported type: ${body.type}`);
     }
+
+    const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${type}-science-infuse&media=h5p`;
+    const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${type}-science-infuse&media=html`;
+    const embedUrl = `${process.env.H5P_PUBLIC_URL}/h5p/play/${game.contentId}`;
+    return NextResponse.json({ downloadH5p, downloadHTML, embedUrl: embedUrl } as ExportH5pResponse);
+
 }
 
 // route to download the h5p by id
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const media = searchParams.get('media');
     const name = searchParams.get('name');
 
     if (!id) {
         throw new Error('id is required');
     }
-
-    const downloadUrl = `${process.env.H5P_URL}/h5p/download/${id}`;
+    console.log("MEDIATYPE", media)
+    const downloadUrl = media === 'html'
+        ? `${process.env.H5P_URL}/h5p/html/${id}`
+        : `${process.env.H5P_URL}/h5p/download/${id}`;
     const response = await fetch(downloadUrl);
 
     return new NextResponse(response.body, {
         headers: {
             'Content-Type': 'application/octet-stream',
-            'Content-Disposition': `attachment; filename="${name}-${id}.h5p"`
+            'Content-Disposition': `attachment; filename="${name}-${id}.${media}"`
         }
     });
 }

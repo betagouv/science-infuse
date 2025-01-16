@@ -184,6 +184,27 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
     }, 500)
   }
 
+  const [h5pData, setH5pData] = useState<{ downloadH5p?: string, downloadHTML?: string }>({})
+
+  const handleDownloadH5p = async (type: 'h5p' | 'html') => {
+    if (h5pData.downloadH5p && type === 'h5p') {
+      window.open(h5pData.downloadH5p, '_blank')
+      return;
+    }
+    if (h5pData.downloadHTML && type === 'html') {
+      window.open(h5pData.downloadHTML, '_blank')
+      return;
+    }
+    const data = await apiClient.exportH5p({ type: 'question', data: questions })
+    setH5pData(data)
+    if (type === 'h5p') {
+      window.open(data.downloadH5p, '_blank')
+    }
+    if (type === 'html') {
+      window.open(data.downloadHTML, '_blank')
+    }
+  }
+
 
   return (
     <div className="flex h-full transition-[0.4s] w-full items-center justify-center bg-[#16161686]">
@@ -306,10 +327,8 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
               Enregistrer le quiz
             </Button>
 
-            <Button className='w-full flex items-center justify-center' priority='tertiary no outline' iconId="fr-icon-download-fill" iconPosition="right" onClick={async () => {
-                const data = await apiClient.exportH5p({ type: 'question', data: questions })
-                window.open(data.downloadUrl, '_blank')
-              }}>Télécharger en H5P</Button>
+            <Button className='w-full flex items-center justify-center' priority='tertiary no outline' iconId="fr-icon-download-fill" iconPosition="right" onClick={() => handleDownloadH5p('h5p')}>Télécharger en H5P</Button>
+            <Button className='w-full flex items-center justify-center' priority='tertiary no outline' iconId="fr-icon-download-fill" iconPosition="right" onClick={() => handleDownloadH5p('html')}>Télécharger en HTML</Button>
 
           </div>
         </div>
