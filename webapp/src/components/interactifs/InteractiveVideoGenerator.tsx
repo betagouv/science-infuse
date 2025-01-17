@@ -8,6 +8,7 @@ import { CircularProgress } from "@mui/material";
 import { apiClient } from "@/lib/api-client";
 import { secondsToTime, timeToSeconds } from "@/lib/utils";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
+import EmbedVideo from "./EmbedVideo";
 
 const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup, onChange: (updated: InteractiveVideoQuestionGroup) => void }) => {
     const [questionGroup, setQuestionGroup] = useState<InteractiveVideoQuestionGroup>(props.initialQuestionGroup);
@@ -370,7 +371,6 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         );
         setIvDefinitions(newDefinitions);
     };
-    
 
     return <div className="flex flex-col gap-4 relative">
 
@@ -435,22 +435,29 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         </div>}
 
         {previewUrl && <iframe className="w-full aspect-[16/10]" src={previewUrl} />}
-        {downloadH5pUrl && <Button
+        <div className="flex gap-4">
+
+            {downloadH5pUrl && <Button
+            priority="secondary"
+                className="w-full justify-center"
+                onClick={async () => {
+                    window.open(downloadH5pUrl, '_blank')
+                }}
+            >
+                Télécharger en H5P
+            </Button>}
+            {downloadHTMLUrl && <Button
+            priority="secondary"
             className="w-full justify-center"
-            onClick={async () => {
-                window.open(downloadH5pUrl, '_blank')
-            }}
-        >
-            Télécharger en H5P
-        </Button>}
-        {downloadHTMLUrl && <Button
-            className="w-full justify-center"
-            onClick={async () => {
-                window.open(downloadHTMLUrl, '_blank')
-            }}
-        >
-            Télécharger en HTML
-        </Button>}
+                onClick={async () => {
+                    window.open(downloadHTMLUrl, '_blank')
+                }}
+            >
+                Télécharger en HTML
+            </Button>}
+            {previewUrl && <EmbedVideo videoUrl={previewUrl} />}
+        </div>
+
         {!previewUrl && <>
             <div className="flex flex-col gap-4 bg-white">
                 {ivQuestions?.length ? <h3 className="mt-8 px-8">Questions</h3> : ""}
