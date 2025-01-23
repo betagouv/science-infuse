@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Any, Literal, Optional, Union, List, TypeVar, Generic, Type, Dict
@@ -26,11 +27,16 @@ class MediaType(str, Enum):
 
 class Document(BaseModel):
     id: str
-    publicPath: Optional[str] = Field(default="")
+    s3ObjectName: str
     originalPath: str
-    s3ObjectName: Optional[str] = Field(default="")
+    deleted: bool = Field(default=False)
+    publicPath: Optional[str] = None
     mediaName: str
-
+    duration: Optional[float] = None
+    source: str = Field(default="UniverScience")
+    sourceCreationDate: Optional[datetime]
+    userId: Optional[str] = None
+    fileHash: Optional[str] = None
 
 class BaseDocumentChunk(BaseModel):
     # id: str

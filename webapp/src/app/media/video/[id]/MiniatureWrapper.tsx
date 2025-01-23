@@ -55,11 +55,11 @@ const MiniatureWrapper = ({ children, className = "" }: { children: React.ReactN
                     top: isMobile ? 0 : 60,
                     right: 0,
                     width: isMobile ? "100%" : 400,
-                    height: 250,
+                    height: "fit-content",
                     zIndex: 3,
-                    backgroundColor: 'white',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                    borderRadius: '0.5rem',
+                    // backgroundColor: 'white',
+                    // boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    // borderRadius: '0.5rem',
                     scale: 1
                 } : {
                     position: 'relative',

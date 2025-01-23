@@ -110,6 +110,7 @@ export default () => {
                             {[
                                 { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
                                 { icon: "fr-icon-star-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
+                                { icon: "fr-icon-play-circle-line", text: "Mes contenus interactifs", path: "/prof/mes-interactifs" },
                                 ...((user.roles || []).includes(UserRoles.ADMIN) ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }] : []),
                                 { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
                             ].map((item, index) => (

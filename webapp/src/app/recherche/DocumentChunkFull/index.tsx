@@ -30,13 +30,13 @@ export const StyledCardWithoutTitle = styled(Card)`
 }
 `
 
-const StyledGroupedVideoCard = styled(StyledCardWithoutTitle)`
+export const StyledGroupedVideoCard = styled(StyledCardWithoutTitle)`
 .fr-card__body,
 .fr-card__content,
 .fr-card__desc,
 .fr-card__start {
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 };
 
 .fr-card__end {

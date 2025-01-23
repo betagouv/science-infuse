@@ -195,7 +195,10 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
       window.open(h5pData.downloadHTML, '_blank')
       return;
     }
-    const data = await apiClient.exportH5p({ type: 'question', data: questions })
+    const data = await apiClient.exportH5p({
+      type: 'question', data: questions,
+      documentIds: []
+    })
     setH5pData(data)
     if (type === 'h5p') {
       window.open(data.downloadH5p, '_blank')

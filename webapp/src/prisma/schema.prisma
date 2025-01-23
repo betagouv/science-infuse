@@ -10,19 +10,35 @@ datasource db {
 }
 
 model Document {
-  id                 String          @id @default(cuid()) @db.Uuid
-  s3ObjectName       String
-  originalPath       String
-  deleted            Boolean         @default(false)
-  publicPath         String?
-  mediaName          String
-  source             String          @default("UniverScience")
-  sourceCreationDate DateTime?
-  userId             String?
-  user               User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documentChunks     DocumentChunk[]
-  tags               DocumentTag[]   @relation("DocumentToDocumentTag")
-  fileHash           String?
+  id                    String          @id @default(cuid()) @db.Uuid
+  s3ObjectName          String
+  originalPath          String
+  deleted               Boolean         @default(false)
+  publicPath            String?
+  mediaName             String
+  duration              Float?
+  source                String          @default("UniverScience")
+  sourceCreationDate    DateTime?
+  userId                String?
+  user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentChunks        DocumentChunk[]
+  tags                  DocumentTag[]   @relation("DocumentToDocumentTag")
+  fileHash              String?
+  h5pContents           H5PContent[]    @relation("DocumentToH5PContent")
+  showcasedH5PContent   H5PContent?     @relation("DocumentShowcaseH5PContent", fields: [showcasedH5PContentId], references: [id])
+  showcasedH5PContentId String?
+}
+
+model H5PContent {
+  id                   String     @id @default(cuid())
+  title                String
+  contentType          String
+  s3ObjectName         String
+  h5pId                String
+  documents            Document[] @relation("DocumentToH5PContent")
+  showcasedInDocuments Document[] @relation("DocumentShowcaseH5PContent")
+  userId               String
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DocumentTag {
@@ -261,6 +277,8 @@ model User {
   academy            Academy?               @relation(fields: [academyId], references: [id])
   StarredBlock       StarredBlock[]
   Document           Document[]
+
+  H5PContent H5PContent[]
 }
 
 model Account {

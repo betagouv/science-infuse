@@ -421,9 +421,13 @@ export default ({ video }: { video: DocumentWithChunks }) => {
             </Button>
             {ivQuestions && <Button
                 className="w-full justify-center"
+                disabled={isLoading}
                 onClick={async () => {
                     setIsLoading(true);
-                    const data = await apiClient.exportH5p({ type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions } })
+                    const data = await apiClient.exportH5p({
+                        type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions },
+                        documentIds: [video.id]
+                    })
                     setPreviewUrl(data.embedUrl);
                     setDownloadH5pUrl(data.downloadH5p);
                     setDownloadHTMLUrl(data.downloadHTML);

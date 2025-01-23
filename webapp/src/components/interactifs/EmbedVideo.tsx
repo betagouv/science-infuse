@@ -16,6 +16,9 @@ export default (props: { videoUrl: string }) => {
     const handleCopyEmbed = () => {
         navigator.clipboard.writeText(embedCode);
     };
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(props.videoUrl);
+    };
 
     return (
         <>
@@ -25,9 +28,13 @@ export default (props: { videoUrl: string }) => {
                     {
                         iconId: "ri-file-copy-line",
                         onClick: handleCopyEmbed,
-                        children: "Copier le lien d'intégration"
+                        children: "Copier le code d'intégration"
                     },
-
+                    {
+                        iconId: "ri-link-m",
+                        onClick: handleCopyLink,
+                        children: "Copier le lien direct"
+                    }
                 ]}>
                 <div className="flex flex-row gap-8 p-4">
                     <div className="flex-1">
@@ -37,15 +44,19 @@ export default (props: { videoUrl: string }) => {
                         <p className="text-sm text-gray-600 mt-4">
                             Copiez ce code et collez-le dans votre site web pour intégrer cette vidéo.
                         </p>
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-4">
+                            <code className="text-sm break-all">{props.videoUrl}</code>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-4">
+                            Ou copiez directement le lien de la vidéo.
+                        </p>
                     </div>
                 </div>
             </modal.Component>
             <Button
                 onClick={() => modal.open()}
                 className="w-full justify-center"
-            // iconId="ri-video-line"
-            priority="secondary"
-
+                priority="secondary"
             >
                 Lien d'intégration
             </Button>

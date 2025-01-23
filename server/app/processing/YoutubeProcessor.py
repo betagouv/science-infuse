@@ -1,3 +1,4 @@
+import subprocess
 from S3Storage import S3Storage
 from processing.BaseDocumentProcessor import BaseDocumentProcessor
 from processing.audio.SIWhisperModel import SIWhisperModel
@@ -30,6 +31,18 @@ class YoutubeProcessor(BaseDocumentProcessor):
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
         return file_path, video_name
 
+    def get_video_duration(self, video_path):
+        try:
+            result = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            return float(result.stdout)
+        except (subprocess.SubprocessError, ValueError, FileNotFoundError) as e:
+            print(f"Error getting video duration: {str(e)}")
+            return -1
+
     def extract_document(self):
         # Load and process audio file
         video_path, video_name = self.download_youtube_video()
@@ -47,6 +60,7 @@ class YoutubeProcessor(BaseDocumentProcessor):
             publicPath=self.youtube_url, 
             originalPath=self.youtube_url,
             s3ObjectName=video_s3ObjectName,
+            duration=self.get_video_duration(video_path),
             mediaName=video_name,
         )
         chunks = [
