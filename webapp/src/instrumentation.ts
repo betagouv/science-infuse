@@ -4,6 +4,5 @@ export async function register() {
     const { registerJobs } = await import("@/queueing/pgboss/jobs");
 
     await registerJobs();
-
   }
 }

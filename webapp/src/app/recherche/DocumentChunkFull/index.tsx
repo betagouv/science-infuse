@@ -6,18 +6,20 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
 import { Quote } from "@codegouvfr/react-dsfr/Quote";
+import { Tile } from "@codegouvfr/react-dsfr/Tile";
 import styledComponent from '@emotion/styled';
 import { Collapse, Tooltip, Typography, styled } from '@mui/material';
+import { Document, DocumentChunk } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
-import { useSession } from "next-auth/react";
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -374,7 +376,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
     if (originalPath.includes("youtube") && selectedChunk) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(selectedChunk.metadata.start)}`
     }
-    
+
     useEffect(() => {
         if (!defaultSelectedChunk) return;
         console.log("defaultSelectedChunk", defaultSelectedChunk.text)
@@ -712,6 +714,57 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
             target: "_self"
         }}
     />
+}
+
+
+const typeMap = {
+    image: { label: "Image" },
+    pdf_image: { label: "Image PDF" },
+    raw_image: { label: "Image brute" },
+    pdf_text: { label: "Texte PDF" },
+    video_transcript: { label: "Vidéo" },
+    website_qa: { label: "Site web Q&R" },
+    website: { label: "Site web" },
+    website_experience: { label: "Expérience web" },
+}
+
+const getDocumentTags = (document: DocumentWithChunks) => {
+
+    const types = Array.from(new Set(document.chunks.map(chunk => chunk.mediaType)));
+    const badges = types.map(type => <Badge key={type} noIcon severity="new">{typeMap[type].label}</Badge>)
+    return <div className="flex gap-2">{badges}</div>
+}
+
+
+const StyledTile = styled(Tile)`
+    .fr-tile__content {
+        padding-bottom: 0 !important;
+    }
+`
+export const DocumentPreview = (props: { document: DocumentWithChunks }) => {
+    let link = "";
+    const chunks = props.document.chunks;
+    if (chunks.some(chunk => ["pdf_text", "pdf_image"].includes(chunk.mediaType)))
+        link = `/media/pdf/${props.document.id}/1`
+    else if (chunks.some(chunk => ["video_transcript"].includes(chunk.mediaType)))
+        link = `/media/video/${props.document.id}`
+    else if (chunks.some(chunk => ["website_qa", "website", "website_experience"].includes(chunk.mediaType)))
+        link = props.document.source
+    else
+        link = s3ToPublicUrl(props.document.s3ObjectName)
+
+    return (
+        <StyledTile
+            title={props.document.mediaName}
+            linkProps={{
+                href: link,
+                target: "_blank"
+            }}
+            orientation="horizontal"
+            desc={getDocumentTags(props.document)}
+            small={true}
+        />
+    )
 }
 
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, chunk, searchWords }) => {

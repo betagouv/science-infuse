@@ -1,11 +1,12 @@
 'use client';
 
-import { h5pIdToPublicUrl } from "@/types/vectordb";
+import { DocumentWithChunks, h5pIdToPublicUrl } from "@/types/vectordb";
 import H5PContentCard from "./H5PContentCard";
 import { MasonaryItem } from "@/components/MasonaryItem";
 import Masonry from "@mui/lab/Masonry";
+import { H5PContent } from "@prisma/client";
 
-export default (props: {contents: any[]}) => {
+export default (props: {contents: (H5PContent & { documents: DocumentWithChunks[] })[]}) => {
     return <Masonry columns={2} spacing={2}>
         {props.contents.map((content, index) => {
             const h5pPublicUrl = h5pIdToPublicUrl(content.h5pId);

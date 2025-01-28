@@ -15,6 +15,13 @@ class YoutubeProcessor(BaseDocumentProcessor):
         self.paragraph_pause_threshold = paragraph_pause_threshold
         self.s3 = s3
         self.use_oauth = use_oauth
+        self.proxies = None
+        if os.environ.get("YOUTUBE_PROXY"):
+            self.proxies = {
+                "http": os.environ.get("YOUTUBE_PROXY"),
+                "https": os.environ.get("YOUTUBE_PROXY")
+            }
+
         super().__init__()
 
     def download_youtube_video(self):
@@ -23,9 +30,9 @@ class YoutubeProcessor(BaseDocumentProcessor):
         filename = f"{self.id}.mp4"
         file_path = os.path.join(output_path, filename)
         if (self.use_oauth is True):
-            yt = YouTube(self.youtube_url, use_oauth=True, allow_oauth_cache=True)
+            yt = YouTube(self.youtube_url, proxies=self.proxies, use_oauth=True, allow_oauth_cache=True)
         else:
-            yt = YouTube(self.youtube_url)
+            yt = YouTube(self.youtube_url, proxies=self.proxies)
         print("YT", yt)
         video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)

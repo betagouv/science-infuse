@@ -33,23 +33,23 @@ export default (props: { videoUrl: string }) => {
                     {
                         iconId: "ri-link-m",
                         onClick: handleCopyLink,
-                        children: "Copier le lien direct"
+                        children: "Copier le lien de la vidéo"
                     }
                 ]}>
                 <div className="flex flex-row gap-8 p-4">
                     <div className="flex-1">
+                        <p className="text-sm text-gray-600 mt-4">
+                            Copiez ce code et collez-le dans votre site web pour intégrer cette vidéo.
+                        </p>
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <code className="text-sm break-all">{embedCode}</code>
                         </div>
                         <p className="text-sm text-gray-600 mt-4">
-                            Copiez ce code et collez-le dans votre site web pour intégrer cette vidéo.
+                            Ou copiez directement le lien de la vidéo.
                         </p>
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-4">
                             <code className="text-sm break-all">{props.videoUrl}</code>
                         </div>
-                        <p className="text-sm text-gray-600 mt-4">
-                            Ou copiez directement le lien de la vidéo.
-                        </p>
                     </div>
                 </div>
             </modal.Component>

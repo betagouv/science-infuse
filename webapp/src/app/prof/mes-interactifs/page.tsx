@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import RenderH5pContents from "./RenderH5pContents";
+import { H5PContent } from "@prisma/client";
+import { DocumentWithChunks } from "@/types/vectordb";
 
 async function getContents() {
     try {
@@ -13,16 +15,34 @@ async function getContents() {
                 userId
             },
             include: {
-                documents: true,
+                documents: {
+                    include: {
+                        tags: true,
+                        documentChunks: {
+                            include: {
+                                metadata: true,
+                                document: true,
+                            }
+                        }
+                    }
+                },
             }
         });
-        return contents;
+
+        const formattedContents = contents.map(content => ({
+            ...content,
+            documents: content.documents.map(doc => ({
+                ...doc,
+                chunks: doc.documentChunks
+            }))
+        }));
+
+        return formattedContents as (H5PContent & { documents: DocumentWithChunks[] })[];
     } catch (error) {
         console.error('Failed to fetch contents:', error);
         throw new Error('Failed to fetch contents');
     }
 }
-
 
 
 export default async function MesInteractifs() {

@@ -1,10 +1,12 @@
 "use client";
 
-import { StyledCardWithoutTitle, StyledGroupedVideoCard } from "@/app/recherche/DocumentChunkFull";
-import { h5pIdToPublicUrl } from "@/types/vectordb";
+import { DocumentPreview } from "@/app/recherche/DocumentChunkFull";
+import { DocumentWithChunks } from "@/types/vectordb";
+import { Button } from "@codegouvfr/react-dsfr/Button";
 import Card from "@codegouvfr/react-dsfr/Card";
 import styled from "@emotion/styled";
-import { H5PContent, Document } from "@prisma/client";
+import { H5PContent } from "@prisma/client";
+import { Download } from "@codegouvfr/react-dsfr/Download";
 
 const StyledCard = styled(Card)`
 .fr-card__content {
@@ -25,7 +27,9 @@ const StyledCard = styled(Card)`
 }
 
 `
-function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, content: H5PContent & { documents: Document[] } }) {
+function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, content: H5PContent & { documents: DocumentWithChunks[] } }) {
+    const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=h5p`;
+    const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=html`;
     return (
         <StyledCard
             background
@@ -37,9 +41,33 @@ function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, conte
                 </div>
             }
             end={
-                content.documents.map(d => (
-                    <p key={d.mediaName} className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full block">{d.mediaName}</p>
-                ))
+                <>
+                    <p className="text-xl">{content.documents.length == 0 ? "Aucun document n'est lié à cet interactif" : "Documents sources"}</p>
+                    <div className="flex flex-col gap-4">
+                        {content.documents.map(d => (
+                            <DocumentPreview key={d.id} document={d} />
+                        ))}
+                        <p className="text-xl mb-0 mt-4">Téléchargements</p>
+                        <div className="flex gap-2">
+                            <Download
+                                className="w-full justify-center"
+                                label="H5P"
+                                details="Télécharger la vidéo interactive en H5P"
+                                linkProps={{
+                                    href: downloadH5p
+                                }}
+                            />
+                            <Download
+                                className="w-full justify-center"
+                                label="HTML"
+                                details="Télécharger la vidéo interactive en HTML"
+                                linkProps={{
+                                    href: downloadHTML
+                                }}
+                            />
+                        </div>
+                    </div>
+                </>
             }
             size="medium"
             title={""}

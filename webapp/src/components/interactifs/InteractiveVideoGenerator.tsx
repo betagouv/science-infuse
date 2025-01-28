@@ -9,6 +9,7 @@ import { apiClient } from "@/lib/api-client";
 import { secondsToTime, timeToSeconds } from "@/lib/utils";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
 import EmbedVideo from "./EmbedVideo";
+import Download from "@codegouvfr/react-dsfr/Download";
 
 const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup, onChange: (updated: InteractiveVideoQuestionGroup) => void }) => {
     const [questionGroup, setQuestionGroup] = useState<InteractiveVideoQuestionGroup>(props.initialQuestionGroup);
@@ -439,26 +440,24 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         </div>}
 
         {previewUrl && <iframe className="w-full aspect-[16/10]" src={previewUrl} />}
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
 
-            {downloadH5pUrl && <Button
-            priority="secondary"
-                className="w-full justify-center"
-                onClick={async () => {
-                    window.open(downloadH5pUrl, '_blank')
+            {downloadH5pUrl && <Download
+                className="w-full justify-center m-0"
+                label="H5P"
+                details="Télécharger la vidéo interactive en H5P"
+                linkProps={{
+                    href: downloadH5pUrl
                 }}
-            >
-                Télécharger en H5P
-            </Button>}
-            {downloadHTMLUrl && <Button
-            priority="secondary"
-            className="w-full justify-center"
-                onClick={async () => {
-                    window.open(downloadHTMLUrl, '_blank')
+            />}
+            {downloadHTMLUrl && <Download
+                className="w-full justify-center m-0"
+                label="HTML"
+                details="Télécharger la vidéo interactive en HTML"
+                linkProps={{
+                    href: downloadHTMLUrl
                 }}
-            >
-                Télécharger en HTML
-            </Button>}
+            />}
             {previewUrl && <EmbedVideo videoUrl={previewUrl} />}
         </div>
 

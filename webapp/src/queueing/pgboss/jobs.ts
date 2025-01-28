@@ -18,11 +18,8 @@ export async function registerJobs() {
 
   // Schedule the reindex-youtube job to run every week
   try {
-    // if (["production", "prod"].includes(process.env.ENVIRONMENT || "")) {
-      await queue.schedule('scheduled.reindex-youtube', '0 0 * * 0', {});
-      // await queue.schedule('scheduled.reindex-youtube', '*/5 * * * *', {});
-      console.log("Reindex Youtube job scheduled successfully");
-    // }
+    await queue.schedule('scheduled.reindex-youtube', '0 0 * * 0', {});
+    console.log("Reindex Youtube job scheduled successfully");
   } catch (error) {
     console.error("Error scheduling Reindex Youtube job:", error);
   }
