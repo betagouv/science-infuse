@@ -426,7 +426,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                 onClick={async () => {
                     setIsLoading(true);
                     const data = await apiClient.exportH5p({
-                        type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions },
+                        type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName||""), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions },
                         documentIds: [video.id]
                     })
                     setPreviewUrl(data.embedUrl);

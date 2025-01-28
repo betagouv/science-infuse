@@ -2,7 +2,7 @@ import { DocumentTag } from "@prisma/client";
 
 export interface FileExplorerDocument {
     originalPath: string;
-    s3ObjectName: string;
+    s3ObjectName: string | null;
     tags: DocumentTag[];
     id: string;
     deleted: boolean,

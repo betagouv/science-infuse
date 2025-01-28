@@ -42,7 +42,7 @@ const FileImport = (props: { pos: number, editor: Editor; closePopup: () => void
   }, [handleClosePopup]);
 
   const insertImage = (userFile: DbFile) => {
-    props.editor.chain().setImageBlockUserFileAt({ pos: props.pos, src: s3ToPublicUrl(userFile.s3ObjectName), userFile }).focus().run();
+    props.editor.chain().setImageBlockUserFileAt({ pos: props.pos, src: s3ToPublicUrl(userFile.s3ObjectName||""), userFile }).focus().run();
   }
 
   const insertPdf = (pdfUrl: string) => {

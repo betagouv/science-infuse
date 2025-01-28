@@ -49,7 +49,7 @@ export default function VideoPage({
 
                 <h1>{video?.mediaName}</h1>
                 {/* <MiniatureWrapper> */}
-                {video && <video className="w-full" ref={videoRef} controls src={s3ToPublicUrl(video.s3ObjectName)} />}
+                {video && <video className="w-full" ref={videoRef} controls src={s3ToPublicUrl(video.s3ObjectName||"")} />}
                 {/* </MiniatureWrapper> */}
 
                 {video && <>

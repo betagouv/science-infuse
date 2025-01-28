@@ -750,7 +750,7 @@ export const DocumentPreview = (props: { document: DocumentWithChunks }) => {
         link = `/media/video/${props.document.id}`
     else if (chunks.some(chunk => ["website_qa", "website", "website_experience"].includes(chunk.mediaType)))
         link = props.document.source
-    else
+    else if (props.document.s3ObjectName)
         link = s3ToPublicUrl(props.document.s3ObjectName)
 
     return (

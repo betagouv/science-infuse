@@ -15,12 +15,12 @@ export async function GET(
         where: { id },
     })
     
-    if (!document) {
+    if (!document || !document.s3ObjectName) {
         return new Response('Document not found', { status: 404 })
     }
 
     try {
-        const presignedUrl = await s3Storage.getPresignedUrl(document.s3ObjectName);
+        const presignedUrl = await s3Storage.getPresignedUrl(document?.s3ObjectName);
         return NextResponse.json(presignedUrl)
     } catch (error) {
         console.error('Error building table of contents:', error);
