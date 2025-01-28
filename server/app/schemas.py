@@ -27,14 +27,14 @@ class MediaType(str, Enum):
 
 class Document(BaseModel):
     id: str
-    s3ObjectName: str
+    s3ObjectName: Optional[str]
     originalPath: str
     deleted: bool = Field(default=False)
     publicPath: Optional[str] = None
     mediaName: str
     duration: Optional[float] = None
     source: str = Field(default="UniverScience")
-    sourceCreationDate: Optional[datetime]
+    # sourceCreationDate: Optional[datetime]
     userId: Optional[str] = None
     fileHash: Optional[str] = None
 
