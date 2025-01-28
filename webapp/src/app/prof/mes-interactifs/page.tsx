@@ -5,6 +5,7 @@ import RenderH5pContents from "./RenderH5pContents";
 import { H5PContent } from "@prisma/client";
 import { DocumentWithChunks } from "@/types/vectordb";
 import RegisteredUserFeature from "@/components/RegisteredUserFeature";
+import CallOut from "@codegouvfr/react-dsfr/CallOut";
 
 async function getContents(userId: string) {
     try {
@@ -63,7 +64,24 @@ export default async function MesInteractifs() {
                             Mes intéractifs
                         </h1>
                     </div>
-                    <RenderH5pContents contents={contents} />
+                    {contents.length > 0 ? (
+                        <RenderH5pContents contents={contents} />
+                    ) : (
+                        <CallOut iconId="ri-information-line" title="Vous n'avez pas encore généré d'interactifs.">
+                            <div className="flex flex-col gap-4">
+                                <p className="mt-8">
+                                    Les interactifs que vous générez seront disponibles ici. Ils sont privés et uniquement accessibles par vous. Vous pourrez les télécharger et les importer dans votre ENT.
+                                </p>
+                                <p>Pour créer des interactifs, vous pouvez :</p>
+                                <p>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                        <li>Ouvrir une vidéo depuis les résultats de recherche et suivre les étapes de génération.</li>
+                                        <li>Créer un cours et générer un quiz à partir de son contenu.</li>
+                                    </ol>
+                                </p>
+                            </div>
+                        </CallOut>
+                    )}
                 </div>
             </div>
         </div>
