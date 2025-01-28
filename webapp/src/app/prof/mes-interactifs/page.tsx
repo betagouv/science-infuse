@@ -4,11 +4,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import RenderH5pContents from "./RenderH5pContents";
 import { H5PContent } from "@prisma/client";
 import { DocumentWithChunks } from "@/types/vectordb";
+import RegisteredUserFeature from "@/components/RegisteredUserFeature";
 
-async function getContents() {
+async function getContents(userId: string) {
     try {
-        const session = await getServerSession(authOptions);
-        const userId = session?.user?.id;
 
         const contents = await prisma.h5PContent.findMany({
             where: {
@@ -46,7 +45,14 @@ async function getContents() {
 
 
 export default async function MesInteractifs() {
-    const contents = await getContents();
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+    if (!userId)
+        return <div className="fr-col-12 fr-container main-content-item py-4">
+            <RegisteredUserFeature />
+        </div>
+
+    const contents = await getContents(userId);
 
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">

@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "@codegouvfr/react-dsfr/Button"
 import CallOut from "@codegouvfr/react-dsfr/CallOut"
 import styled from "@emotion/styled"

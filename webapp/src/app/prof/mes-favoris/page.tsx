@@ -9,12 +9,14 @@ import { BlockWithChapter, ChunkWithScoreUnion, DocumentChunk } from "@/types/ve
 import { RenderSearchResult } from "@/app/recherche/RenderSearch";
 import { useState } from "react";
 import { Block } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import RegisteredUserFeature from "@/components/RegisteredUserFeature";
 
 
 
 const RenderStarredKeyword = (props: { keyword: string, content: { documentChunks: ChunkWithScoreUnion[], blocks: BlockWithChapter[] } }) => {
     const { keyword, content } = props;
-    const {documentChunks, blocks} = content;
+    const { documentChunks, blocks } = content;
     const [tabType, setTabType] = useState<TabType>(TabType.Documents)
 
     return (
@@ -31,12 +33,21 @@ const RenderStarredKeyword = (props: { keyword: string, content: { documentChunk
 }
 export default function StarredContent() {
 
+    const { data: session } = useSession();
+    const user = session?.user;
+
+
+
     const { data: starredContent, isLoading, error } = useQuery({
         queryKey: ['starredContent'],
         queryFn: () => apiClient.getUserStarredContent()
     });
 
 
+    if (!user)
+        return <div className="fr-col-12 fr-container main-content-item py-4">
+            <RegisteredUserFeature />
+        </div>
 
 
     return (
