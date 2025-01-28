@@ -28,6 +28,7 @@ libdrm2
 
 RUN apt-get install -y chromium
 
+COPY index.html ./
 COPY package.json ./
 COPY package-lock.json ./
 COPY .npmrc ./
