@@ -8,7 +8,7 @@ import { z } from "zod";
 import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
-import indexYoutube from "./index-youtube";
+import indexYoutube, { createOrGetTag } from "./index-youtube";
 
 const crypto = require('crypto');
 
@@ -40,6 +40,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
   let processingError: Error | undefined;
   let processingResponse: ServerProcessingResult | undefined;
   let fileHash: string | undefined;
+  let tags = [...documentTagIds]
 
   if (type == IndexingContentType.file) {
     const fileContent = await fs.promises.readFile(path);
@@ -93,21 +94,30 @@ export const indexContentWorker = defineWorker(config, async (job) => {
     )
   }
   else if (type == IndexingContentType.youtube) {
-    return await indexYoutube({
-      youtubeUrl: path,
-      channelName: metadata?.channelName,
-      documentTagIds,
-      sourceCreationDate,
-    })
+    [processingError, processingResponse] = await catchErrorTyped(
+      indexYoutube({
+        youtubeUrl: path,
+        channelName: metadata?.channelName,
+        documentTagIds,
+        sourceCreationDate,
+      }),
+      [Error]
+    )
+    const youtubeChannelTag = await createOrGetTag(metadata?.channelName || "YOUTUBE")
+    fileHash = extractYoutubeVideoId(path) || path;
+    tags = [...tags, youtubeChannelTag]
   }
-
-  // if (processingError) 
-  //   throw processingError;
-
-  // if (!processingResponse)
-  //   throw new Error("Error indexing file the processing server returned an empty response");
 
   // if everything goes well, we got the response from the server with the processed document and it's chunks
   // so we insert it into db
-
+  if (processingResponse) {
+    const documentId = await insertDocument({
+      document: processingResponse.document,
+      chunks: processingResponse.chunks,
+      hash: fileHash,
+      documentTagIds: Array.from(new Set([...tags])),
+      sourceCreationDate,
+    })
+    return { success: true, message: 'Fichier indexé avec succès', documentId, fileHash };
+  }
 });

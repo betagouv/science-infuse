@@ -7,7 +7,7 @@ import prisma from "@/lib/prisma";
 import { insertDocument } from "@/lib/utils/db";
 
 
-const getDocumentFromVideoId = async (videoId: string) => {
+export const getDocumentFromVideoId = async (videoId: string) => {
     const document = await prisma.document.findFirst({
         where: {
             originalPath: {
@@ -21,7 +21,7 @@ const getDocumentFromVideoId = async (videoId: string) => {
     return document?.id
 }
 
-const createOrGetTag = async (channelName: string) => {
+export const createOrGetTag = async (channelName: string) => {
     const channelTag = "YOUTUBE_" + channelName
         .replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')
         .toUpperCase()
@@ -76,15 +76,7 @@ export default async (props: { youtubeUrl: string, channelName?: string, documen
                 'Content-Type': 'application/json',
             },
         }).then(response => response.data);
-
-        await insertDocument({
-            document: processingResponse.document,
-            chunks: processingResponse.chunks,
-            hash: videoId,
-            // merge user tag
-            documentTagIds: Array.from(new Set([...documentTagIds, youtubeChannelTag])),
-            sourceCreationDate,
-        })
+        
         return processingResponse
     }
 }
