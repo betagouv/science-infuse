@@ -110,6 +110,7 @@ services:
     runtime: nvidia
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
+      - YOUTUBE_PROXY=${YOUTUBE_PROXY}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
