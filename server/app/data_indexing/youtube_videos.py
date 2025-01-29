@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.getcwd(), 'app'))
 
 from S3Storage import S3Storage
 
-from processing.YoutubeProcessor import YoutubeProcessor
+from processing.YoutubeProcessor import VideoProcessor
 from processing.audio.SIWhisperModel import SIWhisperModel 
 import pytube
 # Replace with your own API key
@@ -85,7 +85,7 @@ def index_channel(channel_id: str, use_oauth: bool):
             continue
         for i in range(10):
             try:
-                YoutubeProcessor(s3=s3,whisper=whisper, youtube_url=url, use_oauth=use_oauth)
+                VideoProcessor(s3=s3,whisper=whisper, youtube_url=url, use_oauth=use_oauth)
                 print("---")
                 break
             except pytube.exceptions.AgeRestrictedError:

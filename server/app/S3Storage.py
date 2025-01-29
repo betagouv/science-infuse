@@ -59,3 +59,12 @@ class S3Storage:
         except Exception as e:
             print(f"Error during file removal: {e}")
             return False
+
+    def download_file(self, object_name, local_file_path):
+        try:
+            self.s3_client.download_file(self.bucket_name, object_name, local_file_path)
+            print(f"File {object_name} successfully downloaded to {local_file_path}")
+            return True
+        except Exception as e:
+            print(f"Error during file download: {e}")
+            return False

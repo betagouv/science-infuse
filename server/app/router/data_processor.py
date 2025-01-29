@@ -2,7 +2,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import aiofiles
 import os
-from processing.YoutubeProcessor import YoutubeProcessor
+from processing.YoutubeProcessor import VideoProcessor
 from processing.URLProcessor import URLProcessor
 from processing.PictureProcessor import PictureProcessor
 from processing.PDFProcessor import PDFProcessor
@@ -85,7 +85,7 @@ async def _process_youtube(data: dict):
     loop = asyncio.get_running_loop()
     document, chunks = await loop.run_in_executor(
         io_executor,
-        lambda: YoutubeProcessor(s3=s3, whisper=whisper, youtube_url=data['url'], use_oauth=False).process_document()
+        lambda: VideoProcessor(s3=s3, whisper=whisper, youtube_url=data['url'], use_oauth=False).process_document()
     )
     response = DataProcessorResponse(
         document=document,

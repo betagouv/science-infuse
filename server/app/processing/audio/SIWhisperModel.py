@@ -16,6 +16,13 @@ class TranscriptSegment(pydantic.BaseModel):
     end: float
     duration: float
 
+class ParagraphSegment(pydantic.BaseModel):
+    text: str
+    start: float
+    end: float
+    duration: float
+    word_segments: List[TranscriptSegment]
+
 class SIWhisperModel:
     def __init__(self, model_path, model_name, paragraph_pause_threshold=2.0):
         self.paragraph_pause_threshold = paragraph_pause_threshold
@@ -32,9 +39,10 @@ class SIWhisperModel:
         sentences_segments = self.group_into_sentences(word_segments)
         return sentences_segments
     
-    def get_paragraphs_from_audio_path(self, audio_path: str) -> List[TranscriptSegment]:
-        sentences_segments = self.get_sentences_from_audio_path(audio_path)
-        paragraphs_segments = self.group_into_paragraphs(sentences_segments)
+    def get_paragraphs_from_audio_path(self, audio_path: str) -> List[ParagraphSegment]:
+        word_segments = self.get_srt(audio_path)
+        sentences_segments = self.group_into_sentences(word_segments)
+        paragraphs_segments = self.group_into_paragraphs(sentences_segments, word_segments)
         return paragraphs_segments
 
     @staticmethod
@@ -42,7 +50,6 @@ class SIWhisperModel:
         audio = AudioSegment.from_file(audio_path)
         duration = len(audio) / 1000.0
         return duration
-
 
     def get_srt(self, audio_path, debug=False):
         start_time = time.time()
@@ -97,29 +104,57 @@ class SIWhisperModel:
         
         return new_segments
 
-    def group_into_paragraphs(self, segments) -> List[TranscriptSegment]:
+    def group_into_paragraphs(self, sentence_segments: List[TranscriptSegment], word_segments: List[TranscriptSegment]) -> List[ParagraphSegment]:
         paragraphs = []
         current_paragraph = []
 
-        for i in range(len(segments)):
+        for i in range(len(sentence_segments)):
             if current_paragraph:
                 # Calculate the gap between the current segment and the previous one
-                gap = segments[i].start - current_paragraph[-1].end
+                gap = sentence_segments[i].start - current_paragraph[-1].end
                 if gap > self.paragraph_pause_threshold:
                     # If the gap is large, finalize the current paragraph
                     if current_paragraph:
                         start_time = current_paragraph[0].start
-                        total_duration = current_paragraph[-1].end - start_time
+                        end_time = current_paragraph[-1].end
+                        total_duration = end_time - start_time
                         combined_text = " ".join([seg.text for seg in current_paragraph])
-                        paragraphs.append(TranscriptSegment(text=combined_text, start=start_time, end=current_paragraph[-1].end, duration=total_duration))
+                        
+                        # Get word segments that fall within this paragraph's time range
+                        paragraph_words = [
+                            word for word in word_segments 
+                            if start_time <= word.start < end_time
+                        ]
+                        
+                        paragraphs.append(ParagraphSegment(
+                            text=combined_text,
+                            start=start_time,
+                            end=end_time,
+                            duration=total_duration,
+                            word_segments=paragraph_words
+                        ))
                         current_paragraph = []
-            current_paragraph.append(segments[i])
+            current_paragraph.append(sentence_segments[i])
 
         # Finalize the last paragraph
         if current_paragraph:
             start_time = current_paragraph[0].start
-            total_duration = current_paragraph[-1].end - start_time
+            end_time = current_paragraph[-1].end
+            total_duration = end_time - start_time
             combined_text = " ".join([seg.text for seg in current_paragraph])
-            paragraphs.append(TranscriptSegment(text=combined_text, start=start_time, end=current_paragraph[-1].end, duration=total_duration))
+            
+            # Get word segments for the last paragraph
+            paragraph_words = [
+                word for word in word_segments 
+                if start_time <= word.start < end_time
+            ]
+            
+            paragraphs.append(ParagraphSegment(
+                text=combined_text,
+                start=start_time,
+                end=end_time,
+                duration=total_duration,
+                word_segments=paragraph_words
+            ))
 
         return paragraphs

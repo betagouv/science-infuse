@@ -67,6 +67,7 @@ model DocumentChunkMeta {
   s3ObjectName    String?
   pageNumber      Int?
   bbox            Json?
+  word_segments   Json?
   question        String?
   answer          String?
   type            String?

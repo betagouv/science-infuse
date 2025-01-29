@@ -3,6 +3,8 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Any, Literal, Optional, Union, List, TypeVar, Generic, Type, Dict
 
+from app.processing.audio.SIWhisperModel import TranscriptSegment
+
 class BoundingBox(BaseModel):
     x1: float = Field(..., description="X-coordinate of the top-left corner")
     y1: float = Field(..., description="Y-coordinate of the top-left corner")
@@ -52,6 +54,7 @@ class BaseDocumentChunk(BaseModel):
 class VideoTranscriptMetadata(BaseModel):
     start: float
     end: float
+    word_segments: Optional[List[TranscriptSegment]] = None
 
 class VideoTranscriptChunk(BaseDocumentChunk):
     mediaType: MediaType = MediaType.VIDEO_TRANSCRIPT
