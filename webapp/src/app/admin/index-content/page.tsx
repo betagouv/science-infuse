@@ -24,11 +24,11 @@ const IndexContent = (props: {}) => {
                         iconId: 'fr-icon-file-text-line',
                         label: 'Fichier'
                     },
-                    {
-                        content: <IndexYoutubeVideos/>,
-                        iconId: 'fr-icon-youtube-line',
-                        label: 'Vidéos Youtube'
-                    },
+                    // {
+                    //     content: <IndexYoutubeVideos/>,
+                    //     iconId: 'fr-icon-youtube-line',
+                    //     label: 'Vidéos Youtube'
+                    // },
                     {
                         content: <IndexUrls />,
                         iconId: 'fr-icon-links-fill',
