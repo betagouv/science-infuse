@@ -12,7 +12,7 @@ export const getEmbeddings = async (text: string): Promise<number[]> => {
 }
 
 // increase accuracy of chunk retrieval by providing more context to the embedded vector.
-export const getTextToEmbeed = (chunk: DocumentChunk & { document: Document, metadata: DocumentChunkMeta }) => {
+export const getTextToEmbeed = (chunk: DocumentChunk & { document: Document, metadata?: DocumentChunkMeta }) => {
     let text = ""
     switch (chunk.mediaType) {
         case "pdf_text":

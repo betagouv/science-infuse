@@ -1,4 +1,4 @@
-import { Block, Prisma } from '@prisma/client'
+import { Block, Document, DocumentChunk, DocumentChunkMeta, Prisma } from '@prisma/client'
 import prisma from "@/lib/prisma"
 import { JSONContent } from '@tiptap/core';
 import { QueryRequest } from '@/types/api';
@@ -178,10 +178,11 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
       ORDER BY dc."textEmbedding" <=> ${embedding}::vector
       LIMIT ${Math.min(params.limit || 1000, 1000)};
       `
-  ])
+  ]) as [unknown, (DocumentChunk & { document: Document,  metadata: DocumentChunkMeta })[]]
 
   const endTime = performance.now();
   const executionTime = endTime - startTime;
 
-  return data;
+  // NOTE: filter word_segments for lighter search response  
+  return data.map(row => ({ ...row, metadata: { ...row.metadata, word_segments: [] } }));
 }

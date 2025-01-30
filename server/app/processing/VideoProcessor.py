@@ -2,7 +2,7 @@ import subprocess
 from typing import Optional
 from S3Storage import S3Storage
 from processing.BaseDocumentProcessor import BaseDocumentProcessor
-from processing.audio.SIWhisperModel import SIWhisperModel
+from processing.audio.SIWhisperModel import SIWhisperModel, TranscriptSegment
 # from pytube import YouTube
 from pytubefix import YouTube
 import os
@@ -10,10 +10,11 @@ import os
 from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
 class VideoProcessor(BaseDocumentProcessor):
-    def __init__(self, whisper: SIWhisperModel, s3: S3Storage, youtube_url: Optional[str]=None, s3_video_url: Optional[str]=None, paragraph_pause_threshold: float = 1, use_oauth: bool = False):
+    def __init__(self, whisper: SIWhisperModel, s3: S3Storage, name: Optional[str], youtube_url: Optional[str]=None, s3_object_name: Optional[str]=None, paragraph_pause_threshold: float = 1, use_oauth: bool = False):
         self.whisper = whisper
         self.youtube_url = youtube_url
-        self.s3_video_url = s3_video_url
+        self.name = name
+        self.s3_object_name = s3_object_name
         self.paragraph_pause_threshold = paragraph_pause_threshold
         self.s3 = s3
         self.use_oauth = use_oauth
@@ -40,15 +41,18 @@ class VideoProcessor(BaseDocumentProcessor):
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
         return file_path, video_name
     
-    def download_s3_video(self, s3_video_url):
+    def download_s3_video(self, s3_object_name):
         output_path = os.path.join(self.base_download_folder, 'temp_videos')
         os.makedirs(output_path, exist_ok=True)
         filename = f"{self.id}.mp4"
         file_path = os.path.join(output_path, filename)
-        self.s3.download_file(object_name=s3_video_url, local_file_path=file_path)
+        if self.s3.download_file(object_name=s3_object_name, local_file_path=file_path) is True:
+            return file_path, s3_object_name
+        return None, None
 
     def get_video_duration(self, video_path):
         try:
+            print(f"get_video_duration -> Video path: {video_path}")  # Debugging line
             result = subprocess.run(
                 ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path],
                 stdout=subprocess.PIPE,
@@ -63,37 +67,43 @@ class VideoProcessor(BaseDocumentProcessor):
         # Load and process audio file
         if (self.youtube_url):
             video_path, video_name = self.download_youtube_video(self.youtube_url)
-        elif (self.s3_video_url):
-            video_path, video_name = self.download_s3_video(self.s3_video_url)
+            video_s3ObjectName = f"youtube/{self.get_random_uuid()}.mp4"
+            self.save_to_s3(self.s3, video_path, video_s3ObjectName)
+        elif (self.s3_object_name):
+            video_path, video_name = self.download_s3_video(self.s3_object_name)
+            video_s3ObjectName = self.s3_object_name
             
-        video_s3ObjectName = f"youtube/{self.get_random_uuid()}.mp4"
         # print("EXTRACT DOCUMNET YOUTUBE video_s3ObjectName 1", video_s3ObjectName)
         # save video to s3
         self.whisper.set_paragraph_pause_threshold(self.paragraph_pause_threshold)
         segments = self.whisper.get_paragraphs_from_audio_path(video_path)
 
-        self.save_to_s3(self.s3, video_path, video_s3ObjectName)
         # print("EXTRACT DOCUMNET YOUTUBE video_s3ObjectName 2", video_s3ObjectName)
 
+        print("segment.word_segments", type(segments[0].word_segments[0]), segments[0].word_segments[0])
         document = Document(
             id=self.id, 
             publicPath=self.youtube_url, 
-            originalPath=self.youtube_url,
+            originalPath=self.youtube_url or self.s3_object_name,
             s3ObjectName=video_s3ObjectName,
             duration=self.get_video_duration(video_path),
-            mediaName=video_name,
+            mediaName=self.name or video_name,
         )
         chunks = [
             VideoTranscriptChunk(
                 text=segment.text,
-                title=video_name,
+                title=self.name or video_name,
                 document=document,
                 metadata=VideoTranscriptMetadata(
                     start=segment.start,
                     end=segment.end,
-                    word_segments=[segment.word_segments]
+                    word_segments=[word_segment.dict() for word_segment in segment.word_segments]
                 )
             ) 
         for segment in segments]
+        
+        if (self.s3_object_name):
+            os.remove(video_path)
+
 
         return document, chunks

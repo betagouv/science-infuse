@@ -41,6 +41,42 @@ export const getUserFull = async (userId: string) => {
     return user;
 }
 
+export const insertChunk = async (document: Document, chunk: DocumentChunk, metadata?: DocumentChunkMeta) => {
+    const chunkId = uuidv4();
+    const textToEmbeed = getTextToEmbeed({
+        ...chunk,
+        metadata,
+        document
+    });
+    const textEmbedding = await getEmbeddings(textToEmbeed);
+    // insert using queryRaw since vector is unsupported as a type.
+    await prisma.$queryRaw`
+    INSERT INTO "DocumentChunk" (
+      id, text, "textEmbedding", title, "mediaType", "documentId"
+    ) VALUES (
+      ${chunkId}::uuid, 
+      ${chunk.text},
+      ${textEmbedding}::vector, 
+      ${chunk.title}, 
+      ${chunk.mediaType}, 
+      ${document.id}::uuid
+    )
+  `;
+
+    if (metadata) {
+        await prisma.documentChunkMeta.create({
+            data: {
+                ...metadata,
+                id: uuidv4(),
+                documentChunkId: chunkId,
+                //convert back Prisma.JsonValue
+                bbox: metadata.bbox ? JSON.stringify(metadata.bbox) : undefined,
+            },
+        });
+    }
+
+}
+
 export const insertDocument = async ({ document, chunks, documentTagIds, hash, sourceCreationDate }: {
     document: Document,
     chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[],
@@ -61,37 +97,10 @@ export const insertDocument = async ({ document, chunks, documentTagIds, hash, s
     });
 
     // create chunks (and  metadatas) and link them to the new document
-    await Promise.all(chunks.map(async ({ document, metadata, id, ...chunk }) => {
-        const chunkId = uuidv4();
-        const textToEmbeed = getTextToEmbeed({ ...chunk, id, document, metadata });
-        const textEmbedding = await getEmbeddings(textToEmbeed);
-        // insert using queryRaw since vector is unsupported as a type.
-        await prisma.$queryRaw`
-        INSERT INTO "DocumentChunk" (
-          id, text, "textEmbedding", title, "mediaType", "documentId"
-        ) VALUES (
-          ${chunkId}::uuid, 
-          ${chunk.text},
-          ${textEmbedding}::vector, 
-          ${chunk.title}, 
-          ${chunk.mediaType}, 
-          ${createdDocument.id}::uuid
-        )
-      `;
-
-        if (metadata) {
-            await prisma.documentChunkMeta.create({
-                data: {
-                    ...metadata,
-                    id: uuidv4(),
-                    documentChunkId: chunkId,
-                    //convert back Prisma.JsonValue
-                    bbox: metadata.bbox ? JSON.stringify(metadata.bbox) : undefined,
-                },
-            });
-        }
-
+    await Promise.all(chunks.map(async ({ document, metadata,...chunk }) => {
+        return insertChunk(document, chunk, metadata)
     }));
+
     return createdDocument.id;
 }
 export async function assignTagsToDocuments(documentIds: string[], tagIds: string[]) {

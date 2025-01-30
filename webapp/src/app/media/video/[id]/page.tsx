@@ -26,6 +26,8 @@ export default function VideoPage({
         queryFn: () => apiClient.getDocument(id)
     });
 
+    console.log("VIDEOOO", video)
+
     const videoChunks = video ? video.chunks
         .filter(c => c.mediaType == "video_transcript")
         .sort((a, b) => a.metadata.start - b.metadata.start)

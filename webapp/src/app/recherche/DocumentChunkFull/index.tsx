@@ -390,8 +390,8 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
                 chunk={selectedChunk || video.items[0]}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
+                        {/* <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`/media/video/${video.documentId}`} target="_blank">{firstChunk.document.mediaName}</a> */}
                         <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`/media/video/${video.documentId}`} target="_blank">{firstChunk.title}</a>
-                        {/* <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{firstChunk.title}</a> */}
                         <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p>
                     </div>
                 }

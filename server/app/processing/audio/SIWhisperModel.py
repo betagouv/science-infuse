@@ -6,17 +6,17 @@ import datetime
 from pydub import AudioSegment
 from tqdm import tqdm
 import numpy as np
-import pydantic
+from pydantic import BaseModel
 import spacy
 
 
-class TranscriptSegment(pydantic.BaseModel):
+class TranscriptSegment(BaseModel):
     text: str
     start: float
     end: float
     duration: float
 
-class ParagraphSegment(pydantic.BaseModel):
+class ParagraphSegment(BaseModel):
     text: str
     start: float
     end: float
@@ -131,7 +131,7 @@ class SIWhisperModel:
                             start=start_time,
                             end=end_time,
                             duration=total_duration,
-                            word_segments=paragraph_words
+                            word_segments=[TranscriptSegment(start=word.start, end=word.end, text=word.text, duration=word.end-word.start) for word in paragraph_words]
                         ))
                         current_paragraph = []
             current_paragraph.append(sentence_segments[i])

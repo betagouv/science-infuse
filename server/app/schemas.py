@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Any, Literal, Optional, Union, List, TypeVar, Generic, Type, Dict
 
-from app.processing.audio.SIWhisperModel import TranscriptSegment
+from processing.audio.SIWhisperModel import TranscriptSegment
 
 class BoundingBox(BaseModel):
     x1: float = Field(..., description="X-coordinate of the top-left corner")

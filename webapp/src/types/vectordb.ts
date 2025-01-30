@@ -37,6 +37,7 @@ export interface BaseDocumentChunk<T extends MediaType> {
 export interface VideoTranscriptMetadata {
   start: number;
   end: number;
+  word_segments: any;
 }
 
 export interface RawImageMetadata {

@@ -5,7 +5,6 @@ langchain-text-splitters==0.2.1
 faster-whisper==1.0.2
 matplotlib==3.9.0
 pydub==0.25.1
-fr-core-news-lg @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_lg-3.7.0/fr_core_news_lg-3.7.0-py3-none-any.whl#sha256=c2d98eb9073ff0f3d865179448e7f1868f27b2643c0e7215acc2438cd9eae554
 fr-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0-py3-none-any.whl#sha256=37e9f1f6a278a5138fabdabcc92cc559da917f9b24c76f0adf6758720d7eab10
 spacy==3.7.5
 spacy-legacy==3.0.12
