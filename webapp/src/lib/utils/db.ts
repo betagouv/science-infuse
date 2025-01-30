@@ -71,6 +71,7 @@ export const insertChunk = async (document: Document, chunk: DocumentChunk, meta
                 documentChunkId: chunkId,
                 //convert back Prisma.JsonValue
                 bbox: metadata.bbox ? JSON.stringify(metadata.bbox) : undefined,
+                word_segments: metadata.word_segments ? JSON.stringify(metadata.word_segments) : undefined,
             },
         });
     }
