@@ -127,7 +127,7 @@ async function main() {
 
 
     const progressDocumentChunks = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
-    // progressDocumentChunks.start(uniqueDocumentIds.length, 0)
+    progressDocumentChunks.start(uniqueDocumentIds.length, 0)
     // for each document, update it's document chunks to add word_segments (timestamps for each word from whisper)
     for (const documentId of uniqueDocumentIds) {
         await processDocument(documentId);
