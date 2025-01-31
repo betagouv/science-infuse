@@ -1,3 +1,4 @@
+import json
 import subprocess
 from typing import Optional
 from S3Storage import S3Storage
@@ -10,7 +11,7 @@ import os
 from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
 class VideoProcessor(BaseDocumentProcessor):
-    def __init__(self, whisper: SIWhisperModel, s3: S3Storage, name: Optional[str], youtube_url: Optional[str]=None, s3_object_name: Optional[str]=None, paragraph_pause_threshold: float = 1, use_oauth: bool = False):
+    def __init__(self, whisper: SIWhisperModel, s3: S3Storage, name: Optional[str]=None, youtube_url: Optional[str]=None, s3_object_name: Optional[str]=None, paragraph_pause_threshold: float = 1, use_oauth: bool = False):
         self.whisper = whisper
         self.youtube_url = youtube_url
         self.name = name
@@ -27,20 +28,42 @@ class VideoProcessor(BaseDocumentProcessor):
 
         super().__init__()
 
+    def regenerate_po_token(self, path):
+        try:
+            import requests
+            response = requests.get(os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL"))
+            data = response.json()
+            print("PO TOKENNN", data)
+            with open(path, "w") as f:
+                f.write(json.dumps({"access_token": None, "refresh_token": None, "expires": None, "visitorData": data.get('visitor_data'), "po_token": data.get('potoken')}))
+        except requests.RequestException as e:
+            print(f"Error fetching token: {str(e)}")
+
     def download_youtube_video(self, youtube_url):
+        po_token_path = "./potoken.json"
         output_path = os.path.join(self.base_download_folder, 'youtube')
         os.makedirs(output_path, exist_ok=True)
         filename = f"{self.id}.mp4"
         file_path = os.path.join(output_path, filename)
-        if (self.use_oauth is True):
-            yt = YouTube(youtube_url, proxies=self.proxies, use_oauth=True, allow_oauth_cache=True)
-        else:
-            yt = YouTube(youtube_url, proxies=self.proxies)
-        print("YT", yt)
-        video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
+
+        if not os.path.exists(po_token_path):
+            self.regenerate_po_token(po_token_path)
+
+        self.proxies = None
+        try:
+            yt = YouTube(youtube_url, proxies=self.proxies, use_po_token=True, token_file=po_token_path, allow_oauth_cache=True)
+            print("YT", yt)
+            video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
+        except Exception as e:
+            print(f"First attempt failed: {str(e)}")
+            self.regenerate_po_token(po_token_path)
+            yt = YouTube(youtube_url, proxies=self.proxies, use_po_token=True, token_file=po_token_path, allow_oauth_cache=True)
+            print("YT", yt)
+            video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
+
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
-        return file_path, video_name
-    
+        return file_path, video_name    
+
     def download_s3_video(self, s3_object_name):
         output_path = os.path.join(self.base_download_folder, 'temp_videos')
         os.makedirs(output_path, exist_ok=True)

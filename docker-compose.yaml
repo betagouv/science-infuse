@@ -111,6 +111,7 @@ services:
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - YOUTUBE_PROXY=${YOUTUBE_PROXY}
+      - YOUTUBE_TOKEN_GENERATOR_URL=${YOUTUBE_TOKEN_GENERATOR_URL}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -166,6 +167,12 @@ services:
     volumes:
       - 'moodle_data:/bitnami/moodle'
       - 'moodledata_data:/bitnami/moodledata'
+
+  youtube-token-generator:
+    image: quay.io/invidious/youtube-trusted-session-generator:webserver
+    ports:
+      - "8007:8080"
+    restart: unless-stopped
 
 volumes:
   mariadb_data:
