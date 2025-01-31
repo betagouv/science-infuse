@@ -49,7 +49,6 @@ class VideoProcessor(BaseDocumentProcessor):
         if not os.path.exists(po_token_path):
             self.regenerate_po_token(po_token_path)
 
-        self.proxies = None
         try:
             yt = YouTube(youtube_url, proxies=self.proxies, use_po_token=True, token_file=po_token_path, allow_oauth_cache=True)
             print("YT", yt)
