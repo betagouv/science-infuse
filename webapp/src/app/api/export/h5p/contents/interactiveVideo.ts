@@ -258,7 +258,7 @@ ${videoTranscript}
         return {
             questions: questions,
             videoTitle: mediaName,
-            videoPublicUrl: youtubeUrl ? youtubeUrl : `https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/${video?.s3ObjectName}`,
+            videoPublicUrl: youtubeUrl ? youtubeUrl : `https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/${s3ObjectName}`,
             definitions: definitions,
         } as InteractiveVideoData;
     }
