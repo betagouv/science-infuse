@@ -30,13 +30,13 @@ export default async (input: InteractiveVideoData) => {
                             ...input.definitions.map((groupedDefinitions) => {
                                 const { timestamp, definitions } = groupedDefinitions;
                                 return definitions.map((definition, i) => ({
-                                    "x": 5.453442867551143,
-                                    "y": 7.756086588950678 + i * 10,
+                                    "x": 5.453442867551143 + Math.floor(i/10) * 35,
+                                    "y": 7.756086588950678 + (i % 10) * 10,
                                     "width": 10,
                                     "height": 10,
                                     "duration": {
-                                        "from": timestamp+2,
-                                        "to": timestamp+2 + 5
+                                        "from": timestamp,
+                                        "to": timestamp + 5
                                     },
                                     "libraryTitle": "Texte",
                                     "action": {

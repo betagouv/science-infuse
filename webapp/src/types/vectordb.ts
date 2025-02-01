@@ -34,10 +34,15 @@ export interface BaseDocumentChunk<T extends MediaType> {
   metadata: MetadataType<T>;
 }
 
+export interface WordSegment {
+  start: number,
+  end: number, 
+  text: string,
+}
 export interface VideoTranscriptMetadata {
   start: number;
   end: number;
-  word_segments: any;
+  word_segments: string;
 }
 
 export interface RawImageMetadata {

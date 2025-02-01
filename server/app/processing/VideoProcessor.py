@@ -90,7 +90,7 @@ class VideoProcessor(BaseDocumentProcessor):
         if (self.youtube_url):
             video_path, video_name = self.download_youtube_video(self.youtube_url)
             video_s3ObjectName = f"youtube/{self.get_random_uuid()}.mp4"
-            self.save_to_s3(self.s3, video_path, video_s3ObjectName)
+            # self.save_to_s3(self.s3, video_path, video_s3ObjectName)
         elif (self.s3_object_name):
             video_path, video_name = self.download_s3_video(self.s3_object_name)
             video_s3ObjectName = self.s3_object_name

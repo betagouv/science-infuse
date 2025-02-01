@@ -40,7 +40,7 @@ const StyledMainNavigation = styled(MainNavigation)`
 
 const NavBarSearch = () => {
 	const pathname = usePathname()
-    const { data: session } = useSession();
+	const { data: session } = useSession();
 
 	if (pathname === "/") {
 		return null
@@ -117,13 +117,13 @@ export function Navigation() {
 						},
 						text: `Besoin d'aide`
 					},
-					{
+					...(user && user.roles?.includes('ADMIN') ? [{
 						linkProps: {
 							href: '/prof/creer-un-interactif',
 							target: '_self'
 						},
-						text: `Besoin d'aide`
-					},
+						text: `Créer un interactif`
+					}] : []),
 				]}
 			/>
 			<NavBarSearch />

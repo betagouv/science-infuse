@@ -1,4 +1,4 @@
-import { generateInteraciveVideoData, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, InteractiveVideoQuestion, InteractiveVideoQuestionGroup } from "@/app/api/export/h5p/contents/interactiveVideo";
+import { generateInteraciveVideoData, InteractiveVideoData, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, InteractiveVideoQuestion, InteractiveVideoQuestionGroup } from "@/app/api/export/h5p/contents/interactiveVideo";
 import { DocumentWithChunks, s3ToPublicUrl } from "@/types/vectordb";
 import { useState } from "react";
 import Button from '@codegouvfr/react-dsfr/Button';
@@ -10,6 +10,7 @@ import { secondsToTime, timeToSeconds } from "@/lib/utils";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
 import EmbedVideo from "./EmbedVideo";
 import Download from "@codegouvfr/react-dsfr/Download";
+import { ExportH5pResponse } from "@/types/api";
 
 const QCMEditor = (props: { initialQuestionGroup: InteractiveVideoQuestionGroup, onChange: (updated: InteractiveVideoQuestionGroup) => void }) => {
     const [questionGroup, setQuestionGroup] = useState<InteractiveVideoQuestionGroup>(props.initialQuestionGroup);
@@ -334,25 +335,48 @@ const DefinitionEditor = (props: { initialQuestionGroup: InteractiveVideoDefinit
     );
 };
 
-export default ({ video }: { video: DocumentWithChunks }) => {
+export default (props: { documentId?: string, youtubeUrl?: string }) => {
+    const { documentId, youtubeUrl } = props;
+
     const [ivQuestions, setIvQuestions] = useState<InteractiveVideoQuestionGroup[] | undefined>(undefined);
     const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [videoTitle, setVideoTitle] = useState<string | null>(null);
     const [downloadH5pUrl, setDownloadH5pUrl] = useState<string | null>(null);
     const [downloadHTMLUrl, setDownloadHTMLUrl] = useState<string | null>(null);
+    const [loadingMessage, setLoadingMessage] = useState<string>("");
+
     const generateInteractiveVideo = async () => {
-        if (!video) return;
         setIsLoading(true);
         setIvQuestions([])
         setIvDefinitions([])
+        setVideoTitle("");
         try {
-            const iv = await generateInteraciveVideoData({documentId: video.id});
+            if (!documentId && !youtubeUrl) return console.warn("you should provide documentId or youtubeUrl to generate interactive video data")
+
+            if (youtubeUrl) {
+                setLoadingMessage("Traitement de la vidéo YouTube en cours...");
+                await new Promise(resolve => setTimeout(resolve, 6000));
+                setLoadingMessage("Analyse du contenu de la vidéo...");
+                await new Promise(resolve => setTimeout(resolve, 6000));
+                setLoadingMessage("Identification des concepts clés...");
+                await new Promise(resolve => setTimeout(resolve, 4500));
+                setLoadingMessage("Génération des questions pertinentes...");
+                await new Promise(resolve => setTimeout(resolve, 4500));
+                setLoadingMessage("Identification des termes complexes...");
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                setLoadingMessage("Finalisation du traitement...");
+            }
+
+            const iv = await generateInteraciveVideoData({ documentId, youtubeUrl });
             if (!iv) return;
             setIvQuestions(iv.questions);
             setIvDefinitions(iv.definitions)
+            setVideoTitle(iv.videoTitle);
             console.log(iv);
         } finally {
+            setLoadingMessage("");
             setIsLoading(false);
         }
     }
@@ -424,14 +448,26 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                 className="w-full justify-center"
                 disabled={isLoading}
                 onClick={async () => {
+                    let data: ExportH5pResponse | undefined = undefined;
                     setIsLoading(true);
-                    const data = await apiClient.exportH5p({
-                        type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName||""), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions },
-                        documentIds: [video.id]
-                    })
-                    setPreviewUrl(data.embedUrl);
-                    setDownloadH5pUrl(data.downloadH5p);
-                    setDownloadHTMLUrl(data.downloadHTML);
+                    if (documentId) {
+                        const video = await apiClient.getDocument(documentId)
+                        data = await apiClient.exportH5p({
+                            type: 'interactive-video', data: { videoPublicUrl: s3ToPublicUrl(video.s3ObjectName || ""), videoTitle: video.mediaName, questions: ivQuestions, definitions: ivDefinitions },
+                            documentIds: documentId ? [documentId] : []
+                        })
+                    }
+                    if (youtubeUrl) {
+                        data = await apiClient.exportH5p({
+                            type: 'interactive-video', data: { videoPublicUrl: youtubeUrl, videoTitle: videoTitle, questions: ivQuestions, definitions: ivDefinitions },
+                            documentIds: documentId ? [documentId] : []
+                        })
+                    }
+                    if (data) {
+                        setPreviewUrl(data.embedUrl);
+                        setDownloadH5pUrl(data.downloadH5p);
+                        setDownloadHTMLUrl(data.downloadHTML);
+                    }
                     setIsLoading(false);
                 }}
             >
@@ -487,7 +523,13 @@ export default ({ video }: { video: DocumentWithChunks }) => {
                 ))}
             </div>
         </>}
-        {isLoading && <CircularProgress className="self-center" />}
+        {isLoading && <div className="flex flex-col items-center justify-center gap-4">
+            <CircularProgress className="self-center" />
+            <p>
+                {loadingMessage}
+            </p>
+        </div>
+        }
 
 
     </div>

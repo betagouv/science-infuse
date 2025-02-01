@@ -26,7 +26,6 @@ export default function VideoPage({
         queryFn: () => apiClient.getDocument(id)
     });
 
-    console.log("VIDEOOO", video)
 
     const videoChunks = video ? video.chunks
         .filter(c => c.mediaType == "video_transcript")
@@ -58,7 +57,7 @@ export default function VideoPage({
                     <h2 className="m-0">Vidéo interactive</h2>
                     <div className="relative w-full bg-gray-50 p-0 md:p-8 rounded-xl">
                         {textLength < 100000 ?
-                            <InteractiveVideoGenerator video={video} /> :
+                            <InteractiveVideoGenerator documentId={video.id} /> :
                             <CallOut
                                 iconId="ri-information-line"
                                 title="Génération impossible"

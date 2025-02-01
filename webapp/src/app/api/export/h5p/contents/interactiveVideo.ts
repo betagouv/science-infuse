@@ -3,6 +3,7 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import prisma from "@/lib/prisma";
 import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents";
+import { WordSegment } from "@/types/vectordb";
 import { DocumentChunk, Document, DocumentChunkMeta, PrismaClient } from "@prisma/client";
 import axios from "axios";
 
@@ -53,7 +54,69 @@ export interface InteractiveVideoData {
     questions: InteractiveVideoQuestionGroup[],
     definitions: InteractiveVideoDefinitionGroup[],
 }
-const parseVideoContent = (input: string): {
+
+
+function findFirstWordOccurrence(
+    chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[],
+    searchPhrase: string
+): number | null {
+    // Split the phrase into words and normalize each
+    const searchWords = searchPhrase.split(' ').map(normalize);
+
+    for (const chunk of chunks) {
+        if (!chunk?.metadata?.word_segments) continue;
+        const segments = chunk.metadata.word_segments as unknown as WordSegment[];
+
+        // Try every possible starting index in the segments
+        for (let i = 0; i < segments.length; i++) {
+            let segIndex = i;
+            let allWordsMatched = true;
+            let lastSegmentEnd = 0;
+
+            // For each expected word from the search phrase…
+            for (const searchWord of searchWords) {
+                let candidate = '';
+                let matched = false;
+
+                // Accumulate segments until candidate equals or overshoots searchWord.
+                while (segIndex < segments.length) {
+                    candidate += normalize(segments[segIndex].text);
+                    lastSegmentEnd = segments[segIndex].end;
+                    segIndex++;
+
+                    if (candidate === searchWord) {
+                        matched = true;
+                        break;
+                    }
+                    // If candidate is longer than expected, no need to add more segments.
+                    if (candidate.length >= searchWord.length) {
+                        break;
+                    }
+                }
+
+                if (!matched) {
+                    allWordsMatched = false;
+                    break;
+                }
+            }
+
+            if (allWordsMatched) {
+                // Return the end time of the last segment that was part of the match.
+                return lastSegmentEnd;
+            }
+        }
+    }
+    return null;
+}
+
+
+// Helper function to normalize text (assuming you have one)
+function normalize(text: string): string {
+    return text.trim().toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '');
+}
+
+
+const parseVideoContent = (input: string, chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[]): {
     questions: InteractiveVideoQuestionGroup[],
     definitions: InteractiveVideoDefinitionGroup[]
 } => {
@@ -68,12 +131,14 @@ const parseVideoContent = (input: string): {
         if (definitionMatch) {
             const [, , timestamp, notion, definition] = definitionMatch;
             const endTimestamp = parseInt(timestamp, 10);
+            const wordOccurence = findFirstWordOccurrence(chunks, notion)
+            const preciseTimestamp = wordOccurence || endTimestamp
 
-            if (!definitionMap.has(endTimestamp)) {
-                definitionMap.set(endTimestamp, []);
+            if (!definitionMap.has(preciseTimestamp)) {
+                definitionMap.set(preciseTimestamp, []);
             }
 
-            definitionMap.get(endTimestamp)?.push({
+            definitionMap.get(preciseTimestamp)?.push({
                 notion: notion.trim(),
                 definition: definition.trim()
             });
@@ -127,11 +192,22 @@ const parseVideoContent = (input: string): {
                 timestamp,
                 definitions
             })),
-        30
+        5
     );
+
+    // Add recap of all definitions at the end
+    const allDefinitions = Array.from(definitionMap.values()).flat();
+    if (allDefinitions.length > 0) {
+        const lastTimestamp = Math.max(...chunks.map(chunk => chunk?.metadata?.end || 0));
+        definitions.push({
+            timestamp: lastTimestamp,
+            definitions: allDefinitions
+        });
+    }
 
     return { questions, definitions };
 };
+
 
 const mergeCloseQuestions = (
     groups: InteractiveVideoQuestionGroup[],
@@ -182,9 +258,9 @@ const mergeCloseDefinitions = (
 };
 
 
-export const generateInteraciveVideoData = async (props: {documentId?: string, youtubeUrl?: string}) => {
-    const {documentId, youtubeUrl} = props;
-    
+export const generateInteraciveVideoData = async (props: { documentId?: string, youtubeUrl?: string }) => {
+    const { documentId, youtubeUrl } = props;
+
     let chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[] = []
     let mediaName = ""
     let s3ObjectName = ""
@@ -253,7 +329,7 @@ ${videoTranscript}
 
     const response = await callGroq(prompt)
     if (response) {
-        const { questions, definitions } = parseVideoContent(response);
+        const { questions, definitions } = parseVideoContent(response, chunks);
 
         return {
             questions: questions,

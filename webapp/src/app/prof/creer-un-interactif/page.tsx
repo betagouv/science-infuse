@@ -7,14 +7,11 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Input from "@codegouvfr/react-dsfr/Input";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { generateInteraciveVideoData } from "@/app/api/export/h5p/contents/interactiveVideo";
+import InteractiveVideoGenerator from "@/components/interactifs/InteractiveVideoGenerator";
 
 export default function ProfDashboard() {
     const [youtubeUrl, setYoutubeUrl] = useState('');
 
-
-    const onSubmit = async () => {
-        const iv = await generateInteraciveVideoData({ youtubeUrl: youtubeUrl.trim() });
-    }
 
     return (
         <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
@@ -30,9 +27,8 @@ export default function ProfDashboard() {
                     }}
                 />
 
-                <Button onClick={onSubmit}>
-                    Générer
-                </Button>
+
+                <InteractiveVideoGenerator youtubeUrl={youtubeUrl}/>
 
             </div>
         </div>
