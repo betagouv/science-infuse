@@ -91,6 +91,13 @@ const processDocument = async (documentId: string) => {
     await reComputeEmbeddings(document.id)
 }
 
+const processBatch = async (documentIds: string[], progressBar: cliProgress.SingleBar) => {
+    await Promise.all(documentIds.map(async (id) => {
+        await processDocument(id);
+        progressBar.increment();
+    }));
+}
+
 async function main() {
     // Find all documents with video_transcript chunks and include their metadata
     const documents = await prisma.document.findMany({
@@ -116,8 +123,8 @@ async function main() {
     // Filter out documents where all video_transcript chunks already have word_segments
     const documentsNeedingProcessing = documents.filter(doc => {
         const allChunksHaveWordSegments = doc.documentChunks.every(chunk => {
-            const wordSegments = Array.isArray(chunk.metadata?.word_segments) 
-                ? chunk.metadata.word_segments 
+            const wordSegments = Array.isArray(chunk.metadata?.word_segments)
+                ? chunk.metadata.word_segments
                 : typeof chunk.metadata?.word_segments === 'string'
                     ? JSON.parse(chunk.metadata.word_segments)
                     : [];
@@ -125,12 +132,12 @@ async function main() {
         });
         return !allChunksHaveWordSegments;
     })
-    // First, process videos of 20min or less
-    // TODO: comment out. 
-    .filter(doc => {
-        const videoDurationSeconds = Math.max(...doc.documentChunks.map(chunk => (chunk.metadata?.end || Infinity))) 
-        return videoDurationSeconds <= 60 * 15
-    })
+        // First, process videos of 20min or less
+        // TODO: comment out. 
+        .filter(doc => {
+            const videoDurationSeconds = Math.max(...doc.documentChunks.map(chunk => (chunk.metadata?.end || Infinity)))
+            return videoDurationSeconds <= 60 * 15
+        });
 
 
 
@@ -139,14 +146,18 @@ async function main() {
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     progressBar.start(documentsNeedingProcessing.length, 0);
 
-    for (const document of documentsNeedingProcessing) {
-        await processDocument(document.id);
-        progressBar.increment();
+    const documentIds = documentsNeedingProcessing.map(doc => doc.id);
+
+    // Process documents in batches
+    for (let i = 0; i < documentIds.length; i += BATCH_SIZE) {
+        const batch = documentIds.slice(i, i + BATCH_SIZE);
+        await processBatch(batch, progressBar);
     }
 
     progressBar.stop();
 }
 
+const BATCH_SIZE = 4;
 main()
     .catch((e) => {
         console.error(e)
