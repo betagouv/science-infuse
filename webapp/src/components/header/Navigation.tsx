@@ -117,6 +117,13 @@ export function Navigation() {
 						},
 						text: `Besoin d'aide`
 					},
+					{
+						linkProps: {
+							href: '/prof/creer-un-interactif',
+							target: '_self'
+						},
+						text: `Besoin d'aide`
+					},
 				]}
 			/>
 			<NavBarSearch />

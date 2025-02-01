@@ -1,8 +1,6 @@
-import { getTiptapNodeText } from '../app/api/course/chapters/blocks/[id]/getTiptapNodeText'
 import { getEmbeddings, getTextToEmbeed } from '../lib/utils/embeddings'
-import { DocumentChunk, DocumentChunkMeta, Document, PrismaClient, Block, Chapter } from '@prisma/client'
+import { DocumentChunk, DocumentChunkMeta, Document, PrismaClient, Prisma } from '@prisma/client'
 import cliProgress from 'cli-progress'
-import { JSONContent } from '@tiptap/core'
 import axios from 'axios'
 import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents'
 import { NEXT_PUBLIC_SERVER_URL } from '../config'
@@ -67,11 +65,18 @@ const processDocument = async (documentId: string) => {
 
     const s3ObjectName = document.s3ObjectName
 
-    const processingResponse = await axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { name: document.mediaName, s3_object_name: s3ObjectName }, {
-        headers: {
-            'Content-Type': 'application/json',
+    const processingResponse = await axios.post<ServerProcessingResult>(
+        `${NEXT_PUBLIC_SERVER_URL}/process/youtube`,
+        {
+            name: document.mediaName,
+            s3_object_name: s3ObjectName
         },
-    }).then(response => response.data);
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    ).then(response => response.data);
 
     await Promise.all(processingResponse
         .chunks
@@ -98,66 +103,143 @@ const processBatch = async (documentIds: string[], progressBar: cliProgress.Sing
     }));
 }
 
-async function main() {
-    // Find all documents with video_transcript chunks and include their metadata
-    const documents = await prisma.document.findMany({
+async function getDocumentsNeedingProcessing(skip: number, batchSize: number) {
+
+    const batch = await prisma.document.findMany({
+        where: {
+            AND: [
+                {
+                    documentChunks: {
+                        some: {
+                            mediaType: "video_transcript",
+                            OR: [
+                                { metadata: { word_segments: { equals: Prisma.DbNull } } },
+                                { metadata: { word_segments: { equals: [] } } }
+                            ]
+                        }
+                    }
+                },
+                {
+                    documentChunks: {
+                        every: {
+                            mediaType: "video_transcript",
+                            // metadata: {
+                            //     end: { lte: 900 }
+                            // }
+                        }
+                    }
+                }
+            ]
+        },
+        include: {
+            documentChunks: {
+                where: { mediaType: "video_transcript" },
+                include: { metadata: true }
+            }
+        },
+        take: batchSize,
+        skip: skip
+    });
+    return batch;
+
+    // const batch = await prisma.document.findMany({
+    //     where: {
+    //         documentChunks: {
+    //             some: {
+    //                 mediaType: "video_transcript"
+    //             }
+    //         },
+    //     },
+    //     include: {
+    //         documentChunks: {
+    //             where: {
+    //                 mediaType: "video_transcript"
+    //             },
+    //             include: {
+    //                 metadata: true
+    //             }
+    //         }
+    //     },
+    //     take: batchSize,
+    //     skip: skip
+    // });
+
+    // return batch.filter(doc => {
+    //     const allChunksHaveWordSegments = doc.documentChunks.every(chunk => {
+    //         try {
+    //             const wordSegments = Array.isArray(chunk.metadata?.word_segments)
+    //                 ? chunk.metadata.word_segments
+    //                 : typeof chunk.metadata?.word_segments === 'string'
+    //                     ? JSON.parse(chunk.metadata.word_segments)
+    //                     : [];
+    //             return wordSegments.length > 0;
+    //         } catch (error) {
+    //             console.error(`Error parsing word_segments for chunk ${chunk.id}:`, error);
+    //             return false;
+    //         }
+    //     });
+    //     return !allChunksHaveWordSegments;
+    // })
+    // // .filter(doc => {
+    // //     const videoDurationSeconds = Math.max(...doc.documentChunks.map(chunk => (chunk.metadata?.end || Infinity)))
+    // //     return videoDurationSeconds <= 60 * 15
+    // // });
+}
+
+async function getTotalDocumentCount() {
+    return await prisma.document.count({
         where: {
             documentChunks: {
                 some: {
                     mediaType: "video_transcript"
                 }
-            },
-        },
-        include: {
-            documentChunks: {
-                where: {
-                    mediaType: "video_transcript"
-                },
-                include: {
-                    metadata: true
-                }
             }
         }
     });
+}
 
-    // Filter out documents where all video_transcript chunks already have word_segments
-    const documentsNeedingProcessing = documents.filter(doc => {
-        const allChunksHaveWordSegments = doc.documentChunks.every(chunk => {
-            const wordSegments = Array.isArray(chunk.metadata?.word_segments)
-                ? chunk.metadata.word_segments
-                : typeof chunk.metadata?.word_segments === 'string'
-                    ? JSON.parse(chunk.metadata.word_segments)
-                    : [];
-            return wordSegments.length > 0;
-        });
-        return !allChunksHaveWordSegments;
-    })
-        // First, process videos of 20min or less
-        // TODO: comment out. 
-        .filter(doc => {
-            const videoDurationSeconds = Math.max(...doc.documentChunks.map(chunk => (chunk.metadata?.end || Infinity)))
-            return videoDurationSeconds <= 60 * 15
-        });
+async function main() {
+    const QUERY_BATCH_SIZE = 500; // Number of documents to query at once
+    const PROCESSING_BATCH_SIZE = 4; // Number of documents to process in parallel
 
-
-
-    console.log(`Found ${documentsNeedingProcessing.length} documents out of ${documents.length} that need processing`);
+    const totalDocuments = await getTotalDocumentCount();
+    console.log(`Total documents to check: ${totalDocuments}`);
 
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    progressBar.start(documentsNeedingProcessing.length, 0);
+    let totalProcessed = 0;
+    let documentsNeedingProcessing: string[] = [];
 
-    const documentIds = documentsNeedingProcessing.map(doc => doc.id);
+    // First pass: Identify all documents needing processing
+    let skip = 0;
+    progressBar.start(totalDocuments, 0);
 
-    // Process documents in batches
-    for (let i = 0; i < documentIds.length; i += BATCH_SIZE) {
-        const batch = documentIds.slice(i, i + BATCH_SIZE);
-        await processBatch(batch, progressBar);
+    while (true) {
+        const batch = await getDocumentsNeedingProcessing(skip, QUERY_BATCH_SIZE);
+        if (batch.length === 0) break;
+
+        documentsNeedingProcessing.push(...batch.map(doc => doc.id));
+        skip += QUERY_BATCH_SIZE;
+        progressBar.increment(QUERY_BATCH_SIZE);
     }
 
     progressBar.stop();
+    console.log(`Found ${documentsNeedingProcessing.length} documents that need processing`);
+
+    // Second pass: Process the identified documents
+    if (documentsNeedingProcessing.length > 0) {
+        const processingBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+        processingBar.start(documentsNeedingProcessing.length, 0);
+
+        // Process documents in smaller batches
+        for (let i = 0; i < documentsNeedingProcessing.length; i += PROCESSING_BATCH_SIZE) {
+            const batch = documentsNeedingProcessing.slice(i, i + PROCESSING_BATCH_SIZE);
+            await processBatch(batch, processingBar);
+        }
+
+        processingBar.stop();
+    }
 }
 
-const BATCH_SIZE = 4;
 main()
     .catch((e) => {
         console.error(e)

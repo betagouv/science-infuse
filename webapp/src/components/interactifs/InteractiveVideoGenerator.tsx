@@ -347,7 +347,7 @@ export default ({ video }: { video: DocumentWithChunks }) => {
         setIvQuestions([])
         setIvDefinitions([])
         try {
-            const iv = await generateInteraciveVideoData(video.id);
+            const iv = await generateInteraciveVideoData({documentId: video.id});
             if (!iv) return;
             setIvQuestions(iv.questions);
             setIvDefinitions(iv.definitions)

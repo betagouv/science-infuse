@@ -1,7 +1,10 @@
 "use server";
 
+import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import prisma from "@/lib/prisma";
-import { PrismaClient } from "@prisma/client";
+import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents";
+import { DocumentChunk, Document, DocumentChunkMeta, PrismaClient } from "@prisma/client";
+import axios from "axios";
 
 import Groq from 'groq-sdk';
 
@@ -179,23 +182,43 @@ const mergeCloseDefinitions = (
 };
 
 
-export const generateInteraciveVideoData = async (videoDocumentId: string) => {
-    const video = await prisma.document.findUnique({
-        where: {
-            id: videoDocumentId
-        },
-        include: {
-            documentChunks: {
-                include: {
-                    metadata: true
+export const generateInteraciveVideoData = async (props: {documentId?: string, youtubeUrl?: string}) => {
+    const {documentId, youtubeUrl} = props;
+    
+    let chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[] = []
+    let mediaName = ""
+    let s3ObjectName = ""
+
+    if (documentId) {
+        const video = await prisma.document.findUnique({
+            where: {
+                id: documentId
+            },
+            include: {
+                documentChunks: {
+                    include: {
+                        metadata: true,
+                    }
                 }
             }
-        }
-    })
-    const chunks = (video?.documentChunks || []).sort((a, b) => (a.metadata?.start || 0) - (b.metadata?.start || 0))
+        })
+        mediaName = video?.mediaName || "";
+        chunks = (video?.documentChunks || []).sort((a, b) => (a.metadata?.start || 0) - (b.metadata?.start || 0))
+        s3ObjectName = video?.s3ObjectName || "";
+    } else if (youtubeUrl) {
+        const processingResponse = await axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { url: youtubeUrl }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(response => response.data);
+        mediaName = processingResponse.document.mediaName
+        chunks = (processingResponse.chunks || []).sort((a, b) => (a.metadata?.start || 0) - (b.metadata?.start || 0))
+    }
+
+
     const videoTranscript = chunks.map((chunk, i) => `timestamp [${(chunk.metadata?.start || 0).toFixed()}; ${(chunk.metadata?.end || 0).toFixed()}] => ${chunk.text}\n---------\n`).join('')
     const prompt = `
-Voici la transcription d'une vidéo scientifique dont le titre est "${video?.mediaName}".
+Voici la transcription d'une vidéo scientifique dont le titre est "${mediaName}".
 La transcription est découpée en paragraphes avec un horodatage.
 Le but est de vérifier via des Quiz que le spectateur de la vidéo à bien compris les notions **scientifiques** abordées dans cette vidéo.
 Pour chaque paragraphe contenant des **informations pertinentes**: 
@@ -234,8 +257,8 @@ ${videoTranscript}
 
         return {
             questions: questions,
-            videoTitle: video?.mediaName,
-            videoPublicUrl: `https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/${video?.s3ObjectName}`,
+            videoTitle: mediaName,
+            videoPublicUrl: youtubeUrl ? youtubeUrl : `https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/${video?.s3ObjectName}`,
             definitions: definitions,
         } as InteractiveVideoData;
     }

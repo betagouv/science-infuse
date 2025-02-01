@@ -1,8 +1,6 @@
 import { ExportH5pResponse } from '@/types/api';
 import { ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
 import { NextRequest, NextResponse } from "next/server";
-import { generateInteraciveVideoData, InteractiveVideoData } from './contents/interactiveVideo';
-import { createH5P } from './creation-requests';
 import createQuestionSet from './creation-requests/createQuestionSet';
 import createInteractiveVideo from './creation-requests/createInteractiveVideo';
 import { withAccessControl } from '../../accessControl';
