@@ -135,7 +135,6 @@ async function main() {
 
 
     console.log(`Found ${documentsNeedingProcessing.length} documents out of ${documents.length} that need processing`);
-    return;
 
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     progressBar.start(documentsNeedingProcessing.length, 0);
