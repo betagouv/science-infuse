@@ -124,7 +124,15 @@ async function main() {
             return wordSegments.length > 0;
         });
         return !allChunksHaveWordSegments;
-    });
+    })
+    // First, process videos of 20min or less
+    // TODO: comment out. 
+    .filter(doc => {
+        const videoDurationSeconds = Math.max(...doc.documentChunks.map(chunk => (chunk.metadata?.end || Infinity))) 
+        return videoDurationSeconds <= 60 * 15
+    })
+
+
 
     console.log(`Found ${documentsNeedingProcessing.length} documents out of ${documents.length} that need processing`);
     return;
