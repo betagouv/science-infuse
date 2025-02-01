@@ -10,7 +10,6 @@ import { insertChunk } from '../lib/utils/db'
 
 const prisma = new PrismaClient()
 
-
 const updateDocumentChunkEmbedding = async (id: string, embedding: number[]) => {
     const result = await prisma.$queryRaw`
       UPDATE "DocumentChunk"
@@ -22,7 +21,6 @@ const updateDocumentChunkEmbedding = async (id: string, embedding: number[]) => 
 
 async function processDocumentChunk(chunk: DocumentChunk & { document: Document, metadata: DocumentChunkMeta }) {
     const textToEmbeed = getTextToEmbeed(chunk)
-
     const embeddings = await getEmbeddings(textToEmbeed);
     await updateDocumentChunkEmbedding(chunk.id, embeddings)
 }
@@ -60,30 +58,12 @@ const processDocument = async (documentId: string) => {
         return false;
     }
 
-    // store the ids of the current video_transcript chunks from this document
-    // every chunks should be of type video_transcript, but in the futur it might change.
-    // it will be used to remove them after 
     const videoTranscriptChunks = document
         .documentChunks
         .filter(c => c.mediaType == "video_transcript")
 
-
-
-    // skip if it already has word timestamps
-    const chunksWithWordSegments = videoTranscriptChunks.filter(vtc => {
-        const val = Array.isArray(vtc.metadata?.word_segments) ? vtc.metadata.word_segments : []
-        return val.length > 0
-    })
-    const everyChunksHaveWordSegments = chunksWithWordSegments.length == videoTranscriptChunks.length
-    if (everyChunksHaveWordSegments) {
-        console.log(`${documentId} all chunks already have word_segments. Skipping`)
-        return false;
-    }
-
-
     const oldDocumentChunksIds = videoTranscriptChunks
         .map(c => c.id);
-
 
     const s3ObjectName = document.s3ObjectName
 
@@ -93,15 +73,13 @@ const processDocument = async (documentId: string) => {
         },
     }).then(response => response.data);
 
-    // const originalChunkIds = document.chu
-
     await Promise.all(processingResponse
         .chunks
         .filter(c => c.mediaType == "video_transcript")
         .map(async ({ document: _document, metadata, ...chunk }) => {
             return insertChunk(document, chunk, metadata)
         }));
-    // if everything goes well delete the old documentChunks
+
     await prisma.documentChunk.deleteMany({
         where: {
             id: {
@@ -109,32 +87,57 @@ const processDocument = async (documentId: string) => {
             }
         }
     })
-    // finally compute and set embeddings for the new chunks
+
     await reComputeEmbeddings(document.id)
 }
 
 async function main() {
-
-    // find all document containing video_transcript chunks
-    const documentChunks = await prisma.documentChunk.findMany({
-        where: { mediaType: "video_transcript" },
-        select: {
-            documentId: true
+    // Find all documents with video_transcript chunks and include their metadata
+    const documents = await prisma.document.findMany({
+        where: {
+            documentChunks: {
+                some: {
+                    mediaType: "video_transcript"
+                }
+            },
         },
-        distinct: ['documentId']
-    })
-    const uniqueDocumentIds = documentChunks.map(dc => dc.documentId)
+        include: {
+            documentChunks: {
+                where: {
+                    mediaType: "video_transcript"
+                },
+                include: {
+                    metadata: true
+                }
+            }
+        }
+    });
 
+    // Filter out documents where all video_transcript chunks already have word_segments
+    const documentsNeedingProcessing = documents.filter(doc => {
+        const allChunksHaveWordSegments = doc.documentChunks.every(chunk => {
+            const wordSegments = Array.isArray(chunk.metadata?.word_segments) 
+                ? chunk.metadata.word_segments 
+                : typeof chunk.metadata?.word_segments === 'string'
+                    ? JSON.parse(chunk.metadata.word_segments)
+                    : [];
+            return wordSegments.length > 0;
+        });
+        return !allChunksHaveWordSegments;
+    });
 
-    const progressDocumentChunks = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
-    progressDocumentChunks.start(uniqueDocumentIds.length, 0)
-    // for each document, update it's document chunks to add word_segments (timestamps for each word from whisper)
-    for (const documentId of uniqueDocumentIds) {
-        await processDocument(documentId);
-        progressDocumentChunks.increment()
+    console.log(`Found ${documentsNeedingProcessing.length} documents out of ${documents.length} that need processing`);
+    return;
+
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    progressBar.start(documentsNeedingProcessing.length, 0);
+
+    for (const document of documentsNeedingProcessing) {
+        await processDocument(document.id);
+        progressBar.increment();
     }
 
-    progressDocumentChunks.stop()
+    progressBar.stop();
 }
 
 main()
