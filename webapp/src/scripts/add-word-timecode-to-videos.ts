@@ -123,9 +123,9 @@ async function getDocumentsNeedingProcessing(skip: number, batchSize: number) {
                     documentChunks: {
                         every: {
                             mediaType: "video_transcript",
-                            // metadata: {
-                            //     end: { lte: 900 }
-                            // }
+                            metadata: {
+                                end: { lte: 900 }
+                            }
                         }
                     }
                 }
