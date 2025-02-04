@@ -28,7 +28,7 @@ function createTocStructure(data: { path: string[]; page: number }[]): TableOfCo
 
             if (i < item.path.length - 1) {
                 if (!current[title] || !current[title].items) {
-                    console.error(`Unexpected structure for title: ${title}`);
+                    // console.error(`Unexpected structure for title: ${title}`);
                     break;
                 }
                 current = current[title].items;
