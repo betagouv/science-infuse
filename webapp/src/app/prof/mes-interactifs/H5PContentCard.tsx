@@ -42,7 +42,7 @@ function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, conte
             }
             end={
                 <>
-                    <p className="text-xl">{content.documents.length == 0 ? "Aucun document n'est lié à cet interactif" : "Documents sources"}</p>
+                    <p className="text-xl">{content.documents.length == 0 ? "Aucun document de la bibliothèque Universcience n'est lié à cet interactif" : "Documents sources"}</p>
                     <div className="flex flex-col gap-4">
                         {content.documents.map(d => (
                             <DocumentPreview key={d.id} document={d} />
