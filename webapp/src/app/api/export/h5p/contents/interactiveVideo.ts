@@ -60,6 +60,8 @@ function findFirstWordOccurrence(
     chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[],
     searchPhrase: string
 ): number | null {
+    if (!searchPhrase) return null;
+    
     // Split the phrase into words and normalize each
     const searchWords = searchPhrase.split(' ').map(normalize);
 
@@ -80,6 +82,10 @@ function findFirstWordOccurrence(
 
                 // Accumulate segments until candidate equals or overshoots searchWord.
                 while (segIndex < segments.length) {
+                    if (!segments[segIndex]?.text) {
+                        segIndex++;
+                        continue;
+                    }
                     candidate += normalize(segments[segIndex].text);
                     lastSegmentEnd = segments[segIndex].end;
                     segIndex++;
@@ -112,14 +118,19 @@ function findFirstWordOccurrence(
 
 // Helper function to normalize text (assuming you have one)
 function normalize(text: string): string {
+    if (!text) return '';
     return text.trim().toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '');
 }
-
-
 const parseVideoContent = (input: string, chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[]): {
     questions: InteractiveVideoQuestionGroup[],
     definitions: InteractiveVideoDefinitionGroup[]
 } => {
+
+    if (chunks.length <= 0) return {
+        questions: [],
+        definitions: []
+    }
+
     const lines = input.split('\n').filter(line => line.trim());
     const questionMap = new Map<number, InteractiveVideoQuestion[]>();
     const definitionMap = new Map<number, InteractiveVideoDefinition[]>();
