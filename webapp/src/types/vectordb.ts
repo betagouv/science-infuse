@@ -227,4 +227,4 @@ export function isWebsiteExperienceChunk(chunk: ChunkWithScoreUnion): chunk is C
 
 
 export const s3ToPublicUrl = (s3ObjectName: string | null | undefined) => `${WEBAPP_URL}/api/s3/presigned_url/object_name/${s3ObjectName}`
-export const h5pIdToPublicUrl = (id: string) => `${H5P_PUBLIC_URL}/h5p/play/${id}`
+export const h5pIdToPublicUrl = (h5pContentId: string, s3ObjectName: string) => `${H5P_PUBLIC_URL}/h5p/s3/${s3ObjectName}/${h5pContentId}`
