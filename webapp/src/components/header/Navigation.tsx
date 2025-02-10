@@ -117,7 +117,7 @@ export function Navigation() {
 						},
 						text: `Besoin d'aide`
 					},
-					...(user && user.roles?.includes('ADMIN') ? [{
+					...(user ? [{
 						linkProps: {
 							href: '/prof/creer-un-interactif',
 							target: '_self'

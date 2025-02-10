@@ -27,7 +27,6 @@ export default function ProfDashboard() {
                     }}
                 />
 
-
                 <InteractiveVideoGenerator youtubeUrl={youtubeUrl}/>
 
             </div>
