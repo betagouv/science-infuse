@@ -61,7 +61,7 @@ export default async function MesInteractifs() {
                 <div className="py-16 flex flex-col gap-8 md:px-0">
                     <div className="w-full">
                         <h1 className="m-0 text-3xl md:text-4xl font-bold text-center text-black">
-                            Mes intéractifs
+                            Mes interactifs
                         </h1>
                     </div>
                     {contents.length > 0 ? (
