@@ -80,9 +80,9 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                 <Input
-                    label="Email professionnel"
+                    label="Login ou email professionnel"
                     nativeInputProps={{
-                        type: "email",
+                        type: "text",
                         value: email,
                         onChange: (e) => setEmail(e.target.value),
                         required: true,
