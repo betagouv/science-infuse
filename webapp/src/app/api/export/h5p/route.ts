@@ -8,6 +8,7 @@ import { User } from 'next-auth';
 import s3Storage from '../../S3Storage';
 import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
+import { h5pIdToPublicUrl } from '@/types/vectordb';
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +50,7 @@ export const POST = withAccessControl(
         const fileName = `h5p-${type}-${game.contentId}`;
         const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=h5p`;
         const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=html`;
-        const embedUrl = `${process.env.H5P_PUBLIC_URL}/h5p/play/${game.contentId}`;
+        const embedUrl = h5pIdToPublicUrl(game.contentId, fileName);
 
         const filePath = await downloadH5PFile(game.contentId);
         const publicS3Path = await s3Storage.uploadFile(filePath, fileName);
