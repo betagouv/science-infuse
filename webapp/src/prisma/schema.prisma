@@ -16,6 +16,7 @@ model Document {
   deleted               Boolean         @default(false)
   publicPath            String?
   mediaName             String
+  isExternal            Boolean         @default(false)
   duration              Float?
   source                String          @default("UniverScience")
   sourceCreationDate    DateTime?

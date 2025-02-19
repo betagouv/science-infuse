@@ -12,7 +12,7 @@ import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents';
 
 const crypto = require('crypto');
 
-const indexFile = async (content: File, author: string, documentTags: DocumentTag[]) => {
+const indexFile = async (content: File, author: string, documentTags: DocumentTag[], isExternal: boolean) => {
     const buffer = await content.arrayBuffer();
     const mimeType = content.type
     let fileExtensionFromMime = ''
@@ -50,7 +50,8 @@ const indexFile = async (content: File, author: string, documentTags: DocumentTa
             path: localFilePath,
             type: IndexingContentType.file,
             documentTagIds: documentTags.map(t => t.id),
-            author: author || undefined
+            author: author || undefined,
+            isExternal,
         },
             { priority: 1 }
         )
@@ -64,7 +65,7 @@ const indexFile = async (content: File, author: string, documentTags: DocumentTa
     }
 }
 
-const indexUrl = async (url: string, author: string, documentTags: DocumentTag[]) => {
+const indexUrl = async (url: string, author: string, documentTags: DocumentTag[], isExternal: boolean) => {
     try {
         const fileExist = await prisma.document.findFirst({
             where: {
@@ -81,7 +82,8 @@ const indexUrl = async (url: string, author: string, documentTags: DocumentTag[]
             path: url,
             type: IndexingContentType.url,
             documentTagIds: documentTags.map(t => t.id),
-            author: author
+            author: author,
+            isExternal
         },
             { priority: 1 }
         )
@@ -96,7 +98,7 @@ const indexUrl = async (url: string, author: string, documentTags: DocumentTag[]
 
 }
 
-const indexYoutubeVideo = async (url: string, author: string, documentTags: DocumentTag[]) => {
+const indexYoutubeVideo = async (url: string, author: string, documentTags: DocumentTag[], isExternal: boolean) => {
     try {
         const fileExist = await prisma.document.findFirst({
             where: {
@@ -113,7 +115,8 @@ const indexYoutubeVideo = async (url: string, author: string, documentTags: Docu
             path: url,
             type: IndexingContentType.youtube,
             documentTagIds: documentTags.map(t => t.id),
-            author: author || undefined
+            author: author || undefined,
+            isExternal,
         },
             { priority: 1 }
         )
@@ -134,6 +137,8 @@ export async function POST(request: NextRequest) {
     const content = formData.get('content') as File | string | null;
     const type = formData.get('type') as IndexingContentType;
     const author = formData.get('author') as string;
+    console.log("formData.get('isExternal')", formData.get('isExternal'), formData.get('isExternal') === 'true')
+    const isExternal = formData.get('isExternal') === 'true';
     const documentTags = JSON.parse(formData.get('documentTags') as string || "[]") as DocumentTag[];
     const session = await getServerSession(authOptions);
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
@@ -147,12 +152,12 @@ export async function POST(request: NextRequest) {
     console.log("INDEXING", type)
 
     if (type == IndexingContentType.url) {
-        return indexUrl(content as string, author, documentTags);
+        return indexUrl(content as string, author, documentTags, isExternal);
     }
     else if (type == IndexingContentType.youtube) {
-        return indexYoutubeVideo(content as string, author, documentTags)
+        return indexYoutubeVideo(content as string, author, documentTags, isExternal)
     }
     else if (type == IndexingContentType.file) {
-        return indexFile(content as File, author, documentTags)
+        return indexFile(content as File, author, documentTags, isExternal)
     }
 }

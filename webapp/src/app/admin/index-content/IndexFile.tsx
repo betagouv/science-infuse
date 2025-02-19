@@ -63,7 +63,12 @@ const IndexFile = () => {
         setIsGlobalIndexing(true);
         const indexPromises = files.map(async (fileInfo) => {
             try {
-                await apiClient.indexContent(fileInfo.file, IndexingContentType.file, source, selectedDocumentTags);
+                await apiClient.indexContent({
+                    content: fileInfo.file,
+                    type: IndexingContentType.file,
+                    author: source,
+                    documentTags: selectedDocumentTags
+                });
                 return true;
             } catch (error: any) {
                 console.error(`Error indexing ${fileInfo.file.name}:`, error);

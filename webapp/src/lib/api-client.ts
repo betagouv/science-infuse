@@ -171,11 +171,13 @@ class ApiClient {
     return response.data;
   }
 
-  async indexContent(content: File | string, type: IndexingContentType, author: string, documentTags: DocumentTag[]): Promise<string> {
+  async indexContent(props: { content: File | string, type: IndexingContentType, author: string, documentTags: DocumentTag[], isExternal?: boolean }): Promise<string> {
+    const { content, type, author, documentTags, isExternal } = props;
     console.log("selectedDocumentTags", documentTags)
     const formData = new FormData();
     formData.append('content', content);
     formData.append('type', type);
+    formData.append('isExternal', (!!isExternal).toString());
     formData.append('documentTags', JSON.stringify(documentTags));
     if (author)
       formData.append('author', author);

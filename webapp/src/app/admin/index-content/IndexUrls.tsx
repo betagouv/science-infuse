@@ -35,7 +35,12 @@ const IndexUrls = () => {
 
         const indexPromises = urlsToIndedx.map(async (url) => {
             try {
-                await apiClient.indexContent(url, IndexingContentType.url, source, selectedDocumentTags);
+                await apiClient.indexContent({
+                    content: url,
+                    type: IndexingContentType.url,
+                    author: source,
+                    documentTags: selectedDocumentTags
+                });
                 return true;
             } catch (error: any) {
                 console.error(`Error indexing ${url}:`, error);
@@ -85,7 +90,7 @@ const IndexUrls = () => {
                     }}
                     className="w-full"
                 />
-            <DocumentTagPicker selectedDocumentTags={selectedDocumentTags} setSelectedDocumentTags={setSelectedDocumentTags} />
+                <DocumentTagPicker selectedDocumentTags={selectedDocumentTags} setSelectedDocumentTags={setSelectedDocumentTags} />
             </div>
 
             {

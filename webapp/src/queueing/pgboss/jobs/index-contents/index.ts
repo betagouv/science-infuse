@@ -20,6 +20,7 @@ const config = defineWorkerConfig({
     type: z.nativeEnum(IndexingContentType),
     documentTagIds: z.array(z.string()),
     author: z.string().optional(),
+    isExternal: z.boolean(),
     metadata: z.object({
       channelName: z.string().optional(),
     }).optional(),
@@ -35,7 +36,7 @@ export interface ServerProcessingResult {
 export const indexContentJob = defineJob(config);
 
 export const indexContentWorker = defineWorker(config, async (job) => {
-  const { path, author, type, documentTagIds, sourceCreationDate, metadata } = job.data;
+  const { path, author, type, documentTagIds, sourceCreationDate, metadata, isExternal } = job.data;
 
   let processingError: Error | undefined;
   let processingResponse: ServerProcessingResult | undefined;
@@ -97,6 +98,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
     [processingError, processingResponse] = await catchErrorTyped(
       indexYoutube({
         youtubeUrl: path,
+        isExternal,
         channelName: metadata?.channelName,
         documentTagIds,
         sourceCreationDate,
@@ -115,6 +117,7 @@ export const indexContentWorker = defineWorker(config, async (job) => {
       document: processingResponse.document,
       chunks: processingResponse.chunks,
       hash: fileHash,
+      isExternal,
       documentTagIds: Array.from(new Set([...tags])),
       sourceCreationDate,
     })

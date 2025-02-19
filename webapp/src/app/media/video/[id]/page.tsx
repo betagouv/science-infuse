@@ -3,7 +3,7 @@ import { useMemo, useState, useRef } from "react";
 import React from "react";
 import { apiClient } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { RenderGroupedVideoTranscriptCard } from "@/app/recherche/DocumentChunkFull";
+import { RenderGroupedVideoTranscriptCard, YoutubeEmbed, YouTubePlayerRef } from "@/app/recherche/DocumentChunkFull";
 import { ChunkWithScore, s3ToPublicUrl } from "@/types/vectordb";
 import InteractiveVideoGenerator from "@/components/interactifs/InteractiveVideoGenerator";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
@@ -20,6 +20,8 @@ export default function VideoPage({
 
     const { id } = params;
     const videoRef = useRef<HTMLVideoElement>(null);
+    const youtubePlayerRef = useRef<YouTubePlayerRef>(null);
+
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(undefined);
     const { data: video, isLoading, error } = useQuery({
         queryKey: ['document', id],
@@ -37,6 +39,9 @@ export default function VideoPage({
             videoRef.current.currentTime = timestamp;
             videoRef.current.play();
         }
+        if (youtubePlayerRef.current) {
+            youtubePlayerRef.current.seekToTime(timestamp);
+        }
     }
 
     const textLength = (videoChunks || []).map(i => i.text).join(' ').length;
@@ -50,7 +55,11 @@ export default function VideoPage({
 
                 <h1>{video?.mediaName}</h1>
                 {/* <MiniatureWrapper> */}
-                {video && <video className="w-full" ref={videoRef} controls src={s3ToPublicUrl(video.s3ObjectName||"")} />}
+                {video && (
+                    video.isExternal ?
+                        <YoutubeEmbed ref={youtubePlayerRef} onDuration={() => { }} url={video.originalPath} />
+                        : <video className="w-full" ref={videoRef} controls src={s3ToPublicUrl(video.s3ObjectName || "")} />
+                )}
                 {/* </MiniatureWrapper> */}
 
                 {video && <>

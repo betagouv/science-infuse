@@ -1,3 +1,4 @@
+import YouTube from 'react-youtube';
 import VideoPlayerHotSpots from "@/app/mediaViewers/VideoPlayerHotSpots";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { WEBAPP_URL } from "@/config";
@@ -17,9 +18,10 @@ import { Collapse, Tooltip, Typography, styled } from '@mui/material';
 import { Document, DocumentChunk } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
+import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -370,7 +372,6 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
 
 export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[], defaultSelectedChunk?: ChunkWithScore<"video_transcript"> }> = ({ onInserted, video, defaultSelectedChunk, searchWords }) => {
     const firstChunk = video.items[0];
-    const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${firstChunk.document.s3ObjectName}`
     let originalPath = firstChunk.document.originalPath;
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(defaultSelectedChunk)
     if (originalPath.includes("youtube") && selectedChunk) {
@@ -400,7 +401,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
             />}
             desc={
                 <VideoPlayerHotSpots
-                    videoUrl={url}
+                    document={firstChunk.document}
                     selectedChunk={selectedChunk}
                     onChunkSelected={(_chunk) => setSelectedChunk(_chunk)}
                     chunks={video.items}
@@ -414,7 +415,6 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
 
 export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ onInserted, chunk, searchWords }) => {
     let originalPath = chunk.document.originalPath;
-    const url = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`
     if (originalPath.includes("youtube")) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
     }
@@ -434,7 +434,7 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
             />}
             desc={
                 <VideoPlayerHotSpots
-                    videoUrl={url}
+                    document={chunk.document}
                     selectedChunk={chunk}
                     onChunkSelected={() => { }}
                     chunks={[chunk]}
@@ -443,14 +443,6 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
             size="medium"
             title=""
         />
-
-        // <VideoPlayerHotSpots
-        //     // <VideoPlayer
-        //     selectedChunk={chunk}
-        //     onChunkSelected={() => {}}
-        //     videoUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.document.s3ObjectName}`}
-        //     chunks={[chunk]}
-        // />
     )
 };
 
@@ -766,6 +758,56 @@ export const DocumentPreview = (props: { document: DocumentWithChunks }) => {
         />
     )
 }
+
+// export const YoutubeEmbed = (props: { url: string }) => {
+//     return <iframe width="100%" className="aspect-video" src={`https://www.youtube.com/embed/${videoId}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+// }
+interface ResponsiveYoutubeEmbedProps {
+    url: string;
+    aspectRatio?: number; // ratio = largeur/hauteur, par défaut 16/9
+    onDuration: (duration: number) => void;
+}
+
+export interface YouTubePlayerRef {
+    seekToTime: (seconds: number) => void;
+}
+
+export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedProps>(({ url, aspectRatio = 16 / 9, onDuration }, ref) => {
+    const videoId = extractYoutubeVideoId(url);
+    const playerRef = useRef<any>(null);
+    const opts = {
+        width: '100%',
+        height: '100%',
+        playerVars: {
+            autoplay: 0,
+        },
+    };
+
+    useImperativeHandle(ref, () => ({
+        seekToTime(seconds: number) {
+            playerRef.current?.seekTo && playerRef.current?.seekTo(seconds, true);
+        }
+    }), []);
+
+    const onReady = (event: any) => {
+        playerRef.current = event.target;
+
+        const duration = event.target.getDuration();
+        onDuration(duration);
+    };
+    const paddingBottom = (1 / aspectRatio) * 100;
+
+    return <div style={{ position: 'relative', width: '100%', paddingBottom: `${paddingBottom}%` }}>
+        <YouTube
+            ref={playerRef}
+            videoId={videoId}
+            opts={opts}
+            onReady={onReady}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+        />
+    </div>;
+});
+
 
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, chunk, searchWords }) => {
     if (isImageChunk(chunk)) return <RenderImageCard onInserted={onInserted} chunk={chunk} />;

@@ -9,7 +9,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { IndexingContentType } from '@/types/queueing';
 import { DocumentTag } from '@prisma/client';
 import DocumentTagPicker from './DocumentTagPicker';
-
+import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 
 const IndexYoutubeVideos = () => {
     const { data: session } = useSession();
@@ -18,6 +18,7 @@ const IndexYoutubeVideos = () => {
     const { showSnackbar } = useSnackbar();
 
     const [source, setSource] = useState(user ? `${user.firstName} ${user.lastName}` : '');
+    const [isExternal, setIsExternal] = useState(true);
     const [urls, setUrls] = useState('');
     const [isGlobalIndexing, setIsGlobalIndexing] = useState(false);
     const [selectedDocumentTags, setSelectedDocumentTags] = useState<DocumentTag[]>([]);
@@ -34,7 +35,13 @@ const IndexYoutubeVideos = () => {
 
         const indexPromises = urlsToIndedx.map(async (url) => {
             try {
-                await apiClient.indexContent(url, IndexingContentType.youtube, url, selectedDocumentTags);
+                await apiClient.indexContent({
+                    content: url,
+                    type: IndexingContentType.youtube,
+                    author: url,
+                    documentTags: selectedDocumentTags,
+                    isExternal
+                });
                 return true;
             } catch (error: any) {
                 console.error(`Error indexing ${url}:`, error);
@@ -74,6 +81,23 @@ const IndexYoutubeVideos = () => {
                     }}
                     textArea
                 />
+                <Checkbox
+                    className='w-full p-0 [&_.fr-fieldset__content]:m-0'
+                    // legend="test"
+                    options={[
+                        {
+                            nativeInputProps: {
+                                checked: !isExternal,
+                                onChange: () => setIsExternal(!isExternal)
+                            },
+                            label: <p>Ces vidéos appartiennent à Universcience. <br />
+                                <span className='text-gray-500'>
+                                    Les vidéos seront affichées avec le lecteur {isExternal ? "YouTube" : "par défaut"}.
+                                </span>
+                            </p>,
+                        }
+                    ]}
+                />
                 <Input
                     label="Source"
                     nativeInputProps={{
@@ -85,6 +109,7 @@ const IndexYoutubeVideos = () => {
                     className="w-full"
                 />
                 <DocumentTagPicker selectedDocumentTags={selectedDocumentTags} setSelectedDocumentTags={setSelectedDocumentTags} />
+
             </div>
 
             {

@@ -44,7 +44,7 @@ export const createOrGetTag = async (channelName: string) => {
 }
 
 
-export default async (props: { youtubeUrl: string, channelName?: string, documentTagIds: string[], sourceCreationDate?: Date }) => {
+export default async (props: { youtubeUrl: string, channelName?: string, documentTagIds: string[], sourceCreationDate?: Date, isExternal: boolean }) => {
     const { youtubeUrl, channelName, documentTagIds, sourceCreationDate } = props;
 
     const videoId = extractYoutubeVideoId(youtubeUrl) || youtubeUrl;
@@ -76,7 +76,7 @@ export default async (props: { youtubeUrl: string, channelName?: string, documen
                 'Content-Type': 'application/json',
             },
         }).then(response => response.data);
-        
+
         return processingResponse
     }
 }

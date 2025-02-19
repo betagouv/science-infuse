@@ -21,7 +21,7 @@ export default function VideoNodeComponent({ node, updateAttributes }: NodeViewP
       endOffset: end,
     });
   };
-  
+
   let [mounted, setMounted] = useState(false);
   useEffect(() => {
     setTimeout(() => {
@@ -29,13 +29,12 @@ export default function VideoNodeComponent({ node, updateAttributes }: NodeViewP
     }, 400)
   }, [])
   const attrs = node.attrs as VideoNodeProps;
-  const videoUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${attrs.chunk?.document?.s3ObjectName}`;
   return (
     <NodeViewWrapper style={{ opacity: mounted ? 1 : 0 }} className="si-video sm:rounded-xl sm:border sm:shadow-lg overflow-hidden my-4 p-4 relative">
       <h2 className="text-xl font-bold mb-2">{attrs.chunk?.title}</h2>
 
       {attrs.chunk && <VideoPlayerHotSpots
-        videoUrl={videoUrl}
+        document={attrs.chunk.document}
         chunks={[attrs.chunk]}
         selectedChunk={undefined}
         onChunkSelected={function (chunk: ChunkWithScore<'video_transcript'> | undefined): void {

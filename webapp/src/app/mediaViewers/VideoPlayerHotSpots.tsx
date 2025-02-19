@@ -1,16 +1,22 @@
+import { WEBAPP_URL } from '@/config';
 import { ChunkWithScore } from '@/types/vectordb';
 import { Tooltip } from '@mui/material';
+import { Document } from '@prisma/client';
 import React, { useState, useRef, useEffect } from 'react';
+import { YoutubeEmbed, YouTubePlayerRef } from '../recherche/DocumentChunkFull';
 
 interface VideoPlayerProps {
-    videoUrl: string;
+    document: Document;
     chunks: ChunkWithScore<"video_transcript">[];
     selectedChunk: ChunkWithScore<"video_transcript"> | undefined,
     onChunkSelected: (chunk: ChunkWithScore<"video_transcript"> | undefined) => void
 }
 
-const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, selectedChunk, onChunkSelected }) => {
+const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, selectedChunk, onChunkSelected }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const youtubePlayerRef = useRef<YouTubePlayerRef>(null);
+    const videoUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${document.s3ObjectName}`;
+
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     // Add hover section red local state
@@ -73,18 +79,25 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ videoUrl, chunks, sel
         const x = e.clientX - rect.left;
         const seekTime = (x / rect.width) * duration;
         video.currentTime = seekTime;
+        if (youtubePlayerRef.current)
+            youtubePlayerRef.current.seekToTime(seekTime)
     };
 
     const handleHotspotClick = (chunk: ChunkWithScore<"video_transcript">) => {
         if (videoRef.current) {
             videoRef.current.currentTime = chunk.metadata.start;
         }
+        if (youtubePlayerRef.current)
+            youtubePlayerRef.current.seekToTime(chunk.metadata.start)
         onChunkSelected(chunk);
     };
 
     return (
         <div className="w-full mx-auto">
-            <video ref={videoRef} src={videoUrl} className="w-full sm:rounded-xl" controls />
+            {document.isExternal ?
+                <YoutubeEmbed ref={youtubePlayerRef} url={document.originalPath} onDuration={setDuration} /> :
+                <video ref={videoRef} src={videoUrl} className="w-full sm:rounded-xl" controls />
+            }
             <div className="relative h-[5px] bg-gray-200 mt-2 cursor-pointer" onClick={handleSeek}>
                 <div
                     className="absolute top-0 left-0 h-full bg-blue-500"
