@@ -71,6 +71,7 @@ async function runChannelIndexation(channelId: string): Promise<void> {
       sourceCreationDate: video.publish_time ? new Date(video.publish_time) : undefined,
       type: IndexingContentType.youtube,
       documentTagIds: [],
+      isExternal: false,
       metadata: {
         channelName: video.channel_name,
       },
