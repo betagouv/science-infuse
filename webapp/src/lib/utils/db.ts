@@ -86,7 +86,6 @@ export const insertDocument = async ({ document, chunks, documentTagIds, hash, s
     sourceCreationDate?: Date,
     isExternal: boolean,
 }): Promise<string> => {
-    console.log("insertDocument", documentTagIds)
     const createdDocument = await prisma.document.create({
         data: {
             ...document,

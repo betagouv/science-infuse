@@ -54,12 +54,12 @@ export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmp
     return (
         <SearchBar
             className={`w-full max-w-full ${props.className}`}
-            label="Rechercher une image, une vidéo, un document..."
+            label="tectonique des plaques, volcan, climat..."
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (
                 <input
                     ref={inputRef}
-                    className={className}
+                    className={`${className} bg-white`}
                     id={id}
                     placeholder={placeholder}
                     type={type}

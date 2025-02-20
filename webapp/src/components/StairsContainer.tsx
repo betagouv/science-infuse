@@ -24,7 +24,7 @@ export default (props: { color: string, stairColor?: string, children: React.Rea
 
             <div className="w-full" style={{ backgroundColor: props.color }}>
                 <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-                    <div className="fr-col-12 fr-col-md-8 main-content-item my-32">
+                    <div className="fr-col-12 fr-col-md-9 main-content-item my-32">
 
                         {props.children}
 

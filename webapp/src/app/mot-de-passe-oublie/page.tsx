@@ -22,7 +22,7 @@ export default function AskForPasswordReset() {
     return (
         <div className="fr-container fr-my-6w">
             <div className="fr-grid-row fr-grid-row--center">
-                <div className="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                <div className="fr-col-12 fr-col-md-9 fr-col-lg-6">
                     <h1 className="fr-h1 fr-mb-3w">Demande de réinitialisation de mot de passe</h1>
                     {!success ? (
                         <form onSubmit={handleSubmit}>

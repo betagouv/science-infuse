@@ -63,7 +63,7 @@ async function runChannelIndexation(channelId: string): Promise<void> {
   const channelVideos = await getChannelVideos(channelId)
   console.log(channelVideos.length)
 
-  for (const [index, video] of Array.from(channelVideos.entries()).slice(0, 10)) {
+  for (const [index, video] of Array.from(channelVideos.entries())) {
     const url = `https://www.youtube.com/watch?v=${video.video_id}`
 
     await indexContentJob.emit({

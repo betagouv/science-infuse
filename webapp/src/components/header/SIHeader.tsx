@@ -26,9 +26,15 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         "href": "/",
         "title": "Accueil - Science Infuse"
       }}
-      serviceTitle="Science Infuse"
-      serviceTagline={<>Contenus multimédias gratuits<br />par la Cité des sciences et de l'industrie et le Palais de la découverte</>}
-      // serviceTagline="Création de cours pour les enseignants de SVT au collège"
+      serviceTitle={<p className="text-xl text-[#161616]">
+        <span className="font-thin">Science Infuse devient </span>
+        <span className="font-bold">Ada</span>
+      </p>}
+      serviceTagline={<p className="text-sm text-left text-[#3a3a3a]">
+        Contenus multimédias gratuits
+        <br />
+        par la Cité des sciences et de l'industrie et le Palais de la découverte
+      </p>}      // serviceTagline="Création de cours pour les enseignants de SVT au collège"
       navigation={<Navigation />}
     />
   )
