@@ -90,6 +90,7 @@ class VideoProcessor(BaseDocumentProcessor):
         if (self.youtube_url):
             video_path, video_name = self.download_youtube_video(self.youtube_url)
             video_s3ObjectName = f"youtube/{self.get_random_uuid()}.mp4"
+            # print("SAVED YT VIDEO TO ", video_s3ObjectName, flush=True)
             self.save_to_s3(self.s3, video_path, video_s3ObjectName, remove=False)
         elif (self.s3_object_name):
             video_path, video_name = self.download_s3_video(self.s3_object_name)
@@ -102,7 +103,7 @@ class VideoProcessor(BaseDocumentProcessor):
 
         # print("EXTRACT DOCUMNET YOUTUBE video_s3ObjectName 2", video_s3ObjectName)
 
-        print("segment.word_segments", type(segments[0].word_segments[0]), segments[0].word_segments[0])
+        # print("segment.word_segments", type(segments[0].word_segments[0]), segments[0].word_segments[0])
         document = Document(
             id=self.id, 
             publicPath=self.youtube_url, 
@@ -111,6 +112,7 @@ class VideoProcessor(BaseDocumentProcessor):
             duration=self.get_video_duration(video_path),
             mediaName=self.name or video_name,
         )
+        # print("RETURNN DOCUMENT", document.dict(), flush=True)
         chunks = [
             VideoTranscriptChunk(
                 text=segment.text,
