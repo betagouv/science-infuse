@@ -1,13 +1,14 @@
 "use client";
 
 import { MainNavigation } from "@codegouvfr/react-dsfr/MainNavigation";
-import { usePathname, useSelectedLayoutSegment } from "next/navigation";
+import { usePathname, useSelectedLayoutSegment, useSelectedLayoutSegments } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { styled } from "@mui/material";
 import SearchBar from "../search/SearchBar";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
 import { Theme } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
+import { isActive } from "@tiptap/core";
 
 
 const StyledMainNavigation = styled(MainNavigation)`
@@ -22,7 +23,10 @@ const StyledMainNavigation = styled(MainNavigation)`
 	}
 
 	.fr-nav__item {
-		width: auto;
+		width: 100%;
+		@media (min-width: 768px) {
+			width: auto;
+		}
 	}
 
 	.fr-nav__item:first-child {
@@ -76,54 +80,70 @@ export function Navigation() {
 	}, [])
 
 
-	const segment = useSelectedLayoutSegment();
+	const segments = useSelectedLayoutSegments();
+	console.log("SEGMENT", segments)
 
 	return (
-		<div className="flex flex-row items-center py-2 pr-4">
+		<div className="flex flex-row items-center">
 
 			<StyledMainNavigation
-				className="w-full flex "
+				className="w-full flex"
 				items={[
 					{
-						isActive: false,
-						text: 'Catalogue de cours',
-						menuLinks: themes.map(t => ({
+						isActive: segments[0] == 'catalogue' || segments.join('/') == 'prof/mes-cours',
+						text: 'Cours',
+						menuLinks: [...themes.map(t => ({
 							linkProps: {
 								href: `/catalogue/${t.id}`
 							},
+							isActive: segments.join('/') == `catalogue/${t.id}`,
 							text: t.title || "Theme"
-						}))
+						})),
+						...(!user ? [] : [
+							{
+								isActive: segments.join('/') == 'prof/mes-cours',
+								linkProps: {
+									href: '/prof/mes-cours',
+									target: '_self'
+								},
+								text: 'Création de cours'
+							}
+						]),
+					]
 					},
-					...(!user ? [] : [
-						{
-							linkProps: {
-								href: '/prof/mes-cours',
-								target: '_self'
-							},
-							text: 'Création de cours'
-						}
-					]),
+					
 					{
+						isActive: segments.join('/') == 'webinaires',
+						menuLinks: [{
+							linkProps: {
+								href: `/webinaires`
+							},
+							isActive: segments.join('/') == 'webinaires',
+							text: "Webinaires Ada"
+						},{
+							linkProps: {
+								href: `#`
+							},
+							text: "Contenus favoris de la communauté Ada (à venir)"
+						}],
+						text: `Inspirations`
+					},
+					...(user ? [{
+						isActive: segments.join('/') == 'intelligence-artificielle/video-interactive',
 						linkProps: {
-							href: '/webinaires',
+							href: '/intelligence-artificielle/video-interactive',
 							target: '_self'
 						},
-						text: `Webinaires`
-					},
+						text: `Création de vidéo interactive`
+					}] : []),
 					{
+						isActive: segments.join('/') == 'besoin-d-aide',
 						linkProps: {
 							href: '/besoin-d-aide',
 							target: '_self'
 						},
-						text: `Besoin d'aide`
+						text: `Aide`
 					},
-					...(user ? [{
-						linkProps: {
-							href: '/prof/creer-un-interactif',
-							target: '_self'
-						},
-						text: `Créer un interactif`
-					}] : []),
 				]}
 			/>
 			<NavBarSearch />

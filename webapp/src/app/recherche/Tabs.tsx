@@ -44,6 +44,7 @@ interface TabItem {
 }
 
 const StyledTabs = styled.div`
+  z-index: 0;
   .fr-tabs {
     --tabs-height: 4rem !important;
     box-shadow: none !important;
@@ -80,7 +81,7 @@ const StyledTabs = styled.div`
 
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
-const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void }) => {
+const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void, hiddenTabs?: TabType[] }) => {
   const { data: session } = useSession();
   const user = session?.user;
 
@@ -95,7 +96,7 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
     { tabId: TabType.Videos, label: `Vidéos (${getVideoCount(props.chunks)})` },
     { tabId: TabType.Games, label: `Jeux (${getCount(props.chunks, TabMediaTypeMap[TabType.Games])})` },
     { tabId: TabType.Others, label: `Autres (${getCount(props.chunks, TabMediaTypeMap[TabType.Others])})` },
-  ];
+  ].filter(tab => !props.hiddenTabs?.includes(tab.tabId));
 
   return (
     <StyledTabs>

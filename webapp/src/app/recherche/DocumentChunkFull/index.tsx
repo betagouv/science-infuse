@@ -157,12 +157,13 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
     const user = session?.user;
 
     return (
-        <div className="flex flex-row justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4">
             {props.end}
-            <div className="flex self-end gap-4 ml-auto">
+            <div className="flex items-center gap-4 ml-auto">
                 {user && props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
                 {
                     props.downloadLink && user && <button
+                    className='flex'
                         onClick={() => window.open(props.downloadLink, '_blank')}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -172,13 +173,11 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
                 }
 
                 {
-                    props.onInserted && <button
+                    props.onInserted && <Button
                         onClick={() => props.onInserted && props.onInserted(props.chunk)}
                     >
-                        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"  >
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 6V0H8V6H14V8H8V14H6V8H0V6H6Z" fill="#161616" />
-                        </svg>
-                    </button>
+                      Sélectionner
+                    </Button>
                 }
 
                 {/* <button

@@ -24,7 +24,7 @@ export default () => {
                     <p className="text-base sm:text-lg md:text-xl text-start text-[#161616] mb-4 sm:mb-6">
                     Accédez à une bibliothèque riche de milliers de ressources pédagogiques multimédia. Créez des cours innovants grâce aux contenus exclusifs de la Cité des sciences, du Palais de la découverte et de nos partenaires - le tout gratuitement !
                     </p>
-                    <SearchBar className="p-0 mb-4 sm:mb-6" autoFocus={true} />
+                    <SearchBar className="p-0 mb-4 sm:mb-6" inputClassName="bg-white" autoFocus={true} />
                 </div>
             </div>
         </div>

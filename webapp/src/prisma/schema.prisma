@@ -11,6 +11,7 @@ datasource db {
 
 model Document {
   id                    String          @id @default(cuid()) @db.Uuid
+  isPublic              Boolean         @default(true)
   s3ObjectName          String?
   originalPath          String
   deleted               Boolean         @default(false)

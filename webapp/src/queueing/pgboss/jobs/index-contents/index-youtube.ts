@@ -44,9 +44,25 @@ export const createOrGetTag = async (channelName: string) => {
 }
 
 
-export default async (props: { youtubeUrl: string, channelName?: string, documentTagIds: string[], sourceCreationDate?: Date, isExternal: boolean }) => {
-    const { youtubeUrl, channelName, documentTagIds, sourceCreationDate } = props;
+export default async (props: { youtubeUrl?: string | null, s3ObjectName?: string, channelName?: string, documentTagIds: string[], sourceCreationDate?: Date, isExternal: boolean }) => {
+    const { youtubeUrl, s3ObjectName, channelName, documentTagIds, sourceCreationDate } = props;
 
+    if (!(youtubeUrl || s3ObjectName)) throw new Error("You need to provide a YouTube URL or an S3 object name.");
+
+    // deal with video file
+    if (s3ObjectName) {
+        const processingResponse = await axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { s3_object_name: s3ObjectName }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(response => response.data);
+
+        return processingResponse
+    }
+
+    if (!youtubeUrl) return;
+
+    // deal with youtube url
     const videoId = extractYoutubeVideoId(youtubeUrl) || youtubeUrl;
     const documentId = await getDocumentFromVideoId(videoId)
     const isVideoAlreadyIndexed = !!documentId;

@@ -7,7 +7,7 @@ import styled from "@emotion/styled";
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 
 
-export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
+export default (props: { className?: string, inputClassName?:string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -59,7 +59,7 @@ export default (props: { className?: string, autoFocus?: boolean, onSearchBarEmp
             renderInput={({ className, id, placeholder, type }) => (
                 <input
                     ref={inputRef}
-                    className={`${className} bg-white`}
+                    className={`${className} ${props.inputClassName}`}
                     id={id}
                     placeholder={placeholder}
                     type={type}

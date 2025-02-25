@@ -7,6 +7,9 @@ import { withAccessControl } from "../../accessControl";
 export const GET = withAccessControl(
     { allowedRoles: ['*'] },
     async (request: NextRequest, { user, params }: { user: User, params: { id: string } }) => {
+        const session = await getServerSession(authOptions);
+        const userId = session?.user.id
+
         const document = await prisma.document.findUnique({
             where: { id: params.id },
             include: {
@@ -19,7 +22,7 @@ export const GET = withAccessControl(
                 }
             }
         })
-        if (!document) {
+        if (!document || (document.isPublic == false && document.userId != userId)) {
             return NextResponse.json({ error: 'Document not found' }, { status: 404 });
         }
         const { documentChunks, ...documentWithoutChunks } = document || {};
