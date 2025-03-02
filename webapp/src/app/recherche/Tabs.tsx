@@ -89,8 +89,7 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
   const getVideoCount = (chunks: ChunkWithScoreUnion[]) => new Set(chunks.filter(c => c.mediaType == "video_transcript").map(c => c.document.id)).size
 
   const tabs: TabItem[] = [
-    ...(user && props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
-    { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
+    ...(user && props.favourites && !props.hiddenTabs?.includes(TabType.Favourites) ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),    { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
     { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
     { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
     { tabId: TabType.Videos, label: `Vidéos (${getVideoCount(props.chunks)})` },

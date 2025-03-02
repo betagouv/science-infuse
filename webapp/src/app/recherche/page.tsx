@@ -55,7 +55,7 @@ const Search: React.FC = () => {
             push(url.toString());
             selectedTabType.value = newTab;
 
-          }} />
+          }}/>
         </div>
       </div>
       <Snackbar />

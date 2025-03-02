@@ -4,6 +4,7 @@ import { Question } from "../course-editor";
 export type ExportH5PGenericRequest = {
     type: string;
     documentIds: string[],
+    h5pContentId?: string,
     data: unknown;
 };
 

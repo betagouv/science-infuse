@@ -1,17 +1,11 @@
-import { ChunkWithScore, ChunkWithScoreUnion } from "@/types/vectordb";
 
 
-import { createModal } from "@codegouvfr/react-dsfr/Modal";
-import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { useCallback, useEffect, useRef, useState } from "@preact-signals/safe-react/react";
-import RenderImportedFile from "@/course_editor/components/CourseSettings/components/RenderImportedFile";
-import ImportedFileSource from "@/course_editor/components/CourseSettings/components/ImportedFileSource";
+import { useCallback, useRef, useState } from "@preact-signals/safe-react/react";
 import { useDropzone } from "react-dropzone";
-import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
 import { apiClient } from "@/lib/api-client";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
 
     const [isUploading, setIsUploading] = useState(false);
     const [droppedFile, setDroppedFile] = useState<File | null>(null)
@@ -70,6 +64,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void }) => 
                             droppedFile && <Button className="whitespace-nowrap" onClick={async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                props.onDocumentProcessingStart();
                                 await uploadFileAndProcess(droppedFile);
                             }}>Générer quizz et définitions</Button>
                         }

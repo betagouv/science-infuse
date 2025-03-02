@@ -8,7 +8,7 @@ import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
 import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents';
-import { catchErrorTyped } from '@/errors';
+import { catchErrorTyped, DocumentAlreadyIndexed } from '@/errors';
 import indexYoutube from '@/queueing/pgboss/jobs/index-contents/index-youtube';
 import { insertDocument } from '@/lib/utils/db';
 import { z } from 'zod';
@@ -82,8 +82,16 @@ export async function POST(request: NextRequest) {
                 youtubeUrl,
                 // sourceCreationDate,
             }),
-            [Error]
+            [Error, DocumentAlreadyIndexed]
         )
+
+        console.log("PROCESSING ERROR", processingError)
+        console.log("PROCESSING RESPONSE", processingResponse)
+
+        if (processingError instanceof DocumentAlreadyIndexed) {
+            console.log('Document was already indexed with ID:', processingError.documentId);
+            return NextResponse.json({ documentId: processingError.documentId });
+        }
 
         if (processingResponse) {
             const documentId = await insertDocument({
@@ -97,7 +105,7 @@ export async function POST(request: NextRequest) {
                 // sourceCreationDate,
             })
 
-            return NextResponse.json({documentId});
+            return NextResponse.json({ documentId });
         }
 
         return NextResponse.json({});

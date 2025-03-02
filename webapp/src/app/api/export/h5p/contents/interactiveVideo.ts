@@ -61,7 +61,7 @@ function findFirstWordOccurrence(
     searchPhrase: string
 ): number | null {
     if (!searchPhrase) return null;
-    
+
     // Split the phrase into words and normalize each
     const searchWords = searchPhrase.split(' ').map(normalize);
 
@@ -196,25 +196,38 @@ const parseVideoContent = (input: string, chunks: (DocumentChunk & { metadata: D
             })),
         30
     );
+    // Get definition groups from the map
+    let definitions = Array.from(definitionMap.entries())
+        .map(([timestamp, definitions]) => ({
+            timestamp,
+            definitions
+        }));
 
-    const definitions = mergeCloseDefinitions(
-        Array.from(definitionMap.entries())
-            .map(([timestamp, definitions]) => ({
-                timestamp,
-                definitions
-            })),
-        5
-    );
-
-    // Add recap of all definitions at the end
+    // Add recap of all definitions at the end, ensuring no duplicates
     const allDefinitions = Array.from(definitionMap.values()).flat();
     if (allDefinitions.length > 0) {
+        // Remove duplicate definitions by using a Map with JSON stringified objects as keys
+        const uniqueDefinitionsMap = new Map();
+        allDefinitions.forEach(def => {
+            // Create a key that represents this definition
+            const key = JSON.stringify({
+                notion: def.notion.trim().toLowerCase(),
+                definition: def.definition.trim().toLowerCase()
+            });
+            uniqueDefinitionsMap.set(key, def);
+        });
+
+        const uniqueDefinitions = Array.from(uniqueDefinitionsMap.values());
+
         const lastTimestamp = Math.max(...chunks.map(chunk => chunk?.metadata?.end || 0));
         definitions.push({
             timestamp: lastTimestamp,
-            definitions: allDefinitions
+            definitions: uniqueDefinitions
         });
     }
+
+    // Now merge after adding the recap
+    definitions = mergeCloseDefinitions(definitions, 5);
 
     return { questions, definitions };
 };
@@ -342,12 +355,13 @@ ${videoTranscript}
     if (response) {
         const { questions, definitions } = parseVideoContent(response, chunks);
 
-        return {
+        const ivData = {
             questions: questions,
             videoTitle: mediaName,
-            videoPublicUrl: youtubeUrl ? youtubeUrl : `https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/${s3ObjectName}`,
+            videoPublicUrl: youtubeUrl ? youtubeUrl : `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/s3/presigned_url/object_name/${s3ObjectName}`,
             definitions: definitions,
         } as InteractiveVideoData;
+        return ivData;
     }
 
 }

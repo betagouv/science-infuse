@@ -1,9 +1,34 @@
-export default () => {
+const Help = (props: { hideHowItWorks?: boolean }) => {
     return (
-        <div className="flex flex-col gap-2 p-6 bg-[#f5f5fe] w-full ">
+        <div className="flex flex-col gap-2 p-8 bg-[#f5f5fe] w-full ">
+            {!props.hideHowItWorks && <>
+                <h2 className="text-base font-bold text-[#3a3a3a]">
+                    Comment ça marche ?
+                </h2>
+                <p>
+                    <ol>
+                        <li>
+                            L'intelligence artificielle de Ada analyse votre vidéo et génère automatiquement des questions-réponses, ainsi que des définitions de notions clés abordées dans la vidéo.
+                        </li>
+                        <li>
+                            Personnalisez le contenu selon vos besoins :
+                            <ul>
+                                <li>modifier les questions et réponses</li>
+                                <li>ajuster les définitions</li>
+                                <li>définir les moments d'apparition</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Prévisualisez et exportez votre vidéo interactive au format H5P, pour une intégration facile dans votre ENT.
+                        </li>
+                    </ol>
+                </p>
+            </>}
             <h2 className="text-base font-bold text-[#3a3a3a]">
                 Besoin d'aide ?
             </h2>
+
+
             <div className="flex flex-col gap-4">
                 <a href="#" className="w-fit flex items-center gap-2 group">
                     <svg
@@ -44,5 +69,8 @@ export default () => {
                     </span>
                 </a>
             </div>
-        </div>)
+        </div>
+    )
 }
+
+export default Help

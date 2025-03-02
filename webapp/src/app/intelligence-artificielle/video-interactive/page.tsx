@@ -13,9 +13,6 @@ export default function ProfDashboard() {
             <div className='flex flex-col fr-container main-content-item my-8 gap-8'>
                 <Breadcrumb
                     currentPageLabel="Création de vidéo interactive"
-                    // homeLinkProps={{
-                    //     href: '/'
-                    // }}
                     segments={[
                         {
                             label: 'intelligence artificielle',
@@ -27,23 +24,7 @@ export default function ProfDashboard() {
                 />
                 <div className="fr-col-12 fr-col-md-10 main-content-item mb-4 self-center">
 
-                    <h1 className="text-5xl font-bold text-center text-[#161616]">Je crée une vidéo interactive</h1>
-
-
                     <InteractiveVideoGenerator />
-
-                    {/* <Input
-                    hintText="Url"
-                    label="Vidéo youtube"
-                    state="default"
-                    stateRelatedMessage="Entrez une url youtube valide"
-                    nativeInputProps={{
-                        value: youtubeUrl,
-                        onChange: (e) => setYoutubeUrl(e.target.value)
-                    }}
-                />
-
-                <InteractiveVideoGenerator youtubeUrl={youtubeUrl} /> */}
 
                 </div>
             </div>

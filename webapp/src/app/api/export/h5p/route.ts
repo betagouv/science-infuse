@@ -35,12 +35,13 @@ export const POST = withAccessControl(
     { allowedRoles: ['*'] },
     async (request: NextRequest, { user }: { user: User }) => {
         const body: ExportH5PRequestBody = await request.json();
-        let game; let type = "";
+        let game; 
+        let type = "";
         if (isQuestionRequest(body)) {
-            game = await createQuestionSet(body.data);
+            game = await createQuestionSet(body.data, body.h5pContentId);
             type = "quiz";
         } else if (isInteractiveVideoRequest(body)) {
-            game = await createInteractiveVideo(body.data);
+            game = await createInteractiveVideo(body.data, body.h5pContentId);
             type = "video";
         }
         else {
@@ -72,7 +73,7 @@ export const POST = withAccessControl(
                 }
             })
 
-        return NextResponse.json({ downloadH5p, downloadHTML, embedUrl: embedUrl } as ExportH5pResponse);
+        return NextResponse.json({ downloadH5p, downloadHTML, embedUrl: embedUrl, h5pContentId: game.contentId } as ExportH5pResponse);
     }
 )
 

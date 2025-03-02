@@ -1,13 +1,9 @@
-import { ChunkWithScoreUnion } from "@/types/vectordb";
-
-
 import { useRef, useState } from "@preact-signals/safe-react/react";
-import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
 import Input from "@codegouvfr/react-dsfr/Input";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { apiClient } from "@/lib/api-client";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
 
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -19,6 +15,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void }) => 
     }
 
     const handleIndexYoutube = async () => {
+        props.onDocumentProcessingStart();
         const response = await apiClient.indexFile(undefined, youtubeUrl);
         console.log("uploadFileAndProcess", response)
         props.onDocumentIdPicked(response.documentId)
@@ -46,7 +43,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void }) => 
                         }
                     }
                 }}
-                state="info"
+                state={youtubeUrl.length == 0 || isValidYoutubeUrl(youtubeUrl) ? "info" : "error"}
                 stateRelatedMessage="Seules les vidéos hébergées sur la plateforme Youtube sont acceptées pour le moment."
             />
 

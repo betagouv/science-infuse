@@ -72,16 +72,16 @@ export interface ShouldShowProps {
 }
 
 export interface Option {
-    answer: string;
-    correct: boolean;
+  answer: string;
+  correct: boolean;
 }
 
 export interface Question {
-    question: string;
-    options: Option[];
+  question: string;
+  options: Option[];
 }
 
 export type OnInserted = {
-    onInserted?: (chunk: ChunkWithScoreUnion) => void
-  }
-  
+  onInserted?: (chunk: ChunkWithScoreUnion) => void;
+  onInsertedLabel?: string;
+}

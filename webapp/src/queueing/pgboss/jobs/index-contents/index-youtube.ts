@@ -1,5 +1,5 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
-import { catchErrorTyped } from "@/errors";
+import { catchErrorTyped, DocumentAlreadyIndexed } from "@/errors";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 import axios from "axios";
 import { ServerProcessingResult } from ".";
@@ -83,7 +83,7 @@ export default async (props: { youtubeUrl?: string | null, s3ObjectName?: string
             }
         })
 
-        throw new Error("Video already indexed")
+        throw new DocumentAlreadyIndexed(documentId, `Document with URL ${youtubeUrl} has already been indexed`);
     }
     // compute youtube video and create new document
     else {

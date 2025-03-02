@@ -1,5 +1,6 @@
-export const createH5P = async (data: any) => {
-    const response = await fetch(`${process.env.H5P_URL}/h5p/new`, {
+export const createH5P = async (data: any, h5pContentId?: string) => {
+    const url = h5pContentId ? `${process.env.H5P_URL}/h5p/edit/${h5pContentId}` : `${process.env.H5P_URL}/h5p/new`;
+    const response = await fetch(url, {
         "headers": {
             "accept": "*/*",
             "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -11,7 +12,7 @@ export const createH5P = async (data: any) => {
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
             "x-requested-with": "XMLHttpRequest",
-            "Referer": `${process.env.H5P_URL}/h5p/new`,
+            "Referer": url,
             "Referrer-Policy": "strict-origin-when-cross-origin"
         },
         "body": JSON.stringify(data),

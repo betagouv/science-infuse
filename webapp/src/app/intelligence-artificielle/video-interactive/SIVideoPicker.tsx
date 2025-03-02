@@ -1,13 +1,10 @@
-import Search from "@/app/recherche/page";
 import SearchPage from "@/app/recherche/SearchPage";
 import { selectedTabType, TabType } from "@/app/recherche/Tabs";
-import { ChunkWithScoreUnion } from "@/types/vectordb";
+import { MediaTypes } from "@/types/vectordb";
 import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
-import { Stepper } from "@codegouvfr/react-dsfr/Stepper";
 import { useRef, useState } from "react";
 
-
-export default (props: { onDocumentIdPicked: (documentId: string) => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [_query, _setQuery] = useState<string>("");
     const [query, setQuery] = useState<string>("");
@@ -53,12 +50,15 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void }) => 
 
 
         {query && <SearchPage
+            onInsertedLabel="Générer quizz et définitions"
             onInserted={(chunk) => {
                 console.log("INSERTED CHUNK", chunk)
+                props.onDocumentProcessingStart();
                 props.onDocumentIdPicked(chunk.document.id);
             }}
             query={query}
             tab="videos"
+            mediaTypes={[MediaTypes.VideoTranscript]}
             hiddenTabs={[TabType.Chapters, TabType.Documents, TabType.Games, TabType.Others, TabType.Pictures]}
             onTabChange={(newTab) => {
                 selectedTabType.value = newTab;

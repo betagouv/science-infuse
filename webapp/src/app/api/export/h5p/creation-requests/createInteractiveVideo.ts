@@ -2,7 +2,7 @@ import { createH5P } from "."
 import { InteractiveVideoData } from "../contents/interactiveVideo"
 import { v4 as uuidv4 } from 'uuid';
 
-export default async (input: InteractiveVideoData) => {
+export default async (input: InteractiveVideoData, h5pContentId?: string) => {
     const data = {
         "library": "H5P.InteractiveVideo 1.27",
         "params": {
@@ -35,8 +35,8 @@ export default async (input: InteractiveVideoData) => {
                                     "width": 10,
                                     "height": 10,
                                     "duration": {
-                                        "from": timestamp - 2,
-                                        "to": timestamp + 2
+                                        "from": timestamp,
+                                        "to": timestamp + 4
                                     },
                                     "libraryTitle": "Texte",
                                     "action": {
@@ -239,6 +239,6 @@ export default async (input: InteractiveVideoData) => {
     }
 
 
-    return await createH5P(data)
+    return await createH5P(data, h5pContentId)
 
 }

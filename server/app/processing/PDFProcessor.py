@@ -259,9 +259,9 @@ class PDFProcessor(BaseDocumentProcessor):
                         pageNumber=img.get('pageNumber'),
                         bbox=BoundingBox(
                             x1=img.get('bbox',{}).get('x1', -1), 
-                            y1=img.get('bbox',{}).get('x1', -1), 
-                            x2=img.get('bbox',{}).get('x1', -1), 
-                            y2=img.get('bbox',{}).get('x1', -1)
+                            y1=img.get('bbox',{}).get('y1', -1), 
+                            x2=img.get('bbox',{}).get('x2', -1),
+                            y2=img.get('bbox',{}).get('y2', -1)
                         )
                     )
                 )

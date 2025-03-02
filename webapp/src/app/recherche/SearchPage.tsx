@@ -4,7 +4,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChunkWithScoreUnion, SearchResults } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaType, SearchResults } from "@/types/vectordb";
 import { getSearchWords } from "./text-highlighter";
 import { fetchSIContent } from "./fetchSIContent";
 import Tabs, { selectedTabType, TabType } from "./Tabs";
@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 
 
 
-const SearchPage = (props: { query: string, tab?: string, onInserted?: (chunk: ChunkWithScoreUnion) => void, hiddenTabs?: TabType[], onTabChange?: (newTab: TabType) => void }, onInserted?: (chunk: ChunkWithScoreUnion) => void) => {
+const SearchPage = (props: { query: string, tab?: string, mediaTypes?: MediaType[], onInsertedLabel?: string, onInserted?: (chunk: ChunkWithScoreUnion) => void, hiddenTabs?: TabType[], onTabChange?: (newTab: TabType) => void }, onInserted?: (chunk: ChunkWithScoreUnion) => void) => {
     const query = props.query;
     const urlTabType = props.tab || "";
     const searchWords = getSearchWords(query);
@@ -37,17 +37,16 @@ const SearchPage = (props: { query: string, tab?: string, onInserted?: (chunk: C
     }, [urlTabType, user])
 
     const resultPerPage = 10
-
-
-
+    const chunks = results ? !props.mediaTypes ? results.chunks : results.chunks.filter(c => props.mediaTypes?.includes(c.mediaType)) : [];
+    const blocks = results ? results.blocks : [];
 
     return (
         <div className="flex w-full flex-col">
             <Tabs
                 hiddenTabs={props.hiddenTabs}
                 favourites={[]}
-                blocks={(results as SearchResults)?.blocks || []}
-                chunks={(results as SearchResults)?.chunks || []}
+                blocks={blocks}
+                chunks={chunks}
                 selectedTabType={selectedTabType.value}
                 onTabChange={(newTab) => {
                     props.onTabChange && props.onTabChange(newTab)
@@ -60,9 +59,10 @@ const SearchPage = (props: { query: string, tab?: string, onInserted?: (chunk: C
                 !isLoading && !isError && results && (
                     <RenderSearchResult
                         onInserted={props.onInserted}
+                        onInsertedLabel={props.onInsertedLabel}
                         favourites={[]}
                         selectedTab={selectedTabType.value}
-                        results={results}
+                        results={{ ...results, blocks, chunks }}
                         searchWords={searchWords}
                         resultPerPage={resultPerPage}
                     />

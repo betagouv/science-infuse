@@ -55,7 +55,7 @@ export default (props: { videoUrl: string }) => {
             </modal.Component>
             <Button
                 onClick={() => modal.open()}
-                className="w-full justify-center"
+                className="justify-center"
                 priority="secondary"
             >
                 Lien d'intégration

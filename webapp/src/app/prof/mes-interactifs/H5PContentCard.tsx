@@ -8,6 +8,7 @@ import styled from "@emotion/styled";
 import { H5PContent } from "@prisma/client";
 import { Download } from "@codegouvfr/react-dsfr/Download";
 import { IframeHTMLAttributes, useEffect, useRef } from "react";
+import H5PRenderer from "@/app/mediaViewers/H5PRenderer";
 
 const StyledCard = styled(Card)`
 .fr-card__content {
@@ -30,26 +31,7 @@ const StyledCard = styled(Card)`
 `
 
 function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, content: H5PContent & { documents: DocumentWithChunks[] } }) {
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-
-    useEffect(() => {
-        const handleMessage = (event: { data: { type: string; height: any; }; }) => {
-            if (
-                event.data &&
-                event.data.type === 'setHeight' &&
-                typeof event.data.height === 'number'
-            ) {
-                console.log("handleMessage", event.data)
-                if (iframeRef.current) {
-                    iframeRef.current.style.height = `${event.data.height+50}px`;
-                }
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, []);
-
+   
     const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=h5p`;
     const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=html`;
 
@@ -60,13 +42,7 @@ function H5PContentCard({ content, h5pPublicUrl }: { h5pPublicUrl: string, conte
             className="text-left w-full"
             desc={
                 <div className="relative">
-                    <iframe
-                        ref={iframeRef}
-                        className="w-full overflow-hidden"
-                        src={h5pPublicUrl}
-                        style={{ border: 'none', minHeight: '300px' }} // use minHeight instead of a fixed height
-                        title="H5P Content"
-                    />
+                    <H5PRenderer h5pPublicUrl={h5pPublicUrl}/>
                 </div>
             }
             end={

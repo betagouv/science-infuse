@@ -38,7 +38,7 @@ export const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) =>
 };
 
 
-export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: GroupedVideo[], searchWords: string[] }> = ({ onInserted, groupedVideos, searchWords }) => {
+export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: GroupedVideo[], searchWords: string[] }> = ({ onInsertedLabel, onInserted, groupedVideos, searchWords }) => {
   return (
     <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
       {groupedVideos
@@ -46,7 +46,7 @@ export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: Gr
         .map((video, index) => {
           return (
             <MasonaryItem key={index}>
-              <RenderGroupedVideoTranscriptCard onInserted={onInserted} video={video} searchWords={searchWords} />
+              <RenderGroupedVideoTranscriptCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} video={video} searchWords={searchWords} />
             </MasonaryItem>
           )
         })
@@ -80,13 +80,13 @@ export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], s
   </Masonry>
 };
 
-export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ onInserted, chunks, searchWords }) => {
+export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ onInsertedLabel, onInserted, chunks, searchWords }) => {
   return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
     {chunks
       .sort((a, b) => b.score - a.score)
       .map((result, index) => (
         <MasonaryItem key={index}>
-          <ChunkRenderer onInserted={onInserted} chunk={result} searchWords={searchWords} />
+          <ChunkRenderer onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={result} searchWords={searchWords} />
         </MasonaryItem>
       ))
     }
@@ -108,7 +108,7 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
       .filter(chunk => activeTypes.includes(chunk.mediaType as MediaType))
       .filter(chunk => (props.favourites && props.selectedTab == TabType.Favourites) ? chunk.user_starred === true : true);
   }
-  chunks = chunks.sort((a,b) => b.score - a.score)
+  chunks = chunks.sort((a, b) => b.score - a.score)
 
   useEffect(() => {
     setPageNumber(1);
@@ -132,16 +132,19 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
           {props.selectedTab === TabType.Chapters ?
             <BlockResults
               onInserted={props.onInserted}
+              onInsertedLabel={props.onInsertedLabel}
               blocks={props.results.blocks}
               searchWords={props.searchWords} /> :
             props.selectedTab !== TabType.Videos ?
               <ChunkResults
                 onInserted={props.onInserted}
+                onInsertedLabel={props.onInsertedLabel}
                 chunks={chunks.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
                 searchWords={props.searchWords}
               /> :
               <GroupedVideoChunkResults
                 onInserted={props.onInserted}
+                onInsertedLabel={props.onInsertedLabel}
                 groupedVideos={groupedVideos.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
                 searchWords={props.searchWords}
               />
