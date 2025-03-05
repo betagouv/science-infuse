@@ -8,7 +8,7 @@ import { z } from "zod";
 import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
-import indexYoutube, { createOrGetTag } from "./index-youtube";
+import indexYoutube, { createOrGetTag } from "./index-video";
 
 const crypto = require('crypto');
 

@@ -50,7 +50,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
 
 
         {query && <SearchPage
-            onInsertedLabel="Générer quizz et définitions"
+            onInsertedLabel="Générer quiz et définitions"
             onInserted={(chunk) => {
                 console.log("INSERTED CHUNK", chunk)
                 props.onDocumentProcessingStart();

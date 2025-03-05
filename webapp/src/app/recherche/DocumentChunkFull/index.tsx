@@ -191,8 +191,8 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
 
 
             </div>
-        </div>    
-        )
+        </div>
+    )
 }
 
 // Base Card component
@@ -396,6 +396,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
 
     return (
         <StyledGroupedVideoCard
+            className='max-w-full'
             end={<BuildCardEnd
                 onInserted={onInserted}
                 onInsertedLabel={onInsertedLabel}

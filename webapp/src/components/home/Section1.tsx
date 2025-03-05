@@ -3,6 +3,7 @@ import Image from 'next/image'
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import { useRouter } from "next/navigation";
 import Button from "@codegouvfr/react-dsfr/Button";
+import H5PRenderer from "@/app/mediaViewers/H5PRenderer";
 
 export default (props: { reverse?: boolean }) => {
     const color = "#ff8642"
@@ -23,6 +24,10 @@ export default (props: { reverse?: boolean }) => {
                         questions stimulantes, que vous pouvez adapter selon vos besoins pédagogiques.
                     </p>
 
+                    {/* <div className="flex w-full max-w-screen-md">
+                        <H5PRenderer h5pPublicUrl={'http://localhost:8006/h5p/s3/h5p-video-2048235049/2048235049?readOnlyState=yes&asUserId=0.15067949908738898'} />
+                    </div> */}
+
                     <Image
                         src="/images/interactive-video-preview.png"
                         height={300}
@@ -33,7 +38,7 @@ export default (props: { reverse?: boolean }) => {
 
                     <Button
                         linkProps={{
-                            href: "/prof/creer-un-interactif",
+                            href: "/intelligence-artificielle/video-interactive",
                         }}
                         className="w-full justify-center md:w-auto">Créer une vidéo interactive</Button>
 

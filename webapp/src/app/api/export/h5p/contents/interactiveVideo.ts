@@ -2,26 +2,11 @@
 
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import prisma from "@/lib/prisma";
+import { callGroq } from "@/lib/server/ia/external_llm";
 import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents";
 import { WordSegment } from "@/types/vectordb";
 import { DocumentChunk, Document, DocumentChunkMeta, PrismaClient } from "@prisma/client";
 import axios from "axios";
-
-import Groq from 'groq-sdk';
-
-const groqClient = new Groq({
-    apiKey: process.env['GROQ_API_KEY'],
-});
-
-
-const callGroq = async (text: string, model: string = "llama-3.3-70b-versatile") => {
-    const chatCompletion = await groqClient.chat.completions.create({
-        messages: [{ role: 'user', content: text }],
-        model: model,
-    });
-
-    return chatCompletion.choices[0].message.content;
-}
 
 export interface InteractiveVideoAnswer {
     answer: string;

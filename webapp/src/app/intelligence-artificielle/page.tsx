@@ -1,7 +1,8 @@
 import Card from "@codegouvfr/react-dsfr/Card"
 
 export default () => {
-    return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
+
+return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
         <div className='flex flex-col fr-container main-content-item my-24 gap-8'>
 
             <h1 className="text-[28px] md:text-[32px] font-bold text-center text-[#161616]">
@@ -23,19 +24,6 @@ export default () => {
                     titleAs="h3"
                 />
 
-                {/* <Card
-                    className="max-w-96"
-                    background
-                    border
-                    desc=""
-                    enlargeLink
-                    linkProps={{
-                        href: '/intelligence-artificielle/video-interactive'
-                    }}
-                    size="medium"
-                    title="Intitulé de la carte (sur lequel se trouve le lien)"
-                    titleAs="h3"
-                /> */}
             </div>
 
         </div>

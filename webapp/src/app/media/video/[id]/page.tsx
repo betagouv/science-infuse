@@ -5,11 +5,11 @@ import { apiClient } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
 import { RenderGroupedVideoTranscriptCard, YoutubeEmbed, YouTubePlayerRef } from "@/app/recherche/DocumentChunkFull";
 import { ChunkWithScore, s3ToPublicUrl } from "@/types/vectordb";
-import InteractiveVideoGenerator from "@/components/interactifs/InteractiveVideoGenerator";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
 import RegisteredUserFeature from "@/components/RegisteredUserFeature";
 import { CircularProgress } from "@mui/material";
 import MiniatureWrapper from "./MiniatureWrapper";
+import { Button } from "@codegouvfr/react-dsfr/Button";
 
 
 export default function VideoPage({
@@ -64,9 +64,9 @@ export default function VideoPage({
 
                 {video && <>
                     <h2 className="m-0">Vidéo interactive</h2>
-                    <div className="relative w-full bg-gray-50 p-0 md:p-8 rounded-xl">
+                    <div className="relative w-full">
                         {textLength < 100000 ?
-                            <InteractiveVideoGenerator documentId={video.id} /> :
+                            <Button linkProps={{target: "_blank", href: `/intelligence-artificielle/video-interactive/document/${video.id}`}} >Générer une vidéo interactive</Button> :
                             <CallOut
                                 iconId="ri-information-line"
                                 title="Génération impossible"

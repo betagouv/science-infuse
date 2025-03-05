@@ -226,15 +226,18 @@ class ApiClient {
     }
   }
 
-  async indexFile(file?: File, youtubeUrl?: string): Promise<{documentId: string}> {
+  async indexFile(props: { file?: File; youtubeUrl?: string, mediaName?: string }): Promise<{ documentId: string }> {
+    const { file, youtubeUrl, mediaName } = props;
     const formData = new FormData();
     if (file)
       formData.append('file', file);
     if (youtubeUrl)
       formData.append('youtubeUrl', youtubeUrl);
+    if (mediaName)
+      formData.append('mediaName', mediaName);
 
     try {
-      const response = await this.axiosInstance.post<{documentId: string}>('/file/index', formData, {
+      const response = await this.axiosInstance.post<{ documentId: string }>('/file/index', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

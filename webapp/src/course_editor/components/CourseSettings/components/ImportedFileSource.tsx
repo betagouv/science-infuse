@@ -36,8 +36,8 @@ const ImportedFileSource = (props: {source: string, setSource: (source: string) 
                             preserveAspectRatio="none"
                         >
                             <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
+                                fillRule="evenodd"
+                                clipRule="evenodd"
                                 d="M12.9993 1.66666H2.99935C2.26297 1.66666 1.66602 2.26362 1.66602 3V13C1.66602 13.7364 2.26297 14.3333 2.99935 14.3333H12.9993C13.7357 14.3333 14.3327 13.7364 14.3327 13V3C14.3327 2.26362 13.7357 1.66666 12.9993 1.66666ZM8.66602 4.66666H7.33268V6H8.66602V4.66666ZM8.66602 7.33333H7.33268V11.3333H8.66602V7.33333Z"
                                 fill="black"
                             />

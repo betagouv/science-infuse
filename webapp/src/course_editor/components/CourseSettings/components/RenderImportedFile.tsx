@@ -48,8 +48,8 @@ const RenderImportedFile = (props: { file: File, isUploading: boolean, onRemove:
                     preserveAspectRatio="xMidYMid meet"
                 >
                     <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M12.0007 10.586L16.9507 5.636L18.3647 7.05L13.4147 12L18.3647 16.95L16.9507 18.364L12.0007 13.414L7.05072 18.364L5.63672 16.95L10.5867 12L5.63672 7.05L7.05072 5.636L12.0007 10.586Z"
                         fill="#7B7B7B"
                     />

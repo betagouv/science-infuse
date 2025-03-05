@@ -4,7 +4,7 @@ import cliProgress from 'cli-progress'
 import { JSONContent } from '@tiptap/core'
 import { youtube, youtube_v3 } from '@googleapis/youtube';
 import {extractYoutubeVideoId} from '../lib/utils/youtube';
-import {getDocumentFromVideoId} from '../queueing/pgboss/jobs/index-contents/index-youtube';
+import {getDocumentFromVideoId} from '../queueing/pgboss/jobs/index-contents/index-video';
 import {catchErrorTyped} from '../errors';
 import {insertDocument} from '../lib/utils/db'
 

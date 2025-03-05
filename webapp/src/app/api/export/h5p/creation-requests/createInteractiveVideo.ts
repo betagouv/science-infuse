@@ -10,7 +10,7 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
                 "interactiveVideo": {
                     "video": {
                         "startScreenOptions": {
-                            "title": "Ma Vidéo interactive",
+                            "title": `Vidéo interactive${input.videoTitle ? ` : ${input.videoTitle}` : ""}`,
                             "hideStartTitle": false
                         },
                         "textTracks": {},
@@ -161,12 +161,12 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
                             }),
                         ],
                         "bookmarks": [],
-                        "endscreens": [
-                            {
-                                "time": 172.617143,
-                                "label": "2:52 Écran de soumission"
-                            }
-                        ]
+                        // "endscreens": [
+                        //     {
+                        //         "time": 10000,
+                        //         "label": "Écran de soumission"
+                        //     }
+                        // ]
                     },
                 },
                 "override": {

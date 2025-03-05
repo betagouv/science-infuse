@@ -1,22 +1,15 @@
 import Image from 'next/image'
-import Search from "@/app/recherche/page";
-import SearchPage from "@/app/recherche/SearchPage";
-import { selectedTabType, TabType } from "@/app/recherche/Tabs";
-import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
-import { Stepper } from "@codegouvfr/react-dsfr/Stepper";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import SIVideoPicker from "./SIVideoPicker";
-import ChunkRenderer from "@/app/recherche/DocumentChunkFull";
-import { ChunkWithScoreUnion } from "@/types/vectordb";
 import ExternalVideoPicker from "./ExternalVideoPicker";
 import { SegmentedControl } from "@codegouvfr/react-dsfr/SegmentedControl";
 import styled from '@emotion/styled';
 import YoutubeVideoPicker from './YoutubeVideoPicker';
-import Help from './Help';
-import { generateInteraciveVideoData } from '@/app/api/export/h5p/contents/interactiveVideo';
+import InteractiveVideoHelpMessage from './InteractiveVideoHelpMessage';
 import { useRouter } from 'next/navigation';
 import InteractiveVideoEditor from './InteractiveVideoEditor';
 import Button from '@codegouvfr/react-dsfr/Button';
+import ShimmerText from '@/components/ShimmerText';
 
 
 const StyledSegControl = styled(SegmentedControl)`
@@ -39,45 +32,40 @@ legend {
     justify-content: space-evenly;
 }`;
 
-enum ImportType {
+export enum InteractiveVideoImportType {
     RECHERCHE = 'Rechercher dans la bibliothèque',
     LIEN = 'Ajouter un lien vidéo',
     IMPORT = 'Importer une vidéo'
 }
 
-const Loading = (props: { importType: ImportType }) => {
+export const InteractiveVideoGeneratorLoading = (props: { importType: InteractiveVideoImportType }) => {
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
     // Messages de chargement par type d'import
     const loadingMessages = {
-        [ImportType.RECHERCHE]: [
-            "Recherche dans la bibliothèque...",
-            "Analyse des contenus disponibles...",
+        [InteractiveVideoImportType.RECHERCHE]: [
             "Génération des questions...",
             "Création des définitions...",
-            "Optimisation des résultats de recherche...",
-            "Finalisation des questions et définitions..."
+            "Création de l'interactif..."
         ],
-        [ImportType.LIEN]: [
-            "Téléchargement de la vidéo YouTube...",
+        [InteractiveVideoImportType.LIEN]: [
+            "Téléchargement de la vidéo...",
             "Préparation du contenu vidéo...",
-            "Analyse de la voix en cours...",
             "Reconnaissance vocale en cours...",
             "Traitement du texte extrait...",
             "Génération des questions...",
             "Création des définitions...",
-            "Finalisation du contenu pédagogique..."
+            "Création de l'interactif..."
         ],
-        [ImportType.IMPORT]: [
+        [InteractiveVideoImportType.IMPORT]: [
             "Importation de la vidéo en cours...",
             "Création du document...",
             "Préparation des données...",
-            "Analyse de la voix en cours...",
             "Reconnaissance vocale en cours...",
             "Traitement du texte extrait...",
             "Génération des questions...",
             "Création des définitions...",
-            "Finalisation de l'importation..."
+            "Création de l'interactif..."
         ]
     };
 
@@ -109,12 +97,14 @@ const Loading = (props: { importType: ImportType }) => {
         <div className="w-full flex flex-col items-center justify-center p-8">
             <img className="aspect-square w-16 mb-4" src="https://portailpro.gouv.fr/assets/spinner-9a2a6d7a.gif" alt="Chargement" />
             <div className="text-center">
-                <p className="text-lg font-medium mb-2">
-                    {props.importType}
+                <p className="text-[1.3rem] font-medium mb-2">
+                    Création de la vidéo interactive
                 </p>
-                <p className="text-sm text-gray-600 min-h-8 transition-opacity duration-300">
-                    {messages[currentMessageIndex]}
-                </p>
+                <ShimmerText
+                    className="text-[1.1rem] font-thin min-h-8"
+                    text={messages[currentMessageIndex]}
+                    gradientColors="from-gray-600 via-gray-300 to-gray-600"
+                />
             </div>
         </div>
     );
@@ -122,12 +112,12 @@ const Loading = (props: { importType: ImportType }) => {
 
 
 export default () => {
-    const [importType, setImportType] = useState<ImportType>(ImportType.RECHERCHE);
+    const [importType, setImportType] = useState<InteractiveVideoImportType>(InteractiveVideoImportType.RECHERCHE);
     const [documentId, setDocumentId] = useState<string>()
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
 
     const onDocumentIdPicked = async (_documentId: string) => {
+        window.scrollTo(0, 0);
         setDocumentId(_documentId);
     }
 
@@ -141,6 +131,7 @@ export default () => {
 
     return (
         <div className="flex flex-col w-full gap-8 items-center">
+
             {!documentId && !loading && <>
                 <h1 className="text-5xl m-0 font-bold text-center text-[#161616]">Je crée une vidéo interactive</h1>
                 <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 w-full">
@@ -158,24 +149,24 @@ export default () => {
                             className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full' legend="Ma vidéo : "
                             segments={[
                                 {
-                                    label: ImportType.RECHERCHE,
+                                    label: InteractiveVideoImportType.RECHERCHE,
                                     nativeInputProps: {
-                                        checked: importType === ImportType.RECHERCHE,
-                                        onChange: () => setImportType(ImportType.RECHERCHE)
+                                        checked: importType === InteractiveVideoImportType.RECHERCHE,
+                                        onChange: () => setImportType(InteractiveVideoImportType.RECHERCHE)
                                     }
                                 },
                                 {
-                                    label: ImportType.LIEN,
+                                    label: InteractiveVideoImportType.LIEN,
                                     nativeInputProps: {
-                                        checked: importType === ImportType.LIEN,
-                                        onChange: () => setImportType(ImportType.LIEN)
+                                        checked: importType === InteractiveVideoImportType.LIEN,
+                                        onChange: () => setImportType(InteractiveVideoImportType.LIEN)
                                     }
                                 },
                                 {
-                                    label: ImportType.IMPORT,
+                                    label: InteractiveVideoImportType.IMPORT,
                                     nativeInputProps: {
-                                        checked: importType === ImportType.IMPORT,
-                                        onChange: () => setImportType(ImportType.IMPORT)
+                                        checked: importType === InteractiveVideoImportType.IMPORT,
+                                        onChange: () => setImportType(InteractiveVideoImportType.IMPORT)
                                     }
                                 }
                             ]}
@@ -186,34 +177,32 @@ export default () => {
             </>}
 
             {!documentId && !loading && <>
-                <div className={`w-full ${importType === ImportType.RECHERCHE ? 'block' : 'hidden'}`}>
+                <div className={`w-full ${importType === InteractiveVideoImportType.RECHERCHE ? 'block' : 'hidden'}`}>
                     <SIVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
-                <div className={`w-full ${importType === ImportType.LIEN ? 'block' : 'hidden'}`}>
+                <div className={`w-full ${importType === InteractiveVideoImportType.LIEN ? 'block' : 'hidden'}`}>
                     <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
-                <div className={`w-full ${importType === ImportType.IMPORT ? 'block' : 'hidden'}`}>
+                <div className={`w-full ${importType === InteractiveVideoImportType.IMPORT ? 'block' : 'hidden'}`}>
                     <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
             </>}
-            {loading && <Loading importType={importType} />}
 
             {documentId && <>
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => { setDocumentId(undefined) }}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-
-                    Retour
-                </Button>
-                <InteractiveVideoEditor documentId={documentId} onDocumentProcessingEnd={onDocumentProcessingEnd} />
+                <InteractiveVideoEditor
+                    onBackClicked={() => {
+                        setDocumentId(undefined)
+                        setLoading(false);
+                    }}
+                    documentId={documentId}
+                    onDocumentProcessingEnd={onDocumentProcessingEnd}
+                />
             </>}
+            {loading && <InteractiveVideoGeneratorLoading importType={importType} />}
 
-            <Help hideHowItWorks={!!documentId} />
+            <hr className='w-full' />
+
+            <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
 
         </div>
     );

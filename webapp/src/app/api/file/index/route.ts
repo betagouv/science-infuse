@@ -9,7 +9,7 @@ import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
 import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents';
 import { catchErrorTyped, DocumentAlreadyIndexed } from '@/errors';
-import indexYoutube from '@/queueing/pgboss/jobs/index-contents/index-youtube';
+import indexVideo from '@/queueing/pgboss/jobs/index-contents/index-video';
 import { insertDocument } from '@/lib/utils/db';
 import { z } from 'zod';
 const crypto = require('crypto');
@@ -17,11 +17,13 @@ const crypto = require('crypto');
 const PostSchema = z.object({
     file: z.instanceof(File).nullable(),
     youtubeUrl: z.string().nullable().optional(),
+    mediaName: z.string().nullable().optional(),
 });
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const result = PostSchema.safeParse({
+        mediaName: formData.get('mediaName'),
         file: formData.get('file'),
         youtubeUrl: formData.get('youtubeUrl')
     });
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: result.error.message }, { status: 400 });
     }
 
-    const { file, youtubeUrl } = result.data;
+    const { file, youtubeUrl, mediaName } = result.data;
     const session = await getServerSession(authOptions);
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
     if (!user) {
@@ -55,15 +57,13 @@ export async function POST(request: NextRequest) {
                 fileExtensionFromMime = 'pdf'
             }
             const fileExtension = fileExtensionFromMime || file.name.split('.').pop() || ''
-            console.log("FILE EXTENSION FROM MIME", fileExtensionFromMime)
-            console.log("FILE EXTENSION", file.name.split('.').pop() || '')
             const fileName = `${uuidv4()}.${fileExtension}`
 
             const localFilePath = path.join(process.cwd(), 'public', fileName);
 
             await writeFile(localFilePath, new Uint8Array(buffer));
             const fileContent = await fs.promises.readFile(localFilePath);
-            const fileObj = new File([fileContent], localFilePath.split('/').pop() || 'unknown', { type: 'application/octet-stream' });
+            // const fileObj = new File([fileContent], localFilePath.split('/').pop() || 'unknown', { type: 'application/octet-stream' });
             fileHash = crypto.createHash('sha256').update(fileContent).digest('hex') as string;
 
             s3ObjectName = `prof/${user.id}/${fileName}`;
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         let processingResponse: ServerProcessingResult | undefined;
 
         [processingError, processingResponse] = await catchErrorTyped(
-            indexYoutube({
+            indexVideo({
                 s3ObjectName,
                 isExternal: false,
                 channelName: "EXTERNAL",
@@ -85,17 +85,17 @@ export async function POST(request: NextRequest) {
             [Error, DocumentAlreadyIndexed]
         )
 
-        console.log("PROCESSING ERROR", processingError)
-        console.log("PROCESSING RESPONSE", processingResponse)
-
         if (processingError instanceof DocumentAlreadyIndexed) {
             console.log('Document was already indexed with ID:', processingError.documentId);
             return NextResponse.json({ documentId: processingError.documentId });
         }
 
+        console.log(">>>>>>> mediaName", mediaName)
+
         if (processingResponse) {
             const documentId = await insertDocument({
                 document: processingResponse.document,
+                mediaName: mediaName || "",
                 chunks: processingResponse.chunks,
                 userId: user.id,
                 isPublic: false,

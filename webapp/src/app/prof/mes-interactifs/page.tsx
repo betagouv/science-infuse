@@ -6,10 +6,12 @@ import { H5PContent } from "@prisma/client";
 import { DocumentWithChunks } from "@/types/vectordb";
 import RegisteredUserFeature from "@/components/RegisteredUserFeature";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";
+import Button from "@codegouvfr/react-dsfr/Button";
+import Link from "next/link";
+import { revalidatePath } from "next/cache";
 
 async function getContents(userId: string) {
     try {
-
         const contents = await prisma.h5PContent.findMany({
             where: {
                 userId
@@ -44,6 +46,33 @@ async function getContents(userId: string) {
     }
 }
 
+async function deleteContent(contentId: string, userId: string) {
+    console.log("DELETECONTENT", contentId, userId)
+    try {
+        const content = await prisma.h5PContent.findFirst({
+            where: { h5pId: contentId }
+        });
+
+        if (!content) {
+            throw new Error('Content not found');
+        }
+
+        if (content.userId !== userId) {
+            throw new Error('Unauthorized: You can only delete your own content');
+        }
+
+        await prisma.h5PContent.delete({
+            where: { id: content.id }
+        });
+
+        revalidatePath('/prof/mes-interactifs');
+        return true;
+    } catch (error) {
+        console.error('Failed to delete content:', error);
+        throw error;
+    }
+}
+
 
 export default async function MesInteractifs() {
     const session = await getServerSession(authOptions);
@@ -53,6 +82,10 @@ export default async function MesInteractifs() {
             <RegisteredUserFeature />
         </div>
 
+    const deleteH5p = async (contentId: string) => {
+        "use server"
+        await deleteContent(contentId, userId);
+    }
     const contents = await getContents(userId);
 
     return (
@@ -65,16 +98,18 @@ export default async function MesInteractifs() {
                         </h1>
                     </div>
                     {contents.length > 0 ? (
-                        <RenderH5pContents contents={contents} />
+                        <RenderH5pContents deleteH5p={deleteH5p} contents={contents} />
                     ) : (
                         <CallOut iconId="ri-information-line" title="Vous n'avez pas encore généré d'interactifs.">
                             <div className="flex flex-col gap-4">
                                 <p className="mt-8">
-                                    Les interactifs que vous générez seront disponibles ici. Ils sont privés et uniquement accessibles par vous. Vous pourrez les télécharger et les importer dans votre ENT.
+                                    Les interactifs que vous générez seront disponibles ici. <br />
+                                    Par défaut ils sont privés et uniquement accessibles par vous. Vous pourrez les télécharger et les importer dans votre ENT.
                                 </p>
                                 <p>Pour créer des interactifs, vous pouvez :</p>
                                 <p>
                                     <ol className="list-decimal list-inside space-y-2">
+                                        <li>Cliquer sur <Link href={'/intelligence-artificielle/video-interactive'} >ce lien</Link> pour générer une vidéo interactive à partir d'une vidéo Science Infuse, YouTube ou MP4.</li>
                                         <li>Ouvrir une vidéo depuis les résultats de recherche et suivre les étapes de génération.</li>
                                         <li>Créer un cours et générer un quiz à partir de son contenu.</li>
                                     </ol>

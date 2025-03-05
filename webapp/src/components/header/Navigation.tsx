@@ -51,7 +51,7 @@ const NavBarSearch = () => {
 	}
 
 	return (
-		<div className="min-w-[30rem]">
+		<div className="w-full md:w-auto md:min-w-[30rem]">
 			<SearchBar />
 		</div>
 	)
@@ -84,7 +84,7 @@ export function Navigation() {
 	console.log("SEGMENT", segments)
 
 	return (
-		<div className="flex flex-row items-center">
+		<div className="flex flex-col md:flex-row items-center">
 
 			<StyledMainNavigation
 				className="w-full flex"

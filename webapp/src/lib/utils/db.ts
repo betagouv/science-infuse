@@ -78,8 +78,9 @@ export const insertChunk = async (document: Document, chunk: DocumentChunk, meta
 
 }
 
-export const insertDocument = async ({ document, chunks, documentTagIds, hash, sourceCreationDate, isExternal, userId, isPublic }: {
+export const insertDocument = async ({ document, mediaName, chunks, documentTagIds, hash, sourceCreationDate, isExternal, userId, isPublic }: {
     document: Document,
+    mediaName?: string,
     chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[],
     documentTagIds: string[],
     hash?: string,
@@ -91,6 +92,7 @@ export const insertDocument = async ({ document, chunks, documentTagIds, hash, s
     const createdDocument = await prisma.document.create({
         data: {
             ...document,
+            mediaName: mediaName || "",
             isExternal,
             userId: userId,
             fileHash: hash,
@@ -103,7 +105,7 @@ export const insertDocument = async ({ document, chunks, documentTagIds, hash, s
     });
 
     // create chunks (and  metadatas) and link them to the new document
-    await Promise.all(chunks.map(async ({ document, metadata,...chunk }) => {
+    await Promise.all(chunks.map(async ({ document, metadata, ...chunk }) => {
         return insertChunk(document, chunk, metadata)
     }));
 
