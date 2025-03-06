@@ -110,6 +110,24 @@ flowchart TB
 
 ```
 
+## Communication Matrix
+
+| Source                 | Destination                   | Protocol      | Port       | Type             |
+|------------------------|-------------------------------|---------------|------------|------------------|
+| WebApp                 | Python processing / API       | HTTPS         | 443        | Internal         |
+| WebApp                 | PostgreSQL Vector DB          | PostgreSQL/TCP| 5432       | Internal         |
+| WebApp                 | S3 Storage (OVH)              | HTTPS         | 443        | External         |
+| WebApp                 | Groq API                      | HTTPS         | 443        | External         |
+| WebApp                 | Moodle LMS                    | HTTPS         | 443        | Internal         |
+| WebApp                 | H5P                           | HTTPS         | 443        | Internal         |
+| Python processing / API| AI Models running locally     | Internal      | N/A        | Internal         |
+| Python processing / API| Ollama Service                | HTTP          | 11434      | Internal         |
+| Python processing / API| YouTube API                   | HTTPS         | 443        | External         |
+| Python processing / API| YouTube Token Generator       | HTTP          | 80         | Internal         |
+| Python processing / API| S3 Storage (OVH)              | HTTPS         | 443        | External         |
+| Moodle LMS             | MariaDB                       | SQL           | 3306       | Internal         |
+| H5P                    | S3 Storage (OVH)              | HTTPS         | 443        | External         |
+
 ## Installation et utilisation
 This monorepo is managed by docker compose, have it installed and run 
 ```
