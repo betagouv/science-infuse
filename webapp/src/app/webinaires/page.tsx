@@ -30,7 +30,7 @@ const Webinaires = () => {
                     {videos.map(v => (
                         <div key={v.src} className="relative p-8 bg-[#f2f2f2] rounded-xl">
                             <h2>{v.title}</h2>
-                            <video ref={videoRef} controls className="w-full mb-4">
+                            <video ref={videoRef} controls controlsList="nodownload" className="w-full mb-4">
                                 <source src={v.src} type="video/mp4" />
                                 <track kind="subtitles" src={v.srt} srcLang="fr" label="Français" default />
                                 Votre navigateur ne prend pas en charge la balise vidéo.

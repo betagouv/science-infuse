@@ -7,7 +7,7 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
+import { BaseDocumentChunk, BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
@@ -22,6 +22,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
+import { chunk } from 'lodash';
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -162,7 +163,7 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
             <div className="flex items-center gap-4 ml-auto w-full">
                 {user && props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
                 {
-                    props.downloadLink && user && <button
+                    props.downloadLink && props.chunk.mediaType !== "video_transcript" && user && <button
                         className='flex'
                         onClick={() => window.open(props.downloadLink, '_blank')}
                     >
@@ -194,7 +195,6 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
         </div>
     )
 }
-
 // Base Card component
 export const BaseCard: React.FC<OnInserted & BaseCardProps> = ({ onInserted, onInsertedLabel, end, children, title, linkProps, chunk, badgeText, badgeSeverity = "new" }) => {
 
@@ -452,6 +452,36 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
                     onChunkSelected={() => { }}
                     chunks={[chunk]}
                 />
+            }
+            size="medium"
+            title=""
+        />
+    )
+};
+
+export const RenderVideoTranscriptDocumentCard: React.FC<OnInserted & { document: Document; }> = ({ onInserted, onInsertedLabel, document }) => {
+    let originalPath = document.originalPath;
+    const { data: session } = useSession();
+    const user = session?.user;
+
+    if (originalPath.includes("youtube")) {
+        originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/")
+    }
+    const videoUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${document.s3ObjectName}`;
+
+    return (
+        <StyledGroupedVideoCard
+            end={<div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
+                <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{document.mediaName}</a>
+                {/* <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p> */}
+            </div>}
+            desc={
+                <div className="w-full mx-auto">
+                    {document.isExternal ?
+                        <YoutubeEmbed url={document.originalPath} onDuration={() => { }} /> :
+                        <video src={videoUrl} className="w-full prevent-download" controls controlsList="nodownload" />
+                    }
+                </div>
             }
             size="medium"
             title=""

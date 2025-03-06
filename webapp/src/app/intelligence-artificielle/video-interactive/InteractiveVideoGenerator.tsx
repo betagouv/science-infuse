@@ -133,7 +133,7 @@ export default () => {
         <div className="flex flex-col w-full gap-8 items-center">
 
             {!documentId && !loading && <>
-                <h1 className="text-5xl m-0 font-bold text-center text-[#161616]">Je crée une vidéo interactive</h1>
+                <h1 className="text-3xl sm:text-5xl m-0 font-bold text-center text-[#161616]">Je crée une vidéo interactive</h1>
                 <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 w-full">
                     <Image
                         src="/images/interactive-video-illustration.svg"

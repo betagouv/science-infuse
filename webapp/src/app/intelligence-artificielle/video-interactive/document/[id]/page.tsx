@@ -1,13 +1,11 @@
 'use client'
-import Image from 'next/image'
 import React, { } from 'react';
 import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import InteractiveVideoEditor from '../../InteractiveVideoEditor';
 import { useQuery } from '@tanstack/react-query';
-import { DocumentWithChunks, s3ToPublicUrl } from '@/types/vectordb';
 import { apiClient } from '@/lib/api-client';
-import { RenderGroupedVideoTranscriptCard, YoutubeEmbed } from '@/app/recherche/DocumentChunkFull';
+import { RenderGroupedVideoTranscriptCard, RenderVideoTranscriptCard, RenderVideoTranscriptDocumentCard, YoutubeEmbed } from '@/app/recherche/DocumentChunkFull';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { groupVideo } from '@/app/recherche/RenderSearch';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
@@ -17,7 +15,8 @@ import styled from '@emotion/styled';
 import InteractiveVideoHelpMessage from '../../InteractiveVideoHelpMessage';
 import { useState } from '@preact-signals/safe-react/react';
 import { InteractiveVideoGeneratorLoading, InteractiveVideoImportType } from '../../InteractiveVideoGenerator';
-import H5PRenderer from '@/app/mediaViewers/H5PRenderer';
+import { WEBAPP_URL } from '@/config';
+import { ChunkWithScore } from '@/types/vectordb';
 
 
 const StyledTile = styled(Tile)`
@@ -39,14 +38,13 @@ export default function () {
         queryFn: () => apiClient.getDocument(documentId)
     });
 
-
     return (
-        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+        <div className="w-full fr-grid-row fr-grid-row--center">
             <div className="flex flex-col fr-container main-content-item my-8 gap-4">
                 <Breadcrumb
                     currentPageLabel={documentId}
                     segments={[
-                        { label: 'intelligence artificielle', linkProps: { href: '/intelligence-artificielle' } },
+                        { label: 'Accueil', linkProps: { href: '/' } },
                         { label: 'Création de vidéo interactive', linkProps: { href: '/intelligence-artificielle/video-interactive' } },
                     ]}
                 />
@@ -77,13 +75,11 @@ export default function () {
                         </div>
                     ) : video && (
                         <div className="flex flex-col md:flex-row w-full gap-4 items-center justify-center">
-                            <div className="flex max-w-full">
-                                <RenderGroupedVideoTranscriptCard
-                                    video={groupVideo(video.chunks.filter(c => c.mediaType === "video_transcript").map(c => ({ ...c, mediaType: "video_transcript" as const, score: 0 })))[0]}
-                                    searchWords={[]} />
+                            <div className="flex flex-col gap-4 w-full md:w-2/5 h-full ">
+                                <RenderVideoTranscriptDocumentCard document={video}/>
                             </div>
                             <div
-                                className='h-full w-full bg-[#f5f5fe] shadow-[0_0_0_1px_#dddddd]'>
+                                className='h-full w-full md:w-3/5 bg-[#f5f5fe] shadow-[0_0_0_1px_#dddddd]'>
                                 <div className='flex flex-col h-full text-start justify-between'>
                                     <InteractiveVideoHelpMessage hideNeedHelp={true} />
                                     <Button onClick={() => {
@@ -96,7 +92,6 @@ export default function () {
 
                                 </div>
                             </div>
-
                         </div>
                     )}
                 </>}

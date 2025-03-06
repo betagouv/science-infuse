@@ -12,33 +12,37 @@ import { isActive } from "@tiptap/core";
 
 
 const StyledMainNavigation = styled(MainNavigation)`
+	background: red Im !important;
 	.fr-nav__list {
 		width: 100%;
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		align-items: stretch;
+
+		@media (min-width: 992px) {
+			flex-direction: row;
+			flex-grow: 1;
+			align-items: center;
+		}
+	}
+
+	.fr-nav__item {
+		width: 100%;
+		@media (min-width: 992px) {
+			width: auto;
+		}
 	}
 
 	.fr-nav {
 		width: 100%;
 	}
 
-	.fr-nav__item {
+	#navBarSearchContainer {
 		width: 100%;
-		@media (min-width: 768px) {
+		@media (min-width: 992px) {
 			width: auto;
 		}
 	}
-
-	.fr-nav__item:first-child {
-		/* margin-left: 2rem; */
-	}
-	/* .fr-nav__item:last-child {
-		margin-left: auto !important;
-		z-index: 1;
-		a.fr-nav__link:hover {
-			background-color: unset !important;
-		}
-	} */
 `
 
 
@@ -51,7 +55,7 @@ const NavBarSearch = () => {
 	}
 
 	return (
-		<div className="w-full md:w-auto md:min-w-[30rem]">
+		<div id="navBarSearchContainer" className="w-full lg:w-auto lg:min-w-[30rem]">
 			<SearchBar />
 		</div>
 	)
@@ -84,10 +88,10 @@ export function Navigation() {
 	console.log("SEGMENT", segments)
 
 	return (
-		<div className="flex flex-col md:flex-row items-center">
-
+		<div className="flex flex-col w-full lg:flex-row lg:items-center">
 			<StyledMainNavigation
-				className="w-full flex"
+				className="w-full"
+				id="navigation"
 				items={[
 					{
 						isActive: segments[0] == 'catalogue' || segments.join('/') == 'prof/mes-cours',
@@ -99,19 +103,8 @@ export function Navigation() {
 							isActive: segments.join('/') == `catalogue/${t.id}`,
 							text: t.title || "Theme"
 						})),
-						...(!user ? [] : [
-							{
-								isActive: segments.join('/') == 'prof/mes-cours',
-								linkProps: {
-									href: '/prof/mes-cours',
-									target: '_self'
-								},
-								text: 'Création de cours'
-							}
-						]),
-					]
+						]
 					},
-					
 					{
 						isActive: segments.join('/') == 'webinaires',
 						menuLinks: [{
@@ -120,7 +113,7 @@ export function Navigation() {
 							},
 							isActive: segments.join('/') == 'webinaires',
 							text: "Webinaires Ada"
-						},{
+						}, {
 							linkProps: {
 								href: `#`
 							},
@@ -128,6 +121,16 @@ export function Navigation() {
 						}],
 						text: `Inspirations`
 					},
+					...(!user ? [] : [
+						{
+							isActive: segments.join('/') == 'prof/mes-cours',
+							linkProps: {
+								href: '/prof/mes-cours',
+								target: '_self'
+							},
+							text: 'Création de cours'
+						}
+					]),
 					...(user ? [{
 						isActive: segments.join('/') == 'intelligence-artificielle/video-interactive',
 						linkProps: {

@@ -1,8 +1,6 @@
 'use client'
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
-import { useParams, useRouter } from 'next/navigation';
 import {
     InteractiveVideoQuestion,
     InteractiveVideoQuestionGroup,
@@ -18,14 +16,11 @@ import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import { CircularProgress } from "@mui/material";
 import { apiClient } from "@/lib/api-client";
 import { secondsToTime, TimeCode, timeToSeconds } from "@/lib/utils";
-import Download from "@codegouvfr/react-dsfr/Download";
 import { ExportH5pResponse } from "@/types/api";
-import EmbedVideo from '@/components/interactifs/EmbedVideo';
 import styled from '@emotion/styled';
 import H5PRenderer from '@/app/mediaViewers/H5PRenderer';
 import { LLMGenerateDefinition } from '@/lib/server/ia/external_llm';
 import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Snackbar from '@/components/Snackbar';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 
@@ -238,30 +233,31 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
 
     return (
         <div className="flex flex-col items-center gap-4 relative">
-            <div className="flex w-full justify-between items-center sticky top-0 bg-white z-[2] py-2">
+            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[2] py-2 gap-4 sm:gap-2">
                 <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Quiz</p>
-                {/* <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Quiz : {questionGroup.questions.length} question{questionGroup.questions.length > 1 ? 's' : ''} dans ce quiz</p> */}
-                <div className="flex ml-auto gap-2">
+                <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
                     {hasChanges && (
                         <Button
                             onClick={handleSave}
                             priority="primary"
                             disabled={isSaving}
+                            className="w-full sm:w-auto"
                         >
                             {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
                         </Button>
                     )}
-                    <TimestampInput timestamp={questionGroup.timestamp} onChange={handleTimestampChange} />
-                    <DeleteButton
-                        iconId="fr-icon-delete-bin-line"
-                        className='text-red-500'
-                        onClick={deleteQuiz}
-                        priority='secondary'
-                        title="Supprimer le quiz"
-                    />
+                    <div className="flex flex-row items-center justify-between gap-2 w-full sm:w-auto">
+                        <TimestampInput timestamp={questionGroup.timestamp} onChange={handleTimestampChange} />
+                        <DeleteButton
+                            iconId="fr-icon-delete-bin-line"
+                            className='text-red-500'
+                            onClick={deleteQuiz}
+                            priority='secondary'
+                            title="Supprimer le quiz"
+                        />
+                    </div>
                 </div>
             </div>
-
             {questionGroup.questions.map((q, qIndex) => (
                 <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
                     <DeleteButton
@@ -410,28 +406,33 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
 
     return (
         <div className="flex flex-col items-center gap-4 relative">
-            <div className="flex w-full justify-between items-center sticky top-0 bg-white z-[2] py-2">
+
+            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[2] py-2 gap-4 sm:gap-2">
                 <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Définition</p>
-                <div className="flex ml-auto gap-2">
+                <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
                     {hasChanges && (
                         <Button
                             onClick={handleSave}
                             priority="primary"
                             disabled={isSaving}
+                            className="w-full sm:w-auto"
                         >
                             {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
                         </Button>
                     )}
-                    <TimestampInput timestamp={definitionGroup.timestamp} onChange={handleTimestampChange} />
-                    <DeleteButton
-                        iconId="fr-icon-delete-bin-line"
-                        className='text-red-500'
-                        onClick={deleteDefinitionGroup}
-                        priority='secondary'
-                        title="supprimer la définition"
-                    />
+                    <div className="flex flex-row items-center justify-between gap-2 w-full sm:w-auto">
+                        <TimestampInput timestamp={definitionGroup.timestamp} onChange={handleTimestampChange} />
+                        <DeleteButton
+                            iconId="fr-icon-delete-bin-line"
+                            className='text-red-500'
+                            onClick={deleteDefinitionGroup}
+                            priority='secondary'
+                            title="Supprimer le quiz"
+                        />
+                    </div>
                 </div>
             </div>
+
             {definitionGroup.definitions.map((def, index) => (
                 <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
                     <DeleteButton
@@ -687,6 +688,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                         disabled={editContentActive}
                         onClick={() => setEditContentActive(!editContentActive)}
                     >Modifier les quiz et définitions</Button>
+
                     {downloadHTMLUrl && (
                         <Button
                             priority='secondary'
@@ -743,9 +745,9 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                     onSave={handleSaveChanges}
                                     documentId={documentId}
                                 />}
-                                <div className="flex justify-between sticky bottom-0 bg-white pt-4">
+                                <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 bg-white pt-4">
                                     <Button
-                                        className="flex gap-2 items-center justify-center self-start h-fit"
+                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
                                         priority="secondary"
                                         onClick={() => {
                                             const newIvQuestions = [...ivQuestions, {
@@ -804,9 +806,9 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                     onSave={handleSaveChanges}
                                 />}
 
-                                <div className="flex justify-between">
+                                <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 bg-white pt-4">
                                     <Button
-                                        className="flex gap-2 items-center justify-center self-start h-fit"
+                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
                                         priority="secondary"
                                         onClick={() => {
                                             const newIvDefinitions: InteractiveVideoDefinitionGroup[] = [...ivDefinitions, {

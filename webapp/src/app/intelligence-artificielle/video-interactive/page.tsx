@@ -7,15 +7,15 @@ import InteractiveVideoGenerator from "./InteractiveVideoGenerator";
 
 export default function ProfDashboard() {
     return (
-        <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
+        <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item my-8 gap-8'>
                 <Breadcrumb
                     currentPageLabel="Création de vidéo interactive"
                     segments={[
                         {
-                            label: 'intelligence artificielle',
+                            label: 'Accueil',
                             linkProps: {
-                                href: '/intelligence-artificielle'
+                                href: '/'
                             }
                         },
                     ]}

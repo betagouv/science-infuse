@@ -24,12 +24,21 @@ export default (props: { className?: string, inputClassName?:string, autoFocus?:
         }
     }, [props.autoFocus]);
 
+    const closeMobileMenu = () => {
+        const closeButton = document.querySelector("#fr-header-mobile-overlay-button-close")
+        if (closeButton instanceof HTMLElement) {
+            closeButton.click()
+        }
+    }
     const handleSearch = () => {
+        
+        closeMobileMenu();
+
         if (props.handleSearch) {
             props.handleSearch(query);
             return;
         }
-
+        
         const current = new URLSearchParams(Array.from(searchParams.entries()));
 
         if (!query) {

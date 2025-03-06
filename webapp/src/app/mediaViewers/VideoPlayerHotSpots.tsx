@@ -96,7 +96,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, sel
         <div className="w-full mx-auto">
             {document.isExternal ?
                 <YoutubeEmbed ref={youtubePlayerRef} url={document.originalPath} onDuration={setDuration} /> :
-                <video ref={videoRef} src={videoUrl} className="w-full" controls />
+                <video ref={videoRef} src={videoUrl} className="w-full" controls controlsList="nodownload" />
             }
             <div className="relative h-[5px] bg-gray-200 mt-2 cursor-pointer" onClick={handleSeek}>
                 <div

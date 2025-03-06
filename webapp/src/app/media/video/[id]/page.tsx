@@ -58,7 +58,7 @@ export default function VideoPage({
                 {video && (
                     video.isExternal ?
                         <YoutubeEmbed ref={youtubePlayerRef} onDuration={() => { }} url={video.originalPath} />
-                        : <video className="w-full" ref={videoRef} controls src={s3ToPublicUrl(video.s3ObjectName || "")} />
+                        : <video className="w-full" ref={videoRef} controls controlsList="nodownload" src={s3ToPublicUrl(video.s3ObjectName || "")} />
                 )}
                 {/* </MiniatureWrapper> */}
 
