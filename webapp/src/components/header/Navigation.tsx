@@ -105,22 +105,6 @@ export function Navigation() {
 						})),
 						]
 					},
-					{
-						isActive: segments.join('/') == 'webinaires',
-						menuLinks: [{
-							linkProps: {
-								href: `/webinaires`
-							},
-							isActive: segments.join('/') == 'webinaires',
-							text: "Webinaires Ada"
-						}, {
-							linkProps: {
-								href: `#`
-							},
-							text: "Contenus favoris de la communauté Ada (à venir)"
-						}],
-						text: `Inspirations`
-					},
 					...(!user ? [] : [
 						{
 							isActive: segments.join('/') == 'prof/mes-cours',
@@ -139,6 +123,22 @@ export function Navigation() {
 						},
 						text: `Création de vidéo interactive`
 					}] : []),
+					{
+						isActive: segments.join('/') == 'webinaires',
+						menuLinks: [{
+							linkProps: {
+								href: `/webinaires`
+							},
+							isActive: segments.join('/') == 'webinaires',
+							text: "Webinaires Ada"
+						}, {
+							linkProps: {
+								href: `#`
+							},
+							text: "Contenus favoris de la communauté Ada (à venir)"
+						}],
+						text: `Inspirations`
+					},
 					{
 						isActive: segments.join('/') == 'besoin-d-aide',
 						linkProps: {
