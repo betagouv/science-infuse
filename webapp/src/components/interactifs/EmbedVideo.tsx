@@ -54,12 +54,13 @@ export default (props: { videoUrl: string }) => {
                 </div>
             </modal.Component>
             <Button
+                iconId="ri-link-m"
                 onClick={() => modal.open()}
-                className="justify-center"
+                className="w-full justify-center sm:w-fit"
                 priority="secondary"
             >
                 Lien d'intégration
-            </Button>
+            </Button >
         </>
     );
 }

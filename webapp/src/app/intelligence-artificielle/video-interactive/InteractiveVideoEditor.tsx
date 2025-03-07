@@ -23,6 +23,7 @@ import { LLMGenerateDefinition } from '@/lib/server/ia/external_llm';
 import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
 import Snackbar from '@/components/Snackbar';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
+import EmbedVideo from '@/components/interactifs/EmbedVideo';
 
 const modal = createModal({
     id: "foo-modal",
@@ -715,6 +716,9 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                             <p className='m-0'>Télécharger en h5p</p>
                         </Button>
                     )}
+                    {
+                        previewUrl && <EmbedVideo videoUrl={previewUrl}/>
+                    }
                 </>}
             </div>
 
