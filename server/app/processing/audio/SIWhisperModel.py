@@ -48,7 +48,7 @@ class SIWhisperModel:
 
     @staticmethod
     def get_audio_length(audio_path: str):
-        command = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", input_path]
+        command = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_path]
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         duration = float(result.stdout)
         return duration
