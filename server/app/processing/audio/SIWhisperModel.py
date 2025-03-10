@@ -1,3 +1,4 @@
+import subprocess
 from typing import List
 from faster_whisper import WhisperModel
 import matplotlib.pyplot as plt
@@ -47,9 +48,16 @@ class SIWhisperModel:
 
     @staticmethod
     def get_audio_length(audio_path: str):
-        audio = AudioSegment.from_file(audio_path)
-        duration = len(audio) / 1000.0
+        command = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_path]
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        duration = float(result.stdout)
         return duration
+
+    # @staticmethod
+    # def get_audio_length(audio_path: str):
+    #     audio = AudioSegment.from_file(audio_path)
+    #     duration = len(audio) / 1000.0
+    #     return duration
 
     def get_srt(self, audio_path, debug=False):
         start_time = time.time()

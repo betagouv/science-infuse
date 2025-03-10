@@ -209,13 +209,41 @@ class ApiClient {
         },
       });
 
-      console.log("WEBAPP_URLWEBAPP_URLWEBAPP_URLWEBAPP_URL", WEBAPP_URL)
       if (response.data && response.data.s3ObjectName) {
         return response.data;
         // url: `${WEBAPP_URL}/api/s3/presigned_url/object_name/${response.data.s3ObjectName}`,
       } else {
         throw new Error('Upload failed: No filename received');
       }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Upload error:', error.response?.data || error.message);
+        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
+      } else {
+        console.error('Unexpected error:', error);
+        throw new Error('An unexpected error occurred during upload');
+      }
+    }
+  }
+
+  async indexFile(props: { file?: File; youtubeUrl?: string, mediaName?: string }): Promise<{ documentId: string }> {
+    const { file, youtubeUrl, mediaName } = props;
+    const formData = new FormData();
+    if (file)
+      formData.append('file', file);
+    if (youtubeUrl)
+      formData.append('youtubeUrl', youtubeUrl);
+    if (mediaName)
+      formData.append('mediaName', mediaName);
+
+    try {
+      const response = await this.axiosInstance.post<{ documentId: string }>('/file/index', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Upload error:', error.response?.data || error.message);

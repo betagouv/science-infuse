@@ -1,7 +1,7 @@
 import { Question } from "@/types/course-editor"
 import { createH5P } from "."
 
-export default async (questions: Question[]) => {
+export default async (questions: Question[], h5pContentId?: string) => {
     const data = {
         "library": "H5P.QuestionSet 1.20",
         "params": {
@@ -146,5 +146,5 @@ export default async (questions: Question[]) => {
             }
         }
     }
-    return await createH5P(data)
+    return await createH5P(data, h5pContentId)
 }

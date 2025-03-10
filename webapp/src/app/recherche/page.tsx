@@ -13,6 +13,7 @@ import { useEffect, useState } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import { BlockResults, ChunkResults, GroupedVideoChunkResults, RenderSearchResult } from "./RenderSearch";
 import { useSession } from "next-auth/react";
+import SearchPage from "./SearchPage";
 
 
 
@@ -48,31 +49,13 @@ const Search: React.FC = () => {
       <div className="fr-col-12 fr-container main-content-item">
         <div className="py-16 flex flex-col gap-8 md:px-0">
           <SearchHeader query={query} />
-          <Tabs
-            favourites={[]}
-            blocks={(results as SearchResults)?.blocks || []}
-            chunks={(results as SearchResults)?.chunks || []}
-            selectedTabType={selectedTabType.value}
-            onTabChange={(newTab) => {
-              console.log("TABTYPEEE", newTab)
-              const url = new URL(window.location.href);
-              url.searchParams.set('tab', newTab);
-              push(url.toString());
-              selectedTabType.value = newTab;
-            }}
-          />
-          {isLoading && <LoadingIndicator />}
-          {isError && <ErrorMessage />}
-          {!isLoading && !isError && !results && <NoResultsMessage />}
-          {!isLoading && !isError && results && (
-            <RenderSearchResult
-              favourites={[]}
-              selectedTab={selectedTabType.value}
-              results={results}
-              searchWords={searchWords}
-              resultPerPage={resultPerPage}
-            />
-          )}
+          <SearchPage query={query} tab={urlTabType} onTabChange={(newTab) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', newTab);
+            push(url.toString());
+            selectedTabType.value = newTab;
+
+          }}/>
         </div>
       </div>
       <Snackbar />
@@ -88,23 +71,6 @@ const SearchHeader: React.FC<{ query: string }> = ({ query }) => (
     <p className="text-lg sm:text-xl text-black">"{query}"</p>
   </div>
 );
-
-const LoadingIndicator: React.FC = () => (
-  <div className="h-40 w-full flex items-center justify-center">
-    <CircularProgress className="ml-2" />
-  </div>
-);
-
-const ErrorMessage: React.FC = () => (
-  <p className="text-center">Une erreur s'est produite lors de la recherche.</p>
-);
-
-const NoResultsMessage: React.FC = () => (
-  <div className="h-40 w-full flex items-center justify-center">
-    <p>Aucun résultat trouvé.</p>
-  </div>
-);
-
 
 
 export default Search;

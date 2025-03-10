@@ -40,7 +40,7 @@ export default function VideoNodeComponent({ node, updateAttributes }: NodeViewP
         onChunkSelected={function (chunk: ChunkWithScore<'video_transcript'> | undefined): void {
         }}
       />}
-      {attrs.userFile && <video src={s3ToPublicUrl(attrs.userFile.s3ObjectName)} className="w-full sm:rounded-xl" controls />}
+      {attrs.userFile && <video src={s3ToPublicUrl(attrs.userFile.s3ObjectName)} className="w-full sm:rounded-xl" controls controlsList="nodownload" />}
     </NodeViewWrapper>
   );
 }

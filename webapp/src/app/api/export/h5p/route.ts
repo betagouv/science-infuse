@@ -35,18 +35,19 @@ export const POST = withAccessControl(
     { allowedRoles: ['*'] },
     async (request: NextRequest, { user }: { user: User }) => {
         const body: ExportH5PRequestBody = await request.json();
-        let game; let type = "";
+        let game;
+        let type = "";
         if (isQuestionRequest(body)) {
-            game = await createQuestionSet(body.data);
+            game = await createQuestionSet(body.data, body.h5pContentId);
             type = "quiz";
         } else if (isInteractiveVideoRequest(body)) {
-            game = await createInteractiveVideo(body.data);
+            game = await createInteractiveVideo(body.data, body.h5pContentId);
             type = "video";
         }
         else {
             throw new Error(`Unsupported type: ${body.type}`);
         }
-        
+
         const fileName = `h5p-${type}-${game.contentId}`;
         const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=h5p`;
         const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=html`;
@@ -56,7 +57,12 @@ export const POST = withAccessControl(
         const publicS3Path = await s3Storage.uploadFile(filePath, fileName);
         await fs.unlink(filePath);
 
-        if (publicS3Path)
+        const h5pexist = await prisma.h5PContent.findFirst({
+            where: {
+                h5pId: `${game.contentId}`
+            }
+        })
+        if (publicS3Path && !h5pexist)
             await prisma.h5PContent.create({
                 data: {
                     title: `${game.contentId}`,
@@ -72,7 +78,7 @@ export const POST = withAccessControl(
                 }
             })
 
-        return NextResponse.json({ downloadH5p, downloadHTML, embedUrl: embedUrl } as ExportH5pResponse);
+        return NextResponse.json({ downloadH5p, downloadHTML, embedUrl: embedUrl, h5pContentId: game.contentId } as ExportH5pResponse);
     }
 )
 

@@ -84,8 +84,11 @@ export default () => {
     };
 
     return (
-        <div className={`flex ${isTablet && "!pr-0"}`} id="connected-header">
-            <Accordion ref={accordionRef} className={`z-[10000] ${isTablet ? "w-full " : "w-[11rem]"} !shadow-none [&_.MuiCollapse-root]:w-fit`}
+        <div className={`flex m-0 ${isTablet ? "!pr-0" : ""}`} id="connected-header">
+            <Accordion ref={accordionRef} className={`z-[10000] ${isTablet ? "w-full " : "w-[11rem]"} !shadow-none`}
+                style={{
+                    width: isMobile ? "100%" : "fit-content"
+                }}
                 expanded={expanded}
                 onChange={() => setExpanded(!expanded)}
             >
@@ -140,6 +143,6 @@ export default () => {
                     </div>
                 </AccordionDetails>
             </Accordion>
-        </div>
+        </div >
     )
 }

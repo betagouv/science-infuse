@@ -2,7 +2,7 @@ import { createH5P } from "."
 import { InteractiveVideoData } from "../contents/interactiveVideo"
 import { v4 as uuidv4 } from 'uuid';
 
-export default async (input: InteractiveVideoData) => {
+export default async (input: InteractiveVideoData, h5pContentId?: string) => {
     const data = {
         "library": "H5P.InteractiveVideo 1.27",
         "params": {
@@ -10,7 +10,7 @@ export default async (input: InteractiveVideoData) => {
                 "interactiveVideo": {
                     "video": {
                         "startScreenOptions": {
-                            "title": "Ma Vidéo interactive",
+                            "title": `Vidéo interactive${input.videoTitle ? ` : ${input.videoTitle}` : ""}`,
                             "hideStartTitle": false
                         },
                         "textTracks": {},
@@ -35,8 +35,8 @@ export default async (input: InteractiveVideoData) => {
                                     "width": 10,
                                     "height": 10,
                                     "duration": {
-                                        "from": timestamp - 2,
-                                        "to": timestamp + 2
+                                        "from": timestamp,
+                                        "to": timestamp + 4
                                     },
                                     "libraryTitle": "Texte",
                                     "action": {
@@ -161,12 +161,12 @@ export default async (input: InteractiveVideoData) => {
                             }),
                         ],
                         "bookmarks": [],
-                        "endscreens": [
-                            {
-                                "time": 172.617143,
-                                "label": "2:52 Écran de soumission"
-                            }
-                        ]
+                        // "endscreens": [
+                        //     {
+                        //         "time": 10000,
+                        //         "label": "Écran de soumission"
+                        //     }
+                        // ]
                     },
                 },
                 "override": {
@@ -239,6 +239,6 @@ export default async (input: InteractiveVideoData) => {
     }
 
 
-    return await createH5P(data)
+    return await createH5P(data, h5pContentId)
 
 }

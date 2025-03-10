@@ -89,7 +89,7 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
 
     return (
         <div className="video-player-container">
-            <video className="w-full" ref={videoRef} controls={false}>
+            <video className="w-full" ref={videoRef} controls={false} controlsList="nodownload">
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>

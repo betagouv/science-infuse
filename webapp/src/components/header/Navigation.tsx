@@ -1,40 +1,48 @@
 "use client";
 
 import { MainNavigation } from "@codegouvfr/react-dsfr/MainNavigation";
-import { usePathname, useSelectedLayoutSegment } from "next/navigation";
+import { usePathname, useSelectedLayoutSegment, useSelectedLayoutSegments } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { styled } from "@mui/material";
 import SearchBar from "../search/SearchBar";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
 import { Theme } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
+import { isActive } from "@tiptap/core";
 
 
 const StyledMainNavigation = styled(MainNavigation)`
+	background: red Im !important;
 	.fr-nav__list {
 		width: 100%;
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		align-items: stretch;
+
+		@media (min-width: 992px) {
+			flex-direction: row;
+			flex-grow: 1;
+			align-items: center;
+		}
+	}
+
+	.fr-nav__item {
+		width: 100%;
+		@media (min-width: 992px) {
+			width: auto;
+		}
 	}
 
 	.fr-nav {
 		width: 100%;
 	}
 
-	.fr-nav__item {
-		width: auto;
-	}
-
-	.fr-nav__item:first-child {
-		/* margin-left: 2rem; */
-	}
-	/* .fr-nav__item:last-child {
-		margin-left: auto !important;
-		z-index: 1;
-		a.fr-nav__link:hover {
-			background-color: unset !important;
+	#navBarSearchContainer {
+		width: 100%;
+		@media (min-width: 992px) {
+			width: auto;
 		}
-	} */
+	}
 `
 
 
@@ -47,7 +55,7 @@ const NavBarSearch = () => {
 	}
 
 	return (
-		<div className="min-w-[30rem]">
+		<div id="navBarSearchContainer" className="w-full lg:w-auto lg:min-w-[30rem]">
 			<SearchBar />
 		</div>
 	)
@@ -76,26 +84,30 @@ export function Navigation() {
 	}, [])
 
 
-	const segment = useSelectedLayoutSegment();
+	const segments = useSelectedLayoutSegments();
+	console.log("SEGMENT", segments)
 
 	return (
-		<div className="flex flex-row items-center py-2 pr-4">
-
+		<div className="flex flex-col w-full lg:flex-row lg:items-center">
 			<StyledMainNavigation
-				className="w-full flex "
+				className="w-full"
+				id="navigation"
 				items={[
 					{
-						isActive: false,
-						text: 'Catalogue de cours',
-						menuLinks: themes.map(t => ({
+						isActive: segments[0] == 'catalogue' || segments.join('/') == 'prof/mes-cours',
+						text: 'Cours',
+						menuLinks: [...themes.map(t => ({
 							linkProps: {
 								href: `/catalogue/${t.id}`
 							},
+							isActive: segments.join('/') == `catalogue/${t.id}`,
 							text: t.title || "Theme"
-						}))
+						})),
+						]
 					},
 					...(!user ? [] : [
 						{
+							isActive: segments.join('/') == 'prof/mes-cours',
 							linkProps: {
 								href: '/prof/mes-cours',
 								target: '_self'
@@ -103,27 +115,38 @@ export function Navigation() {
 							text: 'Création de cours'
 						}
 					]),
-					{
+					...(user ? [{
+						isActive: segments.join('/') == 'intelligence-artificielle/video-interactive',
 						linkProps: {
-							href: '/webinaires',
+							href: '/intelligence-artificielle/video-interactive',
 							target: '_self'
 						},
-						text: `Webinaires`
+						text: `Création de vidéo interactive`
+					}] : []),
+					{
+						isActive: segments.join('/') == 'webinaires',
+						menuLinks: [{
+							linkProps: {
+								href: `/webinaires`
+							},
+							isActive: segments.join('/') == 'webinaires',
+							text: "Webinaires Ada"
+						}, {
+							linkProps: {
+								href: `#`
+							},
+							text: "Contenus favoris de la communauté Ada (à venir)"
+						}],
+						text: `Inspirations`
 					},
 					{
+						isActive: segments.join('/') == 'besoin-d-aide',
 						linkProps: {
 							href: '/besoin-d-aide',
 							target: '_self'
 						},
-						text: `Besoin d'aide`
+						text: `Aide`
 					},
-					...(user ? [{
-						linkProps: {
-							href: '/prof/creer-un-interactif',
-							target: '_self'
-						},
-						text: `Créer un interactif`
-					}] : []),
 				]}
 			/>
 			<NavBarSearch />

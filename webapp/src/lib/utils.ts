@@ -14,12 +14,12 @@ export const validatePassword = (password: string) => {
 export const extractTextFromTipTap = (node: any): string => {
   // Handle array of nodes
   if (Array.isArray(node)) {
-      return node.map((n: any): string => extractTextFromTipTap(n)).join('\n');
+    return node.map((n: any): string => extractTextFromTipTap(n)).join('\n');
   }
 
   // Handle single node
   if (typeof node !== 'object' || node === null) {
-      return '';
+    return '';
   }
 
   // Extract text from current node
@@ -27,28 +27,31 @@ export const extractTextFromTipTap = (node: any): string => {
 
   // Handle direct text content
   if (node.type === 'text' && node.text) {
-      text += node.text;
+    text += node.text;
   }
 
   // Recursively process child content
   if (Array.isArray(node.content)) {
-      text += node.content.map((child: any): string => extractTextFromTipTap(child)).join('');
+    text += node.content.map((child: any): string => extractTextFromTipTap(child)).join('');
   }
 
   // Add newline after headings
   if (node.type === 'heading') {
-      text += '\n';
+    text += '\n';
   }
 
   // Add newline after paragraphs
   if (node.type === 'paragraph') {
-      text += '\n';
+    text += '\n';
   }
 
   return text;
 }
 
-export const secondsToTime = (seconds: number) => {
+
+
+export interface TimeCode { hours: number; minutes: number; seconds: number };
+export const secondsToTime = (seconds: number): TimeCode => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);

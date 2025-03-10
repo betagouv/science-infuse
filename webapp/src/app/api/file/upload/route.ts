@@ -32,8 +32,6 @@ export async function POST(request: NextRequest) {
         fileExtensionFromMime = 'pdf'
     }
     const fileExtension = fileExtensionFromMime || file.name.split('.').pop() || ''
-    console.log("FILE EXTENSION FROM MIME", fileExtensionFromMime)
-    console.log("FILE EXTENSION", file.name.split('.').pop() || '')
     const fileName = `${uuidv4()}.${fileExtension}`
 
     const localFilePath = path.join(process.cwd(), 'public', fileName);

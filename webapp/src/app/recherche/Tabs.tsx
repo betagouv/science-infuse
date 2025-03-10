@@ -44,6 +44,7 @@ interface TabItem {
 }
 
 const StyledTabs = styled.div`
+  z-index: 0;
   .fr-tabs {
     --tabs-height: 4rem !important;
     box-shadow: none !important;
@@ -80,7 +81,7 @@ const StyledTabs = styled.div`
 
 export const selectedTabType = signal<TabType>(TabType.Chapters);
 
-const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void }) => {
+const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void, hiddenTabs?: TabType[] }) => {
   const { data: session } = useSession();
   const user = session?.user;
 
@@ -88,14 +89,13 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
   const getVideoCount = (chunks: ChunkWithScoreUnion[]) => new Set(chunks.filter(c => c.mediaType == "video_transcript").map(c => c.document.id)).size
 
   const tabs: TabItem[] = [
-    ...(user && props.favourites ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),
-    { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
+    ...(user && props.favourites && !props.hiddenTabs?.includes(TabType.Favourites) ? [{ tabId: TabType.Favourites, label: `Mes favoris (${props.chunks.length > 0 ? getCount(props.chunks, TabMediaTypeMap[TabType.Favourites], true) : props.favourites?.length})` }] : []),    { tabId: TabType.Chapters, label: `Chapitres (${props.blocks.length})` },
     { tabId: TabType.Documents, label: `Documents (${getCount(props.chunks, TabMediaTypeMap[TabType.Documents])})` },
     { tabId: TabType.Pictures, label: `Images (${getCount(props.chunks, TabMediaTypeMap[TabType.Pictures])})` },
     { tabId: TabType.Videos, label: `Vidéos (${getVideoCount(props.chunks)})` },
     { tabId: TabType.Games, label: `Jeux (${getCount(props.chunks, TabMediaTypeMap[TabType.Games])})` },
     { tabId: TabType.Others, label: `Autres (${getCount(props.chunks, TabMediaTypeMap[TabType.Others])})` },
-  ];
+  ].filter(tab => !props.hiddenTabs?.includes(tab.tabId));
 
   return (
     <StyledTabs>
