@@ -12,6 +12,7 @@ import H5PRenderer from "@/app/mediaViewers/H5PRenderer";
 import Delete from "@mui/icons-material/Delete";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
+import EmbedVideo from "@/components/interactifs/EmbedVideo";
 
 const modal = createModal({
     id: "remove-h5p",
@@ -52,7 +53,7 @@ function H5PContentCard({ deleteH5p, content, h5pPublicUrl }: { deleteH5p: (cont
                     {
                         children: "Annuler",
                         priority: "secondary",
-                        onClick: () => {modal.close()}
+                        onClick: () => { modal.close() }
                     },
                     {
                         children: "Supprimer",
@@ -108,6 +109,9 @@ function H5PContentCard({ deleteH5p, content, h5pPublicUrl }: { deleteH5p: (cont
                                     details="Télécharger la vidéo interactive en HTML"
                                     linkProps={{ href: downloadHTML }}
                                 />
+                            </div>
+                            <div className="flex ml-auto">
+                                <EmbedVideo videoUrl={h5pPublicUrl} />
                             </div>
                         </div>
                     </>
