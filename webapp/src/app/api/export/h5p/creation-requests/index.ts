@@ -15,7 +15,7 @@ export const createH5P = async (data: any, h5pContentId?: string) => {
             "Referer": url,
             "Referrer-Policy": "strict-origin-when-cross-origin"
         },
-        "body": JSON.stringify(data),
+        "body": JSON.stringify({...data, ada_h5p_secret: process.env.ADA_H5P_SECRET}),
         "method": "POST"
     });
     return await response.json();

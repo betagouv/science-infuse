@@ -142,7 +142,7 @@ services:
     build:
       context: ./h5p
     ports:
-      - "8006:8080"
+      - "127.0.0.1:8006:8080"
     restart: always
     volumes:
       - ./h5p:/app/h5p
@@ -163,9 +163,9 @@ services:
     build: moodle
     container_name: moodle
     ports:
-      - '8008:8080'
-      - '8022:22'
-      - '8009:3000'
+      - '127.0.0.1:8008:8080'
+      - '127.0.0.1:8022:22'
+      - '127.0.0.1:8009:3000'
     environment:
       - MOODLE_DATABASE_HOST=mariadb
       - MOODLE_DATABASE_PORT_NUMBER=3306

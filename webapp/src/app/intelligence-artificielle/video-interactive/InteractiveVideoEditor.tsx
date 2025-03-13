@@ -66,8 +66,6 @@ const TimestampInput: React.FC<TimestampInputProps> = ({ timestamp, onChange }) 
     const [isEditing, setIsEditing] = useState(false);
     const [tempTime, setTempTime] = useState<TimeCode | null>(timestamp ? secondsToTime(timestamp) : null);
 
-    console.log("tempTime", tempTime)
-
     const handleSave = () => {
         if (!tempTime) return;
         const totalSeconds = timeToSeconds(tempTime.hours, tempTime.minutes, tempTime.seconds);
@@ -523,6 +521,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
     const [definitionPage, setDefinitionPage] = useState(1);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const updateInteractiveVideo = async (documentId: string, questions: InteractiveVideoQuestionGroup[], definitions: InteractiveVideoDefinitionGroup[]) => {
         setIsSaving(true);
@@ -545,7 +544,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 setDownloadH5pUrl(data.downloadH5p);
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
-                console.log("PREVIEW URL SET", data.embedUrl)
+                setRefreshKey(prev => prev + 1);
             }
         } finally {
             setIsSaving(false);
@@ -682,7 +681,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
 
             {/* H5P PREVIEW */}
             {previewUrl ? (
-                <H5PRenderer h5pPublicUrl={previewUrl} />
+                <H5PRenderer key={refreshKey} h5pPublicUrl={previewUrl} />
             ) : null}
 
             <div className="flex flex-wrap items-center gap-4">

@@ -85,7 +85,6 @@ export function Navigation() {
 
 
 	const segments = useSelectedLayoutSegments();
-	console.log("SEGMENT", segments)
 
 	return (
 		<div className="flex flex-col w-full lg:flex-row lg:items-center">

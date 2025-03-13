@@ -20,7 +20,6 @@ const skipSegments = ['intelligence-artificielle', 'prof']
 export default ({ currentPageLabel }: { currentPageLabel?: string }) => {
     const pathname = usePathname()
     const pathSegments = pathname?.split('/').filter(Boolean) || []
-    console.log("segments", pathSegments)
     const segments = pathSegments
         .filter(segment => !skipSegments.includes(segment))
         .map((segment, index) => {
