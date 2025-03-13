@@ -79,6 +79,7 @@ const TimestampInput: React.FC<TimestampInputProps> = ({ timestamp, onChange }) 
         <div className="flex gap-4 items-center">
             {!isEditing ? (
                 <Button
+                    size='small'
                     onClick={() => setIsEditing(true)}
                     iconId='fr-icon-timer-line'
                     iconPosition='left'
@@ -251,6 +252,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                         <TimestampInput timestamp={questionGroup.timestamp} onChange={handleTimestampChange} />
                         <DeleteButton
                             iconId="fr-icon-delete-bin-line"
+                            size='small'
                             className='text-red-500'
                             onClick={deleteQuiz}
                             priority='secondary'
@@ -280,7 +282,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                     <div className="mt-4">
                         <RadioButtons
                             className="flex w-full items-center justify-center [&_.fr-radio-group]:!max-w-full"
-                            legend="Réponses"
+                            legend={<div>Sélectionnez la ou les bonne(s) réponse(s).</div>}
                             options={q.answers.map((a, aIndex) => ({
                                 label: (
                                     <div className="flex w-full items-center">
@@ -425,6 +427,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                         <TimestampInput timestamp={definitionGroup.timestamp} onChange={handleTimestampChange} />
                         <DeleteButton
                             iconId="fr-icon-delete-bin-line"
+                            size='small'
                             className='text-red-500'
                             onClick={deleteDefinitionGroup}
                             priority='secondary'
@@ -717,7 +720,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                         </Button>
                     )}
                     {
-                        previewUrl && <EmbedVideo videoUrl={previewUrl}/>
+                        previewUrl && <EmbedVideo videoUrl={previewUrl} />
                     }
                 </>}
             </div>
@@ -725,7 +728,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
             {processingDone && editContentActive && <>
                 <hr />
 
-                <p className="m-0 text-2xl font-bold text-left text-gray-900">Modifier les quiz et définitions</p>
+                <p className="m-0 text-[28px] font-bold text-left text-gray-900">Modifier les quiz et définitions</p>
                 <p className="m-0 text-base text-left text-black">
                     Personnalisez les questions et réponses générés, sélectionnez les bonnes réponses, ou ajustez les définitions proposées par IA. Vos modifications seront sauvegardées dans votre espace personnel.
                 </p>

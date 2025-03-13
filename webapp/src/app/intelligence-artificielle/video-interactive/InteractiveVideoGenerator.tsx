@@ -130,22 +130,23 @@ export default () => {
     }
 
     return (
-        <div className="flex flex-col w-full gap-8 items-center">
+        <div className="flex flex-col w-full gap-4 items-center">
 
             {!documentId && !loading && <>
-                <h1 className="text-3xl sm:text-5xl m-0 font-bold text-center text-[#161616]">Je crée une vidéo interactive</h1>
-                <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 w-full">
+                <h1 className="m-0 text-center text-[#161616]">Je crée une vidéo interactive</h1>
+                <div className="flex flex-col md:flex-row gap-6 w-full">
                     <Image
                         src="/images/interactive-video-illustration.svg"
                         height={300}
                         width={300}
                         alt="Picture of the author"
-                        className="w-[100px] sm:w-[150px] md:w-[200px] lg:w-[250px] h-auto object-contain mix-blend-multiply mx-auto" />
+                        className="w-[80px] sm:w-[120px] md:w-[160px] lg:w-[200px] h-auto object-contain mix-blend-multiply mx-auto" />
                     <div className="flex flex-col justify-center max-w-2xl flex-1">
-                        <p className="text-base sm:text-lg md:text-xl text-start text-[#161616] mb-4 sm:mb-6">
+                        <p className="text-base text-start text-[#161616] mb-4 sm:mb-6">
                             Créez facilement des quiz et définitions pour enrichir vos vidéos éducatives en recherchant ou en important une vidéo.
                         </p>
                         <StyledSegControl
+                            small
                             className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full' legend="Ma vidéo : "
                             segments={[
                                 {
@@ -199,10 +200,9 @@ export default () => {
                 />
             </>}
             {loading && <InteractiveVideoGeneratorLoading importType={importType} />}
-
-            <hr className='w-full' />
-
-            <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
+            <div className="flex mt-4">
+                <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
+            </div>
 
         </div>
     );

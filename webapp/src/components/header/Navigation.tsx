@@ -50,7 +50,7 @@ const NavBarSearch = () => {
 	const pathname = usePathname()
 	const { data: session } = useSession();
 
-	if (pathname === "/") {
+	if (pathname === "/" || pathname === '/connexion') {
 		return null
 	}
 
@@ -94,7 +94,7 @@ export function Navigation() {
 				id="navigation"
 				items={[
 					{
-						isActive: segments[0] == 'catalogue' || segments.join('/') == 'prof/mes-cours',
+						isActive: segments[0] == 'catalogue',
 						text: 'Cours',
 						menuLinks: [...themes.map(t => ({
 							linkProps: {

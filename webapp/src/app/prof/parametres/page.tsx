@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import UserSettings from "./UserSettings";
 import prisma from "@/lib/prisma";
+import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 
 const Settings = async function () {
     const session = await getServerSession(authOptions);
@@ -11,12 +12,24 @@ const Settings = async function () {
         redirect('/');
     }
 
-
     const educationLevels = await prisma.educationLevel.findMany();
     const academies = await prisma.academy.findMany();
     const schoolSubjects = await prisma.schoolSubject.findMany();
 
-    return <UserSettings educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects}/>
+    return <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+        <div className="fr-col-12 mt-8 fr-col-md-10 main-content-item">
+            <AutoBreadCrumb />
+        </div>
+        <div className="fr-col-12 fr-col-md-6 main-content-item mb-24">
+            <div className="w-full">
+                <h1 className="text-center text-black">
+                    Mon compte
+                </h1>
+            </div>
+
+            <UserSettings educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
+        </div>
+    </div>
 
 
 }

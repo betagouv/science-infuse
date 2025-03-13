@@ -15,7 +15,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
 
 
     return <div className="flex flex-col gap-8 w-full items-center">
-        <div className="w-full flex flex-col gap-2">
+        <div className="w-full flex flex-col gap-4">
 
             <p className="m-0 text-base text-left text-[#161616] self-start">Rechercher par mot-clé :</p>
 

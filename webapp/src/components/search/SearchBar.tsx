@@ -7,7 +7,7 @@ import styled from "@emotion/styled";
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 
 
-export default (props: { className?: string, inputClassName?:string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
+export default (props: { className?: string, big?: boolean, inputClassName?: string, autoFocus?: boolean, onSearchBarEmpty?: () => void, handleSearch?: (query: string) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -31,14 +31,14 @@ export default (props: { className?: string, inputClassName?:string, autoFocus?:
         }
     }
     const handleSearch = () => {
-        
+
         closeMobileMenu();
 
         if (props.handleSearch) {
             props.handleSearch(query);
             return;
         }
-        
+
         const current = new URLSearchParams(Array.from(searchParams.entries()));
 
         if (!query) {
@@ -52,8 +52,8 @@ export default (props: { className?: string, inputClassName?:string, autoFocus?:
 
         router.push(`/recherche${searchQuery}`);
     };
-    
-    const {isTablet} = useWindowSize();
+
+    const { isTablet } = useWindowSize();
 
     if (!isMounted) {
         return null;
@@ -64,6 +64,7 @@ export default (props: { className?: string, inputClassName?:string, autoFocus?:
         <SearchBar
             className={`w-full max-w-full ${props.className}`}
             label="tectonique des plaques, volcan, climat..."
+            big={props.big}
             onButtonClick={handleSearch}
             renderInput={({ className, id, placeholder, type }) => (
                 <input
@@ -78,7 +79,7 @@ export default (props: { className?: string, inputClassName?:string, autoFocus?:
                         setQuery(value)
                         if (value == "" && props?.onSearchBarEmpty) {
                             props.onSearchBarEmpty();
-                        } 
+                        }
                     }}
                     onKeyDown={event => {
                         if (event.key === "Enter") {

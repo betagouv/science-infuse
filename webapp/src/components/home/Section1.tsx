@@ -11,37 +11,49 @@ export default (props: { reverse?: boolean }) => {
     const router = useRouter()
 
     return (
-        <div className="w-full relative flex justify-center py-8 md:py-16">
-            <div className="fr-col-12 fr-col-md-9 main-content-item flex flex-col">
-                <div className="w-full flex flex-col items-center gap-4 md:gap-8 px-4 md:px-0">
-                    <h2 className="text-[28px] md:text-[32px] font-bold text-center text-[#161616]">
-                        Un apprentissage enrichi par l'Intelligence Artificielle d'Ada
-                    </h2>
+        <div className="fr-container overflow-x-hidden">
+            <div className="fr-grid-row fr-grid-row--center">
+                <div className="fr-col-10">
+                    <div className="w-full flex flex-col items-center gap-8 md:gap-8 px-4 md:px-0 my-16">
+                        <h2 className="m-0 text-[32px] md:text-md font-bold text-center text-[#161616]">
+                            Un apprentissage enrichi par l'Intelligence Artificielle d'Ada
+                        </h2>
 
-                    <p className="text-base md:text-lg text-center text-[#161616]">
-                        Transformez chaque vidéo en une expérience d'apprentissage interactive et personnalisée. Notre
-                        Intelligence Artificielle (IA) génère automatiquement des définitions contextuelles et des
-                        questions stimulantes, que vous pouvez adapter selon vos besoins pédagogiques.
-                    </p>
+                        <p className="m-0 text-base md:text-lg text-center text-[#161616]">
+                            Transformez chaque vidéo en une expérience d'apprentissage interactive et personnalisée. <br /> Notre
+                            Intelligence Artificielle (IA) génère automatiquement des définitions contextuelles et des
+                            questions stimulantes, que vous pouvez adapter selon vos besoins pédagogiques.
+                        </p>
 
-                    {/* <div className="flex w-full max-w-screen-md">
-                        <H5PRenderer h5pPublicUrl={'http://localhost:8006/h5p/s3/h5p-video-2048235049/2048235049?readOnlyState=yes&asUserId=0.15067949908738898'} />
-                    </div> */}
+                        <div className="flex flex-col gap-2 w-full max-w-[600px]">
+                            <div className="flex items-center w-full relative" style={{ aspectRatio: '1.7' }}>
+                                <Image
+                                    src="/images/interactive-video-preview.png"
+                                    fill
+                                    alt="Illustration vidéo interactive"
+                                    className="mix-blend-multiply object-cover"
+                                />
+                                <Image
+                                    src="/images/landing_section_2.svg"
+                                    height={300}
+                                    width={300}
+                                    alt="Picture of the author"
+                                    className="hidden md:block w-[140px] sm:w-[190px] md:w-[240px] lg:w-[290px] h-auto object-contain mix-blend-multiply mx-auto"
+                                    style={{ position: 'absolute', right: 0, transform: 'translateX(calc(100% + 1rem))' }} />
+                            </div>
 
-                    <Image
-                        src="/images/interactive-video-preview.png"
-                        height={300}
-                        width={600}
-                        alt="Illustration vidéo interactive"
-                        className="w-full md:w-auto h-full object-contain mix-blend-multiply"
-                    />
+                            <p className="m-0 ml-2 text-xs text-left text-[#666]">
+                                Exemple de vidéo interactive générée sur le thème de l'extinction des dinosaures
+                            </p>
+                        </div>
 
-                    <Button
-                        linkProps={{
-                            href: "/intelligence-artificielle/video-interactive",
-                        }}
-                        className="w-full justify-center md:w-auto">Créer une vidéo interactive</Button>
+                        <Button
+                            linkProps={{
+                                href: "/intelligence-artificielle/video-interactive",
+                            }}
+                            className="w-full justify-center md:w-auto">Créer une vidéo interactive</Button>
 
+                    </div>
                 </div>
             </div>
         </div>

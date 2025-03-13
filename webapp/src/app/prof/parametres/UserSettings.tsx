@@ -205,49 +205,47 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
 
 
     return (
-        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-            <div className="fr-col-12 fr-col-md-6 main-content-item my-24">
-                <div className="w-full flex flex-col gap-8">
+        <div className="w-full flex flex-col gap-8">
 
-                    <UserSettingsField
-                        isEditable
-                        label="Prénom"
-                        value={firstname}
-                        onValidate={async () => { await updateUser({ firstName: firstname }) }}
-                        onChange={(_) => setFirstname(_ as string)}
-                    />
+            <UserSettingsField
+                isEditable
+                label="Prénom"
+                value={firstname}
+                onValidate={async () => { await updateUser({ firstName: firstname }) }}
+                onChange={(_) => setFirstname(_ as string)}
+            />
 
-                    <UserSettingsField
-                        isEditable
-                        label="Nom"
-                        value={lastname}
-                        onValidate={async () => { await updateUser({ lastName: lastname }) }}
-                        onChange={(_) => setLastname(_ as string)}
-                    />
+            <UserSettingsField
+                isEditable
+                label="Nom"
+                value={lastname}
+                onValidate={async () => { await updateUser({ lastName: lastname }) }}
+                onChange={(_) => setLastname(_ as string)}
+            />
 
-                    <UserSettingsField label="Email professionnel" value={email} onChange={() => { }} />
-                    <UserSettingsField label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
+            <UserSettingsField label="Email professionnel" value={email} onChange={() => { }} />
+            <UserSettingsField label="Mot de passe" value={password} onChange={() => { }} isPassword hint={<span>Pour rappel, le mot de passe doit contenir au moins : 8 caractères, 1 lettre en majuscule, 1 lettre en minuscule et 1 chiffre.</span>} />
 
-                    <UserSettingsField
-                        label="Métier *"
-                        isEditable
-                        value={job}
-                        onValidate={async () => { await updateUser({ job: job }) }}
-                        onChange={(_) => setJob(_ as string)}
-                    />
-                    <UserSettingsField
-                        isEditable
-                        isSelect
-                        label="Académie de rattachement"
-                        value={academy}
-                        onChange={(_) => setAcademy(_ as string)}
-                        onValidate={async () => { await updateUser({ academyId: academy }) }}
-                        options={props.academies.map(a => ({ value: a.id, label: a.name })).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))}
-                        hint="Cette information permettra d'exporter les contenus et les cours vers l'ENT."
-                    />
+            <UserSettingsField
+                label="Métier *"
+                isEditable
+                value={job}
+                onValidate={async () => { await updateUser({ job: job }) }}
+                onChange={(_) => setJob(_ as string)}
+            />
+            <UserSettingsField
+                isEditable
+                isSelect
+                label="Académie de rattachement"
+                value={academy}
+                onChange={(_) => setAcademy(_ as string)}
+                onValidate={async () => { await updateUser({ academyId: academy }) }}
+                options={props.academies.map(a => ({ value: a.id, label: a.name })).sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))}
+                hint="Cette information permettra d'exporter les contenus et les cours vers l'ENT."
+            />
 
 
-                    {/* <UserSettingsField
+            {/* <UserSettingsField
                         isEditable
                         label="Mon école"
                         value={school}
@@ -258,39 +256,37 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
 
 
 
-                    <div className="flex flex-col py-4 gap-2">
-                        <UserSettingsField
-                            isEditable
-                            label="Matière enseignée"
-                            isMultiSelect
-                            value={schoolSubjects}
-                            onChange={(value) => setSchoolSubjects(value as string[])}
-                            options={schoolSubjectsOptions}
-                            onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
-                        />
+            <div className="flex flex-col py-4 gap-2">
+                <UserSettingsField
+                    isEditable
+                    label="Matière enseignée"
+                    isMultiSelect
+                    value={schoolSubjects}
+                    onChange={(value) => setSchoolSubjects(value as string[])}
+                    options={schoolSubjectsOptions}
+                    onValidate={async () => { await updateUser({ schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)) }) }}
+                />
 
-                        <UserSettingsField
-                            isEditable
-                            label="Précision si vous avez choisi 'Autre'"
-                            required={false}
-                            value={otherSchoolSubject || ""}
-                            onValidate={async () => { await updateUser({ otherSchoolSubject }) }}
-                            onChange={(_) => setOtherSchoolSubject(_ as string)}
-                        />
-                    </div>
-
-                    <UserSettingsField
-                        isEditable
-                        isMultiSelect
-                        label="Niveaux auxquels j'enseigne pour l'année 2024-2025"
-                        value={educationLevels}
-                        onChange={(value) => setEducationLevels(value as string[])}
-                        options={educationOptions}
-                        onValidate={async () => { await updateUser({ educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)) }) }}
-                        hint="Plusieurs choix possible. Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
-                    />
-                </div>
+                <UserSettingsField
+                    isEditable
+                    label="Précision si vous avez choisi 'Autre'"
+                    required={false}
+                    value={otherSchoolSubject || ""}
+                    onValidate={async () => { await updateUser({ otherSchoolSubject }) }}
+                    onChange={(_) => setOtherSchoolSubject(_ as string)}
+                />
             </div>
+
+            <UserSettingsField
+                isEditable
+                isMultiSelect
+                label="Niveaux auxquels j'enseigne pour l'année 2024-2025"
+                value={educationLevels}
+                onChange={(value) => setEducationLevels(value as string[])}
+                options={educationOptions}
+                onValidate={async () => { await updateUser({ educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)) }) }}
+                hint="Plusieurs choix possible. Nous avons besoin de cette information afin de développer notre catalogue de cours avec ce qui vous sera le plus utile."
+            />
             <Snackbar />
         </div>
     );

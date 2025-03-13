@@ -5,7 +5,7 @@ export default () => {
 return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
         <div className='flex flex-col fr-container main-content-item my-24 gap-8'>
 
-            <h1 className="text-[28px] md:text-[32px] font-bold text-center text-[#161616]">
+            <h1 className="text-center text-[#161616]">
                 Un apprentissage enrichi par l'Intelligence Artificielle d'Ada
             </h1>
             <div className="flex gap-4">

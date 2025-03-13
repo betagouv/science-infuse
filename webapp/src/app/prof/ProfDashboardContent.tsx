@@ -59,15 +59,13 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
   };
 
   return (
-    <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
-      <div className='flex flex-col fr-col-12 fr-col-md-10 main-content-item my-24 gap-8'>
-        <div className="flex gap-4">
+    <>
+      <div className="flex gap-4">
         <Button priority='secondary' onClick={handleCreateChapter}>
           Nouveau chapitre
         </Button>
-        </div>
-        <ChaptersTable chapters={chapters} onDeleteChapter={handleDeleteChapter} />
       </div>
+      <ChaptersTable chapters={chapters} onDeleteChapter={handleDeleteChapter} />
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -89,6 +87,6 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+      </>
   );
 }

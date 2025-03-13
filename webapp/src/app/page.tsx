@@ -13,14 +13,7 @@ export default function Page() {
     return (
         <>
             <MobileNotSupportedModal />
-            <div
-                style={{ background: "linear-gradient(135.4deg, #f5f5fe 0%, #e3e3fd 99.31%)" }}
-                className="m-0 w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-                <div className="fr-col-12 fr-col-md-9 main-content-item mt-24 mb-4">
-                    <MainSearch />
-                </div>
-            </div>
-
+            <MainSearch />
             <Section1 />
             <Section3 />
         </>

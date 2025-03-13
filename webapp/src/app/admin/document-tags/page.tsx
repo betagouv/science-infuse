@@ -141,7 +141,7 @@ const DocumentTagsManager: React.FC = () => {
     return (
         <AdminWrapper>
             <div className='flex flex-col p-4'>
-                <h1 className='text-2xl font-bold mb-4'>Document Tags Manager</h1>
+                <h1 className='mb-4'>Document Tags Manager</h1>
 
                 <div style={{ height: 500, width: '100%' }}>
                     <DataGrid

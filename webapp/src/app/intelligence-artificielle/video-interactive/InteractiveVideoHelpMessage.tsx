@@ -2,9 +2,9 @@ const InteractiveVideoHelpMessage = (props: { hideHowItWorks?: boolean, hideNeed
     return (
         <div className="flex flex-col gap-2 p-8 bg-[#f5f5fe] w-full ">
             {!props.hideHowItWorks && <>
-                <h2 className="text-base font-bold text-[#3a3a3a]">
+                <p className="text-xl m-0 font-bold text-[#3a3a3a]">
                     Comment ça marche ?
-                </h2>
+                </p>
                 <p>
                     <ol>
                         <li>
@@ -24,9 +24,9 @@ const InteractiveVideoHelpMessage = (props: { hideHowItWorks?: boolean, hideNeed
                     </ol>
                 </p>
             </>}
-            {!props.hideNeedHelp && <><h2 className="opacity-20 pointer-events-none text-base font-bold text-[#3a3a3a]">
+            {!props.hideNeedHelp && <><p className="text-xl m-0 opacity-20 pointer-events-none font-bold text-[#3a3a3a]">
                 Besoin d'aide ?
-            </h2>
+            </p>
 
 
                 <div className="opacity-20 pointer-events-none flex flex-col gap-4">

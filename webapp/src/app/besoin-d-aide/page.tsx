@@ -1,10 +1,12 @@
+import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import StairsContainer from "@/components/StairsContainer";
 
 const NeedHelp = () => {
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 fr-container main-content-item">
-                <div className="py-16 flex flex-col gap-8 md:px-0">
+            <div className="fr-col-12 fr-container pt-8 main-content-item">
+                <AutoBreadCrumb />
+                <div className="pb-16 flex flex-col gap-8 md:px-0">
 
                     <div className="relative  bg-[#f2f2f2]">
 

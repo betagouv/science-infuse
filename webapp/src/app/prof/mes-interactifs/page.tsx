@@ -9,6 +9,7 @@ import CallOut from "@codegouvfr/react-dsfr/CallOut";
 import Button from "@codegouvfr/react-dsfr/Button";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 
 async function getContents(userId: string) {
     try {
@@ -90,10 +91,11 @@ export default async function MesInteractifs() {
 
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 fr-container main-content-item">
-                <div className="py-16 flex flex-col gap-8 md:px-0">
+            <div className="fr-col-12 mt-8 fr-container main-content-item">
+                <AutoBreadCrumb />
+                <div className="pb-16 flex flex-col gap-8 md:px-0">
                     <div className="w-full">
-                        <h1 className="m-0 text-3xl md:text-4xl font-bold text-center text-black">
+                        <h1 className="text-center text-black">
                             Mes interactifs
                         </h1>
                     </div>

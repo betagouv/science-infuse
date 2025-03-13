@@ -1,5 +1,6 @@
 'use client';
 
+import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { CallOut } from "@codegouvfr/react-dsfr/CallOut";
 import styled from "@emotion/styled";
@@ -23,10 +24,10 @@ const Webinaires = () => {
 
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 fr-container main-content-item">
-                <div className="py-16 flex flex-col gap-16 md:px-0">
-
-                    <h1>Webinaires Science Infuse</h1>
+            <div className="fr-col-12 pt-8 fr-container main-content-item">
+                <AutoBreadCrumb />
+                <div className="flex mb-16 flex-col gap-16 md:px-0">
+                    <h1>Webinaires Ada</h1>
                     {videos.map(v => (
                         <div key={v.src} className="relative p-8 bg-[#f2f2f2] rounded-xl">
                             <h2>{v.title}</h2>
@@ -38,7 +39,7 @@ const Webinaires = () => {
                             <a href={v.srt} download>Télécharger les sous-titres</a>
                         </div>
                     ))}
-{/* 
+                    {/* 
                     {!user && (
                         <StyledCallout
                             iconId="ri-information-line"

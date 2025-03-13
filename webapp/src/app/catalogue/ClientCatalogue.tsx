@@ -77,26 +77,22 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
     }
 
     return (
-        <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 fr-container main-content-item">
-                <div className="py-16 flex flex-col gap-8 md:px-0">
+        <div className="py-16 flex flex-col gap-8 md:px-0">
 
-                    <div className="w-full">
-                        <h1 className="m-0 text-3xl md:text-4xl font-bold text-center text-black">
-                            Catalogue de cours de SVT
-                        </h1>
-                    </div>
-
-                    {theme && <div className="flex justify-center items-center">
-                        <p className="text-xl md:text-2xl text-center text-black">
-                            "{theme?.title}" : {initialChapters.length} chapitre{initialChapters.length > 1 ? 's' : ''}
-                        </p>
-                    </div>}
-
-                    <Filters selectedFilter={selectedFilter} onFilterChange={handleFilterChange} filters={filters} />
-                    <ChapterResults chapters={filteredChapters} />
-                </div>
+            <div className="w-full">
+                <h1 className="m-0 text-3xl md:text-4xl font-bold text-center text-black">
+                    Catalogue de cours de SVT
+                </h1>
             </div>
+
+            {theme && <div className="flex justify-center items-center">
+                <p className="text-xl md:text-2xl text-center text-black">
+                    "{theme?.title}" : {initialChapters.length} chapitre{initialChapters.length > 1 ? 's' : ''}
+                </p>
+            </div>}
+
+            <Filters selectedFilter={selectedFilter} onFilterChange={handleFilterChange} filters={filters} />
+            <ChapterResults chapters={filteredChapters} />
         </div>
     )
 }

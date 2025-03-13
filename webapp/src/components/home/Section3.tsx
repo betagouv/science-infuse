@@ -100,39 +100,47 @@ export default function AlignedCards() {
     ];
 
     return (
-        <div style={{
-            background: "linear-gradient(135.4deg, #f5f5fe 0%, #e3e3fd 99.31%)"
-        }} className="w-full m-0 fr-grid-row fr-grid-row--gutters fr-grid-row--center bg-[#f6f6f6] py-16">
-            <div className="fr-col-12 fr-col-md-9 main-content-item">
-                <div className="flex flex-col items-center">
-                    <h2 className="text-[40px]font-bold m-0 text-center text-[#161616]">
-                        Des cours captivants grâce aux autres services d’Ada
-                    </h2>
+        <div
+            className="flex flex-col "
+            style={{ background: "linear-gradient(135.4deg, #f5f5fe 0%, #e3e3fd 99.31%)" }}
+        >
+            <div className="fr-container" >
+                <div className="fr-grid-row fr-grid-row--center">
+                    <div className="fr-col-12 py-16">
 
-                    <div className="w-full py-16">
-                        <CardContainer>
-                            {cards.map((card, index) => (
-                                <CardWrapper key={index}>
-                                    <StyledCard
-                                        background
-                                        border
-                                        desc={card.content}
-                                        imageComponent={card.image}
-                                        size="small"
-                                        title={card.title}
-                                        titleAs="h3"
-                                    />
-                                </CardWrapper>
-                            ))}
-                        </CardContainer>
+                        <div className="flex flex-col items-center">
+
+
+                            <h2 className="text-[40px]font-bold m-0 text-center text-[#161616]">
+                                Des cours captivants grâce aux autres services d’Ada
+                            </h2>
+
+                            <div className="w-full py-8">
+                                <CardContainer>
+                                    {cards.map((card, index) => (
+                                        <CardWrapper key={index}>
+                                            <StyledCard
+                                                background
+                                                border
+                                                desc={card.content}
+                                                imageComponent={card.image}
+                                                size="small"
+                                                title={card.title}
+                                                titleAs="h3"
+                                            />
+                                        </CardWrapper>
+                                    ))}
+                                </CardContainer>
+                            </div>
+                            <Button
+                                className="w-full justify-center md:w-auto"
+                                linkProps={{
+                                    href: "/catalogue/all",
+                                }}
+                                priority="secondary">Accéder au catalogue de cours</Button>
+
+                        </div>
                     </div>
-                    <Button
-                        className="w-full justify-center md:w-auto"
-                        linkProps={{
-                            href: "/catalogue/all",
-                        }}
-                        priority="secondary">Accéder au catalogue de cours</Button>
-
                 </div>
 
             </div>

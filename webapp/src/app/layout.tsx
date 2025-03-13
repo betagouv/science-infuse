@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
   const session = await getServerSession(authOptions);
   const user = session?.user
 
-catchErrorTyped
+  catchErrorTyped
   let nonce: string | undefined;
   if (csp) {
     nonce = getScriptNonceFromHeader(csp);
@@ -43,7 +43,7 @@ catchErrorTyped
   return (
     <html {...getHtmlAttributes({ defaultColorScheme, lang })} >
       <head>
-        <title>Science Infuse</title>
+        <title></title>
         {process.env.ENVIRONMENT != "dev" && <MatomoAnalytics />}
         <StartDsfr />
         <DsfrHead

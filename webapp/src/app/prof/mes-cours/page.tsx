@@ -9,6 +9,7 @@ import { getChaptersWithBlocks } from "@/lib/utils/db";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import ProfDashboardContent from "../ProfDashboardContent";
 import { ChapterStatus } from "@prisma/client";
+import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 
 export default async function ProfDashboard() {
     const session = await getServerSession(authOptions);
@@ -40,7 +41,7 @@ export default async function ProfDashboard() {
         });
         if (chapter && chapter.userId === session.user.id) {
             await prisma.chapter.update({
-                where: {id: chapterId},
+                where: { id: chapterId },
                 data: {
                     status: ChapterStatus.DELETED,
                 }
@@ -71,12 +72,17 @@ export default async function ProfDashboard() {
     });
 
     return (
-        <ProfDashboardContent
-            initialChapters={chapters}
-            initialBlocks={blocks}
-            createChapter={createChapter}
-            deleteChapter={deleteChapter}
-            user={session.user} />
+        <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
+            <div className='flex flex-col fr-col-12 fr-col-md-10 main-content-item my-8 gap-8'>
+                <AutoBreadCrumb />
+                <ProfDashboardContent
+                    initialChapters={chapters}
+                    initialBlocks={blocks}
+                    createChapter={createChapter}
+                    deleteChapter={deleteChapter}
+                    user={session.user} />
+            </div>
+        </div>
     )
 }
 
