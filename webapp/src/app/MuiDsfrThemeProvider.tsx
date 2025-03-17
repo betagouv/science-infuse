@@ -10,7 +10,6 @@ export const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
             ...nonAugmentedMuiTheme.palette,
             primary: {
                 ...nonAugmentedMuiTheme.palette.primary,
-                // main: '#FF0000',
             },
         },
     }),
