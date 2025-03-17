@@ -12,7 +12,7 @@ const ServerCatalogue: React.FC<ServerCatalogueProps> = async () => {
 
     return <div className="w-full fr-grid-row fr-grid-row--center">
         <div className="fr-col-12 fr-container main-content-item pt-8">
-        <AutoBreadCrumb />
+            <AutoBreadCrumb />
             <ClientCatalogue initialChapters={chapters} filters={filters} theme={theme} />
         </div>
     </div>

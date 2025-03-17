@@ -39,15 +39,18 @@ export default function () {
     });
 
     return (
-        <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="flex flex-col fr-container main-content-item my-8 gap-4">
+        <div className='w-full fr-grid-row fr-grid-row--center'>
+            <div className='flex flex-col fr-container main-content-item mt-4'>
+
                 <Breadcrumb
+                    className='mb-4'
                     currentPageLabel={documentId}
                     segments={[
                         { label: 'Accueil', linkProps: { href: '/' } },
                         { label: 'Création de vidéo interactive', linkProps: { href: '/intelligence-artificielle/video-interactive' } },
                     ]}
                 />
+                <div id="interactive-video-back-portal"></div>
 
                 {(!ivLoading && !ivGenerated) && <>
 
@@ -76,7 +79,7 @@ export default function () {
                     ) : video && (
                         <div className="flex flex-col md:flex-row w-full gap-4 items-center justify-center">
                             <div className="flex flex-col gap-4 w-full md:w-2/5 h-full ">
-                                <RenderVideoTranscriptDocumentCard document={video}/>
+                                <RenderVideoTranscriptDocumentCard document={video} />
                             </div>
                             <div
                                 className='h-full w-full md:w-3/5 bg-[#f5f5fe] shadow-[0_0_0_1px_#dddddd]'>
@@ -96,20 +99,21 @@ export default function () {
                     )}
                 </>}
 
-
-                {documentId && buttonClicked &&
-                    <InteractiveVideoEditor
-                        onDocumentProcessingEnd={() => {
-                            setIvLoading(false);
-                            setIvGenerated(true);
-                        }}
-                        onBackClicked={() => {
-                            setIvLoading(false);
-                            setButtonClicked(false);
-                            setIvGenerated(false);
-                        }}
-                        documentId={documentId} />}
-                {ivLoading && <InteractiveVideoGeneratorLoading importType={InteractiveVideoImportType.RECHERCHE} />}
+                <div className="fr-col-12 fr-col-md-8 main-content-item mb-4 self-center">
+                    {documentId && buttonClicked &&
+                        <InteractiveVideoEditor
+                            onDocumentProcessingEnd={() => {
+                                setIvLoading(false);
+                                setIvGenerated(true);
+                            }}
+                            onBackClicked={() => {
+                                setIvLoading(false);
+                                setButtonClicked(false);
+                                setIvGenerated(false);
+                            }}
+                            documentId={documentId} />}
+                    {ivLoading && <InteractiveVideoGeneratorLoading importType={InteractiveVideoImportType.RECHERCHE} />}
+                </div>
             </div>
         </div>
     );

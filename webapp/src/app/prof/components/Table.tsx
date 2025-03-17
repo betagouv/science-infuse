@@ -129,7 +129,7 @@ const ChaptersTable = ({ chapters, onDeleteChapter }: { chapters: ChapterWithBlo
           </TableRow>
         </TableHead>
         <TableBody>
-          {chapters.map((chapter) => (
+          {chapters.filter(chapter => chapter.status != ChapterStatus.DELETED).map((chapter) => (
             <ChapterRow key={chapter.id} chapter={chapter} onDeleteChapter={onDeleteChapter} />
           ))}
         </TableBody>

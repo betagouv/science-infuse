@@ -721,7 +721,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         badge={(chapter.educationLevels || []).map((e, index) => <Badge className="bg-[#ececfe] text-[#000091] text-sm capitalize" key={index}>{e.name}</Badge>)}
         desc={
             <div className="relative pt-4" >
-                <p className="text-start text-4xl text-black">{chapter.title}</p>
+                <h5 className='text-[#161616] text-left text-[22px]'>{chapter.title}</h5>
                 <RenderChapterTOC content={chapterContent.content} />
             </div >
         }
@@ -742,7 +742,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
             </a>
         }
         size="small"
-        title={""}
+        title={''}
         titleAs="h3"
         linkProps={{
             href: `/prof/chapitres/${chapter.id}/view`,

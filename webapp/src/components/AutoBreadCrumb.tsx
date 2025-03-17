@@ -17,7 +17,7 @@ const pathMap: Record<string, string> = {
 
 const skipSegments = ['intelligence-artificielle', 'prof']
 
-export default ({ currentPageLabel }: { currentPageLabel?: string }) => {
+export default ({ currentPageLabel, className }: { currentPageLabel?: string, className?: string }) => {
     const pathname = usePathname()
     const pathSegments = pathname?.split('/').filter(Boolean) || []
     const segments = pathSegments
@@ -35,6 +35,7 @@ export default ({ currentPageLabel }: { currentPageLabel?: string }) => {
 
     return (
         <Breadcrumb
+            className={className}
             currentPageLabel={currentPageLabel || segments[segments.length - 1]?.label || 'Page actuelle'}
             segments={[
                 {

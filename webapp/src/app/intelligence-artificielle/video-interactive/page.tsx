@@ -10,18 +10,8 @@ export default function ProfDashboard() {
     return (
         <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item mt-4'>
-                {/* <Breadcrumb
-                    currentPageLabel="Création de vidéo interactive"
-                    segments={[
-                        {
-                            label: 'Accueil',
-                            linkProps: {
-                                href: '/'
-                            }
-                        },
-                    ]}
-                /> */}
-                <AutoBreadCrumb/>
+                <AutoBreadCrumb className='mb-4' />
+                <div id="interactive-video-back-portal"></div>
                 <div className="fr-col-12 fr-col-md-8 main-content-item mb-4 self-center">
                     <InteractiveVideoGenerator />
                 </div>

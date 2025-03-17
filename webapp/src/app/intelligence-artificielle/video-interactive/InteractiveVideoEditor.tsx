@@ -1,14 +1,8 @@
 'use client'
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
-import {
-    InteractiveVideoQuestion,
-    InteractiveVideoQuestionGroup,
-    InteractiveVideoDefinition,
-    InteractiveVideoDefinitionGroup,
-    generateInteraciveVideoData,
-}
-    from "@/app/api/export/h5p/contents/interactiveVideo";
+import { InteractiveVideoQuestion, InteractiveVideoQuestionGroup, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, generateInteraciveVideoData, } from "@/app/api/export/h5p/contents/interactiveVideo";
+import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { s3ToPublicUrl } from "@/types/vectordb";
 import Button from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
@@ -24,6 +18,8 @@ import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
 import Snackbar from '@/components/Snackbar';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import EmbedVideo from '@/components/interactifs/EmbedVideo';
+import { createPortal } from 'react-dom';
+import CallOut from '@codegouvfr/react-dsfr/CallOut';
 
 const modal = createModal({
     id: "foo-modal",
@@ -236,7 +232,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 relative">
+        <div id="quiz-wrapper" className="flex flex-col items-center gap-4 relative">
             <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[2] py-2 gap-4 sm:gap-2">
                 <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Quiz</p>
                 <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
@@ -264,7 +260,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                 </div>
             </div>
             {questionGroup.questions.map((q, qIndex) => (
-                <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 pt-16">
+                <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
                     <Input
                         label={`Question ${qIndex + 1}`}
                         className='w-full [&_.fr-input-wrap--addon]:gap-2'
@@ -272,6 +268,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                             onClick={() => removeQuestion(qIndex)}
                             className="text-red-500"
                             iconId="fr-icon-delete-bin-line"
+                            title="Supprimer la question"
                             size='small'
                             priority="secondary"
                         >{""}</DeleteButton>}
@@ -283,9 +280,15 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                         }}
                     />
 
-                    <div className="mt-4">
+                    <div className="mt-8">
                         <RadioButtons
-                            className="flex w-[calc(100%+1.5rem)] items-center justify-center [&_.fr-radio-group]:!max-w-full" legend={<div>Sélectionnez la ou les bonne(s) réponse(s).</div>}
+                            className="flex w-[calc(100%+1.5rem)] items-center justify-center [&_.fr-radio-group]:!max-w-full"
+                            legend={
+                                <div className="flex flex-col gap-2">
+                                    <p className="m-0 text-base text-[#161616]">Réponses</p>
+                                    <p className="m-0 text-xs text-[#666]">Sélectionnez la ou les bonne(s) réponse(s).</p>
+                                </div>
+                            }
                             options={q.answers.map((a, aIndex) => ({
                                 label: (
                                     <div className="flex w-full items-center">
@@ -305,7 +308,8 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                                             className="text-red-500 ml-2"
                                             iconId="fr-icon-delete-bin-line"
                                             priority="secondary"
-                                        >{""}</DeleteButton>
+                                            title="Supprimer la réponse"
+                                            >{""}</DeleteButton>
                                     </div>
                                 ),
                                 nativeInputProps: {
@@ -329,17 +333,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                     </div>
                 </div>
             ))}
-            {/* <Button
-                className="flex gap-2 w-full justify-center mt-4"
-                priority="secondary"
-                onClick={addQuestion}
-            >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                </svg>
 
-                Ajouter une question
-            </Button> */}
         </div>
     );
 };
@@ -417,8 +411,12 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
         updateGroup({ ...definitionGroup, definitions: updated });
     };
 
+    if (!definitionGroup) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-col items-center gap-4 relative">
+        <div id="definition-wrapper" className="flex flex-col items-center gap-4 relative">
 
             <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[1] py-2 gap-4 sm:gap-2">
                 <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Définition</p>
@@ -435,29 +433,61 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                         </Button>
                     )}
                     <div className="flex flex-row items-center justify-between gap-2 w-full sm:w-auto">
-                        <TimestampInput timestamp={definitionGroup.timestamp} onChange={handleTimestampChange} />
+                        <TimestampInput timestamp={definitionGroup?.timestamp || 0} onChange={handleTimestampChange} />
                         <DeleteButton
                             iconId="fr-icon-delete-bin-line"
                             size='small'
                             className='text-red-500'
                             onClick={deleteDefinitionGroup}
                             priority='secondary'
-                            title="Supprimer le quiz"
+                            title="Supprimer les définitions"
                         />
                     </div>
                 </div>
             </div>
 
-            {definitionGroup.definitions.map((def, index) => (
-                <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 pt-16">
-                    <DeleteButton
-                        onClick={() => removeDefinition(index)}
-                        className="text-red-500 !absolute top-2 right-2"
-                        iconId="fr-icon-delete-bin-line"
-                        priority="tertiary no outline"
+            {definitionGroup.definitions.length == 0 &&
+                <CallOut
+                    iconId="ri-information-line"
+                    title="Aucune définition"
+                >
+
+                    Pour commencer, ajoutez une définition en cliquant sur
+                    <Button
+                        className="!my-0 !ml-2 !inline-block p-2"
+                        priority="secondary"
+                        onClick={addDefinition}
                         size='small'
-                    >{""}</DeleteButton>
-                    <p className="m-0 mb-4 text-lg text-black underline">Définition {index + 1}</p>
+                    >
+                        Ajouter une définition
+                    </Button>
+                    <br />
+                    Si vous souhaitez supprimer ce groupe, cliquez sur
+                    <DeleteButton
+                        iconId="fr-icon-delete-bin-line"
+                        size='small'
+                        className='text-red-500 !my-0 !mx-2 !inline-block p-2'
+                        onClick={deleteDefinitionGroup}
+                        priority='secondary'
+                        title="Supprimer les définitions"
+                    />
+                </CallOut>
+
+            }
+            {definitionGroup.definitions.map((def, index) => (
+                <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 ">
+                    <div className="flex w-full justify-between">
+                        <p className="m-0 mb-4 text-lg text-black underline">Définition {index + 1}</p>
+                        <DeleteButton
+                            onClick={() => removeDefinition(index)}
+                            className="text-red-500"
+                            iconId="fr-icon-delete-bin-line"
+                            priority="secondary"
+                            size='small'
+                            title='Supprimer la définition'
+                        />
+
+                    </div>
                     <div className="relative">
                         <Input
                             label="Notion"
@@ -513,15 +543,14 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
             </Button> */}
         </div>
     );
-};
-//////////////////////////////
+};//////////////////////////////
 // Main Interactive Editor  //
 //////////////////////////////
 
 export default function InteractiveVideoEditor(props: { documentId: string, onBackClicked?: () => void, saveDocument?: () => void; onDocumentProcessingEnd?: () => void }) {
     const { documentId, onDocumentProcessingEnd } = props;
-    const [ivQuestions, setIvQuestions] = useState<InteractiveVideoQuestionGroup[] | undefined>(undefined);
-    const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>(undefined);
+    const [ivQuestions, setIvQuestions] = useState<InteractiveVideoQuestionGroup[] | undefined>([]);
+    const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [editContentActive, setEditContentActive] = useState(false);
     const [processingDone, setProcessingDone] = useState(false);
@@ -583,13 +612,14 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 console.warn("Document ID manquant");
                 return;
             }
-
-            const iv = await generateInteraciveVideoData({ documentId });
-            console.log("IVIVIV", iv);
+            const data = { "questions": [{ "timestamp": 52, "questions": [{ "question": "Quelle est la particularité de la cellule qui compose le blob ?", "answers": [{ "answer": "Elle est microscopique", "correct": true }, { "answer": "Elle est immobile", "correct": false }, { "answer": "Elle est morte", "correct": false }, { "answer": "Elle est toujours de la même taille", "correct": false }] }] }, { "timestamp": 115, "questions": [{ "question": "Qu'est-ce qui se passe lorsque le blob est exposé au sel pour la première fois ?", "answers": [{ "answer": "Il le traverse immédiatement", "correct": false }, { "answer": "Il met des heures pour le traverser", "correct": true }, { "answer": "Il meurt", "correct": false }, { "answer": "Il se divise", "correct": false }] }, { "question": "Quel est le super pouvoir du blob ?", "answers": [{ "answer": "Il peut voler", "correct": false }, { "answer": "Il est invisible", "correct": false }, { "answer": "Il peut apprendre", "correct": true }, { "answer": "Il est immortel", "correct": false }] }] }, { "timestamp": 169, "questions": [{ "question": "Qu'est-ce qui se passe lorsque deux blobs se croisent ?", "answers": [{ "answer": "Ils se battent", "correct": false }, { "answer": "Ils fusionnent et échangent des informations", "correct": true }, { "answer": "Ils se séparent", "correct": false }, { "answer": "Ils meurent", "correct": false }] }] }], "videoTitle": "Le blob, l’omelette géante | Les super-pouvoirs du vivant", "videoPublicUrl": "http://localhost:3000/api/s3/presigned_url/object_name/youtube/c5c3aca8-d208-4435-8c68-43c22888c8df.mp4", "definitions": [{ "timestamp": 33, "definitions": [{ "notion": "blob", "definition": "organisme qui n'est ni un végétal, ni un animal, ni un champignon" }] }, { "timestamp": 115, "definitions": [{ "notion": "apprentissage", "definition": "capacité du blob à apprendre et à s'adapter à de nouvelles situations, sans cerveau" }] }, { "timestamp": 169, "definitions": [{ "notion": "blob", "definition": "organisme qui n'est ni un végétal, ni un animal, ni un champignon" }, { "notion": "apprentissage", "definition": "capacité du blob à apprendre et à s'adapter à de nouvelles situations, sans cerveau" }, { "notion": "mémoire", "definition": "capacité du blob à stocker et à transmettre des informations, sans cerveau" }, { "notion": "mémoire", "definition": "capacité du blob à stocker et à transmettre des informations, sans cerveau" }] }] };
+            const iv = data
+            // const iv = await generateInteraciveVideoData({ documentId });
             if (!iv) return;
             setIvQuestions(iv.questions);
             setIvDefinitions(iv.definitions);
             setVideoTitle(iv.videoTitle);
+            console.log("iviviv", iv)
 
             await updateInteractiveVideo(documentId, iv.questions, iv.definitions);
 
@@ -603,7 +633,8 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
 
     const handleQuestionGroupChange = useCallback(
         (index: number, updated: InteractiveVideoQuestionGroup) => {
-            if (!ivQuestions) return;
+            console.log("handleQuestionGroupChange", ivQuestions)
+            if (ivQuestions == undefined) return;
             const newQuestions = ivQuestions.map((qg, i) => (i === index ? updated : qg));
             setIvQuestions(newQuestions);
         },
@@ -640,118 +671,135 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
         }
     }, [documentId, generateInteractiveVideo]);
 
-
     return (
-        <div className="w-full relative flex flex-col gap-8">
-            <Button
-                className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                priority='secondary'
-                onClick={() => {
-                    modal.open();
-                }}
-            >
-                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                </svg>
+        <>
+            {document.getElementById("interactive-video-back-portal") ? createPortal(
+                <Button
+                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                    priority='secondary'
+                    onClick={() => {
+                        modal.open();
+                    }}
+                >
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                    </svg>
 
-                Retour
-            </Button>
+                    Retour
+                </Button>,
+                document.getElementById("interactive-video-back-portal") as HTMLElement
+            ) : (
+                <Button
+                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                    priority='secondary'
+                    onClick={() => {
+                        modal.open();
+                    }}
+                >
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                    </svg>
 
-            <modal.Component title="">
-                <div className="flex flex-col gap-4">
-                    <div className="flex gap-2 items-center">
-                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fillRule="evenodd" clipRule="evenodd" d="M16.5633 9.66673L9.41132 2.51473L11.2967 0.629395L21.6673 11.0001L11.2967 21.3707L9.41132 19.4854L16.5633 12.3334H0.333984V9.66673H16.5633Z" fill="#161616" />
-                        </svg>
-                        <p className="text-2xl m-0 font-bold text-left text-[#161616]">Quitter la page</p>
-                    </div>
-                    <p>Attention, certaines modifications n'ont pas été enregistrées.</p>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Button className="w-full justify-center sm:w-auto" onClick={handleSaveAndQuit}>{isSaving ? "Enregistrement en cours" : "Enregistrer et quitter"}</Button>
-                        <Button className="w-full justify-center sm:w-auto" priority='secondary' onClick={handleQuitWithoutSave}>Quitter sans enregistrer</Button>
-                    </div>
-                </div>
-            </modal.Component>
-            {showSuccessAlert && (
-                <Snackbar
-                    open={showSuccessAlert}
-                    onClose={() => setShowSuccessAlert(false)}
-                    // title="Modifications enregistrées"
-                    description="Modifications enregistrées"
-                    severity="success"
-                    position="bottom-right"
-                    autoHideDuration={5000}
-                    closable={true}
-                />
+                    Retour
+                </Button>
             )}
-            {processingDone ? <p className="text-base text-left">
-                <span className="font-bold text-[#18753c]">Analyse terminée ! </span>
-                <br />
-                <span className="text-black">
-                    Voici une suggestion de quiz et de définitions pour rendre votre vidéo plus engageante :
-                </span>
-            </p> : <></>}
 
-            {/* H5P PREVIEW */}
-            {previewUrl ? (
-                <H5PRenderer key={refreshKey} h5pPublicUrl={previewUrl} />
-            ) : null}
+            <div className="w-full relative flex flex-col gap-8">
 
-            <div className="flex flex-wrap items-center gap-4">
-                {processingDone && <>
-                    <Button
-                        className='block w-full justify-center sm:w-fit whitespace-nowrap'
-                        disabled={editContentActive}
-                        onClick={() => setEditContentActive(!editContentActive)}
-                    >Modifier les quiz et définitions</Button>
-
-                    {downloadHTMLUrl && (
-                        <Button
-                            priority='secondary'
-                            className='flex gap-2 w-full justify-center sm:w-fit'
-                            onClick={() => window.open(downloadHTMLUrl, '_blank')}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
+                <modal.Component title="">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex gap-2 items-center">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" clipRule="evenodd" d="M16.5633 9.66673L9.41132 2.51473L11.2967 0.629395L21.6673 11.0001L11.2967 21.3707L9.41132 19.4854L16.5633 12.3334H0.333984V9.66673H16.5633Z" fill="#161616" />
                             </svg>
+                            <p className="text-2xl m-0 font-bold text-left text-[#161616]">Quitter la page</p>
+                        </div>
+                        <p>Attention, certaines modifications n'ont pas été enregistrées.</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Button className="w-full justify-center sm:w-auto" onClick={handleSaveAndQuit}>{isSaving ? "Enregistrement en cours" : "Enregistrer et quitter"}</Button>
+                            <Button className="w-full justify-center sm:w-auto" priority='secondary' onClick={handleQuitWithoutSave}>Quitter sans enregistrer</Button>
+                        </div>
+                    </div>
+                </modal.Component>
+                {showSuccessAlert && (
+                    <Snackbar
+                        open={showSuccessAlert}
+                        onClose={() => setShowSuccessAlert(false)}
+                        // title="Modifications enregistrées"
+                        description="Modifications enregistrées"
+                        severity="success"
+                        position="bottom-right"
+                        autoHideDuration={5000}
+                        closable={true}
+                    />
+                )}
+                {processingDone ? <p className="text-base text-left">
+                    <span className="font-bold text-[#18753c]">Analyse terminée ! </span>
+                    <br />
+                    <span className="text-black">
+                        Voici une suggestion de quiz et de définitions pour rendre votre vidéo plus engageante :
+                    </span>
+                </p> : <></>}
 
-                            <p className='m-0'>Télécharger en html</p>
-                        </Button>
-                    )}
-                    {downloadH5pUrl && (
+                {/* H5P PREVIEW */}
+                {previewUrl ? (
+                    <H5PRenderer key={refreshKey} h5pPublicUrl={previewUrl} />
+                ) : null}
+
+                <div className="flex flex-wrap items-center gap-4">
+                    {processingDone && <>
                         <Button
-                            priority='secondary'
-                            className='flex gap-2 w-full justify-center sm:w-fit'
-                            onClick={() => window.open(downloadH5pUrl, '_blank')}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
-                            </svg>
+                            className='block w-full justify-center sm:w-fit whitespace-nowrap'
+                            disabled={editContentActive}
+                            onClick={() => setEditContentActive(!editContentActive)}
+                        >Modifier les quiz et définitions</Button>
 
-                            <p className='m-0'>Télécharger en h5p</p>
-                        </Button>
-                    )}
-                    {
-                        previewUrl && <EmbedVideo videoUrl={previewUrl} />
-                    }
+                        {downloadHTMLUrl && (
+                            <Button
+                                priority='secondary'
+                                className='flex gap-2 w-full justify-center sm:w-fit'
+                                onClick={() => window.open(downloadHTMLUrl, '_blank')}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
+                                </svg>
+
+                                <p className='m-0'>Télécharger en html</p>
+                            </Button>
+                        )}
+                        {downloadH5pUrl && (
+                            <Button
+                                priority='secondary'
+                                className='flex gap-2 w-full justify-center sm:w-fit'
+                                onClick={() => window.open(downloadH5pUrl, '_blank')}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
+                                </svg>
+
+                                <p className='m-0'>Télécharger en h5p</p>
+                            </Button>
+                        )}
+                        {
+                            previewUrl && <EmbedVideo videoUrl={previewUrl} />
+                        }
+                    </>}
+                </div>
+
+                {processingDone && editContentActive && <>
+                    <hr />
+
+                    <p className="m-0 text-[28px] font-bold text-left text-gray-900">Modifier les quiz et définitions</p>
+                    <p className="m-0 text-base text-left text-black">
+                        Personnalisez les questions et réponses générés, sélectionnez les bonnes réponses, ou ajustez les définitions proposées par IA. Vos modifications seront sauvegardées dans votre espace personnel.
+                    </p>
                 </>}
-            </div>
 
-            {processingDone && editContentActive && <>
-                <hr />
-
-                <p className="m-0 text-[28px] font-bold text-left text-gray-900">Modifier les quiz et définitions</p>
-                <p className="m-0 text-base text-left text-black">
-                    Personnalisez les questions et réponses générés, sélectionnez les bonnes réponses, ou ajustez les définitions proposées par IA. Vos modifications seront sauvegardées dans votre espace personnel.
-                </p>
-            </>}
-
-            <div className="flex flex-col gap-4 relative">
-                {editContentActive && (
-                    <>
-                        {ivQuestions && (
-                            // <div className="mb-8 flex flex-col gap-8">
-                            <>
+                <div className="flex flex-col gap-4 relative">
+                    {editContentActive && (
+                        <>
+                            {ivQuestions && ivQuestions.length > 0 && (
+                                <div className="mb-8 flex flex-col gap-8">
                                     {/* Force remount on page change with a key */}
                                     {ivQuestions.length > 0 && <QCMEditor
                                         key={`qcm-${questionPage}`}
@@ -766,38 +814,8 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         documentId={documentId}
                                     />}
                                     <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
-                                        {/* <Button
-                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
-                                        priority="secondary"
-                                        onClick={() => {
-                                            const newIvQuestions = [...ivQuestions, {
-                                                timestamp: ivQuestions.length ? Math.max(...ivQuestions.map(q => q.timestamp || 0)) + 1 : 0,
-                                                questions: [{
-                                                    question: '',
-                                                    answers: [
-                                                        {
-                                                            answer: 'Réponse A',
-                                                            correct: false
-                                                        },
-                                                        {
-                                                            answer: 'Réponse B',
-                                                            correct: false
-                                                        },
-                                                    ]
-                                                }]
-                                            }];
-                                            setIvQuestions(newIvQuestions)
-                                            setQuestionPage(newIvQuestions.length)
-                                        }}
-                                    >
-                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                        </svg>
-
-                                        Ajouter un quiz
-                                    </Button> */}
                                         <Button
-                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
+                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
                                             priority="secondary"
                                             onClick={() => {
                                                 const newQuestion: InteractiveVideoQuestion = {
@@ -807,10 +825,20 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                                         { answer: "Réponse B", correct: false },
                                                     ],
                                                 };
-                                                const questionGroup = ivQuestions[questionPage - 1];
-                                                handleQuestionGroupChange(questionPage - 1, { ...questionGroup, questions: [...questionGroup.questions, newQuestion] });
-                                            }}
-                                        >
+
+                                                let questionGroup = ivQuestions[questionPage - 1];
+
+                                                // If the question group is undefined or ivQuestions is empty, create a new one
+                                                if (!questionGroup || ivQuestions.length === 0) {
+                                                    questionGroup = { timestamp: 10, questions: [newQuestion] };
+                                                    const newIvQuestions = [...ivQuestions, questionGroup];
+                                                    setIvQuestions(newIvQuestions);
+                                                    setQuestionPage(newIvQuestions.length);
+                                                } else {
+                                                    // Otherwise, add the new question to the existing question group
+                                                    handleQuestionGroupChange(questionPage - 1, { ...questionGroup, questions: [...questionGroup.questions, newQuestion] });
+                                                }
+                                            }}>
                                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
                                             </svg>
@@ -818,7 +846,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                             Ajouter une question
                                         </Button>
 
-                                        {ivQuestions.length > 0 && <Pagination
+                                        <Pagination
                                             className='self-center'
                                             count={ivQuestions.length}
                                             defaultPage={questionPage}
@@ -827,93 +855,143 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                                 href: "#",
                                             })}
                                             showFirstLast
-                                        />}
+                                        />
                                     </div>
-                                    {/* </div> */}
-                                </>
-                        )}
+                                </div>
+                            )}
 
-                                {ivDefinitions && (
-                                    // <div className="mb-8 flex flex-col gap-8">
-                                    <>
-                                        {/* Force remount on page change with a key */}
-                                        {ivDefinitions.length > 0 && <DefinitionEditor
-                                            documentId={documentId}
-                                            key={`def-${definitionPage}`}
-                                            deleteDefinitionGroup={() => {
-                                                const newIvDefinitionGroup = ivDefinitions.filter((_, index) => index !== questionPage - 1)
-                                                setIvDefinitions(newIvDefinitionGroup)
-                                                setDefinitionPage(Math.min(questionPage, newIvDefinitionGroup.length))
-                                            }}
-                                            initialDefinitionGroup={ivDefinitions[definitionPage - 1]}
-                                            onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
-                                            onSave={handleSaveChanges}
-                                        />}
+                            <div className="my-4"></div>
 
-                                        <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
-                                            {/* <Button
-                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
-                                        priority="secondary"
-                                        onClick={() => {
-                                            const newIvDefinitions: InteractiveVideoDefinitionGroup[] = [...ivDefinitions, {
-                                                timestamp: ivDefinitions.length ? Math.max(...ivDefinitions.map(q => q.timestamp || 0)) + 1 : 1,
-                                                definitions: [{
-                                                    notion: '',
-                                                    definition: ''
-                                                }]
-                                            }];
-                                            console.log("newIvDefinitions", ivDefinitions.map(q => q.timestamp || 0), newIvDefinitions)
-                                            setIvDefinitions(newIvDefinitions)
-                                            setDefinitionPage(newIvDefinitions.length)
+                            {ivDefinitions && ivDefinitions.length > 0 && (
+                                <div className="mb-8 flex flex-col gap-8">
+                                    {/* Force remount on page change with a key */}
+                                    {ivDefinitions.length > 0 && <DefinitionEditor
+                                        documentId={documentId}
+                                        key={`def-${definitionPage}`}
+                                        deleteDefinitionGroup={() => {
+                                            const newIvDefinitionGroup = ivDefinitions.filter((_, index) => index !== questionPage - 1)
+                                            setIvDefinitions(newIvDefinitionGroup)
+                                            setDefinitionPage(Math.min(questionPage, newIvDefinitionGroup.length))
                                         }}
-                                    >
-                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                        </svg>
+                                        initialDefinitionGroup={ivDefinitions[definitionPage - 1]}
+                                        onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
+                                        onSave={handleSaveChanges}
+                                    />}
 
-                                        Ajouter une définition
-                                    </Button> */}
-                                            <Button
-                                                className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
-                                                priority="secondary"
-                                                onClick={() => {
-                                                    const newDefinition: InteractiveVideoDefinition = {
-                                                        notion: "",
-                                                        definition: "",
-                                                    };
-                                                    const definitionGroup = ivDefinitions[definitionPage - 1];
-                                                    handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] })
-                                                }}
-                                            >
-                                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                                </svg>
-                                                Ajouter une définition
-                                            </Button>
-                                            {ivDefinitions.length > 0 && <Pagination
-                                                className=''
-                                                count={ivDefinitions.length}
-                                                defaultPage={definitionPage}
-                                                getPageLinkProps={(page) => ({
-                                                    onClick: () => setDefinitionPage(page),
-                                                    href: "#",
-                                                })}
-                                                showFirstLast
-                                            />}
-                                        </div>
-                                        </>
-                                    // {/* </div> */}
-                                )}
-                            </>
-                        )}
-                        <hr />
+                                    <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
+                                        <Button
+                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
+                                            priority="secondary"
+                                            onClick={() => {
+                                                const newDefinition: InteractiveVideoDefinition = {
+                                                    notion: "",
+                                                    definition: "",
+                                                };
 
-                        <p>Vous pouvez également créer vos propres quiz et définitions :</p>
-                        <div className="sticky bottom-0 flex gap-2 z-20">
-                            <Button>Ajouter un quiz</Button>
-                            <Button>Ajouter une définition</Button>
-                        </div>
-                    </div>
-            </div>
-            );
+                                                let definitionGroup = ivDefinitions[definitionPage - 1];
+
+                                                // If the defintion group is undefined or ivDefinitions is empty, create a new one
+                                                if (!definitionGroup || ivDefinitions.length === 0) {
+                                                    definitionGroup = { timestamp: 10, definitions: [newDefinition] };
+                                                    const newIvDefinitions = [...ivDefinitions, definitionGroup];
+                                                    setIvDefinitions(newIvDefinitions);
+                                                    setDefinitionPage(newIvDefinitions.length);
+                                                } else {
+                                                    // Otherwise, add the new question to the existing question group
+                                                    handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] });
+                                                }
+                                            }}>
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                            </svg>
+                                            Ajouter une définition
+                                        </Button>
+
+                                        <Pagination
+                                            className='self-center'
+                                            count={ivDefinitions.length}
+                                            defaultPage={definitionPage}
+                                            getPageLinkProps={(page) => ({
+                                                onClick: () => setDefinitionPage(page),
+                                                href: "#",
+                                            })}
+                                            showFirstLast
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            <hr className='mt-6' />
+
+                            <div className="flex flex-col">
+                                <p className='mb-4'>Vous pouvez également créer vos propres quiz et définitions :</p>
+                                <div className="flex flex-row gap-2">
+                                    {ivQuestions && (
+                                        <Button
+                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
+                                            priority="primary"
+                                            onClick={() => {
+                                                const newIvQuestions = [...ivQuestions, {
+                                                    timestamp: ivQuestions.length ? Math.max(...ivQuestions.map(q => q.timestamp || 0)) + 1 : 0,
+                                                    questions: [{
+                                                        question: '',
+                                                        answers: [
+                                                            {
+                                                                answer: 'Réponse A',
+                                                                correct: true
+                                                            },
+                                                            {
+                                                                answer: 'Réponse B',
+                                                                correct: false
+                                                            },
+                                                        ]
+                                                    }]
+                                                }];
+                                                setIvQuestions(newIvQuestions)
+                                                setQuestionPage(newIvQuestions.length)
+                                                document.getElementById('quiz-wrapper')?.scrollIntoView({ behavior: 'smooth' })
+                                            }}
+                                        >
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#fff" />
+                                            </svg>
+
+                                            Ajouter un quiz
+                                        </Button>
+                                    )}
+
+                                    {ivDefinitions && (
+
+                                        <Button
+                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
+                                            priority="primary"
+                                            onClick={() => {
+                                                const newIvDefinitions: InteractiveVideoDefinitionGroup[] = [...ivDefinitions, {
+                                                    timestamp: ivDefinitions.length ? Math.max(...ivDefinitions.map(q => q.timestamp || 0)) + 1 : 1,
+                                                    definitions: [{
+                                                        notion: '',
+                                                        definition: ''
+                                                    }]
+                                                }];
+                                                console.log("newIvDefinitions", ivDefinitions.map(q => q.timestamp || 0), newIvDefinitions)
+                                                setIvDefinitions(newIvDefinitions)
+                                                setDefinitionPage(newIvDefinitions.length)
+                                                document.getElementById('definition-wrapper')?.scrollIntoView({ behavior: 'smooth' })
+
+                                            }}
+                                        >
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#fff" />
+                                            </svg>
+
+                                            Ajouter une définition
+                                        </Button>
+                                    )}
+                                </div>
+
+                            </div>
+                        </>)}
+                </div>
+            </div >
+        </>
+    );
 }

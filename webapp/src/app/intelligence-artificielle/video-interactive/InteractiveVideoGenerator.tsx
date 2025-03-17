@@ -200,7 +200,7 @@ export default () => {
                 />
             </>}
             {loading && <InteractiveVideoGeneratorLoading importType={importType} />}
-            <div className="flex mt-4">
+            <div className="flex mt-4 w-full">
                 <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
             </div>
 
