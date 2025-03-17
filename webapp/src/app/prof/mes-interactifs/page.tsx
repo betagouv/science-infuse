@@ -88,7 +88,7 @@ export default async function MesInteractifs() {
         await deleteContent(contentId, userId);
     }
     const contents = await getContents(userId);
-
+    const sortedContents = contents.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">
             <div className="fr-col-12 mt-8 fr-container main-content-item">
@@ -100,7 +100,7 @@ export default async function MesInteractifs() {
                         </h1>
                     </div>
                     {contents.length > 0 ? (
-                        <RenderH5pContents deleteH5p={deleteH5p} contents={contents} />
+                        <RenderH5pContents deleteH5p={deleteH5p} contents={sortedContents} />
                     ) : (
                         <CallOut iconId="ri-information-line" title="Vous n'avez pas encore généré d'interactifs.">
                             <div className="flex flex-col gap-4">
