@@ -134,6 +134,10 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
     const [hasChanges, setHasChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    useEffect(() => {
+        setQuestionGroup(initialQuestionGroup);
+    }, [initialQuestionGroup]);
+
     const updateGroup = useCallback(
         (updated: InteractiveVideoQuestionGroup) => {
             setQuestionGroup(updated);
@@ -260,16 +264,17 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                 </div>
             </div>
             {questionGroup.questions.map((q, qIndex) => (
-                <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
-                    <DeleteButton
-                        onClick={() => removeQuestion(qIndex)}
-                        className="text-red-500 !absolute top-2 right-2"
-                        iconId="fr-icon-delete-bin-line"
-                        size='small'
-                        priority="secondary"
-                    >{""}</DeleteButton>
+                <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 pt-16">
                     <Input
                         label={`Question ${qIndex + 1}`}
+                        className='w-full [&_.fr-input-wrap--addon]:gap-2'
+                        addon={<DeleteButton
+                            onClick={() => removeQuestion(qIndex)}
+                            className="text-red-500"
+                            iconId="fr-icon-delete-bin-line"
+                            size='small'
+                            priority="secondary"
+                        >{""}</DeleteButton>}
                         nativeInputProps={{
                             placeholder: "Saisissez votre texte...",
                             value: q.question,
@@ -277,10 +282,10 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                             required: true,
                         }}
                     />
+
                     <div className="mt-4">
                         <RadioButtons
-                            className="flex w-full items-center justify-center [&_.fr-radio-group]:!max-w-full"
-                            legend={<div>Sélectionnez la ou les bonne(s) réponse(s).</div>}
+                            className="flex w-[calc(100%+1.5rem)] items-center justify-center [&_.fr-radio-group]:!max-w-full" legend={<div>Sélectionnez la ou les bonne(s) réponse(s).</div>}
                             options={q.answers.map((a, aIndex) => ({
                                 label: (
                                     <div className="flex w-full items-center">
@@ -312,17 +317,20 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                         <div className="flex w-full justify-start">
                             <Button
                                 onClick={() => addAnswer(qIndex)}
-                                className="justify-center"
-                                priority="secondary"
+                                className="justify-center flex gap-2 items-center"
+                                priority="tertiary"
                             >
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                </svg>
                                 Ajouter une réponse
                             </Button>
                         </div>
                     </div>
                 </div>
             ))}
-            <Button
-                className="w-full flex gap-2 items-center justify-center mt-4"
+            {/* <Button
+                className="flex gap-2 w-full justify-center mt-4"
                 priority="secondary"
                 onClick={addQuestion}
             >
@@ -330,8 +338,8 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                     <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
                 </svg>
 
-                Ajouter une question au Quiz
-            </Button>
+                Ajouter une question
+            </Button> */}
         </div>
     );
 };
@@ -354,6 +362,10 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
     const [hasChanges, setHasChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [definitionLoading, setDefinitionLoading] = useState(false);
+
+    useEffect(() => {
+        setDefinitionGroup(initialDefinitionGroup);
+    }, [initialDefinitionGroup]);
 
     const updateGroup = useCallback(
         (updated: InteractiveVideoDefinitionGroup) => {
@@ -408,12 +420,13 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
     return (
         <div className="flex flex-col items-center gap-4 relative">
 
-            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[2] py-2 gap-4 sm:gap-2">
+            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[1] py-2 gap-4 sm:gap-2">
                 <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Définition</p>
                 <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
                     {hasChanges && (
                         <Button
                             onClick={handleSave}
+                            size='small'
                             priority="primary"
                             disabled={isSaving}
                             className="w-full sm:w-auto"
@@ -436,7 +449,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
             </div>
 
             {definitionGroup.definitions.map((def, index) => (
-                <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
+                <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 pt-16">
                     <DeleteButton
                         onClick={() => removeDefinition(index)}
                         className="text-red-500 !absolute top-2 right-2"
@@ -491,13 +504,13 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                     </div>
                 </div>
             ))}
-            <Button
+            {/* <Button
                 className="w-full justify-center"
                 priority="secondary"
                 onClick={addDefinition}
             >
                 Ajouter une définition à la même position
-            </Button>
+            </Button> */}
         </div>
     );
 };
@@ -737,22 +750,23 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 {editContentActive && (
                     <>
                         {ivQuestions && (
-                            <div className="mb-8 flex flex-col gap-8">
-                                {/* Force remount on page change with a key */}
-                                {ivQuestions.length > 0 && <QCMEditor
-                                    key={`qcm-${questionPage}`}
-                                    deleteQuiz={() => {
-                                        const newIvQuestions = ivQuestions.filter((_, index) => index !== questionPage - 1)
-                                        setIvQuestions(newIvQuestions)
-                                        setQuestionPage(Math.min(questionPage, newIvQuestions.length))
-                                    }}
-                                    initialQuestionGroup={ivQuestions[questionPage - 1]}
-                                    onChange={(updated) => handleQuestionGroupChange(questionPage - 1, updated)}
-                                    onSave={handleSaveChanges}
-                                    documentId={documentId}
-                                />}
-                                <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 bg-white pt-4">
-                                    <Button
+                            // <div className="mb-8 flex flex-col gap-8">
+                            <>
+                                    {/* Force remount on page change with a key */}
+                                    {ivQuestions.length > 0 && <QCMEditor
+                                        key={`qcm-${questionPage}`}
+                                        deleteQuiz={() => {
+                                            const newIvQuestions = ivQuestions.filter((_, index) => index !== questionPage - 1)
+                                            setIvQuestions(newIvQuestions)
+                                            setQuestionPage(Math.min(questionPage, newIvQuestions.length))
+                                        }}
+                                        initialQuestionGroup={ivQuestions[questionPage - 1]}
+                                        onChange={(updated) => handleQuestionGroupChange(questionPage - 1, updated)}
+                                        onSave={handleSaveChanges}
+                                        documentId={documentId}
+                                    />}
+                                    <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
+                                        {/* <Button
                                         className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
                                         priority="secondary"
                                         onClick={() => {
@@ -781,39 +795,63 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         </svg>
 
                                         Ajouter un quiz
-                                    </Button>
-                                    {ivQuestions.length > 0 && <Pagination
-                                        className='self-center'
-                                        count={ivQuestions.length}
-                                        defaultPage={questionPage}
-                                        getPageLinkProps={(page) => ({
-                                            onClick: () => setQuestionPage(page),
-                                            href: "#",
-                                        })}
-                                        showFirstLast
-                                    />}
-                                </div>
-                            </div>
+                                    </Button> */}
+                                        <Button
+                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
+                                            priority="secondary"
+                                            onClick={() => {
+                                                const newQuestion: InteractiveVideoQuestion = {
+                                                    question: "",
+                                                    answers: [
+                                                        { answer: "Réponse A", correct: true },
+                                                        { answer: "Réponse B", correct: false },
+                                                    ],
+                                                };
+                                                const questionGroup = ivQuestions[questionPage - 1];
+                                                handleQuestionGroupChange(questionPage - 1, { ...questionGroup, questions: [...questionGroup.questions, newQuestion] });
+                                            }}
+                                        >
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                            </svg>
+
+                                            Ajouter une question
+                                        </Button>
+
+                                        {ivQuestions.length > 0 && <Pagination
+                                            className='self-center'
+                                            count={ivQuestions.length}
+                                            defaultPage={questionPage}
+                                            getPageLinkProps={(page) => ({
+                                                onClick: () => setQuestionPage(page),
+                                                href: "#",
+                                            })}
+                                            showFirstLast
+                                        />}
+                                    </div>
+                                    {/* </div> */}
+                                </>
                         )}
 
-                        {ivDefinitions && (
-                            <div className="mb-8 flex flex-col gap-8">
-                                {/* Force remount on page change with a key */}
-                                {ivDefinitions.length > 0 && <DefinitionEditor
-                                    documentId={documentId}
-                                    key={`def-${definitionPage}`}
-                                    deleteDefinitionGroup={() => {
-                                        const newIvDefinitionGroup = ivDefinitions.filter((_, index) => index !== questionPage - 1)
-                                        setIvDefinitions(newIvDefinitionGroup)
-                                        setDefinitionPage(Math.min(questionPage, newIvDefinitionGroup.length))
-                                    }}
-                                    initialDefinitionGroup={ivDefinitions[definitionPage - 1]}
-                                    onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
-                                    onSave={handleSaveChanges}
-                                />}
+                                {ivDefinitions && (
+                                    // <div className="mb-8 flex flex-col gap-8">
+                                    <>
+                                        {/* Force remount on page change with a key */}
+                                        {ivDefinitions.length > 0 && <DefinitionEditor
+                                            documentId={documentId}
+                                            key={`def-${definitionPage}`}
+                                            deleteDefinitionGroup={() => {
+                                                const newIvDefinitionGroup = ivDefinitions.filter((_, index) => index !== questionPage - 1)
+                                                setIvDefinitions(newIvDefinitionGroup)
+                                                setDefinitionPage(Math.min(questionPage, newIvDefinitionGroup.length))
+                                            }}
+                                            initialDefinitionGroup={ivDefinitions[definitionPage - 1]}
+                                            onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
+                                            onSave={handleSaveChanges}
+                                        />}
 
-                                <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 bg-white pt-4">
-                                    <Button
+                                        <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
+                                            {/* <Button
                                         className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"
                                         priority="secondary"
                                         onClick={() => {
@@ -834,23 +872,48 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         </svg>
 
                                         Ajouter une définition
-                                    </Button>
-                                    {ivDefinitions.length > 0 && <Pagination
-                                        className='self-center'
-                                        count={ivDefinitions.length}
-                                        defaultPage={definitionPage}
-                                        getPageLinkProps={(page) => ({
-                                            onClick: () => setDefinitionPage(page),
-                                            href: "#",
-                                        })}
-                                        showFirstLast
-                                    />}
-                                </div>
-                            </div>
+                                    </Button> */}
+                                            <Button
+                                                className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
+                                                priority="secondary"
+                                                onClick={() => {
+                                                    const newDefinition: InteractiveVideoDefinition = {
+                                                        notion: "",
+                                                        definition: "",
+                                                    };
+                                                    const definitionGroup = ivDefinitions[definitionPage - 1];
+                                                    handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] })
+                                                }}
+                                            >
+                                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                                </svg>
+                                                Ajouter une définition
+                                            </Button>
+                                            {ivDefinitions.length > 0 && <Pagination
+                                                className=''
+                                                count={ivDefinitions.length}
+                                                defaultPage={definitionPage}
+                                                getPageLinkProps={(page) => ({
+                                                    onClick: () => setDefinitionPage(page),
+                                                    href: "#",
+                                                })}
+                                                showFirstLast
+                                            />}
+                                        </div>
+                                        </>
+                                    // {/* </div> */}
+                                )}
+                            </>
                         )}
-                    </>
-                )}
+                        <hr />
+
+                        <p>Vous pouvez également créer vos propres quiz et définitions :</p>
+                        <div className="sticky bottom-0 flex gap-2 z-20">
+                            <Button>Ajouter un quiz</Button>
+                            <Button>Ajouter une définition</Button>
+                        </div>
+                    </div>
             </div>
-        </div>
-    );
+            );
 }

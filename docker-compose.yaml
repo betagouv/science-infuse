@@ -77,6 +77,7 @@ services:
         - MOODLE_URL=${MOODLE_URL}
         - MOODLE_TOKEN=${MOODLE_TOKEN}
         - GROQ_API_KEY=${GROQ_API_KEY}
+        - ADA_H5P_SECRET=${ADA_H5P_SECRET}
     ports:
       - "8002:3000"
     environment:
@@ -139,6 +140,7 @@ services:
       - S3_ENDPOINT=${S3_ENDPOINT}
       - S3_REGION=${S3_REGION}
       - S3_BUCKET=${S3_BUCKET}
+      - ADA_H5P_SECRET=${ADA_H5P_SECRET}
     build:
       context: ./h5p
     ports:
