@@ -10,8 +10,8 @@ import ClientCatalogue from './ClientCatalogue';
 const ServerCatalogue: React.FC<ServerCatalogueProps> = async () => {
     const { chapters, filters, theme } = await getChaptersFiltersAndTheme('all');
 
-    return <div className="w-full fr-grid-row fr-grid-row--center">
-        <div className="fr-col-12 fr-container main-content-item pt-8">
+    return <div className='w-full fr-grid-row fr-grid-row--center'>
+        <div className='flex flex-col fr-container main-content-item mt-4'>
             <AutoBreadCrumb />
             <ClientCatalogue initialChapters={chapters} filters={filters} theme={theme} />
         </div>

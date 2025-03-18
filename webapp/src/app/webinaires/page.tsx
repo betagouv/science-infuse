@@ -23,11 +23,11 @@ const Webinaires = () => {
     const user = session?.user;
 
     return (
-        <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 pt-8 fr-container main-content-item">
-                <AutoBreadCrumb />
+        <div className='w-full fr-grid-row fr-grid-row--center'>
+            <div className='flex flex-col fr-container main-content-item mt-4'>
+                <AutoBreadCrumb className="mb-4" />
                 <div className="flex mb-16 flex-col gap-16 md:px-0">
-                    <h1>Webinaires Ada</h1>
+                    <h1 className="self-center">Webinaires Ada</h1>
                     {videos.map(v => (
                         <div key={v.src} className="relative p-8 bg-[#f2f2f2] rounded-xl">
                             <h2>{v.title}</h2>

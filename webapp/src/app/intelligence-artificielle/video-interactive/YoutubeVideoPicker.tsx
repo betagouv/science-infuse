@@ -16,7 +16,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
 
     const handleIndexYoutube = async () => {
         props.onDocumentProcessingStart();
-        const response = await apiClient.indexFile({youtubeUrl});
+        const response = await apiClient.indexFile({ youtubeUrl });
         console.log("uploadFileAndProcess", response)
         props.onDocumentIdPicked(response.documentId)
     }
@@ -25,7 +25,7 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
     return <div className="flex flex-col w-full items-center">
         <div className="w-full flex flex-col gap-8">
             <Input
-                className="w-full"
+                className="w-full [&_.fr-label]:pb-2"
                 label="Lien URL de la vidéo"
                 addon={<Button disabled={!isValidYoutubeUrl(youtubeUrl)} className="w-fit whitespace-nowrap" onClick={handleIndexYoutube}>Générer quiz et définitions</Button>}
 

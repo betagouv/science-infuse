@@ -77,7 +77,7 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
     }
 
     return (
-        <div className="py-16 flex flex-col gap-8 md:px-0">
+        <div className="pb-16 flex flex-col gap-8 md:px-0">
 
             <div className="w-full">
                 <h1 className="m-0 text-center text-black">

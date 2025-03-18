@@ -11,9 +11,9 @@ const ServerCatalogue: React.FC<ServerCatalogueProps> = async ({ params }) => {
     const { themeId } = params;
     const { chapters, filters, theme } = await getChaptersFiltersAndTheme(themeId);
 
-    return <div className="w-full fr-grid-row fr-grid-row--center">
-        <div className="fr-col-12 fr-container main-content-item pt-8">
-            <AutoBreadCrumb currentPageLabel={`${theme?.title}`}/>
+    return <div className='w-full fr-grid-row fr-grid-row--center'>
+        <div className='flex flex-col fr-container main-content-item mt-4'>
+            <AutoBreadCrumb currentPageLabel={`${theme?.title}`} />
             <ClientCatalogue initialChapters={chapters} filters={filters} theme={theme} />
         </div>
     </div>

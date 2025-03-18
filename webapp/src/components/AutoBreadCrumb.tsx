@@ -35,7 +35,7 @@ export default ({ currentPageLabel, className }: { currentPageLabel?: string, cl
 
     return (
         <Breadcrumb
-            className={className}
+            className={`mb-4 ${className}`}
             currentPageLabel={currentPageLabel || segments[segments.length - 1]?.label || 'Page actuelle'}
             segments={[
                 {

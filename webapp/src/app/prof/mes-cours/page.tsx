@@ -72,9 +72,11 @@ export default async function ProfDashboard() {
     });
 
     return (
-        <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center'>
-            <div className='flex flex-col fr-col-12 fr-col-md-10 main-content-item my-8 gap-8'>
-                <AutoBreadCrumb />
+        <div className='w-full fr-grid-row fr-grid-row--center'>
+            <div className='flex flex-col fr-container main-content-item mt-4'>
+                <AutoBreadCrumb className="mb-4"/>
+                <h1 className="self-center">Mes cours</h1>
+
                 <ProfDashboardContent
                     initialChapters={chapters}
                     initialBlocks={blocks}

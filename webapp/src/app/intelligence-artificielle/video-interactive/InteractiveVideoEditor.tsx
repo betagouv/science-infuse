@@ -20,6 +20,8 @@ import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import EmbedVideo from '@/components/interactifs/EmbedVideo';
 import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
+import { defaultGetRowsToExport } from '@mui/x-data-grid/internals';
+import StickyShadow from '@/components/StickyShadown';
 
 const modal = createModal({
     id: "foo-modal",
@@ -73,7 +75,7 @@ const TimestampInput: React.FC<TimestampInputProps> = ({ timestamp, onChange }) 
         <div className="flex gap-4 items-center">
             {!isEditing ? (
                 <Button
-                    size='small'
+                    size='medium'
                     onClick={() => setIsEditing(true)}
                     iconId='fr-icon-timer-line'
                     iconPosition='left'
@@ -233,14 +235,16 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
 
     return (
         <div id="quiz-wrapper" className="flex flex-col items-center gap-4 relative">
-            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[2] py-2 gap-4 sm:gap-2">
-                <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Quiz</p>
+            <StickyShadow className="flex w-full flex-col sm:flex-row justify-between items-center" >
+                <p className="m-0 mb-4 sm:mb-0 text-2xl font-bold text-left text-[#000091] self-center">1. Quiz</p>
+
                 <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
                     {hasChanges && (
                         <Button
                             onClick={handleSave}
                             priority="primary"
                             disabled={isSaving}
+                            size='medium'
                             className="w-full sm:w-auto"
                         >
                             {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
@@ -250,7 +254,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                         <TimestampInput timestamp={questionGroup.timestamp} onChange={handleTimestampChange} />
                         <DeleteButton
                             iconId="fr-icon-delete-bin-line"
-                            size='small'
+                            size='medium'
                             className='text-red-500'
                             onClick={deleteQuiz}
                             priority='secondary'
@@ -258,83 +262,85 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                         />
                     </div>
                 </div>
-            </div>
-            {questionGroup.questions.map((q, qIndex) => (
-                <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
-                    <Input
-                        label={`Question ${qIndex + 1}`}
-                        className='w-full [&_.fr-input-wrap--addon]:gap-2'
-                        addon={<DeleteButton
-                            onClick={() => removeQuestion(qIndex)}
-                            className="text-red-500"
-                            iconId="fr-icon-delete-bin-line"
-                            title="Supprimer la question"
-                            size='small'
-                            priority="secondary"
-                        >{""}</DeleteButton>}
-                        nativeInputProps={{
-                            placeholder: "Saisissez votre texte...",
-                            value: q.question,
-                            onChange: (e) => handleQuestionChange(qIndex, e.target.value),
-                            required: true,
-                        }}
-                    />
-
-                    <div className="mt-8">
-                        <RadioButtons
-                            className="flex w-[calc(100%+1.5rem)] items-center justify-center [&_.fr-radio-group]:!max-w-full"
-                            legend={
-                                <div className="flex flex-col gap-2">
-                                    <p className="m-0 text-base text-[#161616]">Réponses</p>
-                                    <p className="m-0 text-xs text-[#666]">Sélectionnez la ou les bonne(s) réponse(s).</p>
-                                </div>
-                            }
-                            options={q.answers.map((a, aIndex) => ({
-                                label: (
-                                    <div className="flex w-full items-center">
-                                        <Input
-                                            label=""
-                                            className="!m-0 w-full"
-                                            nativeInputProps={{
-                                                placeholder: "Saisissez une réponse...",
-                                                value: a.answer,
-                                                onChange: (e) => handleAnswerChange(qIndex, aIndex, e.target.value),
-                                                required: true,
-                                            }}
-                                        />
-                                        <DeleteButton
-                                            onClick={() => removeAnswer(qIndex, aIndex)}
-                                            size='small'
-                                            className="text-red-500 ml-2"
-                                            iconId="fr-icon-delete-bin-line"
-                                            priority="secondary"
-                                            title="Supprimer la réponse"
-                                            >{""}</DeleteButton>
-                                    </div>
-                                ),
-                                nativeInputProps: {
-                                    checked: a.correct,
-                                    onChange: () => handleCorrectChange(qIndex, aIndex),
-                                },
-                            }))}
+            </StickyShadow>
+            {
+                questionGroup.questions.map((q, qIndex) => (
+                    <div key={qIndex} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8">
+                        <Input
+                            label={`Question ${qIndex + 1}`}
+                            className='w-full [&_.fr-input-wrap--addon]:gap-2'
+                            addon={<DeleteButton
+                                onClick={() => removeQuestion(qIndex)}
+                                className="text-red-500 !rounded-none"
+                                iconId="fr-icon-delete-bin-line"
+                                title="Supprimer la question"
+                                size='small'
+                                priority="secondary"
+                            >{""}</DeleteButton>}
+                            nativeInputProps={{
+                                placeholder: "Saisissez votre texte...",
+                                value: q.question,
+                                onChange: (e) => handleQuestionChange(qIndex, e.target.value),
+                                required: true,
+                            }}
                         />
-                        <div className="flex w-full justify-start">
-                            <Button
-                                onClick={() => addAnswer(qIndex)}
-                                className="justify-center flex gap-2 items-center"
-                                priority="tertiary"
-                            >
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                </svg>
-                                Ajouter une réponse
-                            </Button>
+
+                        <div className="mt-8">
+                            <RadioButtons
+                                className="flex w-[calc(100%+1.5rem)] items-center justify-center [&_.fr-radio-group]:!max-w-full"
+                                legend={
+                                    <div className="flex flex-col gap-2">
+                                        <p className="m-0 text-base text-[#161616]">Réponses</p>
+                                        <p className="m-0 text-xs text-[#666]">Sélectionnez la ou les bonne(s) réponse(s).</p>
+                                    </div>
+                                }
+                                options={q.answers.map((a, aIndex) => ({
+                                    label: (
+                                        <div className="flex w-full items-center">
+                                            <Input
+                                                label=""
+                                                className="!m-0 w-full"
+                                                nativeInputProps={{
+                                                    placeholder: "Saisissez une réponse...",
+                                                    value: a.answer,
+                                                    onChange: (e) => handleAnswerChange(qIndex, aIndex, e.target.value),
+                                                    required: true,
+                                                }}
+                                            />
+                                            <DeleteButton
+                                                onClick={() => removeAnswer(qIndex, aIndex)}
+                                                size='small'
+                                                className="text-red-500 ml-2"
+                                                iconId="fr-icon-delete-bin-line"
+                                                priority="secondary"
+                                                title="Supprimer la réponse"
+                                            >{""}</DeleteButton>
+                                        </div>
+                                    ),
+                                    nativeInputProps: {
+                                        checked: a.correct,
+                                        onChange: () => handleCorrectChange(qIndex, aIndex),
+                                    },
+                                }))}
+                            />
+                            <div className="flex w-full justify-start">
+                                <Button
+                                    onClick={() => addAnswer(qIndex)}
+                                    className="justify-center flex gap-2 items-center"
+                                    priority="tertiary"
+                                >
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                    </svg>
+                                    Ajouter une réponse
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))
+            }
 
-        </div>
+        </div >
     );
 };
 
@@ -355,7 +361,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
     const [definitionGroup, setDefinitionGroup] = useState(initialDefinitionGroup);
     const [hasChanges, setHasChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [definitionLoading, setDefinitionLoading] = useState(false);
+    const [loadingDefinitions, setLoadingDefinitions] = useState<{ [key: number]: boolean }>({});
 
     useEffect(() => {
         setDefinitionGroup(initialDefinitionGroup);
@@ -418,13 +424,14 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
     return (
         <div id="definition-wrapper" className="flex flex-col items-center gap-4 relative">
 
-            <div className="flex w-full flex-col sm:flex-row justify-between items-center sticky top-0 bg-white z-[1] py-2 gap-4 sm:gap-2">
-                <p className="m-0 text-xl font-bold text-left text-[#000091] self-center">Définition</p>
+            <StickyShadow className="flex w-full flex-col sm:flex-row justify-between items-center" >
+                <p className="m-0 mb-4 sm:mb-0 text-2xl font-bold text-left text-[#000091] self-center">2. Définitions</p>
+
                 <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto sm:ml-auto gap-2">
                     {hasChanges && (
                         <Button
                             onClick={handleSave}
-                            size='small'
+                            size='medium'
                             priority="primary"
                             disabled={isSaving}
                             className="w-full sm:w-auto"
@@ -436,7 +443,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                         <TimestampInput timestamp={definitionGroup?.timestamp || 0} onChange={handleTimestampChange} />
                         <DeleteButton
                             iconId="fr-icon-delete-bin-line"
-                            size='small'
+                            size='medium'
                             className='text-red-500'
                             onClick={deleteDefinitionGroup}
                             priority='secondary'
@@ -444,9 +451,10 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                         />
                     </div>
                 </div>
-            </div>
+            </StickyShadow>
 
-            {definitionGroup.definitions.length == 0 &&
+            {
+                definitionGroup.definitions.length == 0 &&
                 <CallOut
                     iconId="ri-information-line"
                     title="Aucune définition"
@@ -474,76 +482,87 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                 </CallOut>
 
             }
-            {definitionGroup.definitions.map((def, index) => (
-                <div key={index} className="relative w-full shadow-[inset_0_0_0_1px_#000091] p-8 ">
-                    <div className="flex w-full justify-between">
-                        <p className="m-0 mb-4 text-lg text-black underline">Définition {index + 1}</p>
-                        <DeleteButton
-                            onClick={() => removeDefinition(index)}
-                            className="text-red-500"
-                            iconId="fr-icon-delete-bin-line"
-                            priority="secondary"
-                            size='small'
-                            title='Supprimer la définition'
-                        />
+            <div className="w-full flex flex-col p-8 gap-4 shadow-[inset_0_0_0_1px_#000091]">
 
-                    </div>
-                    <div className="relative">
-                        <Input
-                            label="Notion"
-                            className="!m-0 w-full"
-                            addon={
-                                def.definition.length == 0 && (
-                                    <Button
-                                        disabled={definitionLoading}
-                                        onClick={async () => {
-                                            setDefinitionLoading(true);
-                                            const definition = await LLMGenerateDefinition(def.notion, documentId);
-                                            if (definition)
-                                                handleDefinitionChange(index, definition);
-                                            setDefinitionLoading(false);
-                                        }}
-                                        priority="tertiary"
-                                        className="whitespace-nowrap gap-2"
-                                    >
-                                        {definitionLoading ? <CircularProgress size={20} /> : <AutoAwesome />}
-                                        Générer une définition
-                                    </Button>
-                                )
-                            }
-                            nativeInputProps={{
-                                placeholder: "Saisissez la notion à définir...",
-                                value: def.notion,
-                                onChange: (e) => handleNotionChange(index, e.target.value),
-                                required: true,
-                            }}
-                        />
+                {definitionGroup.definitions.map((def, index) => (
+                    <>
+                        <div key={index} className="relative w-full">
+                            <div className="flex w-full justify-between">
+                                <p className="m-0 mb-6 font-medium text-[#161616]">Définition {index + 1}</p>
+                                <DeleteButton
+                                    onClick={() => removeDefinition(index)}
+                                    className="text-red-500"
+                                    iconId="fr-icon-delete-bin-line"
+                                    priority="secondary"
+                                    size='small'
+                                    title='Supprimer la définition'
+                                />
 
-                    </div>
-                    <div className="mt-4">
-                        <Input
-                            label="Définition"
-                            textArea={true}
-                            nativeTextAreaProps={{
-                                placeholder: "Saisissez la définition...",
-                                value: def.definition,
-                                onChange: (e) => handleDefinitionChange(index, e.target.value),
-                                required: true,
-                            }}
-                        />
-                    </div>
-                </div>
-            ))}
-            {/* <Button
-                className="w-full justify-center"
-                priority="secondary"
-                onClick={addDefinition}
-            >
-                Ajouter une définition à la même position
-            </Button> */}
-        </div>
+                            </div>
+                            <div className="relative">
+                                <Input
+                                    label="Notion à définir"
+                                    className="!m-0 w-full"
+                                    addon={
+                                        def.definition.length == 0 && (
+                                            <Button
+                                                disabled={loadingDefinitions[index]}
+                                                onClick={async () => {
+                                                    setLoadingDefinitions(prev => ({ ...prev, [index]: true }));
+                                                    const definition = await LLMGenerateDefinition(def.notion, documentId);
+                                                    if (definition)
+                                                        handleDefinitionChange(index, definition);
+                                                    setLoadingDefinitions(prev => ({ ...prev, [index]: false }));
+                                                }}
+                                                priority="tertiary"
+                                                className="whitespace-nowrap gap-2"
+                                            >
+                                                {loadingDefinitions[index] ? <CircularProgress size={20} /> : <AutoAwesome />}
+                                                Générer une définition
+                                            </Button>
+                                        )
+                                    }
+                                    nativeInputProps={{
+                                        placeholder: "Saisissez la notion à définir...",
+                                        value: def.notion,
+                                        onChange: (e) => handleNotionChange(index, e.target.value),
+                                        required: true,
+                                    }}
+                                />
+
+                            </div>
+                            <div className="mt-4">
+                                <Input
+                                    label="Définition"
+                                    textArea={true}
+                                    nativeTextAreaProps={{
+                                        placeholder: "Saisissez la définition...",
+                                        value: def.definition,
+                                        onChange: (e) => handleDefinitionChange(index, e.target.value),
+                                        required: true,
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        {index != definitionGroup.definitions.length - 1 && <hr className='mt-6' />}
+                    </>
+                ))}
+                <Button
+                    onClick={addDefinition}
+                    className="justify-center mt-2 flex gap-2 items-center"
+                    priority="tertiary"
+                >
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                    </svg>
+                    Ajouter une définition à la même position
+                </Button>
+            </div>
+
+        </div >
     );
-};//////////////////////////////
+};
+//////////////////////////////
 // Main Interactive Editor  //
 //////////////////////////////
 
@@ -752,6 +771,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                             onClick={() => setEditContentActive(!editContentActive)}
                         >Modifier les quiz et définitions</Button>
 
+
                         {downloadHTMLUrl && (
                             <Button
                                 priority='secondary'
@@ -811,39 +831,40 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         onSave={handleSaveChanges}
                                         documentId={documentId}
                                     />}
-                                    <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
-                                        <Button
-                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
-                                            priority="secondary"
-                                            onClick={() => {
-                                                const newQuestion: InteractiveVideoQuestion = {
-                                                    question: "",
-                                                    answers: [
-                                                        { answer: "Réponse A", correct: true },
-                                                        { answer: "Réponse B", correct: false },
-                                                    ],
-                                                };
+                                    <Button
+                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
+                                        priority="secondary"
+                                        onClick={() => {
+                                            const newQuestion: InteractiveVideoQuestion = {
+                                                question: "",
+                                                answers: [
+                                                    { answer: "Réponse A", correct: true },
+                                                    { answer: "Réponse B", correct: false },
+                                                ],
+                                            };
 
-                                                let questionGroup = ivQuestions[questionPage - 1];
+                                            let questionGroup = ivQuestions[questionPage - 1];
 
-                                                // If the question group is undefined or ivQuestions is empty, create a new one
-                                                if (!questionGroup || ivQuestions.length === 0) {
-                                                    questionGroup = { timestamp: 10, questions: [newQuestion] };
-                                                    const newIvQuestions = [...ivQuestions, questionGroup];
-                                                    setIvQuestions(newIvQuestions);
-                                                    setQuestionPage(newIvQuestions.length);
-                                                } else {
-                                                    // Otherwise, add the new question to the existing question group
-                                                    handleQuestionGroupChange(questionPage - 1, { ...questionGroup, questions: [...questionGroup.questions, newQuestion] });
-                                                }
-                                            }}>
-                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                            </svg>
+                                            // If the question group is undefined or ivQuestions is empty, create a new one
+                                            if (!questionGroup || ivQuestions.length === 0) {
+                                                questionGroup = { timestamp: 10, questions: [newQuestion] };
+                                                const newIvQuestions = [...ivQuestions, questionGroup];
+                                                setIvQuestions(newIvQuestions);
+                                                setQuestionPage(newIvQuestions.length);
+                                            } else {
+                                                // Otherwise, add the new question to the existing question group
+                                                handleQuestionGroupChange(questionPage - 1, { ...questionGroup, questions: [...questionGroup.questions, newQuestion] });
+                                            }
+                                        }}>
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                        </svg>
 
-                                            Ajouter une question
-                                        </Button>
+                                        Ajouter une question
+                                    </Button>
+                                    <StickyShadow position='bottom' className="w-full flex justify-center sticky bottom-0 z-[2] bg-white pt-4" >
 
+                                        {/* <div className="w-full flex justify-center sticky bottom-0 z-[2] bg-white pt-4"> */}
                                         <Pagination
                                             className='self-center'
                                             count={ivQuestions.length}
@@ -854,7 +875,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                             })}
                                             showFirstLast
                                         />
-                                    </div>
+                                    </StickyShadow>
                                 </div>
                             )}
 
@@ -876,35 +897,34 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         onSave={handleSaveChanges}
                                     />}
 
-                                    <div className="flex flex-col gap-4 sm:flex-row justify-between sticky bottom-0 z-[2] bg-white pt-4">
-                                        <Button
-                                            className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
-                                            priority="secondary"
-                                            onClick={() => {
-                                                const newDefinition: InteractiveVideoDefinition = {
-                                                    notion: "",
-                                                    definition: "",
-                                                };
+                                    <Button
+                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
+                                        priority="secondary"
+                                        onClick={() => {
+                                            const newDefinition: InteractiveVideoDefinition = {
+                                                notion: "",
+                                                definition: "",
+                                            };
 
-                                                let definitionGroup = ivDefinitions[definitionPage - 1];
+                                            let definitionGroup = ivDefinitions[definitionPage - 1];
 
-                                                // If the defintion group is undefined or ivDefinitions is empty, create a new one
-                                                if (!definitionGroup || ivDefinitions.length === 0) {
-                                                    definitionGroup = { timestamp: 10, definitions: [newDefinition] };
-                                                    const newIvDefinitions = [...ivDefinitions, definitionGroup];
-                                                    setIvDefinitions(newIvDefinitions);
-                                                    setDefinitionPage(newIvDefinitions.length);
-                                                } else {
-                                                    // Otherwise, add the new question to the existing question group
-                                                    handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] });
-                                                }
-                                            }}>
-                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                            </svg>
-                                            Ajouter une définition
-                                        </Button>
-
+                                            // If the defintion group is undefined or ivDefinitions is empty, create a new one
+                                            if (!definitionGroup || ivDefinitions.length === 0) {
+                                                definitionGroup = { timestamp: 10, definitions: [newDefinition] };
+                                                const newIvDefinitions = [...ivDefinitions, definitionGroup];
+                                                setIvDefinitions(newIvDefinitions);
+                                                setDefinitionPage(newIvDefinitions.length);
+                                            } else {
+                                                // Otherwise, add the new question to the existing question group
+                                                handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] });
+                                            }
+                                        }}>
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
+                                        </svg>
+                                        Ajouter une définition
+                                    </Button>
+                                    <StickyShadow position='bottom' className="w-full flex justify-center sticky bottom-0 z-[2] bg-white pt-4" >
                                         <Pagination
                                             className='self-center'
                                             count={ivDefinitions.length}
@@ -915,14 +935,14 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                             })}
                                             showFirstLast
                                         />
-                                    </div>
+                                    </StickyShadow>
                                 </div>
                             )}
                             <hr className='mt-6' />
 
                             <div className="flex flex-col">
                                 <p className='mb-4'>Vous pouvez également créer vos propres quiz et définitions :</p>
-                                <div className="flex flex-row gap-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                     {ivQuestions && (
                                         <Button
                                             className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit"

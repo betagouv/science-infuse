@@ -3,9 +3,10 @@ import StairsContainer from "@/components/StairsContainer";
 
 const NeedHelp = () => {
     return (
-        <div className="w-full fr-grid-row fr-grid-row--center">
-            <div className="fr-col-12 fr-container pt-8 main-content-item">
-                <AutoBreadCrumb />
+        <div className='w-full fr-grid-row fr-grid-row--center'>
+            <div className='flex flex-col fr-container main-content-item mt-4'>
+                <AutoBreadCrumb className="mb-4" />
+
                 <div className="pb-16 flex flex-col gap-8 md:px-0">
 
                     <div className="relative  bg-[#f2f2f2]">
