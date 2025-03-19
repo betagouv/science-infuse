@@ -74,7 +74,7 @@ interface ClientCatalogueProps {
     initialChapters: ChapterWithBlock[];
     filters: EducationLevel[];
     theme: Theme | null;
-    allThemes: Theme[];
+    allThemes?: Theme[];
 }
 
 const filterIcon = <svg
