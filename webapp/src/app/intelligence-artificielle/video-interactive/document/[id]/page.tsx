@@ -38,6 +38,8 @@ export default function () {
         queryFn: () => apiClient.getDocument(documentId)
     });
 
+    console.log("STATE", {buttonClicked, ivGenerated, ivLoading})
+
     return (
         <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item mt-4'>
@@ -111,7 +113,8 @@ export default function () {
                                 setButtonClicked(false);
                                 setIvGenerated(false);
                             }}
-                            documentId={documentId} />}
+                            documentId={documentId}
+                        />}
                     {ivLoading && <InteractiveVideoGeneratorLoading importType={InteractiveVideoImportType.RECHERCHE} />}
                 </div>
             </div>

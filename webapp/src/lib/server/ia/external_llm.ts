@@ -8,13 +8,33 @@ const groqClient = new Groq({
 });
 
 
-export const callGroq = async (text: string, model: string = "llama-3.3-70b-specdec") => {
+export interface GroqError {
+    status: number;
+    message: string;
+}
+
+export const callGroq = async (text: string, model: string = "llama-3.3-70b-specdec"): Promise<[GroqError | undefined, string | undefined]> => {
     const chatCompletion = await groqClient.chat.completions.create({
         messages: [{ role: 'user', content: text }],
         model: model,
+    }).catch((err) => {
+        if (err instanceof Groq.APIError) {
+            console.log(err.status);
+            console.log(err.name);
+            console.log(err.headers);
+            return [{ status: err.status, message: err.name } as GroqError, undefined];
+        } else {
+            throw err;
+        }
     });
+    if (!chatCompletion) {
+        return [undefined, undefined];
+    }
+    if (Array.isArray(chatCompletion)) {
+        return chatCompletion as [GroqError, undefined];
+    }
 
-    return chatCompletion.choices[0].message.content;
+    return [undefined, chatCompletion.choices[0].message.content || ""];
 }
 
 
@@ -29,7 +49,6 @@ export const LLMGenerateDefinition = async (notion: string, documentId?: string)
         context = context.slice(0, 2000);
     }
 
-    return await callGroq(`Génère une définition simple et courte du mot suivant : "${notion}".
-${context ? `Le mot est utilisé dans le contexte suivant: \`\`\`${context}\`\`\`` : ""}
-Répond uniquement par la définition.`);
+    return await callGroq(`Génère une définition simple et courte du mot suivant : "${notion}".\n${context ? `Le mot est utilisé dans le contexte suivant: \`\`\`${context}\`\`\`` : ""}\nRépond uniquement par la définition. ${context?'Si le contexte ne mentionne pas le mot à définir, propose une définition simple du mot.': ''}`);
+
 }

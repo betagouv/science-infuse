@@ -2,7 +2,7 @@
 
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import prisma from "@/lib/prisma";
-import { callGroq } from "@/lib/server/ia/external_llm";
+import { callGroq, GroqError } from "@/lib/server/ia/external_llm";
 import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents";
 import { WordSegment } from "@/types/vectordb";
 import { DocumentChunk, Document, DocumentChunkMeta, PrismaClient } from "@prisma/client";
@@ -267,7 +267,7 @@ const mergeCloseDefinitions = (
 };
 
 
-export const generateInteraciveVideoData = async (props: { documentId?: string, youtubeUrl?: string }) => {
+export const generateInteraciveVideoData = async (props: { documentId?: string, youtubeUrl?: string }): Promise<[GroqError | undefined, InteractiveVideoData | undefined]> => {
     const { documentId, youtubeUrl } = props;
 
     let chunks: (DocumentChunk & { metadata: DocumentChunkMeta | null })[] = []
@@ -336,17 +336,22 @@ ${videoTranscript}
 
 `.trim()
 
-    const response = await callGroq(prompt)
-    if (response) {
-        const { questions, definitions } = parseVideoContent(response, chunks);
+    try {
+        const [error, response] = await callGroq(prompt)
+        if (error) return [error, undefined]
+        if (response) {
+            const { questions, definitions } = parseVideoContent(response, chunks);
 
-        const ivData = {
-            questions: questions,
-            videoTitle: mediaName,
-            videoPublicUrl: youtubeUrl ? youtubeUrl : `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/s3/presigned_url/object_name/${s3ObjectName}`,
-            definitions: definitions,
-        } as InteractiveVideoData;
-        return ivData;
+            const ivData = {
+                questions: questions,
+                videoTitle: mediaName,
+                videoPublicUrl: youtubeUrl ? youtubeUrl : `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/s3/presigned_url/object_name/${s3ObjectName}`,
+                definitions: definitions,
+            } as InteractiveVideoData;
+            return [undefined, ivData];
+        }
+        return [undefined, undefined];
+    } catch (error) {
+        return [{status: 500, message: 'Server error'}, undefined];
     }
-
 }

@@ -7,7 +7,7 @@ import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import { startReactDsfr } from "@codegouvfr/react-dsfr/spa";
 
 const modal = createModal({
-    id: "foo-modal",
+    id: "modal-prefer-desktop",
     isOpenedByDefault: false
 });
 

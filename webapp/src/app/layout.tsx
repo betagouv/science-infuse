@@ -1,13 +1,13 @@
 import "./css/globals.css";
 import "./css/lists.scss";
 
+import { Toaster } from 'react-hot-toast';
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { defaultColorScheme } from "./defaultColorScheme";
 import { Providers } from "./providers";
-// import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import MatomoAnalytics from "@/components/MatomoAnalytics";
 import SIFooter from "@/components/SIFooter";
 import SIHeader from "@/components/header/SIHeader";
@@ -69,6 +69,13 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
             <ConsentBannerAndConsentManagement />
             <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
               <MuiDsfrThemeProvider>
+                <Toaster
+                  position="bottom-right"
+                  toastOptions={{
+                    duration: 4000,
+                    // You can still set some global options
+                  }}
+                />
                 <SIHeader session={session} />
                 <div className={cx(style.container)}>
                   {children}

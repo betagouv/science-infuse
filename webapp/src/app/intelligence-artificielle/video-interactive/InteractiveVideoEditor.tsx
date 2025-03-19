@@ -1,4 +1,5 @@
 'use client'
+import toast from 'react-hot-toast';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { InteractiveVideoQuestion, InteractiveVideoQuestionGroup, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, generateInteraciveVideoData, } from "@/app/api/export/h5p/contents/interactiveVideo";
@@ -15,16 +16,16 @@ import styled from '@emotion/styled';
 import H5PRenderer from '@/app/mediaViewers/H5PRenderer';
 import { LLMGenerateDefinition } from '@/lib/server/ia/external_llm';
 import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
-import Snackbar from '@/components/Snackbar';
+import Snackbar from "@/course_editor/components/Snackbar";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import EmbedVideo from '@/components/interactifs/EmbedVideo';
 import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
-import { defaultGetRowsToExport } from '@mui/x-data-grid/internals';
 import StickyShadow from '@/components/StickyShadown';
+import { useAlertToast } from '@/components/AlertToast';
 
 const modal = createModal({
-    id: "foo-modal",
+    id: "modal-quit-without-saving",
     isOpenedByDefault: false
 });
 
@@ -509,7 +510,10 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                                                 disabled={loadingDefinitions[index]}
                                                 onClick={async () => {
                                                     setLoadingDefinitions(prev => ({ ...prev, [index]: true }));
-                                                    const definition = await LLMGenerateDefinition(def.notion, documentId);
+                                                    const [groqError, definition] = await LLMGenerateDefinition(def.notion, documentId);
+                                                    if (groqError) {
+                                                        toast('Here is your toast.');
+                                                    }
                                                     if (definition)
                                                         handleDefinitionChange(index, definition);
                                                     setLoadingDefinitions(prev => ({ ...prev, [index]: false }));
@@ -583,6 +587,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const alertToast = useAlertToast();
 
     const updateInteractiveVideo = async (documentId: string, questions: InteractiveVideoQuestionGroup[], definitions: InteractiveVideoDefinitionGroup[]) => {
         setIsSaving(true);
@@ -615,8 +620,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
     const handleSaveChanges = async () => {
         if (ivQuestions && ivDefinitions && documentId) {
             await updateInteractiveVideo(documentId, ivQuestions, ivDefinitions);
-            setShowSuccessAlert(true);
-            setTimeout(() => setShowSuccessAlert(false), 3000);
+            alertToast.success("Succès", "Changements enregistrés")
         }
     };
 
@@ -631,20 +635,28 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 console.warn("Document ID manquant");
                 return;
             }
-            const iv = await generateInteraciveVideoData({ documentId });
-            if (!iv) return;
-            setIvQuestions(iv.questions);
-            setIvDefinitions(iv.definitions);
-            setVideoTitle(iv.videoTitle);
-            console.log("iviviv", iv)
+            const [error, ivData] = await generateInteraciveVideoData({ documentId });
+            if (error) {
+                alertToast.error(
+                    "Erreur",
+                    `Le traitement à échoué, code d'erreur ${error.status}`
+                );
+                handleQuitWithoutSave();
+                console.log("ERROR GENERATING IV DATA", error)
+            }
+            if (!ivData) return;
+            setIvQuestions(ivData.questions);
+            setIvDefinitions(ivData.definitions);
+            setVideoTitle(ivData.videoTitle);
+            onDocumentProcessingEnd && onDocumentProcessingEnd();
+            console.log("iviviv", ivData)
 
-            await updateInteractiveVideo(documentId, iv.questions, iv.definitions);
+            await updateInteractiveVideo(documentId, ivData.questions, ivData.definitions);
 
-            console.log(iv);
+            console.log(ivData);
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
-            onDocumentProcessingEnd && onDocumentProcessingEnd();
         }
     }, [documentId]);
 
@@ -738,18 +750,6 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                         </div>
                     </div>
                 </modal.Component>
-                {showSuccessAlert && (
-                    <Snackbar
-                        open={showSuccessAlert}
-                        onClose={() => setShowSuccessAlert(false)}
-                        // title="Modifications enregistrées"
-                        description="Modifications enregistrées"
-                        severity="success"
-                        position="bottom-right"
-                        autoHideDuration={5000}
-                        closable={true}
-                    />
-                )}
                 {processingDone ? <p className="text-base text-left">
                     <span className="font-bold text-[#18753c]">Analyse terminée ! </span>
                     <br />
@@ -896,34 +896,6 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
                                         onSave={handleSaveChanges}
                                     />}
-
-                                    <Button
-                                        className="flex gap-2 w-full sm:w-fit items-center justify-center self-start h-fit whitespace-nowrap"
-                                        priority="secondary"
-                                        onClick={() => {
-                                            const newDefinition: InteractiveVideoDefinition = {
-                                                notion: "",
-                                                definition: "",
-                                            };
-
-                                            let definitionGroup = ivDefinitions[definitionPage - 1];
-
-                                            // If the defintion group is undefined or ivDefinitions is empty, create a new one
-                                            if (!definitionGroup || ivDefinitions.length === 0) {
-                                                definitionGroup = { timestamp: 10, definitions: [newDefinition] };
-                                                const newIvDefinitions = [...ivDefinitions, definitionGroup];
-                                                setIvDefinitions(newIvDefinitions);
-                                                setDefinitionPage(newIvDefinitions.length);
-                                            } else {
-                                                // Otherwise, add the new question to the existing question group
-                                                handleDefinitionGroupChange(definitionPage - 1, { ...definitionGroup, definitions: [...definitionGroup.definitions, newDefinition] });
-                                            }
-                                        }}>
-                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M4.33398 4.33301V0.333008H5.66732V4.33301H9.66732V5.66634H5.66732V9.66634H4.33398V5.66634H0.333984V4.33301H4.33398Z" fill="#000091" />
-                                        </svg>
-                                        Ajouter une définition
-                                    </Button>
                                     <StickyShadow position='bottom' className="w-full flex justify-center sticky bottom-0 z-[2] bg-white pt-4" >
                                         <Pagination
                                             className='self-center'
@@ -1009,7 +981,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                             </div>
                         </>)}
                 </div>
-            </div >
+            </div>
         </>
     );
 }
