@@ -1,5 +1,7 @@
+import Image from 'next/image'
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import StairsContainer from "@/components/StairsContainer";
+import FAQ from './FAQ'
 
 const NeedHelp = () => {
     return (
@@ -7,26 +9,26 @@ const NeedHelp = () => {
             <div className='flex flex-col fr-container main-content-item mt-4'>
                 <AutoBreadCrumb className="mb-4" />
 
-                <div className="pb-16 flex flex-col gap-8 md:px-0">
+                <div className="fr-col-12 fr-col-md-12 main-content-item mb-4 self-center">
+                    <div className="flex flex-col md:flex-row pb-16">
 
-                    <div className="relative  bg-[#f2f2f2]">
+                        <div className="w-full md:w-3/5 flex flex-col">
+                            <h1 className='mt-4'>Des questions ou des remarques ?</h1>
 
-                        <div className="flex flex-col gap-16 items-center text-center p-24 w-full h-full">
-
-                            <p className="m-0 w-full text-4xl md:text-5xl font-medium text-[--text-title-blue-france] text-center">
-                                Vous avez des questions <br /> ou remarques ?
-                            </p>
-
-                            <div className="flex flex-col gap-8 max-w-2xl mt-auto mb-auto">
-                                <p className="m-0">Contactez notre équipe :</p>
-                                <p className="m-0">Olivier : par email à : <b>science-infuse@universcience.fr </b></p>
-                                <p className="m-0">Alexandra : par téléphone au <b>06 69 29 18 66</b> (tous les jours entre 9h30 et 19h)</p>
-                                <p className="m-0">Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d’expérience sont précieux et permettent d’améliorer le service.</p>
-                                <p className="m-0">A bientôt !</p>
-                            </div>
+                            <p className="mt-8">Vous pouvez contacter notre équipe par email <a className='text-[#000091]' href="mailto:science-infuse@universcience.fr">(science-infuse@universcience.fr)</a> ou par téléphone (06 69 29 18 66) tous les jours entre 9h30 et 19h</p>
+                            <p>Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d'expérience sont précieux et permettent d'améliorer le service.</p>
+                            <p>A bientôt !</p>
+                        </div>
+                        <div className="hidden md:flex w-full md:w-2/5">
+                            <Image
+                                src="/images/compass.svg"
+                                height={300}
+                                width={300}
+                                alt="Picture of the author"
+                                className="w-[120px] sm:w-[180px] md:w-[240px] lg:w-[300px] h-auto object-contain mix-blend-multiply mx-auto" />
                         </div>
                     </div>
-
+                <FAQ />
                 </div>
             </div>
         </div>
