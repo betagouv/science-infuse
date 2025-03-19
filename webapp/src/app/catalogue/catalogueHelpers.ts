@@ -41,3 +41,11 @@ export async function getChaptersFiltersAndTheme(themeId: string) {
 
     return { chapters, filters, theme };
 }
+
+export async function getThemes() {
+
+    const themes = await prisma.theme.findMany({
+    });
+
+    return themes;
+}

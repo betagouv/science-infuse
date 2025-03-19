@@ -95,25 +95,27 @@ export function Navigation() {
 					{
 						isActive: segments[0] == 'catalogue',
 						text: 'Cours',
-						menuLinks: [...themes.map(t => ({
-							linkProps: {
-								href: `/catalogue/${t.id}`
+						menuLinks: [
+							...(!user ? [] : [
+								{
+									isActive: segments.join('/') == 'prof/mes-cours',
+									linkProps: {
+										href: '/prof/mes-cours',
+										target: '_self'
+									},
+									text: 'Création de cours'
+								}
+							]),
+							{
+								linkProps: {
+									href: `/catalogue`
+								},
+								isActive: segments.join('/') == `catalogue/svt`,
+								text: `Catalogue de cours SVT / Collège`
 							},
-							isActive: segments.join('/') == `catalogue/${t.id}`,
-							text: t.title || "Theme"
-						})),
+
 						]
 					},
-					...(!user ? [] : [
-						{
-							isActive: segments.join('/') == 'prof/mes-cours',
-							linkProps: {
-								href: '/prof/mes-cours',
-								target: '_self'
-							},
-							text: 'Création de cours'
-						}
-					]),
 					...(user ? [{
 						isActive: segments.join('/') == 'intelligence-artificielle/video-interactive',
 						linkProps: {
