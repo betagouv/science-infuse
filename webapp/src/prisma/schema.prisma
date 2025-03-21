@@ -322,6 +322,7 @@ enum UserRoles {
   ADMIN
   REVIEWER
   USER
+  BETA_TESTER
 }
 
 enum ChapterStatus {

@@ -3,6 +3,7 @@ import { Slider, IconButton, Box, Typography } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
+import { formatTime } from '@/lib/utils';
 
 interface VideoPlayerProps {
     videoUrl: string;
@@ -59,11 +60,6 @@ const VideoPlayer = ({ videoUrl, startOffset, endOffset, onRangeChange }: VideoP
         }
     };
 
-    const formatTime = (time: number) => {
-        const minutes = Math.floor(time / 60);
-        const seconds = Math.floor(time % 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
 
     const handlePlayPause = () => {
         if (videoRef.current) {

@@ -3,8 +3,8 @@ import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessa
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
-import { DocumentWithChunks, SearchResults } from '@/types/vectordb';
-import { Academy, Block, CommentThread, File as DbFile, DocumentTag, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
+import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults } from '@/types/vectordb';
+import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
 
 
@@ -14,7 +14,7 @@ class ApiClient {
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: '/api',
+      baseURL: `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -23,6 +23,11 @@ class ApiClient {
 
   async getDocument(documentId: string): Promise<DocumentWithChunks> {
     const response = await this.axiosInstance.get<DocumentWithChunks>(`/document/${documentId}`);
+    return response.data;
+  }
+
+  async getChunk(chunkId: string): Promise<ChunkWithScoreUnion> {
+    const response = await this.axiosInstance.get<ChunkWithScoreUnion>(`/documentChunks/${chunkId}`);
     return response.data;
   }
 

@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "UserRoles" ADD VALUE 'BETA_TESTER';
