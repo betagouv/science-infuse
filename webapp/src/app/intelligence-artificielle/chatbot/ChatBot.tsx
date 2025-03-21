@@ -149,11 +149,11 @@ export default function ChatBot() {
     <Thread suggestions={[
       {
         label: "Comment fonctionne la division cellulaire ?",
-        prompt: "Explique moi les étapes de la division cellulaire. Fais ca sous forme d'exposé avec des images et des vidéos pour illustrer."
+        prompt: "Explique-moi les étapes de la division cellulaire. Fais ça sous forme d'exposé avec des images et des vidéos pour illustrer."
       },
       {
         label: "Comment fonctionne un volcan ?",
-        prompt: "Peux tu m'expliquer le fonctionnement d'un volcan ? Utilise des images et des vidéos pour illustrer."
+        prompt: "Peux-tu m'expliquer le fonctionnement d'un volcan ? Utilise des images et des vidéos pour illustrer."
       }
     ]} />
   );
