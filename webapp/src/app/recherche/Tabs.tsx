@@ -79,7 +79,7 @@ const StyledTabs = styled.div`
 `;
 
 
-export const selectedTabType = signal<TabType>(TabType.Chapters);
+export const selectedTabType = signal<TabType>(TabType.Videos);
 
 const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: BlockWithChapter[], selectedTabType: TabType, chunks: ChunkWithScoreUnion[], onTabChange: (tabType: TabType) => void, hiddenTabs?: TabType[] }) => {
   const { data: session } = useSession();

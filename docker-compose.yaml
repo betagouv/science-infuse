@@ -78,6 +78,7 @@ services:
         - MOODLE_TOKEN=${MOODLE_TOKEN}
         - GROQ_API_KEY=${GROQ_API_KEY}
         - ADA_H5P_SECRET=${ADA_H5P_SECRET}
+        - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
     ports:
       - "8002:3000"
     environment:
@@ -103,6 +104,7 @@ services:
       - MOODLE_URL=${MOODLE_URL}
       - MOODLE_TOKEN=${MOODLE_TOKEN}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
     healthcheck:
       test: ["CMD", "npx", "prisma", "db", "push"]
       interval: 10s

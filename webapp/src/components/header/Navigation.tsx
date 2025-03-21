@@ -3,12 +3,13 @@
 import { MainNavigation } from "@codegouvfr/react-dsfr/MainNavigation";
 import { usePathname, useSelectedLayoutSegment, useSelectedLayoutSegments } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { styled } from "@mui/material";
+import { styled, Tooltip } from "@mui/material";
 import SearchBar from "../search/SearchBar";
 import { useEffect, useState } from "@preact-signals/safe-react/react";
-import { Theme } from "@prisma/client";
+import { Theme, UserRoles } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
 import { isActive } from "@tiptap/core";
+import { LockIcon } from "lucide-react";
 
 
 const StyledMainNavigation = styled(MainNavigation)`
@@ -148,6 +149,15 @@ export function Navigation() {
 						},
 						text: `Aide`
 					},
+					...(user && user.roles?.includes(UserRoles.BETA_TESTER) ? [{
+						isActive: segments.join('/') == 'intelligence-artificielle/chatbot',
+						linkProps: {
+							href: '/intelligence-artificielle/chatbot',
+							target: '_self',
+						},
+						text: <Tooltip title="Réservé aux bêta-testeurs"><span className="flex items-center justify-center gap-2">Chatbot <LockIcon size={12} /></span></Tooltip>
+					}] : []),
+
 				]}
 			/>
 			<NavBarSearch />
