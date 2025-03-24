@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "(about)",
+    "(architecture)",
     "(getting-started)",
     "(data-indexing)",
     "(API)"

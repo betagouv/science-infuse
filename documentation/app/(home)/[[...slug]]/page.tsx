@@ -20,9 +20,9 @@ export default async function Page({
   const MDX = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={page.data.toc}>
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      {/* <DocsDescription>{page.data.description}</DocsDescription> */}
       <DocsBody>
         <MDX components={{ ...defaultMdxComponents }} />
       </DocsBody>
@@ -40,6 +40,6 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    // description: page.data.description,
   } satisfies Metadata;
 }

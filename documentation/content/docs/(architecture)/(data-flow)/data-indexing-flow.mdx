@@ -1,0 +1,42 @@
+---
+title: Data indexing flow
+---
+
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+ 
+<Steps>
+<Step>
+
+### Document Upload
+1. User uploads document (PDF, image, YouTube URL, MP4, etc.)
+2. Webapp validates file type
+3. If applicable, webapp server uploads file to S3 storage
+</Step>
+
+<Step>
+
+### Document Processing
+1. Webapp backend sends document to Python processing service
+2. Processing service extracts text/content based on file type
+3. Content is split into chunks
+4. Processing service returns Document and DocumentChunk objects
+</Step>
+
+<Step>
+
+### Database Insertion
+1. Webapp backend receives processed document and chunks
+2. Vector embeddings is generated for chunks's texts
+4. Document and chunk data inserted into database tables
+
+</Step>
+
+<Step>
+
+### Indexing Completion
+1. Database confirms successful insertion
+2. User notified of completed indexing
+3. Document now available for vector similarity search
+</Step>
+</Steps>

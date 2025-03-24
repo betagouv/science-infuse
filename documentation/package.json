@@ -9,6 +9,7 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
+    "@theguild/remark-mermaid": "^0.3.0",
     "fumadocs-core": "13.4.10",
     "fumadocs-mdx": "10.0.2",
     "fumadocs-ui": "13.4.10",

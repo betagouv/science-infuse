@@ -1,0 +1,74 @@
+---
+title: List of microservices
+description: Short description of all micro-services.
+---
+
+import { PROJECT_NAME } from "@/config.mdx" 
+
+
+## Microservices Overview - {PROJECT_NAME} Project
+
+<Callout title={`Understanding the Project Architecture`}>
+Read through this section to get a comprehensive overview of all the microservices and their roles in the project. This will help you understand how different parts of the system work together.
+</Callout>
+
+## ollama
+A service for running Ollama, serving local Large Language Models (LLM) for automated quiz generation and assessment tasks.
+
+## postgresql
+This is the main database of the {PROJECT_NAME} project.
+It is used for storing all document data, document chunks, and metadata.<br/>
+It also stores the computed embedding  using the pgvector extension. <br/>
+This enables semantic document search capabilities.<br/>
+It also stores user accounts, H5P content, and courses.
+You can find the data structure in the **Prisma** schema located at `webapp/src/prisma/schema.prisma`.
+
+## webapp
+The webapp micro-service is the frontend and part of the backend of the {PROJECT_NAME} project.<br/>
+It is built using : 
+
+### [Next.JS](https://nextjs.org/app) 14 
+Next.JS 14 handles both frontend rendering and backend API routes
+#### Frontend tasks
+- Render all the pages of the {PROJECT_NAME} website including: 
+    - Landing Page
+    - Admin dashboard
+    - AI Interactive Video creation
+    - Search Page
+    - Course creation and viewing using TipTap Editor
+    - Chatbot page
+
+#### Backend API tasks
+- Semantic search (in conjunction with the **postgresql** microservice)
+- Document processing and storage (in conjunction with the **postgresql** microservice)
+- User authentication and management (in conjunction with the **postgresql** microservice)
+- Course managment (in conjunction with the **moodle** microservice for exports)
+- AI Interactive Video creation & AI Quiz creation (in conjunction with the **H5P** microservice)
+- Uses the [Prisma ORM](https://www.prisma.io/getting-started/quickstart#2-model-your-data-in-the-prisma-schema) to connect to the Postgresql database.
+
+## server (data-processing)
+The server micro-service is the processing layer of the {PROJECT_NAME} project.<br/>
+It is built using Python and FastAPI.<br/>
+It connects to other services like : **postgresql** and **ollama**.<br/>
+It is responsible for processing documents and generating embeddings using multiple open-source AI models which you can find here: <a href="./technology" target="_blank">AI Models</a>
+
+## youtube-token-generator
+A service for generating YouTube session tokens in order to download {PROJECT_NAME} videos from YouTube.
+
+## h5p
+A standalone H5P service for hosting H5P content. It is derived from this github repository: https://github.com/Lumieducation/H5P-Nodejs-library/
+It is used by webapp's backend to create h5p content (currently interactive videos and quizzes).<br/>
+It is used by webapp's frontend to display H5P content using iframe.<br/>
+
+
+## moodle
+A standalone Moodle LMS (Learning Management System).
+
+It is used to export courses from {PROJECT_NAME} format to the Moodle format (mbz).
+
+## mariadb (moodle)
+MariaDB database for Moodle.
+
+
+## documentation
+A service for serving the documentation.

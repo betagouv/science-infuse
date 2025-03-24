@@ -1,0 +1,42 @@
+---
+title: User search flow
+---
+
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+ 
+<Steps>
+<Step>
+
+### User Authentication Check
+1. User enters credentials in webapp login form
+2. Authentication service validates credentials
+3. JWT token issued and stored for subsequent requests
+</Step>
+
+<Step>
+
+### Query Processing Flow
+1. User enters search query in webapp interface
+2. Webapp sends authenticated API request with query
+3. Webapp backend validates JWT token and forwards to processing service
+4. Webapp calls Processing service API to computes vector embedding representation
+</Step>
+
+<Step>
+
+### Vector Search in PostgreSQL
+1. Webapp backend querys PostgreSQL database
+2. PGVector extension performs similarity search
+4. Most similar documents are retrieved
+</Step>
+
+<Step>
+
+### Results Display
+1. Webapp backend returns results 
+3. Webapp receives JSON response
+4. Webapp renders results in user interface
+5. Pagination and filtering options available
+</Step>
+</Steps>
