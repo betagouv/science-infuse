@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import { Button } from '@codegouvfr/react-dsfr/Button';
+import { PROJECT_NAME } from '@/config';
 
 export default function Inscription() {
     const [firstName, setFirstName] = useState('');
@@ -50,7 +51,7 @@ export default function Inscription() {
                     currentPageLabel={"Inscription"}
                 />
                 <div className='flex flex-col gap-4'>
-                    <h1>Inscription à Science Infuse</h1>
+                    <h1>Inscription à {PROJECT_NAME}</h1>
 
                     <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                         <Input

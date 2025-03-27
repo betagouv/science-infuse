@@ -11,6 +11,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import RegisterForm from './RegisterForm';
+import { PROJECT_NAME } from '@/config';
 
 const modal = createModal({
     id: "register-modal",
@@ -136,7 +137,7 @@ const Login = () => {
 
             </div>
             <Snackbar />
-            <modal.Component className='z-[800]' title="S'inscrire à Science Infuse">
+            <modal.Component className='z-[800]' title={`S'inscrire à ${PROJECT_NAME}`}>
                 <RegisterForm handleCloseModal={handleCloseModal} educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
             </modal.Component>
         </div>

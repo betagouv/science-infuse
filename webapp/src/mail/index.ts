@@ -1,3 +1,4 @@
+import { PROJECT_NAME } from '@/config'
 import { UserFull } from '@/types/api'
 import axios from 'axios'
 
@@ -43,7 +44,7 @@ export async function sendMail(to: UserFull[], subject: string, html: string): P
 
     const emailData: EmailData = {
         from: {
-            name: `Science Infuse`,
+            name: PROJECT_NAME,
             email: `contact@science-infuse.beta.gouv.fr`
         },
         to: to.filter(user => user.email !== null).map(user => ({

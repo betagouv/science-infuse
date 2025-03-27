@@ -246,7 +246,7 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                             priority="primary"
                             disabled={isSaving}
                             size='medium'
-                            className="w-full sm:w-auto"
+                            className="w-full justify-center sm:w-auto"
                         >
                             {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
                         </Button>
@@ -435,7 +435,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                             size='medium'
                             priority="primary"
                             disabled={isSaving}
-                            className="w-full sm:w-auto"
+                            className="w-full justify-center sm:w-auto"
                         >
                             {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
                         </Button>

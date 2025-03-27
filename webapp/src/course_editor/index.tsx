@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/SnackBarProvider';
-import { EMPTY_DOCUMENT } from '@/config';
+import { EMPTY_DOCUMENT, PROJECT_NAME } from '@/config';
 import { apiClient } from '@/lib/api-client';
 import { ChapterWithoutBlocks } from '@/types/api';
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -144,7 +144,7 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
               title="Chapitre supprimé"
             >
               Ce chapitre est actuellement supprimé, il ne sera donc pas affiché dans les résultats de recherche. <br />
-              Pour re-indexer ce chapitre, faites une demande de partage a l'equipe Science Infuse :
+              Pour re-indexer ce chapitre, faites une demande de partage a l'equipe {PROJECT_NAME} :
               {props.chapter && <ShareToScienceInfuse chapter={props.chapter} />}
             </CallOut>
             }

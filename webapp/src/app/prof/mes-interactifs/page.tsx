@@ -10,6 +10,7 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
+import { PROJECT_NAME } from "@/config";
 
 async function getContents(userId: string) {
     try {
@@ -111,7 +112,7 @@ export default async function MesInteractifs() {
                                 <p>Pour créer des interactifs, vous pouvez :</p>
                                 <p>
                                     <ol className="list-decimal list-inside space-y-2">
-                                        <li>Cliquer sur <Link href={'/intelligence-artificielle/video-interactive'} >ce lien</Link> pour générer une vidéo interactive à partir d'une vidéo Science Infuse, YouTube ou MP4.</li>
+                                        <li>Cliquer sur <Link href={'/intelligence-artificielle/video-interactive'} >ce lien</Link> pour générer une vidéo interactive à partir d'une vidéo {PROJECT_NAME}, YouTube ou MP4.</li>
                                         <li>Ouvrir une vidéo depuis les résultats de recherche et suivre les étapes de génération.</li>
                                         <li>Créer un cours et générer un quiz à partir de son contenu.</li>
                                     </ol>

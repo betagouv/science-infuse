@@ -1,16 +1,18 @@
+import { PROJECT_NAME } from "@/config";
+
 const CGU = () => {
     return (
         <div className="w-full fr-grid-row fr-grid-row--center">
             <div className="fr-col-12 fr-col-md-6 main-content-item my-24">
                 <div className="py-16 flex flex-col gap-4 md:px-0">
-                    <h1>Conditions Générales d'Utilisation (CGU) - Science Infuse</h1>
-                    <p>Les présentes conditions générales d’utilisation (dites « CGU ») fixent le cadre juridique de la plateforme Science Infuse (ci-après « la plateforme ») et définissent les conditions d’accès et d’utilisation des services par les Enseignants.</p>
-                    <p>Science Infuse est portée par Universcience en partenariat avec le ministère de la Culture.</p>
-                    <p>La plateforme Science Infuse est actuellement en phase expérimentale. Les présentes conditions générales d'utilisation (CGU) sont donc susceptibles d'être modifiées et mises à jour régulièrement. En utilisant la plateforme, vous reconnaissez et acceptez ce caractère évolutif et vous engagez à consulter régulièrement les présentes CGU pour prendre connaissance des éventuelles modifications.</p>
+                    <h1>Conditions Générales d'Utilisation (CGU) - {PROJECT_NAME}</h1>
+                    <p>Les présentes conditions générales d’utilisation (dites « CGU ») fixent le cadre juridique de la plateforme {PROJECT_NAME} (ci-après « la plateforme ») et définissent les conditions d’accès et d’utilisation des services par les Enseignants.</p>
+                    <p>{PROJECT_NAME} est portée par Universcience en partenariat avec le ministère de la Culture.</p>
+                    <p>La plateforme {PROJECT_NAME} est actuellement en phase expérimentale. Les présentes conditions générales d'utilisation (CGU) sont donc susceptibles d'être modifiées et mises à jour régulièrement. En utilisant la plateforme, vous reconnaissez et acceptez ce caractère évolutif et vous engagez à consulter régulièrement les présentes CGU pour prendre connaissance des éventuelles modifications.</p>
                     <p>Les contenus de cette plateforme proviennent d’Universcience, un établissement public industriel et commercial qui regroupe la Cité des sciences et de l'industrie et le Palais de la découverte. Depuis sa création en janvier 2010, Universcience a pour mission de rendre les sciences accessibles et attrayantes, tout en promouvant la culture scientifique et technique. Son objectif principal est d'aider les citoyens de tous âges et de tous niveaux à mieux comprendre le monde, en expliquant clairement les principes scientifiques et les avancées technologiques. Universcience s'engage également à encourager la passion des sciences et des technologies chez les jeunes, en vue de les inciter à entreprendre des carrières scientifiques.</p>
 
                     <h2>Article 1 – Champ d'application</h2>
-                    <p>La plateforme Science Infuse est un service en cours de développement et est fournie à titre expérimental. En conséquence, Universcience et le ministère de la Culture se réservent le droit de modifier les présentes CGU à tout moment afin de refléter les évolutions de la plateforme.</p>
+                    <p>La plateforme {PROJECT_NAME} est un service en cours de développement et est fournie à titre expérimental. En conséquence, Universcience et le ministère de la Culture se réservent le droit de modifier les présentes CGU à tout moment afin de refléter les évolutions de la plateforme.</p>
                     <p>La plateforme est destinée aux enseignants de sciences du secondaire.</p>
                     <p>L'utilisation de la plateforme implique l'acceptation des présentes CGU ainsi que de notre  <a href="https://science-infuse.beta.gouv.fr/politique-de-confidentialite">Politique de Confidentialité</a></p>
 
@@ -18,7 +20,7 @@ const CGU = () => {
                     <h3>2.1 Inscription</h3>
                     <p>Pour accéder aux services de la plateforme, les enseignants doivent fournir les informations personnelles suivantes : prénom, nom, courriel professionnel, mot de passe, académie de rattachement, nom de l’établissement scolaire, niveaux enseignés pour l’année en cours, et la matière enseignée.</p>
                     <p>La collecte de ces données est nécessaire à la création et à la gestion de votre compte utilisateur, ainsi qu'à l'accès aux fonctionnalités de la plateforme. Pour plus d'informations sur les données collectées et les finalités de traitement, veuillez consulter notre <a href="https://science-infuse.beta.gouv.fr/politique-de-confidentialite">Politique de Confidentialité</a>.</p>
-                    <p>En cochant la case dédiée lors de l’inscription, vous acceptez de recevoir des informations sur les nouvelles fonctionnalités et contenus de Science Infuse. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr">science-infuse@universcience.fr</a></p>
+                    <p>En cochant la case dédiée lors de l’inscription, vous acceptez de recevoir des informations sur les nouvelles fonctionnalités et contenus de {PROJECT_NAME}. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr">science-infuse@universcience.fr</a></p>
                     <h3>2.2 Authentification</h3>
                     <p>L’accès aux fonctionnalités de la plateforme, telles que le moteur de recherche ou le module de création de cours, nécessite une authentification de l’utilisateur en renseignant son adresse électronique et un mot de passe.</p>
                     <h3>2.3 Conservation des données des utilisateurs</h3>
@@ -55,7 +57,7 @@ const CGU = () => {
                     </p>
                     <h3>5.2 Gestion des données</h3>
                     <p>
-                        Le ministère de la Culture est le responsable du traitement des données à caractère personnel collectées via la plateforme Science Infuse, au sens du Règlement Général sur la Protection des Données (RGPD). Le ministère de la Culture est responsable de la gestion technique de la plateforme, incluant le développement, la maintenance, la sécurité du site web, ainsi que la collecte, le stockage et l'utilisation des données personnelles des utilisateurs. Le ministère de la Culture s'engage à mettre en œuvre les moyens techniques et organisationnels appropriés pour assurer la sécurité et la confidentialité des données personnelles, conformément à la Politique de Confidentialité. Le ministère de la Culture se réserve le droit de suspendre ou de révoquer l'accès à la plateforme en cas de non-respect des présentes CGU, et ce, sans préavis ni indemnité.
+                        Le ministère de la Culture est le responsable du traitement des données à caractère personnel collectées via la plateforme {PROJECT_NAME}, au sens du Règlement Général sur la Protection des Données (RGPD). Le ministère de la Culture est responsable de la gestion technique de la plateforme, incluant le développement, la maintenance, la sécurité du site web, ainsi que la collecte, le stockage et l'utilisation des données personnelles des utilisateurs. Le ministère de la Culture s'engage à mettre en œuvre les moyens techniques et organisationnels appropriés pour assurer la sécurité et la confidentialité des données personnelles, conformément à la Politique de Confidentialité. Le ministère de la Culture se réserve le droit de suspendre ou de révoquer l'accès à la plateforme en cas de non-respect des présentes CGU, et ce, sans préavis ni indemnité.
                     </p>
                     <h3>5.3 Les utilisateurs</h3>
                     <p>
@@ -79,18 +81,18 @@ const CGU = () => {
                     </p>
                     <h3>6.3 Comité éditorial</h3>
                     <p>
-                        Afin de garantir la qualité et la pertinence pédagogique des cours partagés sur la plateforme, les contenus créés par les utilisateurs sont soumis à un comité éditorial préalablement à leur publication et leur mise à disposition de la communauté Science Infuse.
+                        Afin de garantir la qualité et la pertinence pédagogique des cours partagés sur la plateforme, les contenus créés par les utilisateurs sont soumis à un comité éditorial préalablement à leur publication et leur mise à disposition de la communauté {PROJECT_NAME}.
                     </p>
                     <p>
                         La décision de publication appartient à Universcience.
                     </p>
                     <p>
-                        Il est précisé que la soumission au comité éditorial n'affecte en aucun cas les droits de propriété intellectuelle des utilisateurs sur leurs cours. Les utilisateurs conservent la pleine propriété de leurs cours et restent libres de les utiliser, de les modifier, de les partager et de les importer sur d'autres plateformes, y compris leur plateforme ENT, qu'ils aient été publiés sur Science Infuse ou non.
+                        Il est précisé que la soumission au comité éditorial n'affecte en aucun cas les droits de propriété intellectuelle des utilisateurs sur leurs cours. Les utilisateurs conservent la pleine propriété de leurs cours et restent libres de les utiliser, de les modifier, de les partager et de les importer sur d'autres plateformes, y compris leur plateforme ENT, qu'ils aient été publiés sur {PROJECT_NAME} ou non.
                     </p>
 
                     <h2>Article 7 – Confidentialité des données</h2>
                     <p>
-                        Le traitement des données à caractère personnel collectées via Science Infuse est réalisé sous la responsabilité du ministère de la Culture.
+                        Le traitement des données à caractère personnel collectées via {PROJECT_NAME} est réalisé sous la responsabilité du ministère de la Culture.
                     </p>
                     <p>
                         La plateforme collecte les données suivantes :
@@ -104,7 +106,7 @@ const CGU = () => {
                         Finalités du traitement :
                     </p>
                     <ul>
-                        <li>Données de contact et professionnelles : Ces données sont collectées pour la création et la gestion de votre compte utilisateur, l'accès aux fonctionnalités de la plateforme, la mise à disposition des contenus pédagogiques et la communication avec Universcience dans le cadre de votre utilisation de Science Infuse.</li>
+                        <li>Données de contact et professionnelles : Ces données sont collectées pour la création et la gestion de votre compte utilisateur, l'accès aux fonctionnalités de la plateforme, la mise à disposition des contenus pédagogiques et la communication avec Universcience dans le cadre de votre utilisation de {PROJECT_NAME}.</li>
                         <li>Données de navigation : Ces données sont collectées à des fins statistiques et d'amélioration du service, afin de mieux comprendre l'utilisation de la plateforme et d'optimiser son fonctionnement.</li>
                     </ul>
                     <p>
@@ -130,7 +132,7 @@ const CGU = () => {
                     <h2>Article 10 – Utilisation de l’Intelligence Artificielle (IA)</h2>
                     <h3>10.1 Finalités</h3>
                     <p>
-                        La plateforme Science Infuse utilise l’IA pour faciliter la création et la personnalisation de cours, notamment pour :
+                        La plateforme {PROJECT_NAME} utilise l’IA pour faciliter la création et la personnalisation de cours, notamment pour :
                     </p>
                     <ul>
                         <li>Suggérer du contenu pertinent en fonction du sujet du cours et du niveau des élèves.</li>

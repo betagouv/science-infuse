@@ -12,6 +12,7 @@ import { apiClient } from '@/lib/api-client';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Node as PMNode } from '@tiptap/pm/model'
 import { Question } from '@/types/course-editor';
+import { PROJECT_NAME } from '@/config';
 
 
 
@@ -246,7 +247,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
         <div className="flex flex-col md:flex-row items-start gap-2 mx-auto">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 w-4 h-4 mt-1"><path fillRule="evenodd" clipRule="evenodd" d="M12.9993 1.66666H2.99935C2.26297 1.66666 1.66602 2.26361 1.66602 2.99999V13C1.66602 13.7364 2.26297 14.3333 2.99935 14.3333H12.9993C13.7357 14.3333 14.3327 13.7364 14.3327 13V2.99999C14.3327 2.26361 13.7357 1.66666 12.9993 1.66666ZM8.66602 4.66666H7.33268V5.99999H8.66602V4.66666ZM8.66602 7.33332H7.33268V11.3333H8.66602V7.33332Z" fill="black" /></svg>
           <p className="m-0 text-xs text-left text-black">
-            L'intelligence artificielle de Science Infuse vous propose des questions et réponses d'après le
+            L'intelligence artificielle de {PROJECT_NAME} vous propose des questions et réponses d'après le
             chapitre que vous avez créé. Vous pouvez modifier ou supprimer les questions et réponses
             proposées.
           </p>

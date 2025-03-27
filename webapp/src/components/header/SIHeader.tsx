@@ -3,6 +3,7 @@ import { Navigation } from "./Navigation"
 import { Session } from 'next-auth'
 import ConnectedHeader from "./ConnectedHeader";
 import React from "react";
+import { PROJECT_NAME } from "@/config";
 
 interface ClientHeaderProps {
   session: Session | null;
@@ -16,7 +17,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
       brandTop={<>MINISTÈRE DE
         <br />LA CULTURE</>}
       // operatorLogo={{
-      //   alt: 'logo science infuse',
+      //   alt: 'logo Ada',
       //   imgUrl: '/images/science_infuse_logo.jpg',
       //   // imgUrl: '/images/science_infuse_logo.svg',
       //   orientation: 'horizontal'
@@ -34,7 +35,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
       }
       homeLinkProps={{
         "href": "/",
-        "title": "Accueil - Science Infuse"
+        "title": `Accueil - ${PROJECT_NAME}`
       }}
       serviceTitle={<p className="text-xl text-[#161616]">
         <span className="font-thin">Science Infuse devient </span>

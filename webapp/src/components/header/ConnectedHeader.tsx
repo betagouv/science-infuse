@@ -171,8 +171,8 @@ export default function MonEspaceDropdown() {
 
   return (
     <div className="flex h-full w-full">
-      <DropdownContainer ref={dropdownRef} className={`m-0 ${isTablet ? "!pr-0" : ""}`}>
-        <div className="flex relative">
+      <DropdownContainer ref={dropdownRef} className={`m-0 w-full ${isTablet ? "!pr-0" : ""}`}>
+        <div className="flex relative w-full">
 
           {!isMobile && (
             <Button className={`!m-0 flex !shadow-[inset_0_0_0_1px_#dddddd] ${open ? '!bg-[#e3e3fd]' : ''}`} priority="secondary" onClick={() => setOpen(!open)}>

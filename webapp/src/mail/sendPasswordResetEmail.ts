@@ -1,5 +1,6 @@
 import { UserFull } from "@/types/api"
 import { sendMail } from "."
+import { PROJECT_NAME } from "@/config"
 
 const getTemplate = (passwordResetLink: string) => {
   return `  <!DOCTYPE html>
@@ -9,7 +10,7 @@ const getTemplate = (passwordResetLink: string) => {
   xmlns:o="urn:schemas-microsoft-com:office:office"
 >
   <head>
-    <title>Inscription à Science Infuse</title>
+    <title>Inscription à ${PROJECT_NAME}</title>
     <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!--<![endif]-->
@@ -145,7 +146,7 @@ const getTemplate = (passwordResetLink: string) => {
         overflow: hidden;
       "
     >
-      Inscription à Science Infuse
+      Inscription à ${PROJECT_NAME}
     </div>
     <div style="background-color: #f4f4f4">
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -219,7 +220,7 @@ const getTemplate = (passwordResetLink: string) => {
                               <tr>
                                 <td style="width: 250px">
                                   <img
-                                    alt="logo science infuse"
+                                    alt="logo ${PROJECT_NAME}"
                                     src="https://sm1y1.mjt.lu/img2/sm1y1/934b4b5d-80e3-43f7-934d-90a13d997409/content"
                                     style="
                                       border: none;

@@ -1,3 +1,4 @@
+import { PROJECT_NAME } from '@/config'
 import { apiClient } from '@/lib/api-client'
 import { Group } from '@/types/course-editor'
 
@@ -25,9 +26,9 @@ export const GROUPS: Group[] = [
       },
       {
         name: 'si-content',
-        label: 'Contenu Science Infuse',
+        label: `Contenu ${PROJECT_NAME}`,
         iconName: 'Image',
-        description: 'Insérer du contenu de Science Infuse',
+        description: `Insérer du contenu de ${PROJECT_NAME}`,
         action: async editor => {
           editor.chain().focus().openContentSearchPopup(editor.state.selection.anchor).run()
         },

@@ -1,6 +1,7 @@
 'use client';
 import { UserSettingsField } from "@/app/prof/parametres/UserSettings";
 import { useSnackbar } from "@/app/SnackBarProvider";
+import { PROJECT_NAME } from "@/config";
 import { apiClient } from "@/lib/api-client";
 import { validatePassword } from "@/lib/utils";
 import { UserFull } from "@/types/api";
@@ -244,7 +245,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     className='mt-0'
                     options={[
                         {
-                            label: <p className='m-0 ml-2'>Je souhaite recevoir des informations sur les nouvelles fonctionnalités et contenus de Science Infuse. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr" target="_blank">science-infuse@universcience.fr</a></p>,
+                            label: <p className='m-0 ml-2'>Je souhaite recevoir des informations sur les nouvelles fonctionnalités et contenus de {PROJECT_NAME}. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr" target="_blank">science-infuse@universcience.fr</a></p>,
                             nativeInputProps: {
                                 name: 'checkboxes-1',
                                 value: 'value3',

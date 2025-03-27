@@ -3,6 +3,7 @@ import { type Message, type ToolExecutionOptions, convertToCoreMessages, streamT
 import { groq } from '@ai-sdk/groq';
 import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
+import { mistral } from '@ai-sdk/mistral';
 import { getEmbeddings } from "@/lib/utils/embeddings";
 import { searchDocumentChunks } from "../search/sql_raw_queries";
 import { apiClient } from "@/lib/api-client";
@@ -40,6 +41,7 @@ export const POST = withAccessControl(
       // model: groq('deepseek-r1-distill-llama-70b'),
       // model: openai('gpt-4o-2024-08-06'),
       // model: groq('llama-3.3-70b-specdec'),
+      // model: mistral('mistral-large-latest'),
       model: google('gemini-2.0-flash-001'),
       system: `Tu es un professeur de SVT pour le collège et le lycée.  
 Tu disposes d’outils de recherche te permettant de retrouver et d’afficher des documents pour répondre aux questions des utilisateurs de manière précise et pédagogique.
@@ -119,7 +121,7 @@ Répond uniquement en affichant les trois documents les plus pertinents grâce �
           }),
           execute: async (args) => {
             console.log("display_document_chunks", args)
-            return "If necessary you can continue writing text after this."
+            return "Only if necessary you can continue writing text after this."
           }
         },
         display_sources_to_user: {
@@ -132,7 +134,7 @@ Répond uniquement en affichant les trois documents les plus pertinents grâce �
             )
           }),
           execute: async (args) => {
-            return "If necessary you can continue writing text after this."
+            return "Only if necessary you can continue writing text after this."
           }
         },
         get_document_chunk_full_text: {

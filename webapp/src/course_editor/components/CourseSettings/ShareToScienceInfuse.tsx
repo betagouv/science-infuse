@@ -1,3 +1,4 @@
+import { PROJECT_NAME } from '@/config';
 import { apiClient } from '@/lib/api-client';
 import { ChapterWithoutBlocks } from '@/types/api';
 import Button from '@codegouvfr/react-dsfr/Button';
@@ -44,7 +45,7 @@ const ShareToScienceInfuse = (props: { chapter: ChapterWithoutBlocks }) => {
                 {loadingMessage && <>{loadingMessage}  <CircularProgress className='ml-2' size={16} sx={{ color: 'black' }} /></>}
                 {!loadingMessage && (
                     chapterStatus == ChapterStatus.REVIEW && "Demande envoyée" ||
-                    chapterStatus == ChapterStatus.DRAFT && "Partager à Science Infuse" ||
+                    chapterStatus == ChapterStatus.DRAFT && `Partager à ${PROJECT_NAME}` ||
                     chapterStatus == ChapterStatus.PUBLISHED && "En ligne"
                 )}
             </Button>

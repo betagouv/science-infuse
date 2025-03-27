@@ -39,22 +39,6 @@ const Webinaires = () => {
                             <a href={v.srt} download>Télécharger les sous-titres</a>
                         </div>
                     ))}
-                    {/* 
-                    {!user && (
-                        <StyledCallout
-                            iconId="ri-information-line"
-                            className="flex flex-col [&.fr-callout__text]:flex-col"
-                        >
-                            <span>
-                                Connectez-vous à votre compte Science Infuse pour accéder aux webinaires.
-                            </span>
-                            <span className="flex flex-row gap-4">
-                                <Button priority="secondary"><a href="/">Connexion</a></Button>
-                                <Button><a href="/">Créer un compte</a></Button>
-                            </span>
-                        </StyledCallout>
-                    )} */}
-
                 </div>
             </div>
         </div>

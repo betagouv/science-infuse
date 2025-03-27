@@ -1,5 +1,6 @@
 import { UserFull } from "@/types/api"
 import { sendMail } from "."
+import { PROJECT_NAME } from "@/config"
 
 const getTemplate = () => {
   return `<!DOCTYPE html>
@@ -9,7 +10,7 @@ const getTemplate = () => {
   xmlns:o="urn:schemas-microsoft-com:office:office"
 >
   <head>
-    <title>Inscription à Science Infuse</title>
+    <title>Inscription à ${PROJECT_NAME}</title>
     <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!--<![endif]-->
@@ -145,7 +146,7 @@ const getTemplate = () => {
         overflow: hidden;
       "
     >
-      Inscription à Science Infuse
+      Inscription à ${PROJECT_NAME}
     </div>
     <div style="background-color: #f4f4f4">
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -219,7 +220,7 @@ const getTemplate = () => {
                               <tr>
                                 <td style="width: 250px">
                                   <img
-                                    alt="logo science infuse"
+                                    alt="logo ${PROJECT_NAME}"
                                     src="https://sm1y1.mjt.lu/img2/sm1y1/934b4b5d-80e3-43f7-934d-90a13d997409/content"
                                     style="
                                       border: none;
@@ -358,7 +359,7 @@ const getTemplate = () => {
                                   font-size: 24px;
                                   line-height: 28px;
                                 "
-                                ><b>Bienvenue sur Science Infuse</b></span
+                                ><b>Bienvenue sur ${PROJECT_NAME}</b></span
                               >
                             </h3>
                           </div>
@@ -401,7 +402,7 @@ const getTemplate = () => {
                                   font-size: 16px;
                                   line-height: 1.5rem;
                                 "
-                                >Votre compte Science Infuse a bien été
+                                >Votre compte ${PROJECT_NAME} a bien été
                                 créé.</span
                               >
                             </p>
@@ -485,7 +486,7 @@ const getTemplate = () => {
                                     "
                                     target="_blank"
                                     ><span style="background-color: #000091"
-                                      ><b>Accéder à Science Infuse</b></span
+                                      ><b>Accéder à ${PROJECT_NAME}</b></span
                                     ></a
                                   >
                                 </td>
@@ -1179,5 +1180,5 @@ const getTemplate = () => {
 }
 
 export const sendMailCreated = async (to: UserFull) => {
-  await sendMail([to], "Inscription à Science Infuse", getTemplate())
+  await sendMail([to], `Inscription à ${PROJECT_NAME}`, getTemplate())
 }

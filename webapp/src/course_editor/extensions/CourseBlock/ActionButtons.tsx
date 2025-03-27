@@ -1,3 +1,4 @@
+import { PROJECT_NAME } from '@/config';
 import { Editor, getNodeAtPosition } from '@tiptap/core';
 import { Node as PMNode } from '@tiptap/pm/model'
 import React from 'react';
@@ -23,7 +24,7 @@ const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: n
                 <img src="/images/actionButtons/search.svg" className="h-6 w-6" alt="Chercher" />
             </div>
             <p className="m-0 text-ellipsis whitespace-nowrap text-base text-[#161616] overflow-hidden">
-                Chercher dans Science Infuse
+                Chercher dans {PROJECT_NAME}
             </p>
         </div>
         <div
