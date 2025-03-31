@@ -200,8 +200,6 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
   const userFile = selectedNodeAttrs?.userFile;
   const nodeName = editor?.state?.selection?.node?.type?.name;
 
-  console.log("selectedNodeAttrs", selectedNodeAttrs)
-
   const getReferenceClientRect = useCallback(() => {
     const renderContainer = getRenderContainer(editor, 'node-imageBlock')
     const rect = renderContainer?.getBoundingClientRect() || new DOMRect(-1000, -1000, 0, 0)

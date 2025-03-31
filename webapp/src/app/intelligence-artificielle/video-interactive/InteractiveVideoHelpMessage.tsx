@@ -5,7 +5,7 @@ const InteractiveVideoHelpMessage = (props: { hideHowItWorks?: boolean, hideNeed
                 <p className="text-xl m-0 font-bold text-[#3a3a3a]">
                     Comment ça marche ?
                 </p>
-                <p>
+                <p className="m-0">
                     <ol>
                         <li>
                             L'intelligence artificielle de Ada analyse votre vidéo et génère automatiquement des questions-réponses, ainsi que des définitions de notions clés abordées dans la vidéo.
@@ -24,9 +24,10 @@ const InteractiveVideoHelpMessage = (props: { hideHowItWorks?: boolean, hideNeed
                     </ol>
                 </p>
             </>}
-            {!props.hideNeedHelp && <><p className="text-xl m-0 opacity-20 pointer-events-none font-bold text-[#3a3a3a]">
-                Besoin d'aide ?
-            </p>
+            {/* {!props.hideNeedHelp && <>
+                <p className="text-xl m-0 opacity-20 pointer-events-none font-bold text-[#3a3a3a]">
+                    Besoin d'aide ?
+                </p>
 
 
                 <div className="opacity-20 pointer-events-none flex flex-col gap-4">
@@ -68,7 +69,8 @@ const InteractiveVideoHelpMessage = (props: { hideHowItWorks?: boolean, hideNeed
                             Exemples de vidéos interactives co-créées avec Ada
                         </span>
                     </a>
-                </div></>}
+                </div></>
+            } */}
         </div>
     )
 }

@@ -1,6 +1,6 @@
 'use server'
 import { ChapterWithBlock, UserFull } from "@/types/api";
-import { DocumentChunk, Document, DocumentChunkMeta } from "@prisma/client";
+import { DocumentChunk, Document, DocumentChunkMeta, ReportedDocumentChunkStatus } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid'; // Make sure to import the uuid library
 import prisma from "../prisma";
 import { getEmbeddings, getTextToEmbeed } from "./embeddings";
@@ -275,6 +275,25 @@ export async function desindexDocuments(documentIds: string[]) {
     }
 }
 
+
+export async function desindexDocumentChunk(chunkId: string) {
+    await prisma.documentChunk.update({
+        where: { id: chunkId },
+        data: {
+            deleted: true,
+        }
+    });
+
+}
+export async function setReportedDocumentChunkStatus(chunkId: string, status: ReportedDocumentChunkStatus) {
+    await prisma.reportedDocumentChunk.update({
+        where: { id: chunkId },
+        data: {
+            status,
+        }
+    });
+}
+
 export async function indexDocuments(documentIds: string[]) {
     try {
         const updatedDocuments = await prisma.document.updateMany({
@@ -296,3 +315,11 @@ export async function indexDocuments(documentIds: string[]) {
     }
 }
 
+export async function getReportedContentCount() {
+    return await prisma.reportedDocumentChunk.count({
+        where: {
+            status: ReportedDocumentChunkStatus.OPEN
+        }
+    })
+
+}   

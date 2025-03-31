@@ -1,116 +1,94 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from 'next/navigation';
+import prisma from "@/lib/prisma";
+import { getReportedContentCount } from "@/lib/utils/db";
+import Badge from "@codegouvfr/react-dsfr/Badge";
 import { SideMenu } from "@codegouvfr/react-dsfr/SideMenu";
-
+import { useEffect } from "@preact-signals/safe-react/react";
+import { ReportedDocumentChunkStatus } from "@prisma/client";
+import { Suspense, useState } from "react";
 
 const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
-    const router = useRouter();
-    const pathname = usePathname();
-    const [activePath, setActivePath] = useState("");
-
+    const [reportedContentCount, setReportedContentCount] = useState<number>(0);
     useEffect(() => {
-        setActivePath(pathname);
-    }, [pathname]);
+        const fetchCount = async () => {
+            const count = await getReportedContentCount();
+            setReportedContentCount(count);
+        };
+        fetchCount();
+    }, []);
 
-    return (
-        <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center !m-0">
-            <div className="fr-col-12 fr-col-md-10 fr-col-lg-8 main-content-item !p-0 mx-0 my-24">
-                <div className="flex flex-col md:flex-row">
-                    <div className="w-full md:w-1/4">
-                        <SideMenu
-                            className="w-full m-0"
-                            title="Admin"
-                            align="left"
-                            burgerMenuButtonText="Dans cette rubrique"
-                            items={[
-                                {
-                                    isActive: activePath === "/admin/utilisateurs",
-                                    linkProps: {
-                                        href: "/admin/utilisateurs",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/utilisateurs");
-                                        }
-                                    },
-                                    text: "Utilisateurs"
+    return (<div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center !m-0">
+        <div className="fr-col-12 fr-col-md-10 fr-col-lg-10 main-content-item !p-0 mx-0 my-24">
+            <div className="flex flex-col md:flex-row">
+                <div className="w-full md:w-1/4">
+                    {/* <AdminClient> */}
+                    <SideMenu
+                        className="w-full m-0"
+                        title="Admin"
+                        align="left"
+                        burgerMenuButtonText="Dans cette rubrique"
+                        items={[
+                            {
+                                linkProps: {
+                                    href: "/admin/utilisateurs",
                                 },
-                                {
-                                    isActive: activePath === "/admin/chapitres",
-                                    linkProps: {
-                                        href: "/admin/chapitres",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/chapitres");
-                                        }
-                                    },
-                                    text: "Chapitres"
+                                text: "Utilisateurs"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/chapitres",
                                 },
-                                {
-                                    isActive: activePath === "/admin/index-content",
-                                    linkProps: {
-                                        href: "/admin/index-content",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/index-content");
-                                        }
-                                    },
-                                    text: "Indexer du contenu"
+                                text: "Chapitres"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/reported-contents",
                                 },
-                                {
-                                    isActive: activePath === "/admin/tasks-list",
-                                    linkProps: {
-                                        href: "/admin/tasks-list",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/tasks-list");
-                                        }
-                                    },
-                                    text: "Liste des tâches"
+                                text: <>Contenus signalés {reportedContentCount ? <Badge noIcon severity="error" className="ml-2">{reportedContentCount}</Badge> : ""}</>
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/index-content",
                                 },
-                                {
-                                    isActive: activePath === "/admin/inspect-document",
-                                    linkProps: {
-                                        href: "/admin/inspect-document",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/inspect-document");
-                                        }
-                                    },
-                                    text: "Inspecter un document"
+                                text: "Indexer du contenu"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/tasks-list",
                                 },
-                                {
-                                    isActive: activePath === "/admin/file-explorer",
-                                    linkProps: {
-                                        href: "/admin/file-explorer",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/file-explorer");
-                                        }
-                                    },
-                                    text: "Explorer les fichiers"
+                                text: "Liste des tâches"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/inspect-document",
                                 },
-                                {
-                                    isActive: activePath === "/admin/document-tags",
-                                    linkProps: {
-                                        href: "/admin/document-tags",
-                                        onClick: (e) => {
-                                            e.preventDefault();
-                                            router.push("/admin/document-tags");
-                                        }
-                                    },
-                                    text: "Tags des documents"
+                                text: "Inspecter un document"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/file-explorer",
                                 },
-                            ]}
-                        />
-                    </div>
-                    <div className="w-full md:w-3/4 mt-4 md:mt-0 px-8 md:px-0">
+                                text: "Explorer les fichiers"
+                            },
+                            {
+                                linkProps: {
+                                    href: "/admin/document-tags",
+                                },
+                                text: "Tags des documents"
+                            },
+                        ]}
+                    />
+                    {/* </AdminClient> */}
+                </div>
+                <div className="w-full md:w-3/4 mt-4 md:mt-0 px-8 md:px-0">
+                    <Suspense fallback={<div>Loading...</div>}>
                         {children}
-                    </div>
+                    </Suspense>
                 </div>
             </div>
         </div>
+    </div>
     );
 };
 

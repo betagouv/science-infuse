@@ -4,7 +4,7 @@ import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults } from '@/types/vectordb';
-import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, SchoolSubject, Skill, Theme } from '@prisma/client';
+import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, ReportedDocumentChunk, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
 
 
@@ -28,6 +28,11 @@ class ApiClient {
 
   async getChunk(chunkId: string): Promise<ChunkWithScoreUnion> {
     const response = await this.axiosInstance.get<ChunkWithScoreUnion>(`/documentChunks/${chunkId}`);
+    return response.data;
+  }
+
+  async reportChunk(chunkId: string, reason: string): Promise<ReportedDocumentChunk> {
+    const response = await this.axiosInstance.post<ReportedDocumentChunk>(`/documentChunks/${chunkId}/report`, { reason });
     return response.data;
   }
 

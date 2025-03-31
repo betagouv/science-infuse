@@ -16,7 +16,6 @@ import styled from '@emotion/styled';
 import H5PRenderer from '@/app/mediaViewers/H5PRenderer';
 import { LLMGenerateDefinition } from '@/lib/server/ia/external_llm';
 import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
-import Snackbar from "@/course_editor/components/Snackbar";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import EmbedVideo from '@/components/interactifs/EmbedVideo';
 import { createPortal } from 'react-dom';
@@ -31,7 +30,7 @@ const modal = createModal({
 
 
 
-const DeleteButton = styled(Button)`
+export const DeleteButton = styled(Button)`
     aspect-ratio: 1;
   --border-action-high-blue-france: red;
   display: flex;

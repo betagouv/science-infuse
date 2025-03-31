@@ -7,7 +7,7 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BaseDocumentChunk, BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
@@ -15,14 +15,14 @@ import { Quote } from "@codegouvfr/react-dsfr/Quote";
 import { Tile } from "@codegouvfr/react-dsfr/Tile";
 import styledComponent from '@emotion/styled';
 import { Collapse, Tooltip, Typography, styled } from '@mui/material';
-import { Document, DocumentChunk } from "@prisma/client";
+import { Document } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
-import { chunk } from 'lodash';
+import ThreeDotMenu from '@/components/cards/ThreeDotMenu';
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -53,6 +53,7 @@ export const StyledGroupedVideoCard = styled(StyledCardWithoutTitle)`
 }
 
 `
+
 
 export const StyledImageCard = styled(StyledCardWithoutTitle)`
 a {
@@ -182,15 +183,7 @@ export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, e
                     </Button></Tooltip>
                 }
 
-                {/* <button
-                onClick={async () => {
-                    await apiClient.deleteDocument(props.chunk.document.id)
-                }}
-                >
-                    delete
-                </button> */}
-
-
+                <ThreeDotMenu className='ml-auto' chunk={props.chunk} />
             </div>
         </div>
     )

@@ -127,19 +127,27 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
       }
     });
 
-
     if (nodePos !== null) {
       const $start = doc.resolve(nodePos);
       const $end = doc.resolve(nodePos + props.courseBlockNode.nodeSize);
+      
+      // Get the DOM element first to ensure it's available
       const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
+      const domElementById = document.getElementById(props.courseBlockNode.attrs.id);
+      const element = domElement || domElementById;
 
       // Extract text content
       text = doc.textBetween($start.pos, $end.pos);
-
-      if (domElement) {
-        const pdfs: HTMLDivElement[] = Array.from(domElement.querySelectorAll('.node-pdf .pdf-wrapper'));
+      
+      if (element) {
+        const pdfs: HTMLDivElement[] = Array.from(element.querySelectorAll('.node-pdf .pdf-wrapper'));
         const pdfsTexts = pdfs.map(pdf => pdf.innerText).join("\n\n");
-        text += pdfsTexts.trim().slice(0, 2000);
+        text += pdfsTexts.trim();
+      }
+
+      // Add a small delay to ensure DOM is ready
+      if (!text && element) {
+        text = element.textContent || '';
       }
     }
 
@@ -167,8 +175,10 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
   }
 
   const handleGenerateQuiz = (type: 'courseBlock' | 'fullChapter') => {
-    const context = type === 'courseBlock' ? getCourseBlockText() : getFullText();
-    generateQuiz(context);
+    setTimeout(() => {
+      const context = type === 'courseBlock' ? getCourseBlockText() : getFullText();
+      generateQuiz(context);
+    }, 100);
   }
 
   const saveQuiz = () => {

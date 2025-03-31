@@ -5,6 +5,7 @@ import { ChapterResults } from "@/app/recherche/RenderSearch";
 import { EducationLevel, Chapter, Block, Theme } from '@prisma/client';
 import { ChapterWithBlock } from '@/types/api';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { SegmentedControl, SegmentedControlProps } from "@codegouvfr/react-dsfr/SegmentedControl";
 
 interface EducationLevelsFiltersProps {
     selectedFilter: string;
@@ -16,23 +17,28 @@ const EducationLevelFilters: React.FC<EducationLevelsFiltersProps> = React.memo(
     return (
         <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white p-2 sm:p-4">
             <div className="flex flex-wrap w-full sm:w-auto">
-                <Button
-                    className="w-full sm:w-auto px-2 sm:px-4 py-2 sm:py-4 m-1 text-xs sm:text-sm"
-                    priority={selectedFilter === '' ? 'primary' : 'tertiary no outline'}
-                    onClick={() => onFilterChange('')}
-                >
-                    Tous
-                </Button>
-                {filters.map((filter) => (
-                    <Button
-                        key={filter.id}
-                        className="w-full sm:w-auto px-2 sm:px-4 py-2 sm:py-4 m-1 text-xs sm:text-sm"
-                        priority={selectedFilter === filter.id ? 'primary' : 'tertiary no outline'}
-                        onClick={() => onFilterChange(filter.id)}
-                    >
-                        {filter.name}
-                    </Button>
-                ))}
+                <SegmentedControl
+                    className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full'
+                    legend=""
+                    segments={
+                        [
+                            {
+                                label: "Tous",
+                                nativeInputProps: {
+                                    checked: selectedFilter === '',
+                                    onChange: () => onFilterChange(''),
+                                }
+                            },
+                            ...filters.map((filter) => ({
+                                label: filter.name || " ",
+                                nativeInputProps: {
+                                    checked: selectedFilter === filter.id,
+                                    onChange: () => onFilterChange(filter.id),
+                                }
+                            }))
+                        ] as unknown as [SegmentedControlProps.SegmentWithoutIcon, SegmentedControlProps.SegmentWithoutIcon]
+                    } />
+
             </div>
         </div>
     )
@@ -48,23 +54,28 @@ const ThemesFilters: React.FC<ThemesFiltersProps> = React.memo(({ selectedFilter
     return (
         <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white p-2 sm:p-4">
             <div className="flex flex-wrap w-full sm:w-auto">
-                <Button
-                    className="w-full sm:w-auto px-2 sm:px-4 py-2 sm:py-4 m-1 text-xs sm:text-sm"
-                    priority={selectedFilter === '' ? 'primary' : 'tertiary no outline'}
-                    onClick={() => onFilterChange('')}
-                >
-                    Tous
-                </Button>
-                {filters.map((filter) => (
-                    <Button
-                        key={filter.id}
-                        className="w-full sm:w-auto px-2 sm:px-4 py-2 sm:py-4 m-1 text-xs sm:text-sm"
-                        priority={selectedFilter === filter.id ? 'primary' : 'tertiary no outline'}
-                        onClick={() => onFilterChange(filter.id)}
-                    >
-                        {filter.title}
-                    </Button>
-                ))}
+                <SegmentedControl
+                    className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full'
+                    legend=""
+                    segments={
+                        [
+                            {
+                                label: "Tous",
+                                nativeInputProps: {
+                                    checked: selectedFilter === '',
+                                    onChange: () => onFilterChange(''),
+                                }
+                            },
+                            ...filters.map((filter) => ({
+                                label: filter.title || " ",
+                                nativeInputProps: {
+                                    checked: selectedFilter === filter.id,
+                                    onChange: () => onFilterChange(filter.id),
+                                }
+
+                            }))
+                        ] as unknown as [SegmentedControlProps.SegmentWithoutIcon, SegmentedControlProps.SegmentWithoutIcon]
+                    } />
             </div>
         </div>
     )
@@ -123,7 +134,7 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
     return (
         <div className="pb-16 flex flex-col px-4 md:px-0">
             <div className="w-full">
-                <h1 className="m-0 text-xl sm:text-2xl md:text-3xl text-center text-black">
+                <h1 className="m-0 text-center">
                     Catalogue de cours de SVT
                 </h1>
             </div>
@@ -137,7 +148,7 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
             )}
 
             <div className="flex flex-col w-full mt-8">
-                <div className="flex flex-col  w-full sm:w-fit">
+                <div className="flex flex-col  w-full max-w-full sm:w-fit">
                     <div className="flex flex-col sm:flex-row">
                         <div className="flex items-center">
                             {filterIcon}
@@ -152,7 +163,7 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
                             filters={filters}
                         />
                     </div>
-                    {allThemes && <div className="flex flex-col sm:flex-row">
+                    {allThemes && <div className="flex flex-col sm:flex-row overflow-auto">
                         <div className="flex items-center">
                             {filterIcon}
                             <p className="m-0 w-full sm:w-36 text-xs sm:text-sm font-bold text-[var(--text-action-high-blue-france)]">

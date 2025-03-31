@@ -26,8 +26,15 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
         <div className="w-full flex flex-col gap-8">
             <Input
                 className="w-full [&_.fr-label]:pb-2"
-                label="Lien URL de la vidéo"
-                addon={<Button disabled={!isValidYoutubeUrl(youtubeUrl)} className="w-fit whitespace-nowrap" onClick={handleIndexYoutube}>Générer quiz et définitions</Button>}
+                label="Lien URL de la vidéo (Youtube)"
+                addon={
+                    <Button
+                        disabled={!isValidYoutubeUrl(youtubeUrl)}
+                        className="w-fit whitespace-nowrap ml-4"
+                        onClick={handleIndexYoutube}>
+                        Générer quiz et définitions
+                    </Button>
+                }
 
                 nativeInputProps={{
                     value: youtubeUrl,

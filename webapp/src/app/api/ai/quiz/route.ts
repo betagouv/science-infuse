@@ -1,4 +1,5 @@
 import { OLLAMA_URL } from "@/config";
+import { callGroq } from "@/lib/server/ia/external_llm";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,7 +9,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<string | 
         const { context } = await request.json()
         try {
             const prompt = `<context>${context}</context>
-en te basant sur le <context> propose un qcm avec 4 choix par questions sous la forme suivante:
+en te basant sur le <context> propose un qcm avec 4 choix par questions sous la forme suivante
+Les questions doivent avoir un rapport avec le contenu scientifique du contexte:
 \`\`\`qcm
 [
     {
@@ -30,14 +32,17 @@ en te basant sur le <context> propose un qcm avec 4 choix par questions sous la 
     },...
 ]
 \`\`\``
-            const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
-                // model: 'llama3.2:3b',
-                model: 'llama3.1:8b',
-                stream: false,
-                prompt: prompt
-            })
-            if (response.data && response.data.response) {
-                const output = response.data.response
+
+            const [error, output] = await callGroq(prompt);
+            if (output) {
+                // const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
+                //     // model: 'llama3.2:3b',
+                //     model: 'llama3.1:8b',
+                //     stream: false,
+                //     prompt: prompt
+                // })
+                // if (response.data && response.data.response) {
+                // const output = response.data.response
                 const startIndex = output.indexOf('[')
                 const endIndex = output.lastIndexOf(']')
                 if (startIndex !== -1 && endIndex !== -1) {

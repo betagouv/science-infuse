@@ -43,6 +43,7 @@ model H5PContent {
   user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt            DateTime   @default(now())
 }
+
 model DocumentTag {
   id          String     @id @default(cuid())
   title       String     @unique
@@ -51,15 +52,36 @@ model DocumentTag {
 }
 
 model DocumentChunk {
-  id                   String                 @id @default(cuid()) @db.Uuid
-  text                 String
-  textEmbedding        Unsupported("vector")?
-  title                String
-  mediaType            String
-  documentId           String                 @db.Uuid
-  document             Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  metadata             DocumentChunkMeta?
-  starredDocumentChunk StarredDocumentChunk[]
+  id                    String                  @id @default(cuid()) @db.Uuid
+  text                  String
+  textEmbedding         Unsupported("vector")?
+  deleted               Boolean                 @default(false)
+  title                 String
+  mediaType             String
+  documentId            String                  @db.Uuid
+  document              Document                @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  metadata              DocumentChunkMeta?
+  starredDocumentChunk  StarredDocumentChunk[]
+  ReportedDocumentChunk ReportedDocumentChunk[]
+}
+
+enum ReportedDocumentChunkStatus {
+  OPEN
+  CLOSED
+}
+
+model ReportedDocumentChunk {
+  id              String                      @id @default(cuid())
+  userId          String
+  documentChunkId String                      @db.Uuid
+  reason          String
+  status          ReportedDocumentChunkStatus @default(OPEN)
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  documentChunk   DocumentChunk               @relation(fields: [documentChunkId], references: [id], onDelete: Cascade)
+  user            User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentChunkId])
 }
 
 model DocumentChunkMeta {
@@ -281,7 +303,8 @@ model User {
   StarredBlock       StarredBlock[]
   Document           Document[]
 
-  H5PContent H5PContent[]
+  H5PContent            H5PContent[]
+  ReportedDocumentChunk ReportedDocumentChunk[]
 }
 
 model Account {
