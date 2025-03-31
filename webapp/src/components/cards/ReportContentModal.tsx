@@ -31,7 +31,7 @@ const ReportContentModal = ({ reportModal, documentChunk }: { reportModal: { Com
 
     return (
         <reportModal.Component
-            title={`Reporter ce résultat de recherche ?`}
+            title={`Signaler ce résultat de recherche ?`}
 
             buttons={[
                 {
@@ -69,7 +69,7 @@ const ReportContentModal = ({ reportModal, documentChunk }: { reportModal: { Com
                 <div className="flex flex-col gap-0">
                     <Checkbox
                         className="[&_.fr-label]:text-left [&_.fr-message]:!m-0"
-                        legend={<span className="font-bold">Pourquoi voulez-vous reporter ce contenu ?</span>}
+                        legend={<span className="font-bold">Pourquoi voulez-vous signaler ce contenu ?</span>}
                         stateRelatedMessage={selectedOptions.length == 0 ? "Veuillez sélectionner au moins une raison" : ""}
                         options={Object.entries(optionsMap).map(([value, label]) => ({
                             label,
