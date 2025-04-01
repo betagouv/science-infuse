@@ -1,15 +1,29 @@
+'use client'
 import React from "react";
 import Image from 'next/image'
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import { useRouter } from "next/navigation";
 import Button from "@codegouvfr/react-dsfr/Button";
 import H5PRenderer from "@/app/mediaViewers/H5PRenderer";
+import prisma from "@/lib/prisma";
+import { AdminSettingKey } from "@prisma/client";
+import { getH5PHomeUrl } from "@/lib/utils/db";
 
-export default (props: { reverse?: boolean }) => {
+export default function (props: { reverse?: boolean }) {
     const color = "#ff8642"
     const { isMobile } = useWindowSize();
     const router = useRouter()
 
+    const [h5pUrl, setH5pUrl] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        const fetchH5PUrl = async () => {
+            const url = await getH5PHomeUrl();
+            if (!url) return;
+            setH5pUrl(url);
+        };
+        fetchH5PUrl();
+    }, []);
     return (
         <div className="fr-container overflow-x-hidden">
             <div className="fr-grid-row fr-grid-row--center">
@@ -27,12 +41,18 @@ export default (props: { reverse?: boolean }) => {
 
                         <div className="flex flex-col gap-2 w-full max-w-[600px]">
                             <div className="flex items-center w-full relative" style={{ aspectRatio: '1.7' }}>
-                                <Image
-                                    src="/images/interactive-video-preview.png"
-                                    fill
-                                    alt="Illustration vidéo interactive"
-                                    className="mix-blend-multiply object-cover"
-                                />
+
+                                {h5pUrl ?
+                                    <H5PRenderer h5pPublicUrl={h5pUrl} />
+                                    :
+                                    <Image
+                                        src="/images/interactive-video-preview.png"
+                                        fill
+                                        alt="Illustration vidéo interactive"
+                                        className="mix-blend-multiply object-cover"
+                                    />
+                                }
+
                                 <Image
                                     src="/images/landing_section_2.svg"
                                     height={300}

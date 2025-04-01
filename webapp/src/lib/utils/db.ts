@@ -1,10 +1,12 @@
 'use server'
 import { ChapterWithBlock, UserFull } from "@/types/api";
-import { DocumentChunk, Document, DocumentChunkMeta, ReportedDocumentChunkStatus } from "@prisma/client";
+import { DocumentChunk, Document, DocumentChunkMeta, ReportedDocumentChunkStatus, AdminSettingKey } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid'; // Make sure to import the uuid library
 import prisma from "../prisma";
 import { getEmbeddings, getTextToEmbeed } from "./embeddings";
 import { userFullFields } from "@/app/api/accessControl";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 
 export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {
     return await prisma.chapter.findMany({
@@ -322,4 +324,34 @@ export async function getReportedContentCount() {
         }
     })
 
-}   
+}
+
+export async function getAdminSettings() {
+    return await prisma.adminSetting.findMany();
+}
+
+export async function setAdminSetting(settingId: string, key: AdminSettingKey, value: string) {
+    const session = await getServerSession(authOptions);
+
+    return await prisma.adminSetting.upsert({
+        where: {
+            id: settingId
+        },
+        update: {
+            value
+        },
+        create: {
+            key,
+            value
+        }
+    })
+}
+
+export const getH5PHomeUrl = async () => {
+    const h5pHomeUrl = await prisma.adminSetting.findFirst({
+        where: {
+            key: AdminSettingKey.H5P_URL
+        }
+    });
+    return h5pHomeUrl?.value;
+}

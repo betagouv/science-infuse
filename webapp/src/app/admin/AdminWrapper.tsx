@@ -77,12 +77,21 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                 },
                                 text: "Tags des documents"
                             },
+                            {
+                                linkProps: {
+                                    href: "/admin/parametres",
+                                },
+                                text: "Parametres"
+                            },
                         ]}
                     />
                     {/* </AdminClient> */}
                 </div>
                 <div className="w-full md:w-3/4 mt-4 md:mt-0 px-8 md:px-0">
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<div>
+                        <img className="aspect-square w-16 mb-4" src="https://portailpro.gouv.fr/assets/spinner-9a2a6d7a.gif" alt="Chargement" />
+
+                    </div>}>
                         {children}
                     </Suspense>
                 </div>

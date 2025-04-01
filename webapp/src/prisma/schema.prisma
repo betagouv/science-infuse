@@ -65,6 +65,19 @@ model DocumentChunk {
   ReportedDocumentChunk ReportedDocumentChunk[]
 }
 
+enum AdminSettingKey {
+  H5P_URL
+}
+
+model AdminSetting {
+  id          String          @id @default(cuid())
+  key         AdminSettingKey
+  value       String          @default("")
+  description String          @default("")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
 enum ReportedDocumentChunkStatus {
   OPEN
   CLOSED

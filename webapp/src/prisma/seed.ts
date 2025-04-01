@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { AdminSettingKey, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -14,6 +14,17 @@ const createFileTypes = async () => {
   const types = ["image", "activité"]
   await prisma.fileType.createMany({
     data: types.map(name => ({ name })),
+    skipDuplicates: true,
+  })
+}
+
+const createAdminSettings = async () => {
+  const settings = [
+    { key: AdminSettingKey.H5P_URL, description: "interactif affiché sur la page d'accueil", value: "" }
+  ]
+
+  await prisma.adminSetting.createMany({
+    data: settings,
     skipDuplicates: true,
   })
 }
@@ -174,6 +185,7 @@ async function main() {
   await createAcademies();
   await createSchoolSubjects();
   await createDocumentTag();
+  await createAdminSettings();
 }
 
 main()
