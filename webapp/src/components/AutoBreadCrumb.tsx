@@ -13,6 +13,8 @@ const pathMap: Record<string, string> = {
     'mes-interactifs': `Mes interactifs`,
     'mes-favoris': `Mes favoris`,
     'parametres': 'Mon compte',
+    'chiffres-cles': 'Chiffres clés',
+    'chatbot': 'Chatbot',
 }
 
 const skipSegments = ['intelligence-artificielle', 'prof']

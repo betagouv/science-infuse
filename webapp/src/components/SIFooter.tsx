@@ -16,7 +16,7 @@ const SIFooter = () => {
                             </h2>
                             <div className={`flex flex-col md:flex-row gap-4 md:gap-8`}>
                                 <p className="flex-1 m-0 text-sm md:text-base text-left text-[#161616]">
-                                    <strong>Ada</strong> (anciennement <em>Science Infuse</em>) est un service public gratuit porté par Universcience, l'établissement public qui regroupe la Cité des sciences et de l'industrie, le Palais de la découverte<br />
+                                    <strong>Ada</strong> (anciennement <em>Science Infuse</em>) est un service public gratuit porté par Universcience, l'établissement public qui regroupe la Cité des sciences et de l'industrie, le Palais de la découverte.<br />
                                     Depuis sa création en 2010, Universcience a pour mission de rendre les sciences accessibles et attrayantes, en promouvant la culture scientifique et technique auprès de toutes et tous.<br />
                                     Les contenus proposés sur la plateforme Ada s'appuient sur les ressources produites par la Cité des sciences, le Palais de la découverte et leblob.fr, tirant parti de l'expertise reconnue de ces trois entités dans le domaine de la médiation scientifique.<br />
                                     Le projet est accompagné par <strong>l'Atelier Numérique</strong>, l'incubateur du Ministère de la Culture, intégrée programme <strong>Beta.gouv.fr</strong> de la Direction interministérielle du numérique.
@@ -63,6 +63,9 @@ const SIFooter = () => {
                             </a>
                             <a href="/politique-de-confidentialite" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
                                 Politique de confidentialité
+                            </a>
+                            <a href="/chiffres-cles" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
+                                Chiffres clés
                             </a>
                         </div>
                     </div>
