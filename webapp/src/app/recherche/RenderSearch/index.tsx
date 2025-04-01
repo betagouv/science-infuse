@@ -42,11 +42,15 @@ export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: Gr
   return (
     <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
       {groupedVideos
-        .slice()
         .map((video, index) => {
           return (
             <MasonaryItem key={index}>
-              <RenderGroupedVideoTranscriptCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} video={video} searchWords={searchWords} />
+              <RenderGroupedVideoTranscriptCard
+                onInserted={onInserted}
+                defaultSelectedChunk={video.items.sort((a, b) => b.score - a.score)[0]}
+                onInsertedLabel={onInsertedLabel}
+                video={video}
+                searchWords={searchWords} />
             </MasonaryItem>
           )
         })

@@ -5,9 +5,11 @@ import { ChunkWithScoreUnion } from "@/types/vectordb";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import ReportContentModal from "./ReportContentModal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
+import { useSession } from "next-auth/react";
 
 
 const ThreeDotMenu = ({ className, chunk }: { className?: string, chunk: ChunkWithScoreUnion }) => {
+    const user = useSession().data?.user;
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
 
@@ -31,6 +33,7 @@ const ThreeDotMenu = ({ className, chunk }: { className?: string, chunk: ChunkWi
         reportModal.open();
         handleMenuClose();
     };
+    if (!user) return null;
 
     return (
         <>

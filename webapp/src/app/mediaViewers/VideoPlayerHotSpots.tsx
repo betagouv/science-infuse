@@ -2,17 +2,18 @@ import { WEBAPP_URL } from '@/config';
 import { ChunkWithScore } from '@/types/vectordb';
 import { Tooltip } from '@mui/material';
 import { Document } from '@prisma/client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { YoutubeEmbed, YouTubePlayerRef } from '../recherche/DocumentChunkFull';
 
 interface VideoPlayerProps {
     document: Document;
     chunks: ChunkWithScore<"video_transcript">[];
     selectedChunk: ChunkWithScore<"video_transcript"> | undefined,
+    useYoutubePlayer?: boolean,
     onChunkSelected: (chunk: ChunkWithScore<"video_transcript"> | undefined) => void
 }
 
-const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, selectedChunk, onChunkSelected }) => {
+const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, selectedChunk, onChunkSelected, useYoutubePlayer }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const youtubePlayerRef = useRef<YouTubePlayerRef>(null);
     const videoUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${document.s3ObjectName}`;
@@ -22,6 +23,20 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, sel
     // Add hover section red local state
     const [hoveredVideoChunk, setHoveredVideoChunk] = useState<ChunkWithScore<"video_transcript"> | null>(null);
 
+
+    // prevent re-rendering youtube embed when selectedChunk changes
+    const memoizedYoutubeEmbed = useMemo(() => {
+        return (document.isExternal || useYoutubePlayer == true) ? (
+            <YoutubeEmbed
+                ref={youtubePlayerRef}
+                url={document.originalPath}
+                onDuration={setDuration}
+                initialStartTime={Math.floor(selectedChunk?.metadata.start || 0)}
+            />
+        ) : null;
+    }, [document.isExternal, useYoutubePlayer, document.originalPath]);
+
+    console.log("initialStartTime chunk", selectedChunk)
     useEffect(() => {
         if (!selectedChunk) return;
         handleHotspotClick(selectedChunk)
@@ -94,10 +109,7 @@ const VideoPlayerHotSpots: React.FC<VideoPlayerProps> = ({ document, chunks, sel
 
     return (
         <div className="w-full mx-auto">
-            {document.isExternal ?
-                <YoutubeEmbed ref={youtubePlayerRef} url={document.originalPath} onDuration={setDuration} /> :
-                <video ref={videoRef} src={videoUrl} className="w-full" controls controlsList="nodownload" />
-            }
+            {memoizedYoutubeEmbed || <video ref={videoRef} src={videoUrl} className="w-full" controls controlsList="nodownload" />}
             <div className="relative h-[5px] bg-gray-200 mt-2 cursor-pointer" onClick={handleSeek}>
                 <div
                     className="absolute top-0 left-0 h-full bg-blue-500"

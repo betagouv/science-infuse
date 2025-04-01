@@ -16,10 +16,10 @@ const SIFooter = () => {
                             </h2>
                             <div className={`flex flex-col md:flex-row gap-4 md:gap-8`}>
                                 <p className="flex-1 m-0 text-sm md:text-base text-left text-[#161616]">
-                                    Ada (anciennement Science Infuse) est un service public gratuit porté par la Cité des sciences
-                                    et de l'industrie et le Palais de la découverte. Ce projet est accompagné par l'Atelier
-                                    Numérique, incubateur du Ministère de la Culture, intégrée au programme <a href="https://beta.gouv.fr/" target='_blank'>Beta.gouv.fr</a> de la
-                                    Direction interministérielle du numérique.
+                                    <strong>Ada</strong> (anciennement <em>Science Infuse</em>) est un service public gratuit porté par Universcience, l'établissement public qui regroupe la Cité des sciences et de l'industrie, le Palais de la découverte<br />
+                                    Depuis sa création en 2010, Universcience a pour mission de rendre les sciences accessibles et attrayantes, en promouvant la culture scientifique et technique auprès de toutes et tous.<br />
+                                    Les contenus proposés sur la plateforme Ada s'appuient sur les ressources produites par la Cité des sciences, le Palais de la découverte et leblob.fr, tirant parti de l'expertise reconnue de ces trois entités dans le domaine de la médiation scientifique.<br />
+                                    Le projet est accompagné par <strong>l'Atelier Numérique</strong>, l'incubateur du Ministère de la Culture, intégrée programme <strong>Beta.gouv.fr</strong> de la Direction interministérielle du numérique.
                                 </p>
                                 <div className={`flex flex-row flex-wrap justify-center gap-4 items-center`}>
                                     <Image

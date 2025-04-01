@@ -374,12 +374,15 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
 };
 
 export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[], defaultSelectedChunk?: ChunkWithScore<"video_transcript"> }> = ({ onInserted, onInsertedLabel, video, defaultSelectedChunk, searchWords }) => {
+    const user = useSession()?.data?.user;
     const firstChunk = video.items[0];
     let originalPath = firstChunk.document.originalPath;
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(defaultSelectedChunk)
     if (originalPath.includes("youtube") && selectedChunk) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(selectedChunk.metadata.start)}`
     }
+
+    const openLink = user ? `/media/video/${video.documentId}` : originalPath;
 
     useEffect(() => {
         if (!defaultSelectedChunk) return;
@@ -396,8 +399,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
                 chunk={selectedChunk || video.items[0]}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
-                        {/* <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`/media/video/${video.documentId}`} target="_blank">{firstChunk.document.mediaName}</a> */}
-                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`/media/video/${video.documentId}`} target="_blank">{firstChunk.title}</a>
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={openLink} target="_blank">{firstChunk.title}</a>
                         <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p>
                     </div>
                 }
@@ -406,8 +408,10 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
             />}
             desc={
                 <VideoPlayerHotSpots
+                    useYoutubePlayer={!user}
                     document={firstChunk.document}
                     selectedChunk={selectedChunk}
+                    // onChunkSelected={(_chunk) => {}}
                     onChunkSelected={(_chunk) => setSelectedChunk(_chunk)}
                     chunks={video.items}
                 />
@@ -419,6 +423,8 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
 }
 
 export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ onInserted, onInsertedLabel, chunk, searchWords }) => {
+    const user = useSession()?.data?.user;
+    console.log("chunkKK", chunk)
     let originalPath = chunk.document.originalPath;
     if (originalPath.includes("youtube")) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
@@ -432,7 +438,6 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
                         <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{chunk.title}</a>
-                        {/* <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p> */}
                     </div>
                 }
                 starred={chunk.user_starred}
@@ -440,6 +445,7 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
             />}
             desc={
                 <VideoPlayerHotSpots
+                    useYoutubePlayer={!user}
                     document={chunk.document}
                     selectedChunk={chunk}
                     onChunkSelected={() => { }}
@@ -466,7 +472,6 @@ export const RenderVideoTranscriptDocumentCard: React.FC<OnInserted & { document
         <StyledGroupedVideoCard
             end={<div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
                 <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{document.mediaName}</a>
-                {/* <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p> */}
             </div>}
             desc={
                 <div className="w-full mx-auto">
@@ -802,13 +807,15 @@ interface ResponsiveYoutubeEmbedProps {
     url: string;
     aspectRatio?: number; // ratio = largeur/hauteur, par défaut 16/9
     onDuration: (duration: number) => void;
+    initialStartTime?: number;
 }
 
 export interface YouTubePlayerRef {
     seekToTime: (seconds: number) => void;
 }
 
-export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedProps>(({ url, aspectRatio = 16 / 9, onDuration }, ref) => {
+export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedProps>(({ url, aspectRatio = 16 / 9, onDuration, initialStartTime = 0 }, ref) => {
+    console.log("initialStartTime", initialStartTime)
     const videoId = extractYoutubeVideoId(url);
     const playerRef = useRef<any>(null);
     const opts = {
@@ -816,6 +823,7 @@ export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedP
         height: '100%',
         playerVars: {
             autoplay: 0,
+            start: initialStartTime
         },
     };
 
@@ -843,8 +851,6 @@ export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedP
         />
     </div>;
 });
-
-
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, onInsertedLabel, chunk, searchWords }) => {
     if (isImageChunk(chunk)) return <RenderImageCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} />;
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} />;
