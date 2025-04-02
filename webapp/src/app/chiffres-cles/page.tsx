@@ -133,8 +133,8 @@ const ChiffresClés = () => {
                                         desc="L'origine des activités volcaniques et sismiques"
                                         title="96 vues uniques"
                                         enlargeLink
-                                        imageAlt="texte alternatif de l’image"
-                                        imageUrl="https://science-infuse-content.s3.gra.io.cloud.ovh.net/prof/cm0zel864000c11styasoildy/11b64ca2-3d20-473f-9870-d1cdc84dec6b.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=0dc3eab3f7a14d1184a14af9723152f2%2F20250401%2Fgra%2Fs3%2Faws4_request&X-Amz-Date=20250401T143426Z&X-Amz-Expires=3600&X-Amz-Signature=385170940a15a4d9ab90bbbe840a98f99dee5f4705ba8efadb088088d6247414&X-Amz-SignedHeaders=host&x-id=GetObject"
+                                        imageAlt="Illustration d'une coupe de la Terre montrant les activités volcaniques et sismiques"
+                                        imageUrl="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zel864000c11styasoildy/11b64ca2-3d20-473f-9870-d1cdc84dec6b.png"
                                         linkProps={{
                                             href: "https://ada.beta.gouv.fr/prof/chapitres/cm1ieay760028te4pfnsxju83/view",
                                             target: "_blank",
@@ -150,10 +150,10 @@ const ChiffresClés = () => {
                                         desc="Météo et climat"
                                         title="91 vues uniques"
                                         enlargeLink
-                                        imageAlt="texte alternatif de l’image"
-                                        imageUrl="https://science-infuse-content.s3.gra.io.cloud.ovh.net/prof/cm0zeprhf000d11st314t79ed/93266077-0f44-41f9-997f-e2df47e52bf5.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=0dc3eab3f7a14d1184a14af9723152f2%2F20250401%2Fgra%2Fs3%2Faws4_request&X-Amz-Date=20250401T143833Z&X-Amz-Expires=3600&X-Amz-Signature=3ee93e8c7241a609e6b2876ff6f89b2fea1b5c14d038b3a8e80d7377448043db&X-Amz-SignedHeaders=host&x-id=GetObject"
+                                        imageAlt="Illustration représentant des éléments météorologiques et climatiques"
+                                        imageUrl="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zeprhf000d11st314t79ed/93266077-0f44-41f9-997f-e2df47e52bf5.jpeg"
                                         linkProps={{
-                                            href: "https://ada.beta.gouv.fr/prof/chapitres/cm1ieay760028te4pfnsxju83/view",
+                                            href: "https://ada.beta.gouv.fr/prof/chapitres/cm1j81p0c001gmqp9nhdjm9mc/view",
                                             target: "_blank",
                                         }}
                                         size="medium"
@@ -161,7 +161,7 @@ const ChiffresClés = () => {
                                     />
                                 </div>
                                 <div className="fr-col-12 fr-col-md-4 p-2">
-                                <Card
+                                    <Card
                                         background
                                         border
                                         desc="Mes organes : une équipe"
