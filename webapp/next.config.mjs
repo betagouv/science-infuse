@@ -6,8 +6,31 @@ const nextConfig = {
   experimental: {
     swcPlugins: [["@preact-signals/safe-react/swc", { mode: "auto" }]],
     instrumentationHook: true
-
     // appDir: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.systeme-de-design.gouv.fr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ada.beta.gouv.fr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'science-infuse.beta.gouv.fr',
+      },
+      {
+        protocol: process.env.NEXT_PUBLIC_WEBAPP_URL?.startsWith('https') ? 'https' : 'http',
+        hostname: process.env.NEXT_PUBLIC_WEBAPP_URL?.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+      },
+    ],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'development' ? false : true,

@@ -15,11 +15,11 @@ interface EducationLevelsFiltersProps {
 
 const EducationLevelFilters: React.FC<EducationLevelsFiltersProps> = React.memo(({ selectedFilter, onFilterChange, filters }) => {
     return (
-        <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white p-2 sm:p-4">
+        <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white">
             <div className="flex flex-wrap w-full sm:w-auto">
                 <SegmentedControl
                     className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full'
-                    legend=""
+                    legend="Niveau scolaire :"
                     segments={
                         [
                             {
@@ -52,11 +52,11 @@ interface ThemesFiltersProps {
 
 const ThemesFilters: React.FC<ThemesFiltersProps> = React.memo(({ selectedFilter, onFilterChange, filters }) => {
     return (
-        <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white p-2 sm:p-4">
+        <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white">
             <div className="flex flex-wrap w-full sm:w-auto">
                 <SegmentedControl
                     className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full'
-                    legend=""
+                    legend="Thème :"
                     segments={
                         [
                             {
@@ -147,16 +147,9 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
                 </div>
             )}
 
-            <div className="flex flex-col w-full mt-8">
-                <div className="flex flex-col  w-full max-w-full sm:w-fit">
+            <div className="flex flex-col w-full">
+                <div className="flex flex-col  w-full max-w-full sm:w-fit gap-4">
                     <div className="flex flex-col sm:flex-row">
-                        <div className="flex items-center">
-                            {filterIcon}
-                            <p className="m-0 w-full sm:w-36 text-xs sm:text-sm font-bold text-[var(--text-action-high-blue-france)]">
-                                Niveau scolaire :
-                            </p>
-                        </div>
-
                         <EducationLevelFilters
                             selectedFilter={selectedEducationLevelFilter}
                             onFilterChange={setSelectedEducationLevelFilter}
@@ -164,13 +157,6 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
                         />
                     </div>
                     {allThemes && <div className="flex flex-col sm:flex-row overflow-auto">
-                        <div className="flex items-center">
-                            {filterIcon}
-                            <p className="m-0 w-full sm:w-36 text-xs sm:text-sm font-bold text-[var(--text-action-high-blue-france)]">
-                                Thème :
-                            </p>
-                        </div>
-
                         <ThemesFilters
                             selectedFilter={selectedThemesFilter}
                             onFilterChange={setSelectedThemesFilter}

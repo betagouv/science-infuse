@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
 import { File as DbFile } from '@prisma/client';
+import sharp from 'sharp';
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
@@ -20,13 +21,18 @@ export async function POST(request: NextRequest) {
     if (!file) {
         return NextResponse.json({ error: 'No file file provided' }, { status: 400 });
     }
-    
 
-    const buffer = await file.arrayBuffer();
+
+    let buffer = await file.arrayBuffer();
     const mimeType = file.type
     let fileExtensionFromMime = ''
     if (mimeType.startsWith('image/')) {
-        fileExtensionFromMime = mimeType.split('/')[1]
+        fileExtensionFromMime = 'webp'
+        // Resize and convert to WebP 
+        buffer = await sharp(buffer)
+            .resize({ width: 1920 })
+            .webp({ quality: 80 })
+            .toBuffer();
     }
     else if (mimeType == 'application/pdf') {
         fileExtensionFromMime = 'pdf'
