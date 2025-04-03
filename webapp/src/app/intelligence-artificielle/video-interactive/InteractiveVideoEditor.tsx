@@ -195,6 +195,20 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
         updateGroup({ ...questionGroup, questions: updatedQuestions });
     };
 
+    const moveQuestion = (fromIndex: number, toIndex: number) => {
+        const questions = [...questionGroup.questions];
+        const [movedQuestion] = questions.splice(fromIndex, 1);
+        questions.splice(toIndex, 0, movedQuestion);
+        updateGroup({ ...questionGroup, questions });
+    };
+
+    const duplicateQuestion = (qIndex: number) => {
+        const questions = [...questionGroup.questions];
+        const questionToDuplicate = { ...questions[qIndex] };
+        questions.splice(qIndex + 1, 0, questionToDuplicate);
+        updateGroup({ ...questionGroup, questions });
+    };
+
     const addQuestion = () => {
         const newQuestion: InteractiveVideoQuestion = {
             question: "",
@@ -334,6 +348,31 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
                                     </svg>
                                     Ajouter une réponse
                                 </Button>
+                                <div className="flex ml-auto gap-2">
+                                    <Button
+                                        onClick={() => moveQuestion(qIndex, Math.max(0, qIndex - 1))}
+                                        disabled={qIndex === 0}
+                                        priority="tertiary"
+                                        size="small"
+                                        title="Déplacer vers le haut"
+                                        iconId="fr-icon-arrow-up-line"
+                                    />
+                                    <Button
+                                        onClick={() => moveQuestion(qIndex, Math.min(questionGroup.questions.length - 1, qIndex + 1))}
+                                        disabled={qIndex === questionGroup.questions.length - 1}
+                                        priority="tertiary"
+                                        size="small"
+                                        title="Déplacer vers le bas"
+                                        iconId="fr-icon-arrow-down-line"
+                                    />
+                                    <Button
+                                        onClick={() => duplicateQuestion(qIndex)}
+                                        priority="tertiary"
+                                        size="small"
+                                        title="Dupliquer la question"
+                                        iconId="fr-icon-clipboard-fill"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -343,8 +382,6 @@ const QCMEditor: React.FC<QCMEditorProps> = ({ initialQuestionGroup, onChange, d
         </div >
     );
 };
-
-
 //////////////////////////////
 // Definition Editor Component //
 //////////////////////////////
