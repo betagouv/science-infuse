@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { authOptions } from '../auth/[...nextauth]/authOptions';
 import { IndexingContentType } from '@/types/queueing';
 import { DocumentTag } from '.prisma/client';
-import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents';
+import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents/index-content';
 
 const crypto = require('crypto');
 

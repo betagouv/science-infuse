@@ -55,9 +55,23 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                             },
                             {
                                 linkProps: {
-                                    href: "/admin/tasks-list",
+                                    href: "#",
                                 },
-                                text: "Liste des tâches"
+                                text: "Tâches",
+                                items: [
+                                    {
+                                        linkProps: {
+                                            href: "/admin/tasks-list-youtube",
+                                        },
+                                        text: "YouTube CRON"
+                                    },
+                                    {
+                                        linkProps: {
+                                            href: "/admin/tasks-list",
+                                        },
+                                        text: "Tâches admin"
+                                    }
+                                ]
                             },
                             {
                                 linkProps: {

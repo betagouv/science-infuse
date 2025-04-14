@@ -4,7 +4,7 @@ import cliProgress from 'cli-progress'
 import { JSONContent } from '@tiptap/core'
 import { youtube, youtube_v3 } from '@googleapis/youtube';
 import {extractYoutubeVideoId} from '../lib/utils/youtube';
-import {getDocumentFromVideoId} from '../queueing/pgboss/jobs/index-contents/index-video';
+import {getDocumentFromVideoId} from '../queueing/pgboss/jobs/index-video';
 import {catchErrorTyped} from '../errors';
 import {insertDocument} from '../lib/utils/db'
 
@@ -153,6 +153,11 @@ const indexYoutubeVideo = async (url: string, channelName: string) => {
 
 }
 
+export function videoIdToYoutubeUrl(videoId: string): string {
+    return `https://www.youtube.com/watch?v=${videoId}`
+}
+
+
 async function runChannelIndexation(channelId: string): Promise<void> {
     const channelVideos = await getChannelVideos(channelId)
     console.log(channelVideos.length)
@@ -162,7 +167,7 @@ async function runChannelIndexation(channelId: string): Promise<void> {
     
     progressYoutubeChannel.start(channelVideos.length, 0)
     for (const [index, video] of Array.from(channelVideos.entries())) {
-        const url = `https://www.youtube.com/watch?v=${video.video_id}`
+        const url = videoIdToYoutubeUrl(video.video_id)
         await indexYoutubeVideo(url, video.channel_name)
         progressYoutubeChannel.increment()
     }
@@ -178,17 +183,17 @@ const CHANNEL_PALAIS_DE_LA_DECOUVERTE = "UC1udnO-W6gpR9qzleJ5SDKw"
 
 
 
-async function main() {
-    await runChannelIndexation(CHANNEL_LE_BLOB)
-    await runChannelIndexation(CHANNEL_CITE_DES_SCIENCES)
-    await runChannelIndexation(CHANNEL_PALAIS_DE_LA_DECOUVERTE)
-}
+// async function main() {
+//     await runChannelIndexation(CHANNEL_LE_BLOB)
+//     await runChannelIndexation(CHANNEL_CITE_DES_SCIENCES)
+//     await runChannelIndexation(CHANNEL_PALAIS_DE_LA_DECOUVERTE)
+// }
 
-main()
-    .catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
-    .finally(async () => {
-        await prisma.$disconnect()
-    })
+// main()
+//     .catch((e) => {
+//         console.error(e)
+//         process.exit(1)
+//     })
+//     .finally(async () => {
+//         await prisma.$disconnect()
+//     })

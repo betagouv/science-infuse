@@ -2,9 +2,9 @@ import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { catchErrorTyped, DocumentAlreadyIndexed } from "@/errors";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 import axios from "axios";
-import { ServerProcessingResult } from ".";
 import prisma from "@/lib/prisma";
 import { insertDocument } from "@/lib/utils/db";
+import { ServerProcessingResult } from "./index-contents/auto-index-youtube";
 
 
 export const getDocumentFromVideoId = async (videoId: string) => {

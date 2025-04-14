@@ -176,8 +176,8 @@ class ApiClient {
     return response.data;
   }
 
-  async fetcheIndexFileJobs(page: number, pageSize: number) {
-    const response = await this.axiosInstance.get<PgBossJobGetIndexContentResponse>(`/queueing/data/index-content?page=${page}&pageSize=${pageSize}`);
+  async fetcheIndexFileJobs(page: number, pageSize: number, queue: string): Promise<PgBossJobGetIndexContentResponse> {
+    const response = await this.axiosInstance.get<PgBossJobGetIndexContentResponse>(`/queueing/data/index-content?page=${page}&pageSize=${pageSize}&queue=${queue}`);
     return response.data;
   }
 

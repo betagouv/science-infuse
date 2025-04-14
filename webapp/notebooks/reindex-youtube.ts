@@ -83,14 +83,15 @@ const isUrlAlreadyIndexed = async (url: string): Promise<boolean> => {
     return !!document
 }
 
+function videoIdToYoutubeUrl(videoId: string): string {
+    return `https://www.youtube.com/watch?v=${videoId}`
+}
 async function indexChannel(channelId: string, useOauth: boolean): Promise<void> {
     const channelVideos = await getChannelVideos(channelId)
     console.log(channelVideos.length)
 
     for (const [index, video] of Array.from(channelVideos.entries())) {
-        const url = `https://www.youtube.com/watch?v=${video.video_id}`
-        // console.log(`Title: ${video.title}`)
-        // console.log(`Video ID: ${video.video_id}`)
+        const url = videoIdToYoutubeUrl(video.video_id)
         const alreadyIndexed = await isUrlAlreadyIndexed(video.video_id);
         if (alreadyIndexed) {
             console.log(`Already in DB, SKIP INDEXING ${video.title.slice(0, 40)} | ${video.publish_time} | ${video.duration_seconds} | ${url}`)

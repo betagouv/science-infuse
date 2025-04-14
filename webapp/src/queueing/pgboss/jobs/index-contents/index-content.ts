@@ -8,7 +8,7 @@ import { z } from "zod";
 import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
-import indexYoutube, { createOrGetTag } from "./index-video";
+import indexYoutube, { createOrGetTag } from "../index-video";
 
 const crypto = require('crypto');
 
@@ -35,7 +35,7 @@ export interface ServerProcessingResult {
 
 export const indexContentJob = defineJob(config);
 
-export const indexContentWorker = defineWorker(config, async (job) => {
+export const IndexContentWorker = defineWorker(config, async (job) => {
   const { path, author, type, documentTagIds, sourceCreationDate, metadata, isExternal } = job.data;
 
   let processingError: Error | undefined;

@@ -41,6 +41,11 @@ class VideoProcessor(BaseDocumentProcessor):
 
     def download_youtube_video(self, youtube_url):
         po_token_path = "./potoken.json"
+        print("PO TOKEN PATH:", po_token_path)
+        if os.path.exists(po_token_path):
+            with open(po_token_path, 'r') as f:
+                print("PO TOKEN CONTENT:", f.read())
+
         output_path = os.path.join(self.base_download_folder, 'youtube')
         os.makedirs(output_path, exist_ok=True)
         filename = f"{self.id}.mp4"

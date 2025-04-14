@@ -17,6 +17,7 @@ export const JOB_TYPES = {
   data: [
     "index-content",
     "index-url",
+    "auto-index-youtube"
   ],
   scheduled: [
     "reindex-youtube"

@@ -7,11 +7,23 @@ import { apiClient } from '@/lib/api-client';
 import { Chip, CircularProgress, Tooltip } from '@mui/material';
 import AdminWrapper from '../AdminWrapper';
 import { PgBossJobGetIndexContentResponse } from '@/types/queueing';
+import { extractYoutubeVideoId } from '@/lib/utils/youtube';
 
 const columns: GridColDef[] = [
     // { field: 'id', headerName: 'ID', width: 100 },
     //   { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'path', headerName: 'Fichier', width: 200, valueGetter: (value, row) => row.data?.path.split('/').pop() },
+    {
+        field: 'url',
+        headerName: 'Vidéo', width: 200,
+        valueGetter: (value, row) => row.data.url,
+        renderCell: (params) => <a href={params.value} target="_blank">{extractYoutubeVideoId(params.value)}</a>
+    },
+    {
+        field: 'document',
+        headerName: 'Document', width: 200,
+        valueGetter: (value, row) => row.data.url,
+        renderCell: (params) => <a href={params.value} target="_blank">{JSON.stringify(params.value)}</a>
+    },
     {
         field: 'state',
         headerName: 'Etat',
@@ -30,7 +42,6 @@ const columns: GridColDef[] = [
         }
     },
     { field: 'author', headerName: 'Source', width: 150, valueGetter: (value, row) => row.data?.author },
-    { field: 'documentId', headerName: 'Document', width: 120, renderCell: (params) => params.row.output?.documentId && <Tooltip title="Inspecter ce document"><a target='_blank' href={`/admin/inspect-document?documentId=${params.row.output.documentId}`}>{params.row.output.documentId.split('-')[0]}</a></Tooltip> },
     { field: 'started_on', headerName: 'Démarré le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },
     // { field: 'created_on', headerName: 'Créé le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },
     // { field: 'completed_on', headerName: 'Terminé le', width: 170, valueFormatter: (value, row) => value ? new Date(value).toLocaleString('fr-FR') : 'N/A' },
@@ -49,18 +60,15 @@ const columns: GridColDef[] = [
         },
     },
     { field: 'message', headerName: 'Message', width: 200, valueGetter: (value, row) => row.output?.message },
-];
-
-
-const JobList: React.FC = () => {
+]; const JobList: React.FC = () => {
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
         page: 0,
         pageSize: 10,
     });
 
     const { data, isLoading, isError } = useQuery<PgBossJobGetIndexContentResponse>({
-        queryKey: ['data.index-content', paginationModel.page, paginationModel.pageSize],
-        queryFn: () => apiClient.fetcheIndexFileJobs(paginationModel.page + 1, paginationModel.pageSize, 'data.index-content'),
+        queryKey: ['data.auto-index-youtube', paginationModel.page, paginationModel.pageSize],
+        queryFn: () => apiClient.fetcheIndexFileJobs(paginationModel.page + 1, paginationModel.pageSize, 'data.auto-index-youtube'),
         refetchInterval: 10000,
     });
 
