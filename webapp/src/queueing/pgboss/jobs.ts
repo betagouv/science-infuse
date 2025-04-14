@@ -20,8 +20,7 @@ export async function registerJobs() {
 
   // Schedule the reindex-youtube job to run every week
   try {
-    await queue.schedule('scheduled.reindex-youtube', '0 0 * * 0', {});
-    // await queue.schedule('scheduled.reindex-youtube', '15 * * * *', {});
+    await queue.schedule('scheduled.reindex-youtube', '0 0 * * 6', {});
     console.log("Reindex Youtube job scheduled successfully");
   } catch (error) {
     console.error("Error scheduling Reindex Youtube job:", error);
