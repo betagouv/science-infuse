@@ -2,9 +2,9 @@ import { getEmbeddings, getTextToEmbeed } from '../lib/utils/embeddings'
 import { DocumentChunk, DocumentChunkMeta, Document, PrismaClient, Prisma } from '@prisma/client'
 import cliProgress from 'cli-progress'
 import axios from 'axios'
-import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents'
 import { NEXT_PUBLIC_SERVER_URL } from '../config'
 import { insertChunk } from '../lib/utils/db'
+import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents/index-content'
 
 const prisma = new PrismaClient()
 

@@ -7,11 +7,11 @@ import { authOptions } from '../../auth/[...nextauth]/authOptions';
 import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
-import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents';
 import { catchErrorTyped, DocumentAlreadyIndexed } from '@/errors';
-import indexVideo from '@/queueing/pgboss/jobs/index-contents/index-video';
 import { insertDocument } from '@/lib/utils/db';
 import { z } from 'zod';
+import indexVideo from '@/queueing/pgboss/jobs/index-video';
+import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents/index-content';
 const crypto = require('crypto');
 
 const PostSchema = z.object({

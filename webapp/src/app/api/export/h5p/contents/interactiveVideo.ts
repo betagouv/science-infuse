@@ -3,7 +3,7 @@
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import prisma from "@/lib/prisma";
 import { callGroq, GroqError } from "@/lib/server/ia/external_llm";
-import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents";
+import { ServerProcessingResult } from "@/queueing/pgboss/jobs/index-contents/index-content";
 import { WordSegment } from "@/types/vectordb";
 import { DocumentChunk, Document, DocumentChunkMeta, PrismaClient } from "@prisma/client";
 import axios from "axios";
