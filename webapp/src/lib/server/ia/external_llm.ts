@@ -13,7 +13,7 @@ export interface GroqError {
     message: string;
 }
 
-export const callGroq = async (text: string, model: string = "llama-3.3-70b-specdec"): Promise<[GroqError | undefined, string | undefined]> => {
+export const callGroq = async (text: string, model: string = "llama-3.3-70b-versatile"): Promise<[GroqError | undefined, string | undefined]> => {
     const chatCompletion = await groqClient.chat.completions.create({
         messages: [{ role: 'user', content: text }],
         model: model,
@@ -34,6 +34,7 @@ export const callGroq = async (text: string, model: string = "llama-3.3-70b-spec
         return chatCompletion as [GroqError, undefined];
     }
 
+    console.log(chatCompletion.choices[0].message.content);
     return [undefined, chatCompletion.choices[0].message.content || ""];
 }
 
