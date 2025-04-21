@@ -82,7 +82,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
                 </div>
                 <SIFooter />
                 <Footer
-                  accessibility="partially compliant"
+                  accessibility="non compliant"
                   contentDescription={`
                 `}
                   bottomItems={[
