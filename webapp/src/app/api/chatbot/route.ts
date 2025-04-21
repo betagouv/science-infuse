@@ -100,7 +100,7 @@ ${userSystemPrompt}
             }))) as string[]
 
             const { query } = args;
-            const searchResult = await apiClient.search({ query, limit: 15, mediaTypes: mappedMediaTypes })
+            const searchResult = await apiClient.search({ query, filters: { limit: 15, mediaTypes: mappedMediaTypes } })
             const chunks = searchResult.chunks
             const response = `
 Voici des resultats de recherche pour le terme "${query}".
