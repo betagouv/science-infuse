@@ -16,10 +16,15 @@ export interface UserFullWithChapterCount extends UserFull {
     chapterCount: number
 }
 
+export interface QueryFilters {
+    mediaTypes?: string[];
+    limit?: number;
+    maxDuration?: number;
+  }
+  
 export interface QueryRequest {
     query: string,
-    mediaTypes?: string[],
-    limit?: number
+    filters?: QueryFilters
 }
 
 export interface CreateBlockRequest {

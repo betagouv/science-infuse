@@ -5,21 +5,16 @@ import { SearchResults, DocumentSearchResults } from "@/types/vectordb";
 import { QueryFunction } from "@tanstack/react-query";
 
 
-export const fetchSIContent: QueryFunction<SearchResults, [string, string[] | undefined, number | undefined]> = async ({ queryKey }) => {
-  const [query, mediaTypes, limit] = queryKey;
-  if (!query) return { chunks: [], blocks: [], page_count: 1 };
+export const fetchSIContent: QueryFunction<SearchResults, [string, QueryRequest]> = async ({ queryKey }) => {
+  const [_, params] = queryKey;
+  if (!params.query) return { chunks: [], blocks: [], page_count: 1 };
 
-  const queryData: QueryRequest = {
-    query,
-    mediaTypes: mediaTypes,
-    limit,
-  }
-  const response = await apiClient.search(queryData);
+  const response = await apiClient.search(params);
 
   if (window._paq) {
     const matchCount = response.chunks.length + response.blocks.length
     window._paq.push(['trackSiteSearch',
-      queryData.query,
+      params.query,
       false,
       matchCount
     ]);

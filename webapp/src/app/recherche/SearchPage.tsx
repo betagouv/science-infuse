@@ -12,10 +12,11 @@ import { useEffect } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import { RenderSearchResult } from "./RenderSearch";
 import { useSession } from "next-auth/react";
+import { QueryFilters } from "@/types/api";
 
 
 
-const SearchPage = (props: { query: string, tab?: string, mediaTypes?: MediaType[], onInsertedLabel?: string, onInserted?: (chunk: ChunkWithScoreUnion) => void, hiddenTabs?: TabType[], onTabChange?: (newTab: TabType) => void }, onInserted?: (chunk: ChunkWithScoreUnion) => void) => {
+const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: string, mediaTypes?: MediaType[], onInsertedLabel?: string, onInserted?: (chunk: ChunkWithScoreUnion) => void, hiddenTabs?: TabType[], onTabChange?: (newTab: TabType) => void }, onInserted?: (chunk: ChunkWithScoreUnion) => void) => {
     const query = props.query;
     const urlTabType = props.tab || "";
     const searchWords = getSearchWords(query);
@@ -24,7 +25,10 @@ const SearchPage = (props: { query: string, tab?: string, mediaTypes?: MediaType
     const user = session?.user;
 
     const { data: results, isLoading, isError } = useQuery({
-        queryKey: [query, undefined, 1000] as const,
+        queryKey: ['search', {
+            query,
+            filters: props.queryFilters
+        }],
         queryFn: fetchSIContent,
         enabled: !!query,
     });

@@ -36,7 +36,6 @@ const MobileNotSupportedModal = () => {
         }
     }, [isMobile, isInitialized, modal]);
 
-    console.log(`Modal is currently: ${isOpen ? "open" : "closed"}`);
 
     if (!isInitialized) {
         return null; // or a loading indicator

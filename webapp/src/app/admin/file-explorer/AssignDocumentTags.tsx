@@ -25,7 +25,6 @@ export default function (props: { documentIds: string[] }) {
         };
         fetchTags();
     }, []);
-    console.log(`Modal is currently: ${isOpen ? "open" : "closed"}`);
 
     return (
         <>

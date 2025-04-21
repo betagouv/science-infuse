@@ -149,7 +149,7 @@ export async function searchBlocksWithChapter(
 }
 
 export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
-  const limit = Math.min(params.limit || 1000, 1000);
+  const limit = Math.min(params?.filters?.limit || 1000, 1000);
   const startTime = performance.now();
   const [_, data] = await prisma.$transaction([
     prisma.$executeRaw`SET LOCAL hnsw.ef_search = 1000`,
@@ -172,15 +172,16 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
       ${userId ? Prisma.sql`LEFT JOIN "StarredDocumentChunk" sdc
         ON dc."id" = sdc."documentChunkId" AND sdc."userId" = ${userId}` : Prisma.sql``}
       WHERE dc."textEmbedding" IS NOT NULL
-        ${params.mediaTypes ? Prisma.sql`AND dc."mediaType" = ANY(${params.mediaTypes}::text[])` : Prisma.empty}
+        ${params?.filters?.mediaTypes ? Prisma.sql`AND dc."mediaType" = ANY(${params?.filters?.mediaTypes}::text[])` : Prisma.empty}
+        ${params?.filters?.maxDuration ? Prisma.sql`AND d."duration" <= ${params.filters.maxDuration}` : Prisma.empty}
         AND 1 - (dc."textEmbedding" <=> ${embedding}::vector) > 0.21
         AND (d."deleted" IS NOT TRUE)
         AND (dc."deleted" IS NOT TRUE)
         AND (d."isPublic" IS NOT FALSE)
       ORDER BY dc."textEmbedding" <=> ${embedding}::vector
-      LIMIT ${Math.min(params.limit || 1000, 1000)};
+      LIMIT ${limit};
       `
-  ]) as [unknown, (DocumentChunk & { document: Document,  metadata: DocumentChunkMeta })[]]
+  ]) as [unknown, (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[]]
 
   const endTime = performance.now();
   const executionTime = endTime - startTime;

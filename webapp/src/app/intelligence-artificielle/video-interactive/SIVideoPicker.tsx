@@ -52,11 +52,11 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
         {query && <SearchPage
             onInsertedLabel="Générer quiz et définitions"
             onInserted={(chunk) => {
-                console.log("INSERTED CHUNK", chunk)
                 props.onDocumentProcessingStart();
                 props.onDocumentIdPicked(chunk.document.id);
             }}
             query={query}
+            queryFilters={{ limit: 100, mediaTypes: [MediaTypes.VideoTranscript], maxDuration: 600 }}
             tab="videos"
             mediaTypes={[MediaTypes.VideoTranscript]}
             hiddenTabs={[TabType.Chapters, TabType.Documents, TabType.Games, TabType.Others, TabType.Pictures]}

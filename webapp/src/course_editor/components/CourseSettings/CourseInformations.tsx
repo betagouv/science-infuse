@@ -329,7 +329,13 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
     });
 
     const { data: results, isLoading, isError } = useQuery({
-        queryKey: [query, [MediaTypes.PdfImage], 10] as const,
+        queryKey: ['search-course', {
+            query,
+            filters: {
+                mediaTypes: [MediaTypes.PdfImage],
+                limit: 10
+            }
+        }],
         queryFn: fetchSIContent,
         enabled: !!query,
     });

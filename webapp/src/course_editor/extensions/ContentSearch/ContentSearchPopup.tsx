@@ -40,7 +40,12 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
 
 
   const { data: results, isLoading, isError } = useQuery({
-    queryKey: [query, undefined, 1000] as const,
+    queryKey: ['search-course', {
+      query,
+      filters: {
+        limit: 1000
+      }
+    }],
     queryFn: fetchSIContent,
     enabled: !!query,
   });

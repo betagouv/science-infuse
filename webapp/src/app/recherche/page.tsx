@@ -21,16 +21,10 @@ const Search: React.FC = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get('query') || "";
   const urlTabType = searchParams.get('tab') || "";
-  const searchWords = getSearchWords(query);
   const { push } = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
 
-  const { data: results, isLoading, isError } = useQuery({
-    queryKey: [query, undefined, 1000] as const,
-    queryFn: fetchSIContent,
-    enabled: !!query,
-  });
 
   useEffect(() => {
     if (!urlTabType) return;
@@ -38,10 +32,6 @@ const Search: React.FC = () => {
       selectedTabType.value = urlTabType as TabType;
     }, 1000)
   }, [urlTabType, user])
-
-  const resultPerPage = 10
-
-
 
 
   return (
@@ -55,7 +45,7 @@ const Search: React.FC = () => {
             push(url.toString());
             selectedTabType.value = newTab;
 
-          }}/>
+          }} />
         </div>
       </div>
       <Snackbar />
