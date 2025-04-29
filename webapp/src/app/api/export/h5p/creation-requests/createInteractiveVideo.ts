@@ -1,8 +1,42 @@
+import prisma from "@/lib/prisma";
 import { createH5P } from "."
 import { InteractiveVideoData } from "../contents/interactiveVideo"
 import { v4 as uuidv4 } from 'uuid';
 
 export default async (input: InteractiveVideoData, h5pContentId?: string) => {
+    const definitions = input.definitions;
+    console.log("definitions", definitions);
+    // const document = await prisma.document.findUnique({
+    //     where: {
+    //         id: input.documentId
+    //     },
+    // });
+    // if (!document) {
+    //     throw new Error(`Document not found for id: ${input.documentId}`);
+    // }
+
+    // if (document.duration && input.addDefinitionRecap) {
+    //     const allDefinitions = input.definitions.map(d => d.definitions).flat();
+    //     if (allDefinitions.length > 0) {
+    //         // Remove duplicate definitions by using a Map with JSON stringified objects as keys
+    //         const uniqueDefinitionsMap = new Map();
+    //         allDefinitions.forEach(def => {
+    //             // Create a key that represents this definition
+    //             const key = JSON.stringify({
+    //                 notion: def.notion.trim().toLowerCase(),
+    //                 definition: def.definition.trim().toLowerCase()
+    //             });
+    //             uniqueDefinitionsMap.set(key, def);
+    //         });
+    //         const uniqueDefinitions = Array.from(uniqueDefinitionsMap.values());
+
+    //         definitions.push({
+    //             timestamp: document.duration,
+    //             definitions: uniqueDefinitions
+    //         });
+    //     }
+
+    // }
     const data = {
         "library": "H5P.InteractiveVideo 1.27",
         "params": {
@@ -27,7 +61,7 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
                     },
                     "assets": {
                         "interactions": [
-                            ...input.definitions.map((groupedDefinitions) => {
+                            definitions.map((groupedDefinitions) => {
                                 const { timestamp, definitions } = groupedDefinitions;
                                 return definitions.map((definition, i) => ({
                                     "x": 5.453442867551143 + Math.floor(i / 10) * 35,

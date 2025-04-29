@@ -548,7 +548,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                                                     setLoadingDefinitions(prev => ({ ...prev, [index]: true }));
                                                     const [groqError, definition] = await LLMGenerateDefinition(def.notion, documentId);
                                                     if (groqError) {
-                                                        toast('Here is your toast.');
+                                                        toast('Une erreur est survenue lors de la génération de la définition');
                                                     }
                                                     if (definition)
                                                         handleDefinitionChange(index, definition);
@@ -638,6 +638,8 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                     videoTitle: video.mediaName,
                     questions,
                     definitions,
+                    addDefinitionRecap: true,
+                    documentId: documentId,
                 },
                 documentIds: documentId ? [documentId] : [],
             });

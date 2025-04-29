@@ -38,6 +38,8 @@ export interface InteractiveVideoData {
     videoTitle: string,
     questions: InteractiveVideoQuestionGroup[],
     definitions: InteractiveVideoDefinitionGroup[],
+    documentId: string,
+    addDefinitionRecap?: boolean
 }
 
 
@@ -188,31 +190,8 @@ const parseVideoContent = (input: string, chunks: (DocumentChunk & { metadata: D
             definitions
         }));
 
-    // Add recap of all definitions at the end, ensuring no duplicates
-    const allDefinitions = Array.from(definitionMap.values()).flat();
-    if (allDefinitions.length > 0) {
-        // Remove duplicate definitions by using a Map with JSON stringified objects as keys
-        const uniqueDefinitionsMap = new Map();
-        allDefinitions.forEach(def => {
-            // Create a key that represents this definition
-            const key = JSON.stringify({
-                notion: def.notion.trim().toLowerCase(),
-                definition: def.definition.trim().toLowerCase()
-            });
-            uniqueDefinitionsMap.set(key, def);
-        });
-
-        const uniqueDefinitions = Array.from(uniqueDefinitionsMap.values());
-
-        const lastTimestamp = Math.max(...chunks.map(chunk => chunk?.metadata?.end || 0));
-        definitions.push({
-            timestamp: lastTimestamp,
-            definitions: uniqueDefinitions
-        });
-    }
-
     // Now merge after adding the recap
-    definitions = mergeCloseDefinitions(definitions, 5);
+    definitions = mergeCloseDefinitions(definitions, 2);
 
     return { questions, definitions };
 };
@@ -352,6 +331,6 @@ ${videoTranscript}
         }
         return [undefined, undefined];
     } catch (error) {
-        return [{status: 500, message: 'Server error'}, undefined];
+        return [{ status: 500, message: 'Server error' }, undefined];
     }
 }

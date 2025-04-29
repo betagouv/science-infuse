@@ -36,6 +36,8 @@
     "@emotion/react": "^11.11.4",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.5",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@googleapis/youtube": "^20.0.0",
     "@lumieducation/h5p-html-exporter": "^9.3.2",
     "@lumieducation/h5p-mongos3": "^9.3.2",
@@ -103,6 +105,7 @@
     "pgvector": "^0.2.0",
     "puppeteer": "^23.3.0",
     "react": "^18",
+    "react-bootstrap": "^2.10.9",
     "react-collapsed": "^4.1.2",
     "react-colorful": "^5.6.1",
     "react-dom": "^18",
@@ -148,5 +151,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
-  }
+  },
+  "proxy": "http://127.0.0.1:4004"
 }

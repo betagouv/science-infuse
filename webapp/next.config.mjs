@@ -44,6 +44,18 @@ const nextConfig = {
     NEXT_PUBLIC_S3_BUCKET: process.env.S3_BUCKET,
     NEXT_PUBLIC_ENVIRONMENT: process.env.ENVIRONMENT
   },
+  async rewrites() {
+    return [
+      // {
+      //   source: '/h5p/:path*',
+      //   destination: `${process.env.NEXT_PUBLIC_H5P_URL}/h5p/:path*`,
+      // },
+      // {
+      //   source: '/h5p/ajax/:path*',
+      //   destination: `${process.env.NEXT_PUBLIC_H5P_URL}/h5p/:path*`,
+      // },
+    ];
+  },
   webpack: config => {
     // https://github.com/wojtekmaj/react-pdf?tab=readme-ov-file#nextjs
     config.resolve.alias.canvas = false;

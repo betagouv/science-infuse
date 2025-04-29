@@ -4,9 +4,11 @@ import { Breadcrumb } from "@codegouvfr/react-dsfr/Breadcrumb";
 import Input from "@codegouvfr/react-dsfr/Input";
 import InteractiveVideoGenerator from "./InteractiveVideoGenerator";
 import AutoBreadCrumb from '@/components/AutoBreadCrumb';
+import { useSnackbar } from '@/app/SnackBarProvider';
+import { useAlertToast } from '@/components/AlertToast';
 
 
-export default function ProfDashboard() {
+export default function InteractiveVideoPage() {
     return (
         <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item mt-4'>

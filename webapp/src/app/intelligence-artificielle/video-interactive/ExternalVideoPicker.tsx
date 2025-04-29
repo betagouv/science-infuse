@@ -1,10 +1,12 @@
 
 
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { useCallback, useRef, useState } from "@preact-signals/safe-react/react";
+import { useCallback, useEffect, useRef, useState } from "@preact-signals/safe-react/react";
 import { useDropzone } from "react-dropzone";
 import { apiClient } from "@/lib/api-client";
 import Input from "@codegouvfr/react-dsfr/Input";
+import { useSnackbar } from "@/app/SnackBarProvider";
+import { useAlertToast } from "@/components/AlertToast";
 
 export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
 
@@ -12,9 +14,11 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
     const [mediaName, setMediaName] = useState("");
     const [droppedFile, setDroppedFile] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const alertToast = useAlertToast();
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
+
         if (file) {
             setDroppedFile(file);
             if (fileInputRef.current) {
@@ -36,16 +40,21 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
     });
 
 
-
     const uploadFileAndProcess = async (file: File, mediaName: string) => {
-        const response = await apiClient.indexFile({ file, mediaName });
-        console.log("uploadFileAndProcess", response)
-        props.onDocumentIdPicked(response.documentId)
+        try {
+            const response = await apiClient.indexFile({ file, mediaName });
+            props.onDocumentIdPicked(response.documentId)
+        } catch (error) {
+            if (error instanceof Error) {
+                alertToast.error("Erreur lors de l'upload du fichier", error.message);
+            } else {
+                alertToast.error("Erreur lors de l'upload du fichier", "Une erreur inconnue s'est produite");
+            }
+        }
     }
 
     return <div className="flex flex-col w-full items-center">
         <div className="w-full flex flex-col gap-8">
-
 
             <div {...getRootProps()} className="flex flex-col w-full items-center gap-8 "
                 style={{
