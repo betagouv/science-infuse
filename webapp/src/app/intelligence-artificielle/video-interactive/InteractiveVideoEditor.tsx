@@ -797,8 +797,8 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 </p> : <></>}
 
                 {/* H5P PREVIEW */}
-                {previewUrl ? (
-                    <H5PRenderer key={refreshKey} h5pPublicUrl={previewUrl} />
+                {h5pContentId ? (
+                    <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />
                 ) : null}
 
                 <div className="flex flex-wrap items-center gap-4">

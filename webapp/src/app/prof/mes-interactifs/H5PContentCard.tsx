@@ -39,11 +39,11 @@ const StyledCard = styled(Card)`
 
 `
 
-function H5PContentCard({ deleteH5p, content, h5pPublicUrl }: { deleteH5p: (contentId: string) => Promise<void>, h5pPublicUrl: string, content: H5PContent & { documents: DocumentWithChunks[] } }) {
+function H5PContentCard({ deleteH5p, content, h5pContentId }: { deleteH5p: (contentId: string) => Promise<void>, h5pContentId: string, content: H5PContent & { documents: DocumentWithChunks[] } }) {
 
     const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=h5p`;
     const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=html`;
-
+    const h5pPublicUrl = content.h5pId ? `${process.env.NEXT_PUBLIC_WEBAPP_URL}/embed/h5p/${content.h5pId}` : "";
     return (
         <>
             <modal.Component
@@ -83,7 +83,7 @@ function H5PContentCard({ deleteH5p, content, h5pPublicUrl }: { deleteH5p: (cont
                     />}
                 desc={
                     <div className="relative">
-                        <H5PRenderer h5pPublicUrl={h5pPublicUrl} />
+                        <H5PRenderer h5pContentId={h5pContentId} />
                     </div>
                 }
                 end={

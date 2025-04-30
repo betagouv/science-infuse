@@ -14,16 +14,16 @@ export default function (props: { reverse?: boolean }) {
     const { isMobile } = useWindowSize();
     const router = useRouter()
 
-    const [h5pUrl, setH5pUrl] = React.useState<string | null>(null);
+    // const [h5pUrl, setH5pUrl] = React.useState<string | null>(null);
 
-    React.useEffect(() => {
-        const fetchH5PUrl = async () => {
-            const url = await getH5PHomeUrl();
-            if (!url) return;
-            setH5pUrl(url);
-        };
-        fetchH5PUrl();
-    }, []);
+    // React.useEffect(() => {
+    //     const fetchH5PUrl = async () => {
+    //         const url = await getH5PHomeUrl();
+    //         if (!url) return;
+    //         setH5pUrl(url);
+    //     };
+    //     fetchH5PUrl();
+    // }, []);
     return (
         <div className="fr-container overflow-x-hidden">
             <div className="fr-grid-row fr-grid-row--center">
@@ -42,16 +42,16 @@ export default function (props: { reverse?: boolean }) {
                         <div className="flex flex-col gap-2 w-full max-w-[600px]">
                             <div className="flex items-center w-full relative" style={{ aspectRatio: '1.7' }}>
 
-                                {h5pUrl ?
+                                {/* {h5pUrl ?
                                     <H5PRenderer h5pPublicUrl={h5pUrl} />
-                                    :
+                                    : */}
                                     <Image
                                         src="/images/interactive-video-preview.png"
                                         fill
                                         alt="Illustration vidéo interactive"
                                         className="mix-blend-multiply object-cover"
                                     />
-                                }
+                                {/* } */}
 
                                 <Image
                                     src="/images/landing_section_2.svg"

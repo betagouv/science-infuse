@@ -4,6 +4,54 @@ import {
     IRequestWithUser,
     IRequestWithLanguage
 } from '@lumieducation/h5p-express';
+import s3Storage from './S3Storage';
+import fs from 'fs';
+import { exec } from 'child_process';
+import { checkAdaH5pSecret } from './utils';
+
+const downloadContentFromS3 = async (s3ObjectName: string, contentId: string) => {
+    const downloadUrl = await s3Storage.getPresignedUrl(s3ObjectName);
+    if (!downloadUrl) return;
+
+    const response = await fetch(downloadUrl);
+    const buffer = await response.arrayBuffer();
+
+    const zipPath = `./h5p/content/${contentId}.zip`;
+    const extractPath = `./h5p/content/${contentId}`;
+
+    await fs.promises.mkdir(extractPath, { recursive: true });
+    await fs.promises.writeFile(zipPath, Buffer.from(buffer));
+
+    await new Promise((resolve, reject) => {
+        exec(`unzip ${zipPath} -d ${extractPath}`, (error) => {
+            if (error) reject(error);
+            resolve(true);
+        });
+    });
+
+    const contentJsonPath = `${extractPath}/content/content.json`;
+    const finalContentJsonPath = `${extractPath}/content.json`;
+
+    await fs.promises.copyFile(contentJsonPath, finalContentJsonPath);
+
+    // Clean up files in parallel
+    const entries = await fs.promises.readdir(extractPath, { withFileTypes: true });
+    const cleanupPromises = entries.map(entry => {
+        const fullPath = `${extractPath}/${entry.name}`;
+        if (entry.name !== 'h5p.json' && entry.name !== 'content.json') {
+            return entry.isDirectory()
+                ? fs.promises.rm(fullPath, { recursive: true })
+                : fs.promises.unlink(fullPath);
+        }
+    }).filter(Boolean);
+
+    await Promise.all(cleanupPromises);
+    await fs.promises.unlink(zipPath);
+
+    return extractPath;
+}
+
+
 
 /**
  * @param h5pEditor
@@ -12,6 +60,7 @@ import {
  * language set by a language detector in the req.language property.
  * (recommended)
  */
+
 export default function (
     h5pEditor: H5P.H5PEditor,
     h5pPlayer: H5P.H5PPlayer,
@@ -19,8 +68,58 @@ export default function (
 ): express.Router {
     const router = express.Router();
 
-    router.get(`/:contentId/play`, async (req: IRequestWithUser, res) => {
+
+    // router.post('/new', async (req: any, res) => {
+    //     console.log('Received request to create new H5P content');
+    //     if (!checkAdaH5pSecret(req, res)) {
+    //         console.log('Invalid secret provided');
+    //         return res.status(403).send('Invalid secret').end();
+    //     }
+
+    //     if (
+    //         !req.body.params ||
+    //         !req.body.params.params ||
+    //         !req.body.params.metadata ||
+    //         !req.body.library ||
+    //         !req.user
+    //     ) {
+    //         console.log('Request validation failed:', {
+    //             params: !!req.body.params,
+    //             paramsParams: !!req.body.params?.params,
+    //             metadata: !!req.body.params?.metadata,
+    //             library: !!req.body.library,
+    //             user: !!req.user
+    //         });
+    //         res.status(400).send('Malformed request').end();
+    //         return;
+    //     }
+    //     console.log('Saving H5P content with library:', req.body.library);
+    //     const contentId = await h5pEditor.saveOrUpdateContent(
+    //         undefined,
+    //         req.body.params.params,
+    //         req.body.params.metadata,
+    //         req.body.library,
+    //         req.user
+    //     );
+
+    //     console.log('created new contentId', contentId);
+
+    //     res.send(JSON.stringify({ contentId }));
+    //     res.status(200).end();
+    // });
+
+
+    router.get(`/:contentId/play`, async (req: any, res) => {
         try {
+            const contentFolder = `./h5p/content/${req.params.contentId}`;
+            console.log("Content folder", contentFolder);
+            if (!fs.existsSync(contentFolder)) {
+                const s3ObjectName = `h5p-video-${req.params.contentId}`;
+                await downloadContentFromS3(s3ObjectName, req.params.contentId);
+            }
+
+            // await new Promise(resolve => setTimeout(resolve, 5000));
+
             const content = await h5pPlayer.render(
                 req.params.contentId,
                 req.user,
@@ -58,6 +157,7 @@ export default function (
                             : undefined
                 }
             );
+            console.log(content)
             res.status(200).send(content);
         } catch (error) {
             console.error(error);
@@ -69,7 +169,7 @@ export default function (
 
     router.get(
         '/:contentId/edit',
-        async (req: IRequestWithLanguage & { user: H5P.IUser }, res) => {
+        async (req: any, res) => {
             // This route merges the render and the /ajax/params routes to avoid a
             // second request.
             const editorModel = (await h5pEditor.render(
@@ -98,7 +198,7 @@ export default function (
         }
     );
 
-    router.post('/', async (req: IRequestWithUser, res) => {
+    router.post('/', async (req: any, res) => {
         if (
             !req.body.params ||
             !req.body.params.params ||
@@ -121,7 +221,7 @@ export default function (
         res.status(200).json({ contentId, metadata });
     });
 
-    router.patch('/:contentId', async (req: IRequestWithUser, res) => {
+    router.patch('/:contentId', async (req: any, res) => {
         if (
             !req.body.params ||
             !req.body.params.params ||
@@ -144,7 +244,7 @@ export default function (
         res.status(200).json({ contentId, metadata });
     });
 
-    router.delete('/:contentId', async (req: IRequestWithUser, res) => {
+    router.delete('/:contentId', async (req: any, res) => {
         try {
             await h5pEditor.deleteContent(req.params.contentId, req.user);
         } catch (error) {
@@ -162,9 +262,8 @@ export default function (
         );
     });
 
-    router.get('/', async (req: IRequestWithUser, res) => {
+    router.get('/', async (req: any, res) => {
         let contentObjects;
-        console.log("Fetching content objects", req.user);
         try {
             const contentIds = await h5pEditor.contentManager.listContent(
                 req.user
@@ -196,6 +295,7 @@ export default function (
             }))
         );
     });
+
 
     return router;
 }

@@ -84,11 +84,13 @@ const initPassport = (): void => {
         })
     );
     passport.serializeUser((user, done): void => {
-        done(null, user);
+        done(null, user as ExampleUser | null);
+
     });
 
     passport.deserializeUser((user, done): void => {
-        done(null, user);
+        done(null, user as ExampleUser | null);
+
     });
 };
 

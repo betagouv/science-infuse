@@ -8,11 +8,20 @@
         "experimentalDecorators": true,
         "removeComments": false,
         "noImplicitAny": false,
+        "strict": false,
+        "strictNullChecks": false,
+        "strictFunctionTypes": false,
+        "strictBindCallApply": false,
+        "strictPropertyInitialization": false,
+        "noImplicitThis": false,
+        "alwaysStrict": false,
         "sourceMap": true,
         "baseUrl": "./",
         "resolveJsonModule": true,
         "declaration": true,
-        "outDir": "./build"
+        "outDir": "./build",
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": false
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

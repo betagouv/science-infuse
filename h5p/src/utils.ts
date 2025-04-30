@@ -1,6 +1,9 @@
+import express from 'express';
 import os from 'os';
 import { Request } from 'express';
 import { rm } from 'fs/promises';
+import { IRequestWithUser } from '@lumieducation/h5p-express';
+import ExampleUser from './ExampleUser';
 
 /**
  * Displays links to the server at all available IP addresses.
@@ -45,3 +48,19 @@ export async function clearTempFiles(
         )
     );
 }
+
+
+export const checkAdaH5pSecret = (req: express.Request, res: any): boolean => {
+    const ADA_H5P_SECRET = process.env.ADA_H5P_SECRET;
+    const requestSecret = req.body.ada_h5p_secret;
+
+    // console.log("CHECKING ada_h5p_secret", requestSecret, ADA_H5P_SECRET)
+
+    if (!requestSecret || requestSecret !== ADA_H5P_SECRET) {
+        // res.status(403).send('Forbidden').end();
+        return false;
+    }
+    req.user = new ExampleUser('admin', 'admin', 'admin', "admin");
+    return true;
+}
+

@@ -18,10 +18,9 @@ export default (props: { deleteH5p: (contentId: string) => Promise<void>, conten
         <div className="flex flex-col gap-4">
             <Masonry columns={2} spacing={2}>
                 {displayedContents.map((content, index) => {
-                    const h5pPublicUrl = h5pIdToPublicUrl(content.h5pId, content.s3ObjectName);
                     return (
                         <MasonaryItem className="w-full" key={index}>
-                            <H5PContentCard deleteH5p={props.deleteH5p} h5pPublicUrl={h5pPublicUrl} key={content.id} content={content} />
+                            <H5PContentCard deleteH5p={props.deleteH5p} h5pContentId={content.h5pId} key={content.id} content={content} />
                         </MasonaryItem>
                     )
                 })}

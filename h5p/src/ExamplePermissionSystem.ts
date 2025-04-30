@@ -65,9 +65,9 @@ export default class ExamplePermissionSystem
         if (!actingUser) {
             return false;
         }
-        if (actingUser.role === 'admin') {
+        if (actingUser?.role === 'admin') {
             return true;
-        } else if (actingUser.role === 'teacher') {
+        } else if (actingUser?.role === 'teacher') {
             switch (permission) {
                 case ContentPermission.Create:
                 case ContentPermission.Delete:
@@ -80,7 +80,7 @@ export default class ExamplePermissionSystem
                 default:
                     return false;
             }
-        } else if (actingUser.role === 'student') {
+        } else if (actingUser?.role === 'student') {
             switch (permission) {
                 case ContentPermission.List:
                 case ContentPermission.View:

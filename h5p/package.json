@@ -16,6 +16,8 @@
     "author": "S. Rettig",
     "license": "MIT",
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.798.0",
+        "@aws-sdk/s3-request-presigner": "^3.798.0",
         "@dr.pogodin/csurf": "^1.14.1",
         "@lumieducation/h5p-clamav-scanner": "^10.0.4",
         "@lumieducation/h5p-express": "^10.0.4",

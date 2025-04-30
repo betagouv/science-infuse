@@ -37,6 +37,7 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
     //     }
 
     // }
+
     const data = {
         "library": "H5P.InteractiveVideo 1.27",
         "params": {
@@ -61,7 +62,8 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
                     },
                     "assets": {
                         "interactions": [
-                            definitions.map((groupedDefinitions) => {
+                            // TODO: issue in this definition: malformed, compare with right thing
+                            ...definitions.map((groupedDefinitions) => {
                                 const { timestamp, definitions } = groupedDefinitions;
                                 return definitions.map((definition, i) => ({
                                     "x": 5.453442867551143 + Math.floor(i / 10) * 35,
@@ -72,15 +74,15 @@ export default async (input: InteractiveVideoData, h5pContentId?: string) => {
                                         "from": timestamp,
                                         "to": timestamp + 4
                                     },
-                                    "libraryTitle": "Texte",
+                                    "libraryTitle": "Text",
                                     "action": {
                                         "library": "H5P.Text 1.1",
                                         "params": {
                                             "text": `<p>${definition.definition}</p>\n`
                                         },
-                                        "subContentId": "5ad83f7a-9ac7-4f3e-8716-10c561c5ba55",
+                                        "subContentId": "99707e8d-bfd1-459f-a49f-756ba1082bc5",
                                         "metadata": {
-                                            "contentType": "Texte",
+                                            "contentType": "Text",
                                             "license": "U",
                                             "title": "Sans titre Texte",
                                             "authors": [],
