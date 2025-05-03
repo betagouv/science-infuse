@@ -1,3 +1,4 @@
+h5p/content/*
 moodle/data
 notebooks/WhisperVideoTransctiption/models/*
 weaviate_backups/*
