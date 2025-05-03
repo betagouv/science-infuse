@@ -838,9 +838,6 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                 <p className='m-0'>Télécharger en h5p</p>
                             </Button>
                         )}
-                        {
-                            previewUrl && <EmbedVideo videoUrl={previewUrl} />
-                        }
                     </>}
                 </div>
 
