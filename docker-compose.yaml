@@ -110,6 +110,7 @@ services:
       - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
       - H5P_JWT_SECRET=${H5P_JWT_SECRET}
       - SESSION_SECRET=${SESSION_SECRET}
+      - NEXT_PUBLIC_H5P_URL=${NEXT_PUBLIC_H5P_URL}
     healthcheck:
       test: ["CMD", "npx", "prisma", "db", "push"]
       interval: 10s
