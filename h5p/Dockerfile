@@ -6,7 +6,6 @@ WORKDIR /app
 # Copy download script first
 COPY download-core.sh ./
 RUN chmod +x ./download-core.sh
-RUN ./download-core.sh 1.27.0 1.25
 
 # Install app dependencies
 COPY package*.json ./
@@ -15,7 +14,7 @@ RUN npm install
 # Copy app source
 COPY . .
 
-# Build the app
+RUN ./download-core.sh 1.27.0 1.25
 RUN npm run build
 
 # Start the app
