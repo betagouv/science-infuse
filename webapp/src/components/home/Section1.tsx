@@ -4,7 +4,7 @@ import Image from 'next/image'
 import useWindowSize from "@/course_editor/hooks/useWindowSize";
 import { useRouter } from "next/navigation";
 import Button from "@codegouvfr/react-dsfr/Button";
-import H5PRenderer from "@/app/mediaViewers/H5PRenderer";
+import H5PRenderer from "@/app/(main)/mediaViewers/H5PRenderer";
 import prisma from "@/lib/prisma";
 import { AdminSettingKey } from "@prisma/client";
 import { getH5PHomeUrl } from "@/lib/utils/db";

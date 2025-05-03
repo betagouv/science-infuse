@@ -29,8 +29,7 @@ async function downloadH5PFile(id: string): Promise<string> {
     return filePath;
 }
 
-// create h5p content using h5p docker micro-service
-// returns the download url
+// create or edit h5p content using h5p docker micro-service
 export const POST = withAccessControl(
     { allowedRoles: ['*'] },
     async (request: NextRequest, { user }: { user: User }) => {
@@ -48,10 +47,14 @@ export const POST = withAccessControl(
             throw new Error(`Unsupported type: ${body.type}`);
         }
 
-        const fileName = `h5p-${type}-${game.contentId}`;
+        const fileName = `h5p-${game.contentId}`;
         const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=h5p`;
         const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${game.contentId}&name=${fileName}&media=html`;
         const embedUrl = h5pIdToPublicUrl(game.contentId, fileName);
+
+        // when the h5p is created, export it to h5p file and upload it to s3
+        // this is done to have a backup of the h5p content if the h5p docker micro-service loses it
+        // If the H5P server doesn't have the file, it will be downloaded from the S3 bucket.
 
         const filePath = await downloadH5PFile(game.contentId);
         const publicS3Path = await s3Storage.uploadFile(filePath, fileName);

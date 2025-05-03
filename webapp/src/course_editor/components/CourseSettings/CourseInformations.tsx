@@ -1,5 +1,5 @@
-import { BuildCardEnd, StyledImageCard } from "@/app/recherche/DocumentChunkFull";
-import { fetchSIContent } from "@/app/recherche/fetchSIContent";
+import { BuildCardEnd, StyledImageCard } from "@/app/(main)/recherche/DocumentChunkFull";
+import { fetchSIContent } from "@/app/(main)/recherche/fetchSIContent";
 import { MasonaryItem } from "@/components/MasonaryItem";
 import SearchBar from "@/components/search/SearchBar";
 import { WEBAPP_URL } from "@/config";

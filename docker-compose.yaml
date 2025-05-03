@@ -79,6 +79,9 @@ services:
         - GROQ_API_KEY=${GROQ_API_KEY}
         - ADA_H5P_SECRET=${ADA_H5P_SECRET}
         - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
+        - H5P_JWT_SECRET=${H5P_JWT_SECRET}
+        - SESSION_SECRET=${H5P_JWT_SECRET}
+
     ports:
       - "8002:3000"
     environment:
@@ -142,11 +145,16 @@ services:
       - S3_ENDPOINT=${S3_ENDPOINT}
       - S3_REGION=${S3_REGION}
       - S3_BUCKET=${S3_BUCKET}
+      - WEBAPP_URL=${WEBAPP_URL}
       - ADA_H5P_SECRET=${ADA_H5P_SECRET}
+      - H5P_JWT_SECRET=${H5P_JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - NEXT_PUBLIC_H5P_URL=${NEXT_PUBLIC_H5P_URL}
     build:
       context: ./h5p
     ports:
-      - "127.0.0.1:8006:8080"
+      - "8006:8006"
+      # - "127.0.0.1:8006:8006"
     restart: always
     volumes:
       - ./h5p:/app/h5p

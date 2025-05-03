@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { authOptions } from '../auth/[...nextauth]/authOptions';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { IndexingContentType } from '@/types/queueing';
 import { DocumentTag } from '.prisma/client';
 import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents/index-content';

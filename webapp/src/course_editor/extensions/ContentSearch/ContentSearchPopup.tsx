@@ -3,11 +3,11 @@ import { Editor } from '@tiptap/react';
 import { BlockWithChapter, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { useQuery } from '@tanstack/react-query';
-import { fetchSIContent } from '@/app/recherche/fetchSIContent';
+import { fetchSIContent } from '@/app/(main)/recherche/fetchSIContent';
 import SearchBar from '@/components/search/SearchBar';
-import Tabs, { selectedTabType, TabType } from '@/app/recherche/Tabs';
+import Tabs, { selectedTabType, TabType } from '@/app/(main)/recherche/Tabs';
 import { useOnClickOutside } from 'usehooks-ts'
-import { ChunkResults, RenderSearchResult } from '@/app/recherche/RenderSearch';
+import { ChunkResults, RenderSearchResult } from '@/app/(main)/recherche/RenderSearch';
 import { apiClient } from '@/lib/api-client';
 
 

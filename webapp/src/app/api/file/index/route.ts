@@ -3,7 +3,7 @@ import fs from "fs";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import path from 'path';
-import { authOptions } from '../../auth/[...nextauth]/authOptions';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';

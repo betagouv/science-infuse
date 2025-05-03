@@ -1,5 +1,5 @@
 'use client';
-import { UserSettingsField } from "@/app/prof/parametres/UserSettings";
+import { UserSettingsField } from "@/app/(main)/prof/parametres/UserSettings";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { PROJECT_NAME } from "@/config";
 import { apiClient } from "@/lib/api-client";

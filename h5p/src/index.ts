@@ -28,6 +28,7 @@ import ExampleUser from './ExampleUser';
 import createH5PEditor from './createH5PEditor';
 import { displayIps, clearTempFiles, checkAdaH5pSecret } from './utils';
 import ExamplePermissionSystem from './ExamplePermissionSystem';
+import H5PHtmlExporter from '@lumieducation/h5p-html-exporter';
 
 // Extend Express Request type for custom properties
 declare global {
@@ -330,7 +331,7 @@ const start = async (): Promise<void> => {
 
     // --- Core Middleware ---
     server.use(cors({
-        origin: process.env.WEBAPP_URL || process.env.VITE_URL, // Use VITE_URL if WEBAPP_URL is not set
+        origin: process.env.WEBAPP_URL, // Use VITE_URL if WEBAPP_URL is not set
         credentials: true
     }));
     server.use(bodyParser.json({ limit: '500mb' }));
@@ -353,7 +354,7 @@ const start = async (): Promise<void> => {
     // --- Session Middleware (Potentially needed by Passport deserializeUser, CSRF, or other features) ---
     server.use(
         session({
-            secret: process.env.SESSION_SECRET || 'please-set-a-strong-secret',
+            secret: process.env.SESSION_SECRET,
             resave: false,
             saveUninitialized: false, // Don't save session if not modified
             cookie: {
@@ -427,6 +428,31 @@ const start = async (): Promise<void> => {
             'auto'
         )
     );
+
+    const htmlExporter = new H5PHtmlExporter(
+        h5pEditor.libraryStorage,
+        h5pEditor.contentStorage,
+        h5pEditor.config,
+        path.join('h5p/core'),
+        path.join('h5p/editor')
+    );
+
+    server.get('/h5p/html/:contentId', async (req, res) => {
+        const html = await htmlExporter.createSingleBundle(
+            req.params.contentId,
+            (req as any).user,
+            {
+                language: req.language ?? 'en',
+                showLicenseButton: true
+            }
+        );
+        res.setHeader(
+            'Content-disposition',
+            `attachment; filename=${req.params.contentId}.html`
+        );
+        res.status(200).send(html);
+    });
+
 
     // --- Custom REST Routes (CRUD operations etc.) ---
     server.use(
@@ -561,7 +587,7 @@ const start = async (): Promise<void> => {
         console.log(`🚀 H5P Express server listening on port ${port}`);
         displayIps(port); // Display accessible IP addresses
         console.log(`🔗 H5P Base URL: ${h5pUrl}${h5pRouterBasePath}`);
-        console.log(`👀 WebApp URL (CORS Origin): ${process.env.WEBAPP_URL || process.env.VITE_URL || 'Not Set'}`);
+        console.log(`👀 WebApp URL (CORS Origin): ${process.env.WEBAPP_URL || 'Not Set'}`);
         console.log(`🛡️ CSRF Protection: Enabled (conditionally)`);
         console.log(`🔑 JWT Authentication: Enabled (conditionally)`);
         console.log(`🔒 Trusted Server Auth (AdaH5pSecret): ${checkAdaH5pSecret.toString().includes('SKIP_SECRET_CHECK') ? 'Disabled (check function seems bypassed)' : 'Enabled (check function active)'}`); // Basic check

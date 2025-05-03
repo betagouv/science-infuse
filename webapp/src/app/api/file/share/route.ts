@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { File } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/authOptions';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 interface UpdateFileRequest {
   s3ObjectName: string;

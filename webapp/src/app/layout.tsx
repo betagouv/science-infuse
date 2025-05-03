@@ -1,29 +1,18 @@
 import "./css/globals.css";
 import "./css/lists.scss";
 
-import { Toaster } from 'react-hot-toast';
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
-import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
-import { NextAppDirEmotionCacheProvider } from "tss-react/next";
 import { defaultColorScheme } from "./defaultColorScheme";
-import { Providers } from "./providers";
 import MatomoAnalytics from "@/components/MatomoAnalytics";
-import SIFooter from "@/components/SIFooter";
-import SIHeader from "@/components/header/SIHeader";
 import { catchErrorTyped } from "@/errors";
-import { addDisplayTranslations, headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { Footer } from "@codegouvfr/react-dsfr/Footer";
-import { cx } from '@codegouvfr/react-dsfr/tools/cx';
+import { addDisplayTranslations } from "@codegouvfr/react-dsfr/Display";
 import { getServerSession } from "next-auth";
 import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
 import { headers } from "next/headers";
 import Link from "next/link";
-import { MuiDsfrThemeProvider } from "./MuiDsfrThemeProvider";
 import StartDsfr from "./StartDsfr";
-import { authOptions } from "./api/auth/[...nextauth]/authOptions";
-import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "./consentManagement";
-import style from "./main.module.css";
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");
@@ -49,53 +38,15 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
         <DsfrHead
           Link={Link}
           preloadFonts={[
-            //"Marianne-Light",
-            //"Marianne-Light_Italic",
             "Marianne-Regular",
-            //"Marianne-Regular_Italic",
             "Marianne-Medium",
-            //"Marianne-Medium_Italic",
             "Marianne-Bold"
-            //"Marianne-Bold_Italic",
-            //"Spectral-Regular",
-            //"Spectral-ExtraBold"
           ]}
           nonce={nonce}
         />
       </head>
       <body>
-        <Providers>
-          <DsfrProvider lang={lang}>
-            <ConsentBannerAndConsentManagement />
-            <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
-              <MuiDsfrThemeProvider>
-                <Toaster
-                  position="bottom-right"
-                  toastOptions={{
-                    duration: 4000,
-                    // You can still set some global options
-                  }}
-                />
-                <SIHeader session={session} />
-                <div className={cx(style.container)}>
-                  {children}
-                </div>
-                <SIFooter />
-                <Footer
-                  accessibility="non compliant"
-                  contentDescription={`
-                `}
-                  bottomItems={[
-                    headerFooterDisplayItem,
-                    <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
-                    <FooterConsentManagementItem key="FooterConsentManagementItem" />,
-                    // <ClientFooterItem key="ClientFooterItem" />
-                  ]}
-                />
-              </MuiDsfrThemeProvider>
-            </NextAppDirEmotionCacheProvider>
-          </DsfrProvider>
-        </Providers>
+        {children}
       </body>
     </html>
   );

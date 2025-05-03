@@ -9,49 +9,51 @@ import fs from 'fs';
 import { exec } from 'child_process';
 import { checkAdaH5pSecret } from './utils';
 
-const downloadContentFromS3 = async (s3ObjectName: string, contentId: string) => {
-    const downloadUrl = await s3Storage.getPresignedUrl(s3ObjectName);
-    if (!downloadUrl) return;
+const downloadContentFromS3 = async (s3ObjectName: string, contentId: string): Promise<boolean> => {
+    try {
+        const downloadUrl = await s3Storage.getPresignedUrl(s3ObjectName);
+        if (!downloadUrl) return false;
 
-    const response = await fetch(downloadUrl);
-    const buffer = await response.arrayBuffer();
+        const response = await fetch(downloadUrl);
+        const buffer = await response.arrayBuffer();
 
-    const zipPath = `./h5p/content/${contentId}.zip`;
-    const extractPath = `./h5p/content/${contentId}`;
+        const zipPath = `./h5p/content/${contentId}.zip`;
+        const extractPath = `./h5p/content/${contentId}`;
 
-    await fs.promises.mkdir(extractPath, { recursive: true });
-    await fs.promises.writeFile(zipPath, Buffer.from(buffer));
+        await fs.promises.mkdir(extractPath, { recursive: true });
+        await fs.promises.writeFile(zipPath, Buffer.from(buffer));
 
-    await new Promise((resolve, reject) => {
-        exec(`unzip ${zipPath} -d ${extractPath}`, (error) => {
-            if (error) reject(error);
-            resolve(true);
+        await new Promise((resolve, reject) => {
+            exec(`unzip ${zipPath} -d ${extractPath}`, (error) => {
+                if (error) reject(error);
+                resolve(true);
+            });
         });
-    });
 
-    const contentJsonPath = `${extractPath}/content/content.json`;
-    const finalContentJsonPath = `${extractPath}/content.json`;
+        const contentJsonPath = `${extractPath}/content/content.json`;
+        const finalContentJsonPath = `${extractPath}/content.json`;
 
-    await fs.promises.copyFile(contentJsonPath, finalContentJsonPath);
+        await fs.promises.copyFile(contentJsonPath, finalContentJsonPath);
 
-    // Clean up files in parallel
-    const entries = await fs.promises.readdir(extractPath, { withFileTypes: true });
-    const cleanupPromises = entries.map(entry => {
-        const fullPath = `${extractPath}/${entry.name}`;
-        if (entry.name !== 'h5p.json' && entry.name !== 'content.json') {
-            return entry.isDirectory()
-                ? fs.promises.rm(fullPath, { recursive: true })
-                : fs.promises.unlink(fullPath);
-        }
-    }).filter(Boolean);
+        // Clean up files in parallel
+        const entries = await fs.promises.readdir(extractPath, { withFileTypes: true });
+        const cleanupPromises = entries.map(entry => {
+            const fullPath = `${extractPath}/${entry.name}`;
+            if (entry.name !== 'h5p.json' && entry.name !== 'content.json') {
+                return entry.isDirectory()
+                    ? fs.promises.rm(fullPath, { recursive: true })
+                    : fs.promises.unlink(fullPath);
+            }
+        }).filter(Boolean);
 
-    await Promise.all(cleanupPromises);
-    await fs.promises.unlink(zipPath);
+        await Promise.all(cleanupPromises);
+        await fs.promises.unlink(zipPath);
 
-    return extractPath;
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
-
-
 
 /**
  * @param h5pEditor
@@ -68,57 +70,24 @@ export default function (
 ): express.Router {
     const router = express.Router();
 
-
-    // router.post('/new', async (req: any, res) => {
-    //     console.log('Received request to create new H5P content');
-    //     if (!checkAdaH5pSecret(req, res)) {
-    //         console.log('Invalid secret provided');
-    //         return res.status(403).send('Invalid secret').end();
-    //     }
-
-    //     if (
-    //         !req.body.params ||
-    //         !req.body.params.params ||
-    //         !req.body.params.metadata ||
-    //         !req.body.library ||
-    //         !req.user
-    //     ) {
-    //         console.log('Request validation failed:', {
-    //             params: !!req.body.params,
-    //             paramsParams: !!req.body.params?.params,
-    //             metadata: !!req.body.params?.metadata,
-    //             library: !!req.body.library,
-    //             user: !!req.user
-    //         });
-    //         res.status(400).send('Malformed request').end();
-    //         return;
-    //     }
-    //     console.log('Saving H5P content with library:', req.body.library);
-    //     const contentId = await h5pEditor.saveOrUpdateContent(
-    //         undefined,
-    //         req.body.params.params,
-    //         req.body.params.metadata,
-    //         req.body.library,
-    //         req.user
-    //     );
-
-    //     console.log('created new contentId', contentId);
-
-    //     res.send(JSON.stringify({ contentId }));
-    //     res.status(200).end();
-    // });
-
-
     router.get(`/:contentId/play`, async (req: any, res) => {
         try {
             const contentFolder = `./h5p/content/${req.params.contentId}`;
-            console.log("Content folder", contentFolder);
-            if (!fs.existsSync(contentFolder)) {
-                const s3ObjectName = `h5p-video-${req.params.contentId}`;
-                await downloadContentFromS3(s3ObjectName, req.params.contentId);
-            }
 
-            // await new Promise(resolve => setTimeout(resolve, 5000));
+            const s3ObjectNames = [`h5p-${req.params.contentId}`, `h5p-video-${req.params.contentId}`];
+            if (!fs.existsSync(contentFolder)) {
+                let downloaded = false;
+                for (const s3ObjectName of s3ObjectNames) {
+                    const success = await downloadContentFromS3(s3ObjectName, req.params.contentId);
+                    if (success) {
+                        downloaded = true;
+                        break;
+                    }
+                }
+                if (!downloaded) {
+                    throw new Error('Could not download content from S3');
+                }
+            }
 
             const content = await h5pPlayer.render(
                 req.params.contentId,
@@ -157,7 +126,6 @@ export default function (
                             : undefined
                 }
             );
-            console.log(content)
             res.status(200).send(content);
         } catch (error) {
             console.error(error);

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { NodeViewWrapper, NodeViewProps } from '@tiptap/react';
-import VideoPlayer from '@/app/mediaViewers/VideoPlayer';
+import VideoPlayer from '@/app/(main)/mediaViewers/VideoPlayer';
 import { useEffect } from '@preact-signals/safe-react/react';
-import VideoPlayerHotSpots from '@/app/mediaViewers/VideoPlayerHotSpots';
+import VideoPlayerHotSpots from '@/app/(main)/mediaViewers/VideoPlayerHotSpots';
 import { ChunkWithScore, s3ToPublicUrl } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { File } from '@prisma/client';

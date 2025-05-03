@@ -1,7 +1,7 @@
 'use client'
 import { SessionProvider } from "next-auth/react"
 import React from "react"
-import { SearchQueryProvider } from "./recherche/SearchQueryProvider"
+import { SearchQueryProvider } from "./(main)/recherche/SearchQueryProvider"
 import { SnackbarProvider } from "./SnackBarProvider"
 
 export function Providers({ children }: { children: React.ReactNode }) {

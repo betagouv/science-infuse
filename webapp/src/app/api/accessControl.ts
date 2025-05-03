@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, User, UserRoles } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from './auth/[...nextauth]/authOptions';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 interface AccessControlOptions {
     allowedRoles: (UserRoles | '*')[];
