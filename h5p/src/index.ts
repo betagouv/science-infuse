@@ -164,29 +164,34 @@ const addCsrfTokenValueToUser = (req: Request, res: Response, next: NextFunction
 // 2. If not trusted, attempt JWT authentication via Passport
 // 3. If neither, set anonymous user
 const authenticateRequest = (req: Request, res: Response, next: NextFunction): void => {
+    console.log('Starting authentication process for request');
     // 1. Check trusted server token
     if (checkAdaH5pSecret(req, res)) {
+        console.log('Request authenticated as trusted server');
         req.isTrustedServerRequest = true;
         // User should be set within checkAdaH5pSecret, assuming it sets req.user to an admin-like ExampleUser
         if (!req.user) {
             console.error("CRITICAL: checkAdaH5pSecret returned true but did not set req.user!");
             // Fallback or error handling needed here. Using anonymous for now.
             req.user = anonymousUser;
+            console.log('Fallback to anonymous user due to missing req.user');
         } else if (!(req.user instanceof ExampleUser)) {
             // Ensure the user set by checkAdaH5pSecret is an ExampleUser instance
             console.warn("User set by checkAdaH5pSecret is not an ExampleUser instance. Wrapping it.");
+            console.log('Converting non-ExampleUser to ExampleUser instance');
             req.user = new ExampleUser(
                 (req.user as any).id || (req.user as any).username || 'trusted_server',
                 (req.user as any).name || 'Trusted Server',
                 (req.user as any).email || '',
                 (req.user as any).role || 'admin' // Assume admin role for trusted server
             );
+            console.log('Successfully created ExampleUser instance for trusted server');
         }
         return next(); // Skip JWT/Passport
     }
 
-    // 2. Not a trusted server request, proceed with standard auth
-    req.isTrustedServerRequest = false;
+    console.log('Request not authenticated as trusted server, proceeding with standard auth');
+    // 2. Not a trusted server request, proceed with standard auth    req.isTrustedServerRequest = false;
 
     // Attempt JWT authentication using passport.authenticate
     // 'jwt' strategy will extract token and verify if present
@@ -199,16 +204,17 @@ const authenticateRequest = (req: Request, res: Response, next: NextFunction): v
         if (!user) {
             // No valid JWT token found or verification failed
             // info might contain details like 'No auth token' or 'jwt expired'
-            // if (info) console.log(`JWT Auth Info: ${info.message || info}`);
+            console.log(`JWT Auth Info: ${info?.message || info || 'No authentication info provided'}`);
+            console.log('No valid user found, falling back to anonymous user');
             req.user = anonymousUser; // Fallback to anonymous user
         } else {
+            console.log(`User authenticated successfully: ${(user as ExampleUser).username}`);
             // JWT valid, user object (ExampleUser) provided by JwtStrategy callback
             req.user = user as ExampleUser; // Assign authenticated user
         }
         next();
     })(req, res, next);
 };
-
 // CSRF Protection Middleware Wrapper
 // Applies csurf only if the request is NOT identified as a trusted server request
 const conditionalCsrfProtection = (req: Request, res: Response, next: NextFunction): void => {
@@ -485,6 +491,11 @@ const start = async (): Promise<void> => {
 
     // Validate JWT Token endpoint (Does not require CSRF protection itself)
     server.post('/validate-token', (req: Request, res: Response) => {
+        console.log('Validating token for request:', { 
+            path: req.path, 
+            ip: req.ip, 
+            userId: req.user?.id 
+        });
         // This route is hit *after* authenticateRequest middleware.
         // If req.user is not anonymous, the JWT was valid (or it was a trusted request).
         if (req.user && req.user.id !== 'anonymous') {
@@ -495,22 +506,27 @@ const start = async (): Promise<void> => {
                 role: req.user.role,
                 isTrusted: !!req.isTrustedServerRequest // Indicate if it was a trusted server request
             };
+            console.log('User authenticated successfully:', responseData);
             // Add CSRF token *if* CSRF is active for this session (i.e., not a trusted request)
             if (!req.isTrustedServerRequest && (req.user as any).csrfTokenValue) {
                 responseData.csrfToken = (req.user as any).csrfTokenValue;
+                console.log('Using existing CSRF token for response');
             } else if (!req.isTrustedServerRequest && typeof req.csrfToken === 'function') {
                 // Fallback: generate token if needed and wasn't added earlier
                 try {
                     responseData.csrfToken = req.csrfToken();
-                } catch (e) { console.error("Error generating fallback CSRF for /validate-token:", e); }
+                    console.log('Generated new CSRF token for response');
+                } catch (e) { 
+                    console.error("Error generating fallback CSRF for /validate-token:", e); 
+                }
             }
             res.status(200).json(responseData);
         } else {
             // Invalid/missing token or anonymous user
+            console.log('Token validation failed: Invalid or missing token');
             res.status(401).json({ error: 'Invalid or missing token' });
         }
     });
-
 
     // Login/Logout are typically session-based, CSRF protection should apply unless trusted.
     // The original example didn't have a working local strategy login,
