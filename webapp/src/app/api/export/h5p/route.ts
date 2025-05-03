@@ -95,10 +95,9 @@ export async function GET(request: NextRequest) {
     if (!id) {
         throw new Error('id is required');
     }
-    console.log("MEDIATYPE", media)
     const downloadUrl = media === 'html'
-        ? `${process.env.H5P_URL}/h5p/html/${id}`
-        : `${process.env.H5P_URL}/h5p/download/${id}`;
+        ? `${process.env.H5P_PUBLIC_URL}/h5p/html/${id}`
+        : `${process.env.H5P_PUBLIC_URL}/h5p/download/${id}`;
     const response = await fetch(downloadUrl);
 
     return new NextResponse(response.body, {
