@@ -208,7 +208,7 @@ const authenticateRequest = (req: Request, res: Response, next: NextFunction): v
             console.log('No valid user found, falling back to anonymous user');
             req.user = anonymousUser; // Fallback to anonymous user
         } else {
-            console.log(`User authenticated successfully: ${(user as ExampleUser).username}`);
+            console.log(`User authenticated successfully: ${user}`);
             // JWT valid, user object (ExampleUser) provided by JwtStrategy callback
             req.user = user as ExampleUser; // Assign authenticated user
         }
