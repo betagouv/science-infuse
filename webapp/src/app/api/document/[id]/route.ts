@@ -22,7 +22,8 @@ export const GET = withAccessControl(
                 }
             }
         })
-        if (!document || (document.isPublic == false)) {
+        // if (!document || (document.isPublic == false && document.userId != userId)) {
+        if (!document) {
             return NextResponse.json({ error: 'Document not found' }, { status: 404 });
         }
         const { documentChunks, ...documentWithoutChunks } = document || {};
