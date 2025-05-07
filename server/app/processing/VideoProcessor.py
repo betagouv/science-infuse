@@ -31,7 +31,7 @@ class VideoProcessor(BaseDocumentProcessor):
 
     def generate_and_save_po_token(self, path):
         try:
-            response = requests.get(f"{os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL")}/token")
+            response = requests.get(f"{os.environ.get('YOUTUBE_TOKEN_GENERATOR_URL')}/token")
             data = response.json()
             print("PO TOKENNN", data)
             with open(path, "w") as f:
@@ -41,7 +41,7 @@ class VideoProcessor(BaseDocumentProcessor):
 
     def update_po_token(self):
         try:
-            requests.get(f"{os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL")}/update")
+            response = requests.get(f"{os.environ.get('YOUTUBE_TOKEN_GENERATOR_URL')}/update")
         except requests.RequestException as e:
             print(f"Error updating po token: {str(e)}")
 
