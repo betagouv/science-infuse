@@ -7,6 +7,7 @@ from processing.audio.SIWhisperModel import SIWhisperModel, TranscriptSegment
 # from pytube import YouTube
 from pytubefix import YouTube
 import os
+import requests
 
 from schemas import Document, DocumentWithChunks, VideoTranscriptChunk, VideoTranscriptMetadata
 
@@ -28,31 +29,32 @@ class VideoProcessor(BaseDocumentProcessor):
 
         super().__init__()
 
-    def regenerate_po_token(self, path):
+    def generate_and_save_po_token(self, path):
         try:
-            import requests
-            response = requests.get(os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL"))
+            response = requests.get(f"{os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL")}/token")
             data = response.json()
             print("PO TOKENNN", data)
             with open(path, "w") as f:
                 f.write(json.dumps({"access_token": None, "refresh_token": None, "expires": None, "visitorData": data.get('visitor_data'), "po_token": data.get('potoken')}))
         except requests.RequestException as e:
-            print(f"Error fetching token: {str(e)}")
+            print(f"Error generate_and_save_po_token: {str(e)}")
+
+    def update_po_token(self):
+        try:
+            requests.get(f"{os.environ.get("YOUTUBE_TOKEN_GENERATOR_URL")}/update")
+        except requests.RequestException as e:
+            print(f"Error updating po token: {str(e)}")
 
     def download_youtube_video(self, youtube_url):
         po_token_path = "./potoken.json"
+        self.generate_and_save_po_token(po_token_path)
         print("PO TOKEN PATH:", po_token_path)
-        if os.path.exists(po_token_path):
-            with open(po_token_path, 'r') as f:
-                print("PO TOKEN CONTENT:", f.read())
 
         output_path = os.path.join(self.base_download_folder, 'youtube')
         os.makedirs(output_path, exist_ok=True)
         filename = f"{self.id}.mp4"
         file_path = os.path.join(output_path, filename)
 
-        if not os.path.exists(po_token_path):
-            self.regenerate_po_token(po_token_path)
 
         try:
             yt = YouTube(youtube_url, proxies=self.proxies, use_po_token=True, token_file=po_token_path, allow_oauth_cache=True)
@@ -60,13 +62,14 @@ class VideoProcessor(BaseDocumentProcessor):
             video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
         except Exception as e:
             print(f"First attempt failed: {str(e)}")
-            self.regenerate_po_token(po_token_path)
+            self.generate_and_save_po_token(po_token_path)
             yt = YouTube(youtube_url, proxies=self.proxies, use_po_token=True, token_file=po_token_path, allow_oauth_cache=True)
             print("YT", yt)
             video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
 
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
-        return file_path, video_name    
+        self.update_po_token()
+        return file_path, video_name
 
     def download_s3_video(self, s3_object_name):
         output_path = os.path.join(self.base_download_folder, 'temp_videos')
