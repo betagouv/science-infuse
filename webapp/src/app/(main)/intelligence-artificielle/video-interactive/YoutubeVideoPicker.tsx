@@ -3,7 +3,7 @@ import Input from "@codegouvfr/react-dsfr/Input";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { apiClient } from "@/lib/api-client";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
 
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -16,9 +16,18 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
 
     const handleIndexYoutube = async () => {
         props.onDocumentProcessingStart();
-        const response = await apiClient.indexFile({ youtubeUrl });
-        console.log("uploadFileAndProcess", response)
-        props.onDocumentIdPicked(response.documentId)
+
+        try {
+            const response = await apiClient.indexFile({ youtubeUrl });
+            props.onDocumentIdPicked(response.documentId)
+        } catch (error) {
+            if (error instanceof Error) {
+                props.onError(error.message);
+            } else {
+                props.onError("Une erreur inconnue s'est produite");
+            }
+        }
+
     }
 
 

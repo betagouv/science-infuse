@@ -55,6 +55,33 @@ const downloadContentFromS3 = async (s3ObjectName: string, contentId: string): P
     }
 }
 
+/** 
+ * Ensure that the H5P content is available in the local file system.
+ * If not, download it from S3.
+ * @param contentId The ID of the H5P content.
+ * @returns {Promise<void>}
+ * @throws {Error} If the content could not be downloaded from S3.
+ * */
+const ensureH5pContent = async (contentId: string): Promise<void> => {
+    const contentFolder = `./h5p/content/${contentId}`;
+
+    const s3ObjectNames = [`h5p-${contentId}`, `h5p-video-${contentId}`];
+    if (!fs.existsSync(contentFolder)) {
+        let downloaded = false;
+        for (const s3ObjectName of s3ObjectNames) {
+            const success = await downloadContentFromS3(s3ObjectName, contentId);
+            if (success) {
+                downloaded = true;
+                break;
+            }
+        }
+        if (!downloaded) {
+            throw new Error('Could not download content from S3');
+        }
+    }
+}
+
+
 /**
  * @param h5pEditor
  * @param h5pPlayer
@@ -72,23 +99,7 @@ export default function (
 
     router.get(`/:contentId/play`, async (req: any, res) => {
         try {
-            const contentFolder = `./h5p/content/${req.params.contentId}`;
-
-            const s3ObjectNames = [`h5p-${req.params.contentId}`, `h5p-video-${req.params.contentId}`];
-            if (!fs.existsSync(contentFolder)) {
-                let downloaded = false;
-                for (const s3ObjectName of s3ObjectNames) {
-                    const success = await downloadContentFromS3(s3ObjectName, req.params.contentId);
-                    if (success) {
-                        downloaded = true;
-                        break;
-                    }
-                }
-                if (!downloaded) {
-                    throw new Error('Could not download content from S3');
-                }
-            }
-
+            await ensureH5pContent(req.params.contentId);
             const content = await h5pPlayer.render(
                 req.params.contentId,
                 req.user,
@@ -200,6 +211,8 @@ export default function (
             res.status(400).send('Malformed request');
             return;
         }
+        await ensureH5pContent(req.params.contentId);
+
         const { id: contentId, metadata } =
             await h5pEditor.saveOrUpdateContentReturnMetaData(
                 req.params.contentId.toString(),

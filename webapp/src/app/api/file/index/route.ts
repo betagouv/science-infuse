@@ -84,10 +84,13 @@ export async function POST(request: NextRequest) {
             }),
             [Error, DocumentAlreadyIndexed]
         )
-
-        if (processingError instanceof DocumentAlreadyIndexed) {
-            console.log('Document was already indexed with ID:', processingError.documentId);
-            return NextResponse.json({ documentId: processingError.documentId });
+        if (processingError) {
+            console.error('Error processing file:', processingError);
+            if (processingError instanceof DocumentAlreadyIndexed) {
+                console.log('Document was already indexed with ID:', processingError.documentId);
+                return NextResponse.json({ documentId: processingError.documentId });
+            }
+            return NextResponse.json({ error: 'Error processing the file' }, { status: 500 });
         }
 
         console.log(">>>>>>> mediaName", mediaName)

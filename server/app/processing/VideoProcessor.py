@@ -30,6 +30,7 @@ class VideoProcessor(BaseDocumentProcessor):
         super().__init__()
 
     def generate_and_save_po_token(self, path):
+        self.update_po_token()
         try:
             response = requests.get(f"{os.environ.get('YOUTUBE_TOKEN_GENERATOR_URL')}/token")
             data = response.json()
@@ -68,7 +69,7 @@ class VideoProcessor(BaseDocumentProcessor):
             video_name = yt.vid_info.get("videoDetails", {}).get("title", "Untitled Video")
 
         yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=output_path, filename=filename)
-        self.update_po_token()
+        # self.update_po_token()
         return file_path, video_name
 
     def download_s3_video(self, s3_object_name):

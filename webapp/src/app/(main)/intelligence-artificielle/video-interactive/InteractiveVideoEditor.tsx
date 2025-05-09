@@ -1,5 +1,5 @@
 'use client'
-
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
@@ -23,7 +23,8 @@ import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
-
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
+import LatexExample from './latex.svg'
 
 const modal = createModal({
     id: "modal-quit-without-saving",
@@ -491,7 +492,6 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                     </div>
                 </div>
             </StickyShadow>
-
             {
                 definitionGroup.definitions.length == 0 &&
                 <CallOut
@@ -521,6 +521,7 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                 </CallOut>
 
             }
+
             <div className="w-full flex flex-col p-8 gap-4 shadow-[inset_0_0_0_1px_#000091]">
 
                 {definitionGroup.definitions.map((def, index) => (
@@ -600,7 +601,6 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
                     Ajouter une définition à la même position
                 </Button>
             </div>
-
         </div >
     );
 };
@@ -626,8 +626,9 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const alertToast = useAlertToast();
+    const [recapDefinitionEnabled, setRecapDefinitionEnabled] = useState(false);
 
-    const updateInteractiveVideo = async (documentId: string, questions: InteractiveVideoQuestionGroup[], definitions: InteractiveVideoDefinitionGroup[]) => {
+    const updateInteractiveVideo = useCallback(async (documentId: string, questions: InteractiveVideoQuestionGroup[], definitions: InteractiveVideoDefinitionGroup[], recapDefinitionEnabled: boolean) => {
         setIsSaving(true);
         try {
             let data: ExportH5pResponse | undefined;
@@ -640,7 +641,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                     videoTitle: video.mediaName,
                     questions,
                     definitions,
-                    addDefinitionRecap: true,
+                    addDefinitionRecap: recapDefinitionEnabled,
                     documentId: documentId,
                 },
                 documentIds: documentId ? [documentId] : [],
@@ -655,14 +656,15 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
         } finally {
             setIsSaving(false);
         }
-    };
+    }, [h5pContentId]);
 
-    const handleSaveChanges = async () => {
+    const handleSaveChanges = useCallback(async (recapEnabled:boolean) => {
         if (ivQuestions && ivDefinitions && documentId) {
-            await updateInteractiveVideo(documentId, ivQuestions, ivDefinitions);
+            await updateInteractiveVideo(documentId, ivQuestions, ivDefinitions, recapEnabled);
             alertToast.success("Succès", "Changements enregistrés")
         }
-    };
+    }, [ivQuestions, ivDefinitions, documentId, updateInteractiveVideo, recapDefinitionEnabled, alertToast]);
+    const [isOpen, setIsOpen] = useState(false);
 
     const generateInteractiveVideo = useCallback(async () => {
         setProcessingDone(false);
@@ -691,7 +693,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
             onDocumentProcessingEnd && onDocumentProcessingEnd();
             console.log("iviviv", ivData)
 
-            await updateInteractiveVideo(documentId, ivData.questions, ivData.definitions);
+            await updateInteractiveVideo(documentId, ivData.questions, ivData.definitions, recapDefinitionEnabled);
 
             console.log(ivData);
         } finally {
@@ -722,7 +724,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
     const handleSaveAndQuit = async () => {
         // Add your save logic here
         modal.close();
-        await handleSaveChanges();
+        await handleSaveChanges(recapDefinitionEnabled);
         props.onBackClicked && props.onBackClicked();
     }
 
@@ -731,14 +733,21 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
         props.onBackClicked && props.onBackClicked();
     }
 
-    const hasGenerated = useRef(false);
+    const isInitialLoad = useRef(true);
 
     useEffect(() => {
-        if (documentId && !hasGenerated.current) {
-            hasGenerated.current = true;
-            generateInteractiveVideo();
+        if (documentId && isInitialLoad.current) {
+            (async () => {
+                isInitialLoad.current = false;
+                await generateInteractiveVideo();
+                isInitialLoad.current = true;
+                console.log("SAVEXXX, generateInteractiveVideo");
+            })();
+
         }
     }, [documentId, generateInteractiveVideo]);
+
+  
 
     return (
         <>
@@ -848,6 +857,46 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                     <p className="m-0 text-base text-left text-black">
                         Personnalisez les questions et réponses générés, sélectionnez les bonnes réponses, ou ajustez les définitions proposées par IA. Vos modifications seront sauvegardées dans votre espace personnel.
                     </p>
+                    <p className='m-0'>
+                        Vous pouvez également utiliser la syntaxe mathématique <i>LaTeX</i> pour les questions et définitions. Pour cela, il vous suffit d'entourer votre expression mathématique de symboles <b>$$ LaTeX $$</b>.
+                        <Button
+                            onClick={() => setIsOpen(!isOpen)}
+                            priority="tertiary"
+                            className="my-4"
+                        >
+                            {isOpen ? "Masquer l'exemple" : "Afficher un exemple"}
+                        </Button>
+                        {isOpen && (
+                            <CallOut
+                                iconId="ri-information-line"
+                                title="Syntaxe mathématique"
+                            >
+                                <div className="flex flex-col gap-2">
+                                    <p>
+                                        Vous pouvez écrire des expressions mathématiques en utilisant la syntaxe LaTeX en les entourant de symboles $ LaTeX $
+                                    </p>
+                                    <p>
+                                        <b>Exemple :</b>
+                                        <pre className="bg-black bg-opacity-5 p-2">
+                                            {"$$ x = \\sin \\left( \\frac{\\pi}{2} \\right) $$"}
+                                        </pre>
+                                        <div className="flex flex-col gap-4 items-start">
+                                            pour afficher :
+                                            <div className="bg-black bg-opacity-5 p-2">
+                                                <Image
+                                                    width={100}
+                                                    height={40}
+                                                    alt="exemple de LaTeX"
+                                                    src={LatexExample}
+                                                />
+                                            </div>
+                                        </div>
+                                    </p>
+                                </div>
+                            </CallOut>
+                        )}
+
+                    </p>
                 </>}
 
                 <div className="flex flex-col gap-4 relative">
@@ -865,7 +914,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         }}
                                         initialQuestionGroup={ivQuestions[questionPage - 1]}
                                         onChange={(updated) => handleQuestionGroupChange(questionPage - 1, updated)}
-                                        onSave={handleSaveChanges}
+                                        onSave={() => handleSaveChanges(recapDefinitionEnabled)}
                                         documentId={documentId}
                                     />}
                                     <Button
@@ -918,6 +967,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
 
                             <div className="my-4"></div>
 
+
                             {ivDefinitions && ivDefinitions.length > 0 && (
                                 <div className="mb-8 flex flex-col gap-8">
                                     {/* Force remount on page change with a key */}
@@ -931,8 +981,35 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                         }}
                                         initialDefinitionGroup={ivDefinitions[definitionPage - 1]}
                                         onChange={(updated) => handleDefinitionGroupChange(definitionPage - 1, updated)}
-                                        onSave={handleSaveChanges}
+                                        onSave={() => handleSaveChanges(recapDefinitionEnabled)}
                                     />}
+
+                                    {ivDefinitions.length > 0 && <div className="flex flex-col items-start w-full">
+                                        <CallOut
+                                            iconId="ri-information-line"
+                                            title="Récapitulatif des définitions"
+                                        >
+                                            <div className="flex flex-col gap-4">
+                                                <p>Activez cette option pour afficher automatiquement un récapitulatif de toutes les définitions à la fin de la vidéo. Cela permet aux élèves de revoir l'ensemble des notions abordées.</p>
+                                                <Checkbox
+                                                    className='p-0 m-0 w-full'
+                                                    options={[
+                                                        {
+                                                            label: 'Afficher le récapitulatif à la fin de la vidéo',
+                                                            nativeInputProps: {
+                                                                checked: recapDefinitionEnabled,
+                                                                onChange: (e) => {
+                                                                    setRecapDefinitionEnabled(e.target.checked);
+                                                                    handleSaveChanges(e.target.checked);
+                                                                },
+                                                            }
+                                                        }
+                                                    ]}
+                                                />
+                                            </div>
+                                        </CallOut>
+                                    </div>}
+
                                     <StickyShadow position='bottom' className="w-full flex justify-center sticky bottom-0 z-[2] bg-white pt-4" >
                                         <Pagination
                                             className='self-center'
@@ -947,6 +1024,8 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                                     </StickyShadow>
                                 </div>
                             )}
+
+
                             <hr className='mt-6' />
 
                             <div className="flex flex-col">

@@ -4,7 +4,7 @@ import { MediaTypes } from "@/types/vectordb";
 import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
 import { useRef, useState } from "react";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [_query, _setQuery] = useState<string>("");
     const [query, setQuery] = useState<string>("");

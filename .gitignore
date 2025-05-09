@@ -1,4 +1,6 @@
 h5p/content/*
+h5p/user-data/
+server/potoken.json
 moodle/data
 notebooks/WhisperVideoTransctiption/models/*
 weaviate_backups/*

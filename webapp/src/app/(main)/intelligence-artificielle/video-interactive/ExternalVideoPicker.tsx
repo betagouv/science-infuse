@@ -8,19 +8,18 @@ import Input from "@codegouvfr/react-dsfr/Input";
 import { useSnackbar } from "@/app/SnackBarProvider";
 import { useAlertToast } from "@/components/AlertToast";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void }) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
 
-    const [isUploading, setIsUploading] = useState(false);
     const [mediaName, setMediaName] = useState("");
     const [droppedFile, setDroppedFile] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const alertToast = useAlertToast();
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
 
         if (file) {
             setDroppedFile(file);
+            setMediaName(file.name);
             if (fileInputRef.current) {
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
@@ -42,13 +41,14 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
 
     const uploadFileAndProcess = async (file: File, mediaName: string) => {
         try {
+            props.onDocumentProcessingStart();
             const response = await apiClient.indexFile({ file, mediaName });
             props.onDocumentIdPicked(response.documentId)
         } catch (error) {
             if (error instanceof Error) {
-                alertToast.error("Erreur lors de l'upload du fichier", error.message);
+                props.onError(error.message);
             } else {
-                alertToast.error("Erreur lors de l'upload du fichier", "Une erreur inconnue s'est produite");
+                props.onError("Une erreur inconnue s'est produite");
             }
         }
     }
@@ -88,7 +88,6 @@ export default (props: { onDocumentIdPicked: (documentId: string) => void, onDoc
                                 <Button className="whitespace-nowrap" onClick={async (e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    props.onDocumentProcessingStart();
                                     await uploadFileAndProcess(droppedFile, mediaName);
                                 }}>Générer quiz et définitions</Button>
                             </div>

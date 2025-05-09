@@ -8,6 +8,7 @@ import i18next from 'i18next';
 import i18nextFsBackend from 'i18next-fs-backend';
 import * as i18nextHttpMiddleware from 'i18next-http-middleware';
 import path from 'path';
+import fs from 'fs-extra';
 import passport from 'passport';
 // Removed LocalStrategy as it wasn't used in the login route provided
 // import { Strategy as LocalStrategy } from 'passport-local';
@@ -61,8 +62,30 @@ async function installLibrary(id: string, user: H5P.IUser, h5pEditor: H5P.H5PEdi
     return true;
 }
 
-async function setupLibraries(user: H5P.IUser, h5pEditor: H5P.H5PEditor): Promise<void> {
-    console.log("Attempting to install required libraries...");
+async function installLocalLibraries() {
+    try {
+        await fs.ensureDir('./h5p/libraries');
+        await fs.ensureDir('./libraries');
+
+        const libraryFolders = await fs.readdir('libraries_to_install');
+        for (const folder of libraryFolders) {
+            const sourcePath = path.join('libraries_to_install', folder);
+            const h5pDestPath = path.join('./h5p/libraries', folder);
+            const libDestPath = path.join('./libraries', folder);
+
+            await fs.copy(sourcePath, h5pDestPath);
+            await fs.copy(sourcePath, libDestPath);
+        }
+
+        console.log('Successfully copied library folders to target directories');
+        return true;
+    } catch (error) {
+        console.error('Error copying library folders:', error);
+        return false;
+    }
+}
+
+async function setupLibraries(user: H5P.IUser, h5pEditor: H5P.H5PEditor): Promise<void> {    console.log("Attempting to install required libraries...");
     // Ensure a valid user object is passed, potentially an admin user created during setup.
     if (!user) {
         console.warn("Skipping library installation: An admin user is required.");
@@ -81,6 +104,7 @@ async function setupLibraries(user: H5P.IUser, h5pEditor: H5P.H5PEditor): Promis
             }
         }
     }
+    await installLocalLibraries();
     console.log("Library installation check complete.");
 }
 
@@ -491,10 +515,10 @@ const start = async (): Promise<void> => {
 
     // Validate JWT Token endpoint (Does not require CSRF protection itself)
     server.post('/validate-token', (req: Request, res: Response) => {
-        console.log('Validating token for request:', { 
-            path: req.path, 
-            ip: req.ip, 
-            userId: req.user?.id 
+        console.log('Validating token for request:', {
+            path: req.path,
+            ip: req.ip,
+            userId: req.user?.id
         });
         // This route is hit *after* authenticateRequest middleware.
         // If req.user is not anonymous, the JWT was valid (or it was a trusted request).
@@ -516,8 +540,8 @@ const start = async (): Promise<void> => {
                 try {
                     responseData.csrfToken = req.csrfToken();
                     console.log('Generated new CSRF token for response');
-                } catch (e) { 
-                    console.error("Error generating fallback CSRF for /validate-token:", e); 
+                } catch (e) {
+                    console.error("Error generating fallback CSRF for /validate-token:", e);
                 }
             }
             res.status(200).json(responseData);

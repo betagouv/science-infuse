@@ -181,7 +181,7 @@ const parseVideoContent = (input: string, chunks: (DocumentChunk & { metadata: D
                 timestamp,
                 questions: questions.filter(q => q.answers.length > 0)
             })),
-        30
+        3
     );
     // Get definition groups from the map
     let definitions = Array.from(definitionMap.entries())

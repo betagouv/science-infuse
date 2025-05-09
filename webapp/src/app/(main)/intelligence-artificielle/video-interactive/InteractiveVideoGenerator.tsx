@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import InteractiveVideoEditor from './InteractiveVideoEditor';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ShimmerText from '@/components/ShimmerText';
+import { useAlertToast } from '@/components/AlertToast';
 
 
 const StyledSegControl = styled(SegmentedControl)`
@@ -115,10 +116,17 @@ export default () => {
     const [importType, setImportType] = useState<InteractiveVideoImportType>(InteractiveVideoImportType.RECHERCHE);
     const [documentId, setDocumentId] = useState<string>()
     const [loading, setLoading] = useState(false);
+    const alertToast = useAlertToast();
 
     const onDocumentIdPicked = async (_documentId: string) => {
         window.scrollTo(0, 0);
         setDocumentId(_documentId);
+    }
+
+    const onError = (message: string) => {
+        alertToast.error("Erreur", message);
+        setLoading(false);
+        setDocumentId(undefined);
     }
 
     const onDocumentProcessingStart = () => {
@@ -179,13 +187,13 @@ export default () => {
 
             {!documentId && !loading && <>
                 <div className={`w-full ${importType === InteractiveVideoImportType.RECHERCHE ? 'block' : 'hidden'}`}>
-                    <SIVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
+                    <SIVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.LIEN ? 'block' : 'hidden'}`}>
-                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
+                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.IMPORT ? 'block' : 'hidden'}`}>
-                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onDocumentIdPicked={onDocumentIdPicked} />
+                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
             </>}
 
