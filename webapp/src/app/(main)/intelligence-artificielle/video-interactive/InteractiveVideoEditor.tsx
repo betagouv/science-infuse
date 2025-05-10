@@ -873,7 +873,7 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                             >
                                 <div className="flex flex-col gap-2">
                                     <p>
-                                        Vous pouvez écrire des expressions mathématiques en utilisant la syntaxe LaTeX en les entourant de symboles $ LaTeX $
+                                        Vous pouvez écrire des expressions mathématiques en utilisant la syntaxe LaTeX en les entourant de symboles $$ LaTeX $$
                                     </p>
                                     <p>
                                         <b>Exemple :</b>
