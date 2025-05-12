@@ -10,13 +10,25 @@ export interface ConnectedUser {
 }
 
 declare module "next-auth" {
-  interface User extends ConnectedUser { }
-
-  interface Session {
-    user: User & ConnectedUser
+  interface Session extends DefaultSession {
+    accessToken?: string;
+    idToken?: string;
+    user: {
+      id: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      roles?: UserRoles[];
+    } & DefaultSession["user"];
   }
 }
 
 declare module "next-auth/jwt" {
-  interface JWT extends ConnectedUser { }
+  interface JWT extends DefaultJWT {
+    accessToken?: string;
+    idToken?: string;
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    roles?: UserRoles[];
+  }
 }
