@@ -84,8 +84,8 @@ export const authOptions: AuthOptions = {
           idRessource: process.env.GAR_ID_RESSOURCE,
           // Optional GAR parameters (if static or globally applicable)
           // Note: Injecting dynamic values based on user *before* redirect is complex
-          idEtab: process.env.GAR_UAI, // Example: Using a static UAI if applicable
-          profil: process.env.GAR_PROFILE, // Example: Using a static profile if applicable
+          // idEtab: process.env.GAR_UAI, 
+          // profil: process.env.GAR_PROFILE, 
         },
       },
 
