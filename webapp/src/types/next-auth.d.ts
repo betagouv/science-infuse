@@ -18,6 +18,10 @@ declare module "next-auth" {
       firstName?: string | null;
       lastName?: string | null;
       roles?: UserRoles[];
+
+      uai?: string | null; // GAR specific
+      typProfil?: string | null; // GAR specific
+
     } & DefaultSession["user"];
   }
 }

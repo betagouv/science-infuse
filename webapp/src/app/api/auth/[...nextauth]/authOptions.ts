@@ -38,28 +38,6 @@ interface GarUserInfo {
   // E_MS1?: string[]; // etc.
 }
 
-// Optional: Extend NextAuth session user type if needed
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string;
-    idToken?: string;
-    user: {
-      id: string; // Ensure id is always present
-      uai?: string | null; // GAR specific
-      typProfil?: string | null; // GAR specific
-      roles?: string[] | null; // From Credentials or potentially GAR
-    } & NextAuthUser; // Include default fields like name, email, image
-  }
-  // Optional: Extend NextAuth default User type if needed for the 'user' object in callbacks
-  // interface User {
-  //   uai?: string | null;
-  //   typProfil?: string | null;
-  //   firstName?: string | null;
-  //   lastName?: string | null;
-  // }
-}
-
-
 export const authOptions: AuthOptions = {
   // Use Prisma adapter for database persistence (optional for OIDC, but you have it)
   adapter: PrismaAdapter(prisma),
