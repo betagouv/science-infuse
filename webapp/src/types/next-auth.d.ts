@@ -12,13 +12,13 @@ export interface ConnectedUser {
 declare module "next-auth" {
   interface Session extends DefaultSession {
     accessToken?: string;
+    provider?: string;
     idToken?: string;
     user: {
       id: string;
       firstName?: string | null;
       lastName?: string | null;
       roles?: UserRoles[];
-
       uai?: string | null; // GAR specific
       typProfil?: string | null; // GAR specific
 

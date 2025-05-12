@@ -234,7 +234,7 @@ export const authOptions: AuthOptions = {
 
       if (isInitialSignIn) {
         token.id = user.id; // Persist the user ID from provider profile or authorize
-
+        token.provider = account.provider;
         if (account?.provider === "gar") {
           console.log("JWT Callback: Handling GAR initial sign-in");
           // Store OIDC tokens if needed (be mindful of size/security)
@@ -278,6 +278,8 @@ export const authOptions: AuthOptions = {
       session.user.id = token.id || "";
       session.user.name = token.name;
       session.user.email = token.email;
+
+      session.provider = (token.provider || "") as string;
       // session.user.image = token.picture; // If image is included in token
 
       // Add provider-specific properties / custom claims from JWT
