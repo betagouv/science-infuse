@@ -244,3 +244,18 @@ h1 {
     @apply bg-background text-foreground;
   }
 }
+
+
+
+/* gar */
+.gar-custom-button {
+  transition: background-image 0.2s ease-in-out;
+}
+
+.gar-custom-button:not(:disabled):hover {
+  background-image: url('/images/gar/BoutonGAR_Hover.svg') !important;
+}
+
+.gar-custom-button:not(:disabled):focus {
+  background-image: url('/images/gar/BoutonGAR_Focus.svg') !important;
+}
