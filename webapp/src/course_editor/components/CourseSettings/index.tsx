@@ -28,7 +28,7 @@ const CourseSettings = (props: { chapter?: ChapterWithoutBlocks, editor: Editor 
                     Connectez-vous pour exporter le cours en PDF ou MBZ et les quiz en H5P.
                 </span>
                 <span className="flex flex-row gap-4">
-                    <Button priority="secondary"><a href="/">Connexion</a></Button>
+                    <Button priority="secondary"><a href="/connexion">Connexion</a></Button>
                     {/* <Button><a href="/">Créer un compte</a></Button> */}
                 </span>
             </CallOut>}

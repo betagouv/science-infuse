@@ -58,7 +58,7 @@ export const authOptions: AuthOptions = {
         url: "https://idp-auth.gar.education.fr/oidc/authorize",
         params: {
           // Standard + GAR specific scopes
-          scope: "openid profile email scope.gar",
+          scope: "openid scope.gar",
           // Mandatory GAR parameter
           idRessource: process.env.GAR_ID_RESSOURCE,
           // Optional GAR parameters (if static or globally applicable)
