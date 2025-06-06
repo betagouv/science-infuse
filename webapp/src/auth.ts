@@ -31,7 +31,7 @@ interface GarUserInfo {
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-
+  trustHost: true,
   providers: [
     // --- Generic OIDC Provider Configuration for GAR ---
     {
