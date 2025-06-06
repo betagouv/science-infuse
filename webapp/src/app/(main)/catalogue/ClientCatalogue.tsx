@@ -29,7 +29,7 @@ const EducationLevelFilters: React.FC<EducationLevelsFiltersProps> = React.memo(
                                     onChange: () => onFilterChange(''),
                                 }
                             },
-                            ...filters.map((filter) => ({
+                            ...filters.sort((a, b) => b.name[0].localeCompare(a.name[0])).map((filter) => ({
                                 label: filter.name || " ",
                                 nativeInputProps: {
                                     checked: selectedFilter === filter.id,
