@@ -159,7 +159,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         console.log("Attempting Credentials authorize for:", credentials?.email);
-        if (!credentials?.email || !credentials?.password) {
+        if (
+          !credentials ||
+          typeof credentials.email !== "string" ||
+          typeof credentials.password !== "string"
+        ) {
           console.log("Credentials missing email or password");
           return null;
         }
@@ -215,7 +219,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   // Control what happens during JWT creation/update and session checks
   callbacks: {
     // Called when a JWT is created (on sign-in) or updated (on session access)
-    async jwt({ token, account, user }: { token: JWT; account: Account | null; user: User | AdapterUser }) {
+    async jwt({ token, account, user }) {
       console.log("JWT Callback triggered", { provider: account?.provider });
 
       const isInitialSignIn = !!(account && user);

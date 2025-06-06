@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
-import { getServerSession, User } from "next-auth";
+import {  User } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { withAccessControl } from "@/app/api/accessControl";
 import { CUSTOM_ERRORS } from "@/lib/customErrors";
 
@@ -15,6 +14,10 @@ export const POST = withAccessControl(
 
             if (!reason) {
                 return NextResponse.json({ error: 'Reason is required' }, { status: 400 });
+            }
+
+            if (!user.id) {
+                return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
             }
 
             const reportedChunk = await prisma.reportedDocumentChunk.create({
