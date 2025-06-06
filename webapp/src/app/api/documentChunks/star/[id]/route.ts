@@ -1,11 +1,10 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } });
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } });
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

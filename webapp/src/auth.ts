@@ -1,45 +1,35 @@
 // src/app/api/auth/[...nextauth]/authOptions.ts
 
-import { AuthOptions, User as NextAuthUser, Account } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import type { NextAuthConfig, User, Account } from "next-auth";
+import NextAuth from "next-auth";
+import type { AdapterUser } from "@auth/core/adapters";
+import type { JWT } from "next-auth/jwt";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-// No specific OIDC provider import is needed for generic configuration
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
 // --- Environment Variable Checks (Optional but Recommended) ---
-// Simple checks to ensure required variables are set during startup
 if (!process.env.GAR_CLIENT_ID) throw new Error("Missing GAR_CLIENT_ID");
 if (!process.env.GAR_CLIENT_SECRET) throw new Error("Missing GAR_CLIENT_SECRET");
 if (!process.env.GAR_ISSUER) throw new Error("Missing GAR_ISSUER");
 if (!process.env.GAR_ID_RESSOURCE) throw new Error("Missing GAR_ID_RESSOURCE");
 
-
 // --- Interfaces ---
-
-// Define an interface for the expected GAR UserInfo response structure
-// Adjust based on the actual claims GAR returns for your resource
 interface GarUserInfo {
-  sub?: string; // Standard OIDC subject identifier (check if GAR returns this)
-  id?: string; // Custom GAR ID (check if returned and unique)
-  garpersonidentifiant?: string; // Another potential unique ID from GAR docs
-  id_id?: string; // Yet another potential ID from GAR docs
+  sub?: string;
+  id?: string;
+  garpersonidentifiant?: string;
+  id_id?: string;
   NOM?: string;
   PRE?: string;
   CIV?: string;
-  UAI?: string; // School Identifier
-  P_MEL?: string; // Potential Email
-  typProfil?: string; // User profile type (e.g., ELE, ENS)
-  // Add other claims listed in GAR documentation (claims_supported) that you need
-  // Example:
-  // DIV?: string | string[]; // Could be single or multiple
-  // PRO?: string;
-  // E_MS1?: string[]; // etc.
+  UAI?: string;
+  P_MEL?: string;
+  typProfil?: string;
 }
 
-export const authOptions: AuthOptions = {
-  // Use Prisma adapter for database persistence (optional for OIDC, but you have it)
+export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
 
   providers: [
@@ -70,9 +60,8 @@ export const authOptions: AuthOptions = {
 
       // --- UserInfo Endpoint Request Override (GAR Specific) ---
       userinfo: {
-        async request(context) {
+        async request({ tokens, client }: { tokens: any; client: any }) { // TODO: Use proper types from next-auth/core
           console.log("[GAR-AUTH] Starting UserInfo request");
-          const { tokens, client } = context;
           const issuer = client.issuer;
           // Endpoint path based on GAR documentation
           const garUserInfoUrl = `${issuer}/oidcProfile`;
@@ -126,8 +115,7 @@ export const authOptions: AuthOptions = {
       },
 
       // --- Profile Mapping (GAR Specific) ---
-      // Maps the GAR UserInfo response to the NextAuth User object
-      profile(profile: GarUserInfo, tokens) {
+      profile(profile: GarUserInfo) {
         console.log("[GAR-AUTH] Starting profile mapping with input:", profile);
 
         // *** CRITICAL: Select the correct unique & stable ID from GAR ***
@@ -184,12 +172,11 @@ export const authOptions: AuthOptions = {
         }
         if (!user.password) {
           console.log("Credentials user found but has no password set:", credentials.email);
-          return null; // Or handle account linking scenarios differently
+          return null;
         }
-
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
+          String(credentials.password),
+          String(user.password)
         );
         if (!isPasswordValid) {
           console.log("Credentials invalid password for:", credentials.email);
@@ -228,7 +215,7 @@ export const authOptions: AuthOptions = {
   // Control what happens during JWT creation/update and session checks
   callbacks: {
     // Called when a JWT is created (on sign-in) or updated (on session access)
-    async jwt({ token, account, user, profile }) {
+    async jwt({ token, account, user }: { token: JWT; account: Account | null; user: User | AdapterUser }) {
       console.log("JWT Callback triggered", { provider: account?.provider });
 
       const isInitialSignIn = !!(account && user);
@@ -272,7 +259,7 @@ export const authOptions: AuthOptions = {
     },
 
     // Called when a session is checked (e.g., using useSession, getSession)
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       console.log("Session Callback triggered");
       // Add common properties from token to session.user
       // Ensure the types match the declare module Session above
@@ -298,4 +285,4 @@ export const authOptions: AuthOptions = {
   // --- Optional: Debugging ---
   // Enable detailed logs in development environment
   debug: process.env.NODE_ENV === 'development',
-};
+});

@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchBlocksWithChapter, searchDocumentChunks } from "./sql_raw_queries";
-import { getServerSession } from "next-auth";
-import prisma from "@/lib/prisma";
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { getEmbeddings } from "@/lib/utils/embeddings";
 import { QueryRequest } from "@/types/api";
+import { auth } from "@/auth";
 
 
 export async function POST(request: NextRequest): Promise<NextResponse<any | { error: string }>> {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     try {

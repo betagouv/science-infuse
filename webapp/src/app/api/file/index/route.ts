@@ -3,8 +3,6 @@ import fs from "fs";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import path from 'path';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
 import { catchErrorTyped, DocumentAlreadyIndexed } from '@/errors';
@@ -12,6 +10,7 @@ import { insertDocument } from '@/lib/utils/db';
 import { z } from 'zod';
 import indexVideo from '@/queueing/pgboss/jobs/index-video';
 import { ServerProcessingResult } from '@/queueing/pgboss/jobs/index-contents/index-content';
+import { auth } from '@/auth';
 const crypto = require('crypto');
 
 const PostSchema = z.object({
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { file, youtubeUrl, mediaName } = result.data;
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

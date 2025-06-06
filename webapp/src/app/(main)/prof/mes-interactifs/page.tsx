@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
 import RenderH5pContents from "./RenderH5pContents";
 import { H5PContent } from "@prisma/client";
 import { DocumentWithChunks } from "@/types/vectordb";
@@ -10,7 +9,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import { PROJECT_NAME } from "@/config";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { auth } from "@/auth";
 
 async function getContents(userId: string) {
     try {
@@ -77,7 +76,7 @@ async function deleteContent(contentId: string, userId: string) {
 
 
 export default async function MesInteractifs() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userId = session?.user?.id;
     if (!userId)
         return <div className="fr-col-12 fr-container main-content-item py-4">

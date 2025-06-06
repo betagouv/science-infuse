@@ -2,18 +2,17 @@ import { v4 as uuidv4 } from 'uuid'
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile } from 'fs/promises';
 import path from 'path';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import s3Storage from '../../S3Storage';
 import { File as DbFile } from '@prisma/client';
 import sharp from 'sharp';
+import { auth } from '@/auth';
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const author = formData.get('author') as string | null;
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

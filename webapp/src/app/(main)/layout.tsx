@@ -8,16 +8,15 @@ import { catchErrorTyped } from "@/errors";
 import { addDisplayTranslations, headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { cx } from '@codegouvfr/react-dsfr/tools/cx';
-import { getServerSession } from "next-auth";
 import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
 import { headers } from "next/headers";
 import { MuiDsfrThemeProvider } from "../MuiDsfrThemeProvider";
 import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "../../components/dsfr/consentManagement";
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { auth } from '@/auth';
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
   const csp = headers().get("Content-Security-Policy");
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user
 
   catchErrorTyped

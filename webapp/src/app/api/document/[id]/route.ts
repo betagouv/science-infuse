@@ -1,13 +1,13 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import { getServerSession, User } from "next-auth";
 import { withAccessControl } from "../../accessControl";
+import { auth } from "@/auth";
+import { User } from "next-auth";
 
 export const GET = withAccessControl(
     { allowedRoles: ['*'] },
     async (request: NextRequest, { user, params }: { user: User, params: { id: string } }) => {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
         const userId = session?.user.id
 
         const document = await prisma.document.findUnique({
@@ -38,7 +38,7 @@ export const GET = withAccessControl(
 export const DELETE = withAccessControl(
     { allowedRoles: ['ADMIN'] },
     async (request: NextRequest, { user, params }: { user: User, params: { id: string } }) => {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         const id = params.id;
 

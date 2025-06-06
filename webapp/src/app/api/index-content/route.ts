@@ -1,14 +1,12 @@
 import prisma from '@/lib/prisma';
 import fs from "fs";
 import { writeFile } from 'fs/promises';
-import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { IndexingContentType } from '@/types/queueing';
 import { DocumentTag } from '.prisma/client';
 import { indexContentJob } from '@/queueing/pgboss/jobs/index-contents/index-content';
+import { auth } from '@/auth';
 
 const crypto = require('crypto');
 
@@ -140,7 +138,7 @@ export async function POST(request: NextRequest) {
     console.log("formData.get('isExternal')", formData.get('isExternal'), formData.get('isExternal') === 'true')
     const isExternal = formData.get('isExternal') === 'true';
     const documentTags = JSON.parse(formData.get('documentTags') as string || "[]") as DocumentTag[];
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = await prisma.user.findUnique({ where: { id: session?.user?.id } })
 
     if (!user) {

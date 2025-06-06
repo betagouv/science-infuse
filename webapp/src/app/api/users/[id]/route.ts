@@ -2,16 +2,15 @@ import prisma from '@/lib/prisma';
 import { getUserFull } from '@/lib/utils/db';
 import { UserFull } from '@/types/api';
 import { UserRoles } from '@prisma/client';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { userIs } from '../../accessControl';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { auth } from '@/auth';
 
 export async function GET(request: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
 
   if (!session?.user) {
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest,
       user = await getUserFull(userId);
     }
 
-    
+
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -43,7 +42,7 @@ export async function PUT(request: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

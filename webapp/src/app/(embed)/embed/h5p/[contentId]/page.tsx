@@ -10,6 +10,8 @@ const contentService = new ContentService(process.env.NEXT_PUBLIC_H5P_URL || "")
 export default function H5pEmbedPage({ params }: { params: { contentId: string } }) {
   return (
     <H5PPlayerUI
+      readOnlyState={true}
+      contextId={Math.random().toString(36).substring(2, 15)}
       contentId={params.contentId}
       loadContentCallback={contentService.getPlay}
     />

@@ -1,12 +1,11 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import UserSettings from "./UserSettings";
 import prisma from "@/lib/prisma";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
+import { auth } from "@/auth";
 
 const Settings = async function () {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session || !session.user) {
         redirect('/');

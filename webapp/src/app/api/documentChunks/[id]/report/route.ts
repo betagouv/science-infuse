@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession, User } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { withAccessControl } from "@/app/api/accessControl";
 import { CUSTOM_ERRORS } from "@/lib/customErrors";
 

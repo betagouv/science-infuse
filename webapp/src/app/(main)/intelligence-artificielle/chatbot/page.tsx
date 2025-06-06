@@ -3,11 +3,10 @@ import AutoBreadCrumb from "@/components/AutoBreadCrumb"
 import React, { Suspense } from "react"
 import { AssistantRuntime } from "./AssistantRuntime"
 import dynamic from 'next/dynamic'
-import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import ShimmerText from "@/components/ShimmerText";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { auth } from "@/auth";
 
 // Dynamically import ChatBot component with no SSR to prevent hydration issues
 const ChatBot = dynamic(() => import('./ChatBot'), {
@@ -24,7 +23,7 @@ const ChatBot = dynamic(() => import('./ChatBot'), {
 })
 
 export default async function ChatbotPage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
     const userWithRole = user?.id ? await prisma.user.findUnique({
         where: { id: user.id },

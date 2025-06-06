@@ -1,18 +1,17 @@
 
-import { getServerSession } from "next-auth/next";
 import { redirect } from 'next/navigation';
 
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { EMPTY_DOCUMENT } from "@/config";
 import { getChaptersWithBlocks } from "@/lib/utils/db";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import ProfDashboardContent from "../ProfDashboardContent";
 import { ChapterStatus } from "@prisma/client";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
+import { auth } from '@/auth';
 
 export default async function ProfDashboard() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session || !session.user) {
         redirect('/');
@@ -74,7 +73,7 @@ export default async function ProfDashboard() {
     return (
         <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item mt-4'>
-                <AutoBreadCrumb className="mb-4"/>
+                <AutoBreadCrumb className="mb-4" />
                 <h1 className="self-center">Mes cours</h1>
 
                 <ProfDashboardContent

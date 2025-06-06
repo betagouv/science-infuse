@@ -1,16 +1,15 @@
 // page.tsx
 import { PrismaClient, UserRoles } from '@prisma/client';
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import AdminWrapper from '../AdminWrapper';
 import FileExplorer from './FileExplorer';
 import prisma from '@/lib/prisma';
 import { FileExplorerDocument } from './file-utils';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { userIs } from '@/app/api/accessControl';
+import { auth } from '@/auth';
 
 export default async function FileExplorerPage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     const isAdmin = await userIs(session?.user.id, [UserRoles.ADMIN]);
 

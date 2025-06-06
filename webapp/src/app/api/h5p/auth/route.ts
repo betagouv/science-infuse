@@ -1,13 +1,12 @@
-import { getServerSession } from "next-auth/next"
 import { NextRequest, NextResponse } from "next/server"
 import { SignJWT } from "jose"
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions"
+import { auth } from "@/auth";
 
 // Secret key for JWT - store this in environment variables
 const JWT_SECRET = process.env.H5P_JWT_SECRET
 
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions)
+    const session = await auth();
 
     if (!session || !session.user) {
         return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

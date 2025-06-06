@@ -5,8 +5,7 @@ import { v4 as uuidv4 } from 'uuid'; // Make sure to import the uuid library
 import prisma from "../prisma";
 import { getEmbeddings, getTextToEmbeed } from "./embeddings";
 import { userFullFields } from "@/app/api/accessControl";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { auth } from "@/auth";
 
 export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {
     return await prisma.chapter.findMany({
@@ -331,7 +330,7 @@ export async function getAdminSettings() {
 }
 
 export async function setAdminSetting(settingId: string, key: AdminSettingKey, value: string) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     return await prisma.adminSetting.upsert({
         where: {

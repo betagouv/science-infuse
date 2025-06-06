@@ -2,8 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { File } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { auth } from '@/auth';
 
 interface UpdateFileRequest {
   s3ObjectName: string;
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UpdateFil
 
 export async function GET(request: NextRequest): Promise<NextResponse<boolean | { error: string }>> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id)
       return NextResponse.json({ error: "file not fuound" }, { status: 404 });
     const { searchParams } = new URL(request.url);

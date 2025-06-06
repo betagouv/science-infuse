@@ -1,11 +1,10 @@
 import prisma from '@/lib/prisma';
 import { UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { userIs } from '../../../accessControl';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { GroupedFavorites } from '@/types/api';
+import { auth } from '@/auth';
 
 
 
@@ -13,8 +12,7 @@ export async function GET(request: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-  const session = await getServerSession(authOptions);
-
+  const session = await auth();
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,9 +75,10 @@ export async function GET(request: NextRequest,
           },
           metadata: documentChunk.metadata as any
         });
-      });      
-      
-      userStarredBlocks.forEach(favorite => {        const { keyword, block } = favorite;
+      });
+
+      userStarredBlocks.forEach(favorite => {
+        const { keyword, block } = favorite;
         if (!response[keyword]) {
           response[keyword] = { documentChunks: [], blocks: [] };
         }

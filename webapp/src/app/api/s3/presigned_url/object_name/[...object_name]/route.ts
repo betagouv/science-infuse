@@ -1,7 +1,5 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import s3Storage from "@/app/api/S3Storage";
-import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 
@@ -71,7 +69,7 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { object_name: string[] } }
 ) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     const object_name = params.object_name.join('/');

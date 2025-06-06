@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, User, UserRoles } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import { auth } from '@/auth';
 
 interface AccessControlOptions {
     allowedRoles: (UserRoles | '*')[];
@@ -41,7 +40,7 @@ export const userIs = async (userIdOrUser: string | User | undefined, roles: Use
 
 export function withAccessControl(options: AccessControlOptions, handler: Function,) {
     return async (request: NextRequest, context: { params: { [key: string]: string } }) => {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         if (!session) {
             return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {

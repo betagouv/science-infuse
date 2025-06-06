@@ -11,12 +11,11 @@ import { Button } from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Academy, EducationLevel, SchoolSubject } from '@prisma/client';
-import { signIn, getProviders, ClientSafeProvider, LiteralUnion } from 'next-auth/react';
+import { signIn, getProviders } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import RegisterForm from './RegisterForm';
 import { PROJECT_NAME } from '@/config';
-import { BuiltInProviderType } from 'next-auth/providers/index';
 import Image from 'next/image'; // Importer le composant Image de Next.js
 
 const modal = createModal({
@@ -33,7 +32,7 @@ const Login = () => {
     const callbackUrl = searchParams.get('callbackUrl') || '/';
     const error = searchParams.get('error');
 
-    const [providers, setProviders] = useState<Record<LiteralUnion<BuiltInProviderType>, ClientSafeProvider> | null>(null);
+    const [providers, setProviders] = useState<Record<string, any> | null>(null); // Updated type
     const [isGarButtonDisabled, setIsGarButtonDisabled] = useState(true); // Pour l'état disabled de l'image
 
     useEffect(() => {

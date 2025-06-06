@@ -1,4 +1,3 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { updateBlock } from '@/app/api/search/sql_raw_queries';
 import prisma from '@/lib/prisma';
 import { getEmbeddings } from '@/lib/utils/embeddings';
@@ -6,18 +5,18 @@ import { ChapterWithoutBlocks } from '@/types/api';
 import { Question } from '@/types/course-editor';
 import { ChapterStatus, UserRoles } from '@prisma/client';
 import { JSONContent } from '@tiptap/core';
-import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { getTiptapNodeText } from '../blocks/[id]/getTiptapNodeText';
 import { userFullFields, userIs } from '@/app/api/accessControl';
 import sendMailChapterToReview from '@/mail/sendMailChapterToReview';
+import { auth } from '@/auth';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     // if (!session || !session.user) {
     //   return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -80,7 +79,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const chapterId = params.id;
 
     if (!session || !session.user) {
