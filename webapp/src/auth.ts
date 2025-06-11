@@ -45,7 +45,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       // --- Authorization Request Customization (GAR Specific) ---
       authorization: {
-        url: "https://idp-auth.gar.education.fr/oidc/authorize",
+        url: `${process.env.GAR_ISSUER}/authorize`,
         params: {
           // Standard + GAR specific scopes
           scope: "openid scope.gar",
