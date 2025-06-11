@@ -167,6 +167,7 @@ export default () => {
                                 {
                                     label: InteractiveVideoImportType.LIEN,
                                     nativeInputProps: {
+                                        disabled: true,
                                         checked: importType === InteractiveVideoImportType.LIEN,
                                         onChange: () => setImportType(InteractiveVideoImportType.LIEN)
                                     }
