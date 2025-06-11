@@ -56,7 +56,7 @@ const ChiffresClés = () => {
                             <div className="fr-grid-row fr-grid-row--gutters">
                                 <div className="fr-col-12 fr-col-md-4 p-2">
                                     <Tile
-                                        title="970"
+                                        title="1 479"
                                         desc="visiteurs uniques"
                                         detail="ont découvert notre plateforme"
                                         titleAs="h2"
@@ -66,7 +66,7 @@ const ChiffresClés = () => {
                                 </div>
                                 <div className="fr-col-12 fr-col-md-4 p-2">
                                     <Tile
-                                        title="9 428"
+                                        title="11 877"
                                         desc="pages vues"
                                         detail="au total, démontrant l'intérêt suscité par nos contenus"
                                         titleAs="h2"
@@ -76,7 +76,7 @@ const ChiffresClés = () => {
                                 </div>
                                 <div className="fr-col-12 fr-col-md-4 p-2">
                                     <Tile
-                                        title="178"
+                                        title="246"
                                         desc="utilisateurs inscrits"
                                         detail="témoignant de l'attractivité de notre offre"
                                         titleAs="h2"
@@ -97,7 +97,7 @@ const ChiffresClés = () => {
                             <div className="fr-grid-row fr-grid-row--gutters">
                                 <div className="fr-col-12 fr-col-md-6 p-2">
                                     <Tile
-                                        title="10min 35s"
+                                        title="6min 46s"
                                         desc="durée moyenne de visite"
                                         detail="pour les utilisateurs authentifiés, révélant une exploration approfondie des contenus"
                                         titleAs="h2"
@@ -107,7 +107,7 @@ const ChiffresClés = () => {
                                 </div>
                                 <div className="fr-col-12 fr-col-md-6 p-2">
                                     <Tile
-                                        title="646"
+                                        title="1 552"
                                         desc="requêtes"
                                         detail="effectuées sur notre moteur de recherche depuis le début 2025"
                                         titleAs="h2"
@@ -131,7 +131,7 @@ const ChiffresClés = () => {
                                         background
                                         border
                                         desc="L'origine des activités volcaniques et sismiques"
-                                        title="96 vues uniques"
+                                        title="148 vues uniques"
                                         enlargeLink
                                         imageAlt="Illustration d'une coupe de la Terre montrant les activités volcaniques et sismiques"
                                         imageUrl="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zel864000c11styasoildy/11b64ca2-3d20-473f-9870-d1cdc84dec6b.png"
@@ -148,7 +148,7 @@ const ChiffresClés = () => {
                                         background
                                         border
                                         desc="Météo et climat"
-                                        title="91 vues uniques"
+                                        title="112 vues uniques"
                                         enlargeLink
                                         imageAlt="Illustration représentant des éléments météorologiques et climatiques"
                                         imageUrl="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zeprhf000d11st314t79ed/93266077-0f44-41f9-997f-e2df47e52bf5.jpeg"
@@ -165,7 +165,7 @@ const ChiffresClés = () => {
                                         background
                                         border
                                         desc="Mes organes : une équipe"
-                                        title="66 vues uniques"
+                                        title="79 vues uniques"
                                         enlargeLink
                                         imageAlt="texte alternatif de l’image"
                                         imageUrl="https://science-infuse.beta.gouv.fr/api/s3/presigned_url/object_name/prof/cm0zel864000c11styasoildy/453daaa5-fc67-4110-b313-2ff86384f3c3.png"
@@ -190,7 +190,7 @@ const ChiffresClés = () => {
                             <div className="fr-grid-row fr-grid-row--gutters">
                                 <div className="fr-col-12 fr-col-md-6 p-2">
                                     <Tile
-                                        title="30"
+                                        title="103"
                                         desc="utilisateurs actifs"
                                         detail="continuent d'exploiter régulièrement nos ressources"
                                         titleAs="h2"
@@ -200,7 +200,7 @@ const ChiffresClés = () => {
                                 </div>
                                 <div className="fr-col-12 fr-col-md-6 p-2">
                                     <Tile
-                                        title="15"
+                                        title="192"
                                         desc="nouveaux inscrits"
                                         detail="ont rejoint notre communauté"
                                         titleAs="h2"
