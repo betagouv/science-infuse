@@ -38,7 +38,6 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         "title": `Accueil - ${PROJECT_NAME}`
       }}
       serviceTitle={<p className="text-xl text-[#161616]">
-        <span className="font-thin">Science Infuse devient </span>
         <span className="font-bold">Ada</span>
       </p>}
       serviceTagline={<p className="text-sm text-left text-[#3a3a3a]">

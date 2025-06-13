@@ -10,7 +10,7 @@ const faqData = [
         "questions": [
             {
                 "question": "Qu'est-ce qu'Ada ?",
-                "answer": "Ada (anciennement Science Infuse) est une plateforme éducative qui révolutionne l'enseignement des sciences en proposant une bibliothèque unique de contenus scientifiques multimédias provenant d'Universcience (Cité des sciences et de l'industrie, Palais de la découverte), enrichie par des outils d'Intelligence Artificielle pour les rendre plus ludiques et pédagogiques."
+                "answer": "Ada est une plateforme éducative qui révolutionne l'enseignement des sciences en proposant une bibliothèque unique de contenus scientifiques multimédias provenant d'Universcience (Cité des sciences et de l'industrie, Palais de la découverte), enrichie par des outils d'Intelligence Artificielle pour les rendre plus ludiques et pédagogiques."
             },
             {
                 "question": "À qui s'adresse Ada ?",
@@ -19,10 +19,6 @@ const faqData = [
             {
                 "question": "Ada est-il payant ?",
                 "answer": "Non, Ada est entièrement gratuit et accessible à tous sur les Environnements Numériques de Travail (ENT). Cette gratuité s'inscrit dans la démarche d'open content d'Universcience, visant à démocratiser l'accès à des contenus scientifiques de haute qualité."
-            },
-            {
-                "question": "Quelle est la différence entre Science Infuse et Ada ?",
-                "answer": "Ada est le nouveau nom de Science Infuse. Cela s'inscrit dans une évolution majeure du service avec l'ajout de nouvelles fonctionnalités basées sur l'Intelligence Artificielle et une bibliothèque de contenus enrichie."
             }
         ]
     },
@@ -56,7 +52,7 @@ const faqData = [
             },
             {
                 "question": "D'où proviennent les cours disponibles dans le catalogue d'Ada ?",
-                "answer": "Les cours disponibles dans le catalogue d'Ada ont été conçus par des enseignants de SVT de l'Éducation Nationale, dans le cadre de l'expérimentation menée par Ada (anciennement Science Infuse) en 2024. Ces cours sont libres d'utilisation et d'édition par tous les enseignants. Ils peuvent également servir d'inspiration sur l'utilisation de la bibliothèque de contenus multimédias d'Ada et l'intégration des quiz générés par son IA. Ce partage de ressources entre enseignants constitue l'un des aspects collaboratifs importants de la plateforme."
+                "answer": "Les cours disponibles dans le catalogue d'Ada ont été conçus par des enseignants de SVT de l'Éducation Nationale, dans le cadre de l'expérimentation menée par Ada en 2024. Ces cours sont libres d'utilisation et d'édition par tous les enseignants. Ils peuvent également servir d'inspiration sur l'utilisation de la bibliothèque de contenus multimédias d'Ada et l'intégration des quiz générés par son IA. Ce partage de ressources entre enseignants constitue l'un des aspects collaboratifs importants de la plateforme."
             },
             {
                 "question": "Puis-je personnaliser les contenus proposés par Ada ?",
