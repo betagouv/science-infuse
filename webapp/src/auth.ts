@@ -44,19 +44,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       issuer: process.env.GAR_ISSUER, // Base URL for discovery (.well-known/openid-configuration)
 
       // --- Authorization Request Customization (GAR Specific) ---
-      // authorization: {
-      //   url: `${process.env.GAR_ISSUER}/oidc/authorize`,
-      //   params: {
-      //     // Standard + GAR specific scopes
-      //     scope: "openid scope.gar",
-      //     // Mandatory GAR parameter
-      //     idRessource: process.env.GAR_ID_RESSOURCE,
-      //     // Optional GAR parameters (if static or globally applicable)
-      //     // Note: Injecting dynamic values based on user *before* redirect is complex
-      //     // idEtab: process.env.GAR_UAI, 
-      //     // profil: process.env.GAR_PROFILE, 
-      //   },
-      // },
+      authorization: {
+        url: `${process.env.GAR_ISSUER}/authorize`,
+        params: {
+          // Standard + GAR specific scopes
+          scope: "openid scope.gar",
+          // Mandatory GAR parameter
+          idRessource: process.env.GAR_ID_RESSOURCE,
+          // Optional GAR parameters (if static or globally applicable)
+          // Note: Injecting dynamic values based on user *before* redirect is complex
+          // idEtab: process.env.GAR_UAI, 
+          // profil: process.env.GAR_PROFILE, 
+        },
+      },
 
       // --- UserInfo Endpoint Request Override (GAR Specific) ---
       userinfo: {
