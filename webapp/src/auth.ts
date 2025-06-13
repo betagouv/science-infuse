@@ -37,11 +37,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     {
       id: "gar", // Unique ID for this provider instance
       name: "GAR", // Display name on sign-in pages/buttons
-      type: "oidc",
+      type: "oauth",
       // --- Core OIDC Credentials & Endpoint Discovery ---
       clientId: process.env.GAR_CLIENT_ID,
       clientSecret: process.env.GAR_CLIENT_SECRET,
-      issuer: process.env.GAR_ISSUER, // Base URL for discovery (.well-known/openid-configuration)
+      issuer: "https://idp-auth.partenaire.test-gar.education.fr/oidc",
 
       // --- Authorization Request Customization (GAR Specific) ---
       authorization: {
