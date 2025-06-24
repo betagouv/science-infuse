@@ -16,20 +16,12 @@ if (!process.env.GAR_ID_RESSOURCE) throw new Error("Missing GAR_ID_RESSOURCE");
 // --- Interfaces ---
 
 interface GarUserInfo {
-  sub?: string;
-  id?: string;
-  garpersonidentifiant?: string;
-  id_id?: string;
-  NOM?: string;
-  PRE?: string;
-  CIV?: string;
-  UAI?: string;
-  P_MEL?: string;
-  typProfil?: string;
-  IDO?: string;
-  DIV?: string[];
-  GRO?: string[];
-  P_MAT?: string;
+  id: string;
+  sub: string;
+  IDO: string;
+  UAI: string;
+  auth_time: number;
+  client_id: string;
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -77,15 +69,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return {
           id: user.id,
           email: user.email,
-          firstName: user.firstName, // Ensure these match your Prisma User model
+          firstName: user.firstName,
           lastName: user.lastName,
-          roles: user.roles, // Assuming 'roles' is an array field in your model
-          name: [user.firstName, user.lastName].filter(Boolean).join(" "), // Add name if not in model
-          image: user.image, // Add image if you have it
+          roles: user.roles,
+          name: [user.firstName, user.lastName].filter(Boolean).join(" "),
         };
       }
     }),
-     CredentialsProvider({
+    CredentialsProvider({
       id: "gar-credentials", // A unique ID for this provider
       name: "GAR SSO",
       credentials: {
@@ -98,74 +89,35 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
 
         const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
-        const garUserId = profile.sub;
+        console.log("[GAR-CREDENTIALS] Authorizing GAR user with profile:", profile);
+        const garUserId = profile.IDO;
 
         if (!garUserId) {
-          console.error("[GAR-CREDENTIALS] GAR profile is missing 'sub' (unique ID).");
+          console.error("[GAR-CREDENTIALS] GAR profile is missing 'IDO' (unique ID).");
           return null;
         }
-        
+
         console.log(`[GAR-CREDENTIALS] Authorizing GAR user: ${garUserId}`);
 
-        // Step 1: Check if an account for this provider/providerAccountId already exists
-        const existingAccount = await prisma.account.findUnique({
+        const existingUser = await prisma.user.findUnique({
           where: {
-            provider_providerAccountId: {
-              provider: 'gar',
-              providerAccountId: garUserId,
-            }
+            id: garUserId,
+            source: 'gar',
           },
-          include: { user: true }
         });
 
-        if (existingAccount) {
+
+        if (existingUser) {
           console.log("[GAR-CREDENTIALS] Found existing linked account. Logging in.");
-          return existingAccount.user; // User is already linked, sign them in
+          return existingUser; // User is already linked, sign them in
         }
 
-        // Step 2: If no account, check if a user with this email exists (to link accounts)
-        // This is important for users who signed up with email/password first
-        const userEmail = profile.P_MEL;
-        if (userEmail) {
-            const existingUserByEmail = await prisma.user.findUnique({
-                where: { email: userEmail }
-            });
-
-            if (existingUserByEmail) {
-                console.log(`[GAR-CREDENTIALS] Found existing user by email ${userEmail}. Linking GAR account.`);
-                // Link the GAR account to the existing user record
-                await prisma.account.create({
-                    data: {
-                        userId: existingUserByEmail.id,
-                        type: 'oauth',
-                        provider: 'gar',
-                        providerAccountId: garUserId,
-                    }
-                });
-                return existingUserByEmail;
-            }
-        }
-        
-        // Step 3: If no user found by any means, create a new user and account
         console.log("[GAR-CREDENTIALS] No existing user found. Creating new user and account.");
-        
+
         const newUser = await prisma.user.create({
           data: {
-            // Note: Your user model needs to handle the possibility of a null email
-            // if GAR doesn't always provide it. Make the email field optional in schema.prisma.
-            email: userEmail || null,
-            firstName: profile.PRE || garUserId, 
-            lastName: profile.NOM,
-          }
-        });
-        
-        // Link the new GAR account to the new user
-        await prisma.account.create({
-          data: {
-            userId: newUser.id,
-            type: 'oauth',
-            provider: 'gar',
-            providerAccountId: garUserId,
+            id: garUserId,
+            source: 'gar', // Indicate this user is from GAR
           }
         });
 

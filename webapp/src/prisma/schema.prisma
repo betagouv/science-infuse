@@ -301,6 +301,7 @@ model User {
   academyId          String?
   creationDate       DateTime               @default(now())
   acceptMail         Boolean?
+  source             String                @default("website")
   Account            Account[]
   activities         Activity[]
   blocks             Block[]

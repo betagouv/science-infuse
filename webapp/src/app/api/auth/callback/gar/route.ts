@@ -116,37 +116,6 @@ export async function GET(request: NextRequest) {
       userProfile: JSON.stringify(userInfo),
       redirectTo: callbackUrl, // The final destination after login
     });
-
-    // Here you would typically:
-    // 1. Create or update user in your database
-    // 2. Create a session
-    // 3. Set session cookies
-    
-    // For now, redirect to success page with user data
-    // In production, you should create a proper session
-    // const successUrl = new URL(callbackUrl, process.env.NEXTAUTH_URL);
-    
-    // // Clean up temporary cookies
-    // const response = NextResponse.redirect(successUrl.toString());
-    // response.cookies.delete('gar_state');
-    // response.cookies.delete('gar_code_verifier');
-    // response.cookies.delete('gar_callback_url');
-    
-    // // Set user session cookie (simplified - use proper session management)
-    // response.cookies.set('gar_user_session', JSON.stringify({
-    //   user: userInfo,
-    //   tokens: tokens,
-    //   timestamp: Date.now(),
-    // }), {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax',
-    //   maxAge: tokens.expires_in || 21600, // Use token expiry or default 6 hours
-    //   path: '/',
-    // });
-    
-    // return response;
-    
   } catch (error) {
     console.error('[GAR-CALLBACK] Unexpected error:', error);
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/connexion?error=OAuthCallback`);
