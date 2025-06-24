@@ -7,7 +7,7 @@ export interface CreateChapterBlockRequest {
     chapterId: string;
 }
 
-export interface UserFull extends Omit<User, 'password' | 'emailVerified' | 'resetToken' | 'resetTokenExpiry' | 'creationDate'> {
+export interface UserFull extends Omit<User, 'password' | 'emailVerified' | 'resetToken' | 'resetTokenExpiry' | 'creationDate' | 'source'> {
     roles: UserRoles[], educationLevels: EducationLevel[],
     schoolSubjects: SchoolSubject[],
 }
