@@ -64,7 +64,7 @@ export async function GET(
         idRessource: process.env.GAR_ID_RESSOURCE!,
       });
       
-      const authorizationUrl = `https://idp-auth.partenaire.test-gar.education.fr/oidc/oidcAuthorize?${authParams.toString()}`;
+      const authorizationUrl = `${process.env.GAR_ISSUER}/oidcAuthorize?${authParams.toString()}`;
       
       console.log(`[AUTH] Redirecting to GAR authorization: ${authorizationUrl}`);
       

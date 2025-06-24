@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     // Exchange code for tokens
     console.log('[GAR-CALLBACK] Exchanging code for tokens');
-    const tokenResponse = await fetch('https://idp-auth.partenaire.test-gar.education.fr/oidc/oidcAccessToken', {
+    const tokenResponse = await fetch(`${process.env.GAR_ISSUER}/oidcAccessToken`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     console.log('[GAR-CALLBACK] Tokens received successfully');
 
     // Get user info
-    const userInfoUrl = new URL('https://idp-auth.partenaire.test-gar.education.fr/oidc/oidcProfile');
+    const userInfoUrl = new URL(`${process.env.GAR_ISSUER}/oidcProfile`);
     userInfoUrl.searchParams.set('idRessource', process.env.GAR_ID_RESSOURCE!);
     userInfoUrl.searchParams.set('access_mode', 'web');
 
