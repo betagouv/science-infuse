@@ -1,6 +1,9 @@
 #editor {
   h1:first-child {
     font-size: 2.75rem;
+    @media screen and (max-width: 600px) {
+      font-size: 2rem;
+    }
   }
   .chapter-course-block {
     h1 {

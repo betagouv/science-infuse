@@ -12,7 +12,7 @@ import { Input } from "@codegouvfr/react-dsfr/Input";
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import styled from "@emotion/styled";
 import Masonry from "@mui/lab/Masonry";
-import { Collapse, Modal } from '@mui/material';
+import { Collapse, Modal, useMediaQuery } from '@mui/material';
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 import { Editor } from '@tiptap/react';
@@ -274,6 +274,7 @@ const StyledModal = styled(Modal)`
 const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, updateChapter: (chapter: Partial<ChapterWithoutBlocks>) => void }) => {
     const { data: session } = useSession();
     const user = session?.user;
+    const isMobile = useMediaQuery('(max-width: 600px)');
 
     const [isOpen, setIsOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -397,7 +398,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                 aria-describedby="cover-picker-description"
             >
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#16161686] transition-opacity duration-300">
-                    <div ref={modalRef} className="flex flex-col items-center gap-8 bg-[#f6f6f6] rounded-lg shadow-lg p-16 w-[80vw] h-[90vh] max-w-[1200px] max-h-[90vh] relative">
+                    <div ref={modalRef} className="flex flex-col items-center gap-8 bg-[#f6f6f6] rounded-lg shadow-lg p-4 sm:p-8 md:p-16 w-[80vw] h-[90vh] max-w-[1200px] max-h-[90vh] relative">
                         <div className="flex flex-col items-center gap-8 w-full overflow-x-hidden overflow-y-auto">
                             <svg width={32} height={32} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-grow-0 flex-shrink-0 w-8 h-8" preserveAspectRatio="none">
                                 <circle cx={16} cy={16} r={16} fill="#000091" />
@@ -418,7 +419,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                             </div>
                             <div className="w-full">
                                 {!isLoading && !isError && results && (
-                                    <Masonry columns={2} spacing={2}>
+                                    <Masonry columns={isMobile ? 1 : 2} spacing={2}>
                                         {(results.chunks as ChunkWithScore<"pdf_image">[])
                                             .sort((a, b) => b.score - a.score)
                                             .map((chunk, index) => {
@@ -522,6 +523,15 @@ const StyledCourseInformation = styled.div`
 `
 const CourseInformations = (props: { editor: Editor }) => {
     const context = useContext(EditorContext)
+    const isMobile = useMediaQuery('(max-width: 1023px)');
+    const [tocOpen, setTocOpen] = useState(!isMobile);
+    const [infoOpen, setInfoOpen] = useState(!isMobile);
+
+    useEffect(() => {
+        setTocOpen(!isMobile);
+        setInfoOpen(!isMobile);
+    }, [isMobile]);
+
 
     const { data: chapter, refetch } = useQuery<ChapterWithoutBlocks>({
         queryKey: ['chapter', props.editor.storage.simetadata.chapterId],
@@ -540,48 +550,66 @@ const CourseInformations = (props: { editor: Editor }) => {
     };
 
     return <StyledCourseInformation className="flex flex-col">
-        <p className="mt-0 sticky top-0 z-[10] bg-white pt-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
-            SOMMAIRE
-        </p>
-        <ChapterTableOfContents content={props.editor.getJSON().content || []} editor={props.editor} />
+        <div
+            onClick={() => isMobile && setTocOpen(!tocOpen)}
+            className="cursor-pointer lg:cursor-auto mt-0 sticky top-0 z-[10] bg-white pt-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black flex justify-between items-center"
+        >
+            <span>SOMMAIRE</span>
+            <svg className={`w-4 h-4 lg:hidden transform transition-transform ${tocOpen ? 'rotate-180' : ''}`} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M8.00048 8.78132L11.3005 5.48132L12.2431 6.42399L8.00048 10.6667L3.75781 6.42399L4.70048 5.48132L8.00048 8.78132Z" fill="#161616" />
+            </svg>
+        </div>
+        <Collapse in={tocOpen}>
+            <ChapterTableOfContents content={props.editor.getJSON().content || []} editor={props.editor} />
+        </Collapse>
 
         {chapter && props.editor.isEditable && <>
-            <p className="mt-0 sticky top-0 z-[10] bg-white py-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black">
-                INFORMATIONS SUR LE CHAPITRE
-            </p>
-            <EducationLevelPicker
-                editor={props.editor}
-                availablEducationLevel={context.educationLevels}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
-            <SchoolSubjectPicker
-                editor={props.editor}
-                availableSchoolSubjects={context.schoolSubjects}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
-            <ThemePicker
-                editor={props.editor}
-                availableThemes={context.themes}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
-            <SkillsAndKeyIdeasPicker
-                editor={props.editor}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
-            <AdditionalInformationsPicker
-                editor={props.editor}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
-            <CoverPicker
-                editor={props.editor}
-                updateChapter={updateChapter}
-                chapter={chapter}
-            />
+            <div
+                onClick={() => isMobile && setInfoOpen(!infoOpen)}
+                className="cursor-pointer lg:cursor-auto mt-0 sticky top-0 z-[10] bg-white py-4 flex-grow-0 flex-shrink-0 text-base font-bold text-left text-black flex justify-between items-center"
+            >
+                <span>INFORMATIONS SUR LE CHAPITRE</span>
+                <svg className={`w-4 h-4 lg:hidden transform transition-transform ${infoOpen ? 'rotate-180' : ''}`} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M8.00048 8.78132L11.3005 5.48132L12.2431 6.42399L8.00048 10.6667L3.75781 6.42399L4.70048 5.48132L8.00048 8.78132Z" fill="#161616" />
+                </svg>
+            </div>
+            <Collapse in={infoOpen}>
+                <div className="flex flex-col">
+                    <EducationLevelPicker
+                        editor={props.editor}
+                        availablEducationLevel={context.educationLevels}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                    <SchoolSubjectPicker
+                        editor={props.editor}
+                        availableSchoolSubjects={context.schoolSubjects}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                    <ThemePicker
+                        editor={props.editor}
+                        availableThemes={context.themes}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                    <SkillsAndKeyIdeasPicker
+                        editor={props.editor}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                    <AdditionalInformationsPicker
+                        editor={props.editor}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                    <CoverPicker
+                        editor={props.editor}
+                        updateChapter={updateChapter}
+                        chapter={chapter}
+                    />
+                </div>
+            </Collapse>
         </>}
 
     </StyledCourseInformation>

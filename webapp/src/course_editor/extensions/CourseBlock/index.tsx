@@ -315,7 +315,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       {editor.isEditable && (
         <TextareaAutosize
           placeholder="Donner un titre au bloc"
-          className="mt-8 text-[2.25rem] font-bold text-left text-black w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
+          className="mt-8 text-[1.75rem] md:text-[2.25rem] font-bold text-left text-black w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
           value={node.attrs.title}
           onChange={(e) => {
             const newTitle = e.target.value;
@@ -326,14 +326,14 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         />
       )}
       {!editor.isEditable && (
-        <div className="mt-8 text-[2.25rem] leading-[2.5rem] font-bold text-left text-black w-full mb-8">
+        <div className="mt-8 text-[1.75rem] md:text-[2.25rem] leading-[2rem] md:leading-[2.5rem] font-bold text-left text-black w-full mb-8">
           {node.attrs.title}
         </div>
       )}
 
-      <div className="flex flex-col bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-8">
+      <div className="flex flex-col bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-4 md:p-8">
         {editor.isEditable && <div
-          className='sticky top-0 py-4 bg-[#f6f6f6] z-[100]'
+          className='sticky top-0 py-4 bg-[#f6f6f6] z-[103]'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

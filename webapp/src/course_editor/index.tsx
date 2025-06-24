@@ -129,15 +129,15 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
 
 
   return (
-    <div className="flex flex-row mt-8" style={{ marginTop: editor.isEditable ? "" : "0" }}>
+    <div className="flex flex-col lg:flex-row mt-8 lg:mt-0 h-full">
       <EditorContext.Provider value={providerValue}>
-        <div className="flex flex-row gap-0 max-w-full w-full">
+        <div className="flex flex-col lg:flex-row gap-0 max-w-full w-full h-full">
 
-          <div className="relative p-4 md:p-16">
+          <div className="relative p-4 lg:p-8 xl:p-16 lg:w-1/3 xl:w-1/4">
             <CourseSettings chapter={props?.chapter} editor={editor} />
           </div>
 
-          <StyledEditor id="editor" data-editable={editor.isEditable} className={`relative w-full sm:mb-[calc(20vh)] p-4 md:p-16`} style={{ padding: !editor.isEditable ? "0" : '', }}>
+          <StyledEditor id="editor" data-editable={editor.isEditable} className={`relative w-full lg:w-2/3 xl:w-3/4 sm:mb-[calc(20vh)] p-4 lg:p-8 xl:p-16 ${!editor.isEditable ? 'p-0' : ''}`}>
 
             {props?.chapter?.status == ChapterStatus.DELETED && <CallOut
               iconId="fr-icon-warning-line"

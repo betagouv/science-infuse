@@ -4,10 +4,10 @@ import { Node as PMNode } from '@tiptap/pm/model'
 import React from 'react';
 
 const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: number }) => {
-    return (<div className="w-full flex-wrap flex justify-center items-center gap-4 relative">
+    return (<div className="w-full flex-wrap flex flex-col sm:flex-row justify-center items-center gap-4 relative">
         <div
             onClick={() => props.editor.commands.openFileImportPopup(props?.pos || 0)}
-            className="max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
+            className="w-full sm:max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
         >
             <div className="flex-shrink-0 flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                 <img src="/images/actionButtons/addImage.svg" className="h-6 w-6" alt="Importer" />
@@ -18,7 +18,7 @@ const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: n
         </div>
         <div
             onClick={() => props.editor.commands.openContentSearchPopup(props?.pos || 0)}
-            className="max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
+            className="w-full sm:max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
         >
             <div className="flex-shrink-0 flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                 <img src="/images/actionButtons/search.svg" className="h-6 w-6" alt="Chercher" />
@@ -33,7 +33,7 @@ const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: n
                     props.editor.commands.openQuizPopup(props.courseBlockNode);
                 }
             }}
-            className="max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
+            className="w-full sm:max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"
         >
             <div className="flex-shrink-0 flex justify-center items-center px-2 py-2 rounded bg-[#ececfe]">
                 <img src="/images/actionButtons/aiGeneration.svg" className="h-6 w-6" alt="Générer" />

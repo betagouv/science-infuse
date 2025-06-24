@@ -13,7 +13,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
 
   return (
     <Header
-      className="z-[1]"
+      className="z-[10000]"
       brandTop={<>MINISTÈRE DE
         <br />LA CULTURE</>}
       // operatorLogo={{
