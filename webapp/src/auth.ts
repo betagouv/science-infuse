@@ -1,13 +1,11 @@
-// src/app/api/auth/[...nextauth]/authOptions.ts
-
-import type { NextAuthConfig, User, Account } from "next-auth";
 import NextAuth from "next-auth";
 import type { AdapterUser } from "@auth/core/adapters";
 import type { JWT } from "next-auth/jwt";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+// import type { OAuthTokenEndpoint } from "@auth/core/providers/oauth";
 
 // --- Environment Variable Checks (Optional but Recommended) ---
 if (!process.env.GAR_CLIENT_ID) throw new Error("Missing GAR_CLIENT_ID");
@@ -16,6 +14,7 @@ if (!process.env.GAR_ISSUER) throw new Error("Missing GAR_ISSUER");
 if (!process.env.GAR_ID_RESSOURCE) throw new Error("Missing GAR_ID_RESSOURCE");
 
 // --- Interfaces ---
+
 interface GarUserInfo {
   sub?: string;
   id?: string;
@@ -27,132 +26,16 @@ interface GarUserInfo {
   UAI?: string;
   P_MEL?: string;
   typProfil?: string;
+  IDO?: string;
+  DIV?: string[];
+  GRO?: string[];
+  P_MAT?: string;
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true,
   providers: [
-    // --- Generic OIDC Provider Configuration for GAR ---
-    {
-      id: "gar", // Unique ID for this provider instance
-      name: "GAR", // Display name on sign-in pages/buttons
-      type: "oauth",
-      // --- Core OIDC Credentials & Endpoint Discovery ---
-      clientId: process.env.GAR_CLIENT_ID,
-      clientSecret: process.env.GAR_CLIENT_SECRET,
-      issuer: "https://idp-auth.partenaire.test-gar.education.fr/oidc",
-
-      // --- Authorization Request Customization (GAR Specific) ---
-      authorization: {
-        // url: `${process.env.GAR_ISSUER}/oidc/authorize`,
-        url: "https://idp-auth.partenaire.test-gar.education.fr/oidc/authorize",
-
-        params: {
-          // Standard + GAR specific scopes
-          scope: "openid scope.gar",
-          // Mandatory GAR parameter
-          idRessource: process.env.GAR_ID_RESSOURCE,
-          // Optional GAR parameters (if static or globally applicable)
-          // Note: Injecting dynamic values based on user *before* redirect is complex
-          // idEtab: process.env.GAR_UAI, 
-          // profil: process.env.GAR_PROFILE, 
-        },
-      },
-
-      // --- UserInfo Endpoint Request Override (GAR Specific) ---
-      userinfo: {
-        async request({ tokens, client }: { tokens: any; client: any }) { // TODO: Use proper types from next-auth/core
-          console.log("[GAR-AUTH] Starting UserInfo request");
-          const issuer = client.issuer;
-          // Endpoint path based on GAR documentation
-          const garUserInfoUrl = `${issuer}/oidcProfile`;
-
-          if (!tokens.access_token) {
-            console.log("[GAR-AUTH] Access token missing for UserInfo request");
-            throw new Error("Missing access token for GAR UserInfo request");
-          }
-          if (!process.env.GAR_ID_RESSOURCE) {
-            console.log("[GAR-AUTH] GAR_ID_RESSOURCE env variable missing");
-            throw new Error("Missing GAR_ID_RESSOURCE env variable for UserInfo");
-          }
-
-          // Construct URL with GAR-specific query parameters
-          const urlWithParams = new URL(garUserInfoUrl);
-          urlWithParams.searchParams.set("idRessource", process.env.GAR_ID_RESSOURCE);
-          urlWithParams.searchParams.set("access_mode", "web"); // For web resources
-
-          console.log(`[GAR-AUTH] Fetching GAR UserInfo from: ${urlWithParams.toString()}`);
-
-          try {
-            console.log("[GAR-AUTH] Making UserInfo request");
-            const response = await fetch(urlWithParams.toString(), {
-              headers: {
-                Authorization: `Bearer ${tokens.access_token}`,
-                Accept: "application/json",
-              },
-              method: "GET",
-            });
-
-            const responseBody = await response.text(); // Get body for logging/errors
-            console.log("[GAR-AUTH] UserInfo raw response:", responseBody);
-
-            if (!response.ok) {
-              console.error("[GAR-AUTH] UserInfo Request Failed:", response.status, responseBody);
-              // Handle specific GAR errors based on Tableau 10
-              if (response.status === 401) throw new Error(`GAR UserInfo Error 401: Unauthorized. ${responseBody}`);
-              if (response.status === 403) throw new Error(`GAR UserInfo Error 403: Forbidden. ${responseBody}`);
-              throw new Error(`GAR UserInfo request failed with status ${response.status}: ${responseBody}`);
-            }
-
-            const profileData: GarUserInfo = JSON.parse(responseBody); // Parse after checking ok status
-            console.log("[GAR-AUTH] UserInfo Response Parsed:", profileData);
-            return profileData;
-
-          } catch (error) {
-            console.error("[GAR-AUTH] Error fetching/parsing GAR UserInfo:", error);
-            throw error; // Re-throw error to be handled by next-auth
-          }
-        },
-      },
-
-      // --- Profile Mapping (GAR Specific) ---
-      profile(profile: GarUserInfo) {
-        console.log("[GAR-AUTH] Starting profile mapping with input:", profile);
-
-        // *** CRITICAL: Select the correct unique & stable ID from GAR ***
-        // Prioritize standard 'sub' if available, otherwise choose from GAR's custom IDs.
-        const userId = profile.sub || profile.id || profile.garpersonidentifiant || profile.id_id;
-        if (!userId) {
-          console.error("[GAR-AUTH] FATAL: Could not determine a unique user ID from GAR profile:", profile);
-          throw new Error("Unique user identifier missing from GAR profile.");
-        }
-
-        console.log("[GAR-AUTH] Selected user ID:", userId);
-
-        const userProfile = {
-          id: userId,
-          // Construct name - adjust if PRE/NOM are not always present
-          name: [profile.PRE, profile.NOM].filter(Boolean).join(" ") || userId, // Fallback to id
-          // Use GAR's email claim if available, otherwise null
-          email: profile.P_MEL || null,
-          image: null, // GAR doesn't seem to provide profile picture URLs
-
-          // --- Store additional GAR claims directly on the user object for JWT callback ---
-          firstName: profile.PRE,
-          lastName: profile.NOM,
-          uai: profile.UAI,
-          typProfil: profile.typProfil,
-          // Add any other GAR claims you want to persist initially
-        };
-        console.log("[GAR-AUTH] Final mapped user profile:", userProfile);
-        return userProfile;
-      },
-
-      // --- Security Checks ---
-      checks: ['pkce', 'state'], // Enable PKCE (recommended, required by many OIDC providers) and state
-    },
-    // --- Your Existing Credentials Provider ---
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -200,6 +83,93 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           name: [user.firstName, user.lastName].filter(Boolean).join(" "), // Add name if not in model
           image: user.image, // Add image if you have it
         };
+      }
+    }),
+     CredentialsProvider({
+      id: "gar-credentials", // A unique ID for this provider
+      name: "GAR SSO",
+      credentials: {
+        userProfile: { type: "text" }, // We'll pass the JSON profile here
+      },
+      async authorize(credentials) {
+        if (!credentials?.userProfile) {
+          console.error("[GAR-CREDENTIALS] Missing userProfile.");
+          return null;
+        }
+
+        const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
+        const garUserId = profile.sub;
+
+        if (!garUserId) {
+          console.error("[GAR-CREDENTIALS] GAR profile is missing 'sub' (unique ID).");
+          return null;
+        }
+        
+        console.log(`[GAR-CREDENTIALS] Authorizing GAR user: ${garUserId}`);
+
+        // Step 1: Check if an account for this provider/providerAccountId already exists
+        const existingAccount = await prisma.account.findUnique({
+          where: {
+            provider_providerAccountId: {
+              provider: 'gar',
+              providerAccountId: garUserId,
+            }
+          },
+          include: { user: true }
+        });
+
+        if (existingAccount) {
+          console.log("[GAR-CREDENTIALS] Found existing linked account. Logging in.");
+          return existingAccount.user; // User is already linked, sign them in
+        }
+
+        // Step 2: If no account, check if a user with this email exists (to link accounts)
+        // This is important for users who signed up with email/password first
+        const userEmail = profile.P_MEL;
+        if (userEmail) {
+            const existingUserByEmail = await prisma.user.findUnique({
+                where: { email: userEmail }
+            });
+
+            if (existingUserByEmail) {
+                console.log(`[GAR-CREDENTIALS] Found existing user by email ${userEmail}. Linking GAR account.`);
+                // Link the GAR account to the existing user record
+                await prisma.account.create({
+                    data: {
+                        userId: existingUserByEmail.id,
+                        type: 'oauth',
+                        provider: 'gar',
+                        providerAccountId: garUserId,
+                    }
+                });
+                return existingUserByEmail;
+            }
+        }
+        
+        // Step 3: If no user found by any means, create a new user and account
+        console.log("[GAR-CREDENTIALS] No existing user found. Creating new user and account.");
+        
+        const newUser = await prisma.user.create({
+          data: {
+            // Note: Your user model needs to handle the possibility of a null email
+            // if GAR doesn't always provide it. Make the email field optional in schema.prisma.
+            email: userEmail || null,
+            firstName: profile.PRE || garUserId, 
+            lastName: profile.NOM,
+          }
+        });
+        
+        // Link the new GAR account to the new user
+        await prisma.account.create({
+          data: {
+            userId: newUser.id,
+            type: 'oauth',
+            provider: 'gar',
+            providerAccountId: garUserId,
+          }
+        });
+
+        return newUser;
       }
     }),
   ],
