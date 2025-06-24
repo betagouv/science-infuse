@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const cookieStore = cookies();
     const storedState = cookieStore.get('gar_state')?.value;
     const codeVerifier = cookieStore.get('gar_code_verifier')?.value;
-    const callbackUrl = cookieStore.get('gar_callback_url')?.value || '/dashboard';
+    const callbackUrl = cookieStore.get('gar_callback_url')?.value || '/';
 
     // Verify state parameter
     if (state !== storedState) {

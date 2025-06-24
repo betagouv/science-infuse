@@ -42,13 +42,25 @@ const AdminListUsers = () => {
 
     const columns: GridColDef[] = [
         { flex: 1, field: 'id', headerName: 'id', minWidth: 130, editable: true },
+        {
+            flex: 1,
+            field: 'source',
+            headerName: 'Source',
+            minWidth: 100,
+            editable: true,
+            renderCell: (params) => {
+                const value = params.value;
+                let color: "default" | "primary" | "secondary" | "success" | "error" | "info" | "warning" = "default";
+                if (value === 'website') color = "secondary";
+                if (value === 'gar') color = "info";
+                return <Chip label={value} color={color} />;
+            }
+        },
         { flex: 1, field: 'firstName', headerName: 'Prénom', minWidth: 130, editable: true },
         { flex: 1, field: 'lastName', headerName: 'Nom', minWidth: 150, editable: true },
         { flex: 1, field: 'email', headerName: 'Email', minWidth: 250, editable: false },
-        { flex: 1, field: 'acceptMail', headerName: 'Mailing', minWidth: 25, editable: true },
         { flex: 1, field: 'chapterCount', type: 'number', headerName: 'Chapitres', minWidth: 130, editable: false },
         { flex: 1, field: 'job', headerName: 'Métier', minWidth: 200, editable: true },
-        { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
         {
             field: 'roles',
             headerName: 'Roles',
@@ -79,8 +91,11 @@ const AdminListUsers = () => {
                 </div>
             )
         },
-        { flex: 1, field: 'creationDate', headerName: 'Création', minWidth: 200, editable: false, valueFormatter: (value) => new Date(value).toLocaleDateString('fr-FR'), sortComparator: (v1, v2) => new Date(v1).getTime() - new Date(v2).getTime() },];
-
+        { flex: 1, field: 'acceptMail', headerName: 'Mailing', minWidth: 150, editable: true },
+        { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
+        { flex: 1, field: 'creationDate', headerName: 'Création', minWidth: 200, editable: false, valueFormatter: (value) => new Date(value).toLocaleDateString('fr-FR'), sortComparator: (v1, v2) => new Date(v1).getTime() - new Date(v2).getTime() },
+    ];
+    
     const handleOpenRolesDialog = (user: UserFull) => {
         setSelectedUser(user);
         setSelectedRoles(user.roles);

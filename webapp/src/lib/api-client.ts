@@ -353,9 +353,7 @@ class ApiClient {
   }
 
   async getUsers(): Promise<UserFullWithChapterCount[]> {
-    console.log("GET USERS")
     const response = await this.axiosInstance.get<UserFullWithChapterCount[]>(`/users`);
-    console.log("GET USERS data", response.data)
 
     return response.data;
   }

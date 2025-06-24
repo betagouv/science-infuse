@@ -26,7 +26,7 @@ export async function GET(
   
   try {
     if (provider === 'gar') {
-      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+      const callbackUrl = searchParams.get('callbackUrl') || '/';
       
       // Generate PKCE parameters
       const codeVerifier = generateCodeVerifier();

@@ -195,10 +195,10 @@ export default function MonEspaceDropdown() {
                   {user?.firstName} {user?.lastName} {user?.name}
                 </p>
                 <p className="user-email">{user?.email}</p>
-                <Tag className="gap-2 !mt-2">
+                {(user.roles || []).includes(UserRoles.BETA_TESTER) && <Tag className="gap-2 !mt-2">
                   <SparklesIcon size={16} />
                   bêta-testeur
-                </Tag>
+                </Tag>}
               </UserInfo>
 
               {menuItems.map(({ icon, text, path }, index) => (
