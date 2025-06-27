@@ -33,12 +33,12 @@ export default function RenderH5pContents({
         : "";
 
     return (
-        <div className="flex flex-col gap-4">
-            <Masonry columns={2} spacing={2}>
+        <div className="flex flex-col gap-4 px-4 md:px-0">
+            <Masonry columns={{ xs: 1, md: 2 }} spacing={0}>
                 {displayedContents.map((content) => {
                     const publicUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/embed/h5p/${content.h5pId}`;
                     return (
-                        <MasonaryItem className="w-full" key={content.h5pId}>
+                        <MasonaryItem className="w-full !p-2" key={content.h5pId}>
                             <H5PContentCard
                                 content={content}
                                 h5pContentId={content.h5pId}

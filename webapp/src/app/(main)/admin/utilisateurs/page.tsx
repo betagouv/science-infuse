@@ -93,6 +93,7 @@ const AdminListUsers = () => {
         },
         { flex: 1, field: 'acceptMail', headerName: 'Mailing', minWidth: 150, editable: true },
         { flex: 1, field: 'school', headerName: 'École', minWidth: 200, editable: true },
+        { flex: 1, field: 'garSchoolId', headerName: 'GAR ID École', minWidth: 200, editable: true },
         { flex: 1, field: 'creationDate', headerName: 'Création', minWidth: 200, editable: false, valueFormatter: (value) => new Date(value).toLocaleDateString('fr-FR'), sortComparator: (v1, v2) => new Date(v1).getTime() - new Date(v2).getTime() },
     ];
     

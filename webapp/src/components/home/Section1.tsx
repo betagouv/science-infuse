@@ -27,7 +27,7 @@ export default function (props: { reverse?: boolean }) {
     return (
         <div className="fr-container overflow-x-hidden">
             <div className="fr-grid-row fr-grid-row--center">
-                <div className="fr-col-10">
+                    <div className="fr-col-12 fr-col-md-10">
                     <div className="w-full flex flex-col items-center gap-8 md:gap-8 px-4 md:px-0 my-16">
                         <h2 className="m-0 text-[32px] md:text-md font-bold text-center text-[#161616]">
                             Un apprentissage enrichi par l'Intelligence Artificielle d'Ada

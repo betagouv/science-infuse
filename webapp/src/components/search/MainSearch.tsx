@@ -13,7 +13,7 @@ export default () => {
         >
             <div className="fr-container" >
                 <div className="fr-grid-row fr-grid-row--center">
-                    <div className="fr-col-9">
+                    <div className="fr-col-12 fr-col-md-9">
 
                         <div className="w-full flex flex-col items-center gap-4 sm:gap-6 lg:gap-8 mt-16 mb-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-[#161616] mb-2 sm:mb-3 lg:mb-4">

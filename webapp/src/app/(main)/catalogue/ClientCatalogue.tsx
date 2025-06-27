@@ -132,7 +132,7 @@ const ClientCatalogue: React.FC<ClientCatalogueProps> = ({ initialChapters, filt
     }, [computeFilteredChapters]);
 
     return (
-        <div className="pb-16 flex flex-col px-4 md:px-0">
+        <div className="pb-16 flex flex-col md:px-0">
             <div className="w-full">
                 <h1 className="m-0 text-center">
                     Catalogue de cours de SVT

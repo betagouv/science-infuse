@@ -17,6 +17,7 @@ export const userFullFields = {
     lastName: true,
     acceptMail: true,
     source: true,
+    garSchoolId: true,
     // emailVerified: true,
     creationDate: true,
     image: true,

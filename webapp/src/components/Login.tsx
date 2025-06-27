@@ -1,11 +1,7 @@
-// Indiquez le chemin de votre page de connexion, par exemple:
-// src/app/auth/signin/page.tsx ou src/app/connexion/page.tsx
-
 'use client';
 
 import { useSnackbar } from '@/app/SnackBarProvider';
 import Snackbar from '@/course_editor/components/Snackbar';
-import useWindowSize from '@/course_editor/hooks/useWindowSize';
 import { apiClient } from '@/lib/api-client';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
@@ -109,8 +105,6 @@ const Login = () => {
         fetchData();
     }, []);
 
-    const { isMobile } = useWindowSize();
-
     if (!providers && isGarButtonDisabled) { // Attendre que les providers soient chargés
         return (
             <div className="flex justify-center items-center h-screen">
@@ -120,7 +114,7 @@ const Login = () => {
     }
 
     return (
-        <div className={`flex flex-col gap-4 ${isMobile ? 'px-8 sm:px-16 pb-16' : 'px-4' }`}>
+        <div className="flex flex-col gap-4 px-8 sm:px-16 md:px-4 pb-16 md:pb-0">
             <h1 className='text-3xl sm:text-5xl m-0'>Connectez-vous</h1>
             <p className='text-gray-600 m-0'>Sauf mention contraire, tous les champs sont obligatoires.</p>
 

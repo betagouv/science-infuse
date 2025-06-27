@@ -15,7 +15,7 @@ const Settings = async function () {
     const academies = await prisma.academy.findMany();
     const schoolSubjects = await prisma.schoolSubject.findMany();
 
-    return <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    return <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center px-4 md:px-0">
         <div className="fr-col-12 mt-8 fr-col-md-10 main-content-item">
             <AutoBreadCrumb />
         </div>

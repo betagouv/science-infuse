@@ -205,7 +205,7 @@ export default function UserSettings(props: { educationLevels: EducationLevel[],
 
 
     return (
-        <div className="w-full flex flex-col gap-8">
+        <div className="w-full flex flex-col gap-8 px-4 md:px-0">
 
             <UserSettingsField
                 isEditable

@@ -91,6 +91,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
         console.log("[GAR-CREDENTIALS] Authorizing GAR user with profile:", profile);
         const garUserId = profile.IDO;
+        const garSchoolId = profile.UAI;
 
         if (!garUserId) {
           console.error("[GAR-CREDENTIALS] GAR profile is missing 'IDO' (unique ID).");
@@ -117,6 +118,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const newUser = await prisma.user.create({
           data: {
             id: garUserId,
+            garSchoolId: garSchoolId,
             source: 'gar', // Indicate this user is from GAR
           }
         });
