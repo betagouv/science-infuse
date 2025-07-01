@@ -1,5 +1,5 @@
-import { FileHandler } from '@tiptap-pro/extension-file-handler'
 import { Editor } from '@tiptap/core'
+import FileHandler from '@tiptap/extension-file-handler'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import Document from '@tiptap/extension-document'
@@ -106,14 +106,16 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         FileImport,
         FileHandler.configure({
             allowedMimeTypes: [...pdfMime, ...imagesMime, ...videoMime],
-            onDrop: (editor: Editor, files: File[], pos: number) => {
+            onDrop: (currentEditor, files, pos) => {
+                console.log("FileHandler files", files, pos)
                 files.forEach(async (file) => {
-                    handleFile(file, editor, pos)
+                    handleFile(file, currentEditor, pos)
                 })
             },
-            onPaste: (editor: Editor, files: File[]) => {
+            onPaste: (currentEditor, files: File[]) => {
+                console.log("FileHandler paste", files)
                 files.forEach(async (file) => {
-                    handleFile(file, editor)
+                    handleFile(file, currentEditor)
                 })
             },
         }),

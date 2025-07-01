@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "dockerode": "^4.0.2",
-    "express": "^4.21.1"
-  },
-  "devDependencies": {
-    "@types/dockerode": "^3.3.31"
-  }
-}

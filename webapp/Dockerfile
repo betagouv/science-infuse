@@ -31,8 +31,7 @@ RUN apt-get install -y chromium
 COPY index.html ./
 COPY package.json ./
 COPY package-lock.json ./
-COPY .npmrc ./
-RUN npm install
+RUN npm install --force
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY tsconfig.json ./tsconfig.json
