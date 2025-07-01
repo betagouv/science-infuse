@@ -60,12 +60,12 @@ export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: Gr
 }
 
 export const ChapterResults: React.FC<OnInserted & { chapters: ChapterWithBlock[] }> = ({ chapters }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={0}>
+  return <Masonry columns={{ xs: 1, md: 2 }} spacing={0}>
     {chapters
       .map((chapter, index) => (
         <MasonaryItem key={index}>
           <div className="flex flex-col p-2">
-          <RenderChapter chapter={chapter} />
+            <RenderChapter chapter={chapter} />
           </div>
         </MasonaryItem>
       ))

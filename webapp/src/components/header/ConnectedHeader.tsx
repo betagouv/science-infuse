@@ -94,21 +94,6 @@ const SignOutWrapper = styled.div`
   justify-content: center;
 `;
 
-const SignOutButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: #000091;
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
 
 //
 // --- Main Component ---

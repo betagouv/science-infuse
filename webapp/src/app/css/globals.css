@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-.fr-segmented,
+/* .fr-segmented,
 .fr-segmented__elements,
 .fr-segmented__element
  {
   max-width: 100%;
   min-width: 0;
-}
+} */
 
 /* prevent video download */
 video.prevent-download::-internal-media-controls-download-button {
@@ -38,10 +38,11 @@ video.prevent-download::-webkit-media-controls-panel {
   max-width: 100%;
 }
 
-.fr-card--horizontal .fr-card__body {
-  max-width: 60%;
+@media (min-width: 768px) {
+  .fr-card--horizontal .fr-card__body {
+    max-width: 60%;
+  }
 }
-
 .highlightSearch {
   background-color: #6beaf8;
 }
