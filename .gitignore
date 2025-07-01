@@ -1,5 +1,6 @@
 h5p/content/*
 h5p/user-data/
+matomo/data/*
 server/potoken.json
 moodle/data
 notebooks/WhisperVideoTransctiption/models/*

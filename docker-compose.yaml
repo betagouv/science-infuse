@@ -50,6 +50,8 @@ services:
     build:
       context: ./webapp
       args:
+        - NEXT_PUBLIC_MATOMO_URL=${NEXT_PUBLIC_MATOMO_URL}
+        - NEXT_PUBLIC_MATOMO_SITE_ID=${NEXT_PUBLIC_MATOMO_SITE_ID}
         - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
         - DATABASE_URL=${DATABASE_URL}
         - OLLAMA_URL=${OLLAMA_URL}
@@ -91,6 +93,8 @@ services:
     ports:
       - "8002:3000"
     environment:
+      - NEXT_PUBLIC_MATOMO_URL=${NEXT_PUBLIC_MATOMO_URL}
+      - NEXT_PUBLIC_MATOMO_SITE_ID=${NEXT_PUBLIC_MATOMO_SITE_ID}
       - NEXT_PUBLIC_S3_ACCESS_KEY=${S3_ACCESS_KEY}
       - NEXT_PUBLIC_S3_SECRET_KEY=${S3_SECRET_KEY}
       - NEXT_PUBLIC_S3_ENDPOINT=${S3_ENDPOINT}
@@ -209,6 +213,37 @@ services:
       - "8007:8080"
     restart: unless-stopped
 
+  matomo-mariadb:
+    image: docker.io/bitnami/mariadb:11.4
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MATOMO_MARIADB_ROOT_PASSWORD}
+      - MARIADB_USER=bn_matomo
+      - MARIADB_PASSWORD=${MATOMO_MARIADB_PASSWORD}
+      - MARIADB_DATABASE=bitnami_matomo
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - 'matomo_mariadb_data:/bitnami/mariadb'
+
+  matomo:
+    image: bitnami/matomo:latest
+    ports:
+      - "8005:8080"
+    environment:
+      - MATOMO_DATABASE_HOST=matomo-mariadb
+      - MATOMO_DATABASE_USER=bn_matomo
+      - MATOMO_DATABASE_PASSWORD=${MATOMO_MARIADB_PASSWORD}
+      - MATOMO_DATABASE_NAME=bitnami_matomo
+      - MATOMO_USERNAME=${MATOMO_USERNAME}
+      - MATOMO_PASSWORD=${MATOMO_PASSWORD}
+      - MATOMO_EMAIL=${MATOMO_EMAIL}
+      - MATOMO_WEBSITE_NAME=${MATOMO_WEBSITE_NAME}
+      - MATOMO_WEBSITE_URL=${MATOMO_WEBSITE_URL}
+    volumes:
+      - 'matomo_data:/bitnami/matomo'
+    depends_on:
+      - matomo-mariadb
+
 volumes:
   mariadb_data:
     driver: local
@@ -230,3 +265,16 @@ volumes:
       device: ${PWD}/moodle/data/moodledata
   ollama:
     driver: local
+
+  matomo_mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/matomo/data/mariadb
+  matomo_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/matomo/data/matomo
