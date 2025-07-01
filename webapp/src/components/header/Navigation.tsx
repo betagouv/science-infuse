@@ -10,6 +10,7 @@ import { Theme, UserRoles } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
 import { isActive } from "@tiptap/core";
 import { LockIcon } from "lucide-react";
+import useWindowSize from "@/course_editor/hooks/useWindowSize";
 
 
 const StyledMainNavigation = styled(MainNavigation)`
@@ -67,6 +68,7 @@ export function Navigation() {
 	const { data: session } = useSession();
 	const user = session?.user;
 	const pathname = usePathname();
+	const { isMobile, isTablet } = useWindowSize();
 
 	const [themes, setThemes] = useState<Theme[]>([])
 
@@ -88,11 +90,66 @@ export function Navigation() {
 	const segments = useSelectedLayoutSegments();
 
 	return (
-		<div className="flex flex-col w-full lg:flex-row lg:items-center">
+		<div className="flex flex-col gap-8 w-full lg:flex-row lg:items-center">
+			<NavBarSearch />
 			<StyledMainNavigation
 				className="w-full"
 				id="navigation"
 				items={[
+					...((user && isMobile) ? [{
+						text: 'Mon compte',
+						isActive: segments[0] == 'prof' || segments[0] == 'admin',
+						menuLinks: [
+							{
+								isActive: segments.join('/') == 'prof/mes-cours',
+								linkProps: {
+									href: '/prof/mes-cours',
+									target: '_self'
+								},
+								text: 'Mes cours'
+							},
+							{
+								isActive: segments.join('/') == 'prof/mes-favoris',
+								linkProps: {
+									href: '/prof/mes-favoris',
+									target: '_self'
+								},
+								text: 'Mes contenus favoris'
+							},
+							{
+								isActive: segments.join('/') == 'prof/mes-interactifs',
+								linkProps: {
+									href: '/prof/mes-interactifs',
+									target: '_self'
+								},
+								text: 'Mes contenus interactifs'
+							},
+							...(user.roles?.includes(UserRoles.ADMIN) ? [{
+								isActive: segments[0] == 'admin',
+								linkProps: {
+									href: '/admin/utilisateurs',
+									target: '_self'
+								},
+								text: 'Espace admin'
+							}] : []),
+							{
+								isActive: segments.join('/') == 'prof/parametres',
+								linkProps: {
+									href: '/prof/parametres',
+									target: '_self'
+								},
+								text: 'Paramètres du compte'
+							},
+							{
+								text: 'Se déconnecter',
+								linkProps: {
+									href: '/deconnexion',
+									target: '_self'
+								},
+							}
+						]
+					}] : []),
+
 					{
 						isActive: segments[0] == 'catalogue',
 						text: 'Cours',
@@ -155,12 +212,11 @@ export function Navigation() {
 							href: '/intelligence-artificielle/chatbot',
 							target: '_self',
 						},
-						text: <Tooltip title="Réservé aux bêta-testeurs"><span className="flex items-center justify-center gap-2">Chatbot <LockIcon size={12} /></span></Tooltip>
+						text: <Tooltip title="Réservé aux bêta-testeurs"><span className="flex items-center justify-start gap-2">Chatbot <LockIcon size={12} /></span></Tooltip>
 					}] : []),
 
 				]}
 			/>
-			<NavBarSearch />
 		</div>
 	);
 

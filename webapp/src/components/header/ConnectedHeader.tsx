@@ -173,7 +173,7 @@ export default function MonEspaceDropdown() {
             </Button>
           )}
 
-          {(isMobile || open) && (
+          {(open || isMobile) && (
             <MenuPanel>
               <UserInfo>
                 <p className="user-name">
@@ -186,21 +186,23 @@ export default function MonEspaceDropdown() {
                 </Tag>}
               </UserInfo>
 
-              {menuItems.map(({ icon, text, path }, index) => (
-                <MenuItem key={index} onClick={() => handleItemClick(path)}>
-                  <i className={`fr-icon fr-icon--sm ${icon}`} aria-hidden="true" />
-                  {text}
-                </MenuItem>
-              ))}
+              {!isMobile && <>
+                {menuItems.map(({ icon, text, path }, index) => (
+                  <MenuItem key={index} onClick={() => handleItemClick(path)}>
+                    <i className={`fr-icon fr-icon--sm ${icon}`} aria-hidden="true" />
+                    {text}
+                  </MenuItem>
+                ))}
 
-              <SignOutWrapper>
-                <Button priority="secondary" onClick={handleSignOut} className="w-fit !shadow-[inset_0_0_0_1px_#dddddd]">
-                  <div className="flex px-4 gap-2">
-                    <i className="fr-icon fr-icon--sm fr-icon-logout-box-r-line" aria-hidden="true" />
-                    Se déconnecter
-                  </div>
-                </Button>
-              </SignOutWrapper>
+                <SignOutWrapper>
+                  <Button priority="secondary" onClick={handleSignOut} className="w-fit !shadow-[inset_0_0_0_1px_#dddddd]">
+                    <div className="flex px-4 gap-2">
+                      <i className="fr-icon fr-icon--sm fr-icon-logout-box-r-line" aria-hidden="true" />
+                      Se déconnecter
+                    </div>
+                  </Button>
+                </SignOutWrapper>
+              </>}
             </MenuPanel>
           )}
         </div>
