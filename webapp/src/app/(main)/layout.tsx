@@ -46,6 +46,11 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
             <SIFooter />
             <Footer
               accessibility="non compliant"
+              accessibilityLinkProps={{
+                href: "/declaration-d-accessibilite",
+                target: "_blank",
+                rel: "noopener noreferrer",
+              }}
               contentDescription={`
                 `}
               bottomItems={[

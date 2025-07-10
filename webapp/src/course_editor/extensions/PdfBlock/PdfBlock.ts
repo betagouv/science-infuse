@@ -199,8 +199,6 @@ const PdfBlock = Node.create<PdfBlockOptions>({
   addNodeView() {
     return ReactNodeViewRenderer(PdfBlockView)
   },
-
-
 })
 
 export default PdfBlock
