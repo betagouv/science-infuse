@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { UserRoles } from "@prisma/client";
@@ -95,9 +95,6 @@ const SignOutWrapper = styled.div`
 `;
 
 
-//
-// --- Main Component ---
-//
 export default function MonEspaceDropdown() {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
@@ -109,6 +106,10 @@ export default function MonEspaceDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(dropdownRef, () => setOpen(false));
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathName]);
+
   // If not authenticated
   if (!user) {
     // Avoid showing "Me connecter" on the /connexion page itself
@@ -119,9 +120,10 @@ export default function MonEspaceDropdown() {
 
         <Button
           linkProps={{ href: "/connexion" }}
-          className={`!m-0 flex !shadow-[inset_0_0_0_1px_#dddddd] ${open ? '!bg-[#e3e3fd]' : ''}`} priority="secondary"
+          priority="secondary"
+          className={`!m-0 flex !shadow-[inset_0_0_0_1px_#dddddd] ${open ? '!bg-[#e3e3fd]' : ''}`} 
         >
-          <div className="flex p-1 gap-4 items-center justify-center">
+          <div className="flex p-1 px-4 md:px-0 gap-4 items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fillRule="evenodd" clipRule="evenodd" d="M6.99998 0.333374C10.68 0.333374 13.6666 3.32004 13.6666 7.00004C13.6666 10.68 10.68 13.6667 6.99998 13.6667C3.31998 13.6667 0.333313 10.68 0.333313 7.00004C0.333313 3.32004 3.31998 0.333374 6.99998 0.333374ZM3.01531 9.27737C3.99398 10.7374 5.46331 11.6667 7.10665 11.6667C8.74931 11.6667 10.2193 10.738 11.1973 9.27737C10.0878 8.24044 8.62528 7.66458 7.10665 7.66671C5.58779 7.66441 4.12499 8.24028 3.01531 9.27737ZM6.99998 6.33337C8.10455 6.33337 8.99998 5.43794 8.99998 4.33337C8.99998 3.2288 8.10455 2.33337 6.99998 2.33337C5.89541 2.33337 4.99998 3.2288 4.99998 4.33337C4.99998 5.43794 5.89541 6.33337 6.99998 6.33337Z" fill="#000091" />
             </svg>

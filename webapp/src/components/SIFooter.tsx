@@ -56,13 +56,16 @@ const SIFooter = () => {
 
                         <div className={`w-full flex flex-col md:flex-row gap-0 md:gap-16 text-center justify-start items-start py-4 md:py-8`}>
                             <a href="/universcience" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
-                                Venir à la Cité des sciences et de l'industrie et au Palais de la découverte
+                                Venir à la Cité des sciences et de l'industrie <br /> et au Palais de la découverte
                             </a>
                             <a href="/conditions-generales-d-utilisation" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
                                 Conditions Générales d'Utilisation
                             </a>
                             <a href="/politique-de-confidentialite" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
                                 Politique de confidentialité
+                            </a>
+                            <a href="/mentions-legales" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
+                            Mentions légales
                             </a>
                             <a href="/chiffres-cles" className="m-0 text-[10px] md:text-xs font-bold text-[#161616] mb-2 md:mb-0">
                                 Chiffres clés

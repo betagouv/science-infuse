@@ -2,13 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .fr-segmented,
-.fr-segmented__elements,
-.fr-segmented__element
+
+.ada-responsive-segmented > .fr-segmented,
+.ada-responsive-segmented > .fr-segmented__elements,
+.ada-responsive-segmented > .fr-segmented__element
  {
   max-width: 100%;
   min-width: 0;
-} */
+}
 
 /* prevent video download */
 video.prevent-download::-internal-media-controls-download-button {

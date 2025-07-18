@@ -3,7 +3,6 @@ var H5PEditor = H5PEditor || {};
 
 H5PEditor.VerticalTabs = (function ($) {
 
-
   /**
    * Utility for checking if any of the parent fields is using the VerticalTabs widget
    * 
@@ -43,26 +42,37 @@ H5PEditor.VerticalTabs = (function ($) {
 
       // Make first letter upper case.
       entity = entity.substr(0,1).toUpperCase() + entity.substr(1);
-
+      const innerId = H5P.createUUID();
       // Create DOM elements
       var $wrapper = $('<div/>', {
         'class': 'h5p-vtab-wrapper'
       });
       var $inner = $('<div/>', {
+        id: innerId,
         'class': 'h5p-vtabs'
       }).appendTo($wrapper);
+      var $container = $('<div/>', {
+        'class': 'h5p-vtabs-container'
+      }).appendTo($inner);
+      var $header = $('<div/>', {
+        'class': 'h5p-vtabs-header'
+      }).appendTo($container);
       var $tabs = $('<ol/>', {
         id: list.getId(),
         'aria-describedby': list.getDescriptionId(),
         'role': 'tablist',
         'class': 'h5p-ul'
-      }).appendTo($inner);
-      H5PEditor.createButton('add-entity', H5PEditor.t('core', 'addEntity', {':entity': entity}), function () {
+      }).appendTo($container);      
+      var $createBtn = $('<button />', {
+        text: H5PEditor.t('core', 'addEntity', {':entity': entity}),
+        class: 'add-entity'
+      }).on('click', (e) => {
+        e.preventDefault();
         if (list.addItem()) {
           $tabs.children(':last').trigger('open');
           toggleOrderButtonsState();
         }
-      }, true).appendTo($inner);
+      }).appendTo($inner);
       var $forms = $('<div/>', {
         'class': 'h5p-vtab-forms'
       }).appendTo($wrapper);
@@ -70,6 +80,29 @@ H5PEditor.VerticalTabs = (function ($) {
       // Once all items have been added we toggle the state of the order buttons
       list.once('changeWidget', function () {
         toggleOrderButtonsState();
+      });
+
+      $header.html('<span>Collapse</span>');
+      var $expandCollapseBtn = $('<button />', {
+        'type': 'button',
+        'aria-label': 'Collapse',
+        'aria-expanded': 'true',
+        'aria-controls': innerId,
+        'class': 'h5p-vtabs-expand-collapse',
+      }).appendTo($header);
+      
+      $expandCollapseBtn.on('click', (e) => {
+        e.preventDefault();
+        $inner.toggleClass('is-collapsed');
+        if ($inner.hasClass('is-collapsed')) {
+          $expandCollapseBtn.attr('aria-expanded', 'false');
+          $createBtn.text('');
+          $createBtn.attr('aria-label', H5PEditor.t('core', 'addEntity', {':entity': entity}));
+        } else {
+          $expandCollapseBtn.attr('aria-expanded', 'true');
+          $createBtn.text(H5PEditor.t('core', 'addEntity', {':entity': entity}));
+          $createBtn.removeAttr('aria-label');
+        }
       });
     }
 
@@ -325,7 +358,7 @@ H5PEditor.VerticalTabs = (function ($) {
       // Add clickable label
       $('<div/>', {
         'class' : 'h5p-vtab-a',
-        html: '<span class="h5p-index-label">' + ($tab.index() + 1) + '</span>. <span class="h5p-label" title="' + entity + '">' + entity + '</span>',
+        html: '<span class="h5p-index-label">' + ($tab.index() + 1) + '</span><span>.</span> <span class="h5p-label" title="' + entity + '">' + entity + '</span>',
         role: 'tab',
         tabIndex: 0,
         on: {
@@ -369,14 +402,6 @@ H5PEditor.VerticalTabs = (function ($) {
         $tabLabel.text(label).attr('title', label);
       };
 
-      // Add buttons for ordering
-      var $orderWrapper = $('<div/>', {
-        'class': 'vtab-order-wrapper',
-        appendTo: $tab
-      });
-      H5PEditor.createButton('order-up', H5PEditor.t('core', 'orderItemUp'), moveItemUp).appendTo($orderWrapper);
-      H5PEditor.createButton('order-down', H5PEditor.t('core', 'orderItemDown'), moveItemDown).appendTo($orderWrapper);
-
       // Add remove button
       var $removeWrapper = $('<div/>', {
         'class': 'vtab-remove-wrapper',
@@ -385,6 +410,14 @@ H5PEditor.VerticalTabs = (function ($) {
       H5PEditor.createButton('remove', H5PEditor.t('core', 'removeItem'), function () {
         confirmRemovalDialog.show($(this).offset().top);
       }).appendTo($removeWrapper);
+
+      // Add buttons for ordering
+      var $orderWrapper = $('<div/>', {
+        'class': 'vtab-order-wrapper',
+        appendTo: $tab
+      });
+      H5PEditor.createButton('order-up', H5PEditor.t('core', 'orderItemUp'), moveItemUp).appendTo($orderWrapper);
+      H5PEditor.createButton('order-down', H5PEditor.t('core', 'orderItemDown'), moveItemDown).appendTo($orderWrapper);
 
       // Create confirmation dialog for removing list item
       var confirmRemovalDialog = new H5P.ConfirmationDialog({

@@ -216,6 +216,10 @@ H5P.QuestionSet = function (options, contentId, contentData) {
         question = questions[i];
       }
 
+      if (!question.library) {
+        continue;
+      }
+
       if (override) {
         // Extend subcontent with the overrided settings.
         $.extend(question.params.behaviour, override);
@@ -603,7 +607,7 @@ H5P.QuestionSet = function (options, contentId, contentData) {
     // Reset currentQuestion
     currentQuestion = 0;
 
-    $myDom.children().hide();
+    $myDom?.children().hide();
     var $intro = $('.intro-page', $myDom);
 
     if ($intro.length) {

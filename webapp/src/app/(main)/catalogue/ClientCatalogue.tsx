@@ -53,9 +53,9 @@ interface ThemesFiltersProps {
 const ThemesFilters: React.FC<ThemesFiltersProps> = React.memo(({ selectedFilter, onFilterChange, filters }) => {
     return (
         <div className="flex flex-wrap items-center w-full sm:w-fit border-0 border-white">
-            <div className="flex flex-wrap w-full sm:w-auto">
+            <div className="flex flex-wrap w-full sm:w-auto ada-responsive-segmented">
                 <SegmentedControl
-                    className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full'
+                    className='[&_legend]:text-[#161616] '
                     legend="Thème :"
                     segments={
                         [
