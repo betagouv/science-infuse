@@ -90,8 +90,7 @@ export function Navigation() {
 	const segments = useSelectedLayoutSegments();
 
 	return (
-		<div className="flex flex-col gap-8 w-full lg:flex-row lg:items-center">
-			<NavBarSearch />
+		<div className="flex flex-col-reverse gap-8 w-full lg:flex-row lg:items-center">
 			<StyledMainNavigation
 				className="w-full"
 				id="navigation"
@@ -217,6 +216,7 @@ export function Navigation() {
 
 				]}
 			/>
+			<NavBarSearch />
 		</div>
 	);
 
