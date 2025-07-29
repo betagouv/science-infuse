@@ -2,8 +2,7 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import { BlockWithChapter, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
-import { useQuery } from '@tanstack/react-query';
-import { fetchSIContent } from '@/app/(main)/recherche/fetchSIContent';
+import { useTrackedSearch } from '@/hooks/useTrackedSearch';
 import SearchBar from '@/components/search/SearchBar';
 import Tabs, { selectedTabType, TabType } from '@/app/(main)/recherche/Tabs';
 import { useOnClickOutside } from 'usehooks-ts'
@@ -39,15 +38,11 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
   }, [handleClosePopup]);
 
 
-  const { data: results, isLoading, isError } = useQuery({
-    queryKey: ['search-course', {
-      query,
-      filters: {
-        limit: 1000
-      }
-    }],
-    queryFn: fetchSIContent,
-    enabled: !!query,
+  const { data: results, isLoading, isError } = useTrackedSearch({
+    query,
+    filters: {
+      limit: 1000
+    }
   });
 
   const insertChunk = (chunk: ChunkWithScoreUnion) => {

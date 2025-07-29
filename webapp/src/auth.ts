@@ -35,24 +35,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log("Attempting Credentials authorize for:", credentials?.email);
         if (
           !credentials ||
           typeof credentials.email !== "string" ||
           typeof credentials.password !== "string"
         ) {
-          console.log("Credentials missing email or password");
           return null;
         }
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
         if (!user) {
-          console.log("Credentials user not found:", credentials.email);
           return null;
         }
         if (!user.password) {
-          console.log("Credentials user found but has no password set:", credentials.email);
           return null;
         }
         const isPasswordValid = await bcrypt.compare(
@@ -60,11 +56,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           String(user.password)
         );
         if (!isPasswordValid) {
-          console.log("Credentials invalid password for:", credentials.email);
           return null;
         }
 
-        console.log("Credentials authorization successful for:", credentials.email);
         // Return the necessary user object structure
         return {
           id: user.id,
@@ -89,7 +83,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
 
         const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
-        console.log("[GAR-CREDENTIALS] Authorizing GAR user with profile:", profile);
         const garUserId = profile.IDO;
         const garSchoolId = profile.UAI;
 
@@ -98,7 +91,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null;
         }
 
-        console.log(`[GAR-CREDENTIALS] Authorizing GAR user: ${garUserId}`);
 
         const existingUser = await prisma.user.findUnique({
           where: {
@@ -109,11 +101,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 
         if (existingUser) {
-          console.log("[GAR-CREDENTIALS] Found existing linked account. Logging in.");
           return existingUser; // User is already linked, sign them in
         }
 
-        console.log("[GAR-CREDENTIALS] No existing user found. Creating new user and account.");
 
         const newUser = await prisma.user.create({
           data: {
@@ -146,7 +136,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     // Called when a JWT is created (on sign-in) or updated (on session access)
     async jwt({ token, account, user }) {
-      console.log("JWT Callback triggered", { provider: account?.provider });
 
       const isInitialSignIn = !!(account && user);
 
@@ -154,7 +143,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.id = user.id; // Persist the user ID from provider profile or authorize
         token.provider = account.provider;
         if (account?.provider === "gar") {
-          console.log("JWT Callback: Handling GAR initial sign-in");
           // Store OIDC tokens if needed (be mindful of size/security)
           token.accessToken = account.access_token;
           token.idToken = account.id_token;
@@ -168,11 +156,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           token.typProfil = (user as any).typProfil;
           // If roles were determined from GAR profile, add them here:
           // token.roles = mapGarRolesToAppRoles(profile.GAR_ROLES_CLAIM);
-          console.log("JWT Callback: GAR token populated:", { id: token.id, name: token.name, uai: token.uai });
 
 
         } else if (account?.provider === "credentials") {
-          console.log("JWT Callback: Handling Credentials initial sign-in");
           // Store info from Credentials user object (returned by authorize)
           // Ensure these keys match what authorize returns & define in JWT declaration
           token.firstName = (user as any).firstName;
@@ -180,7 +166,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           token.email = user.email;
           token.roles = (user as any).roles; // Roles from your DB user model
           token.name = user.name;
-          console.log("JWT Callback: Credentials token populated:", { id: token.id, name: token.name, roles: token.roles });
         }
       }
       // Subsequent requests: The token already exists, just return it.
@@ -190,7 +175,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
     // Called when a session is checked (e.g., using useSession, getSession)
     async session({ session, token }: { session: any; token: JWT }) {
-      console.log("Session Callback triggered");
       // Add common properties from token to session.user
       // Ensure the types match the declare module Session above
       session.user.id = token.id || "";
@@ -207,7 +191,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (token.typProfil) session.user.typProfil = token.typProfil as string;
       if (token.roles) session.user.roles = token.roles as string[];
 
-      console.log("Session Callback: Returning session:", { userId: session.user.id, uai: session.user.uai, roles: session.user.roles });
       return session;
     },
   },

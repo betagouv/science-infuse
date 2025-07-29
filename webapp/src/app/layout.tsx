@@ -32,7 +32,8 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
     <html {...getHtmlAttributes({ defaultColorScheme, lang })} >
       <head>
         <title>Ada - Contenus multimédias gratuits par la Cité des sciences et de l'industrie et le Palais de la découverte</title>
-        {process.env.ENVIRONMENT != "dev" && <MatomoAnalytics />}
+        <MatomoAnalytics />
+        {/* {process.env.ENVIRONMENT != "dev" && <MatomoAnalytics />} */}
         <StartDsfr />
         <DsfrHead
           Link={Link}

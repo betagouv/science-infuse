@@ -1,5 +1,4 @@
 import { BuildCardEnd, StyledImageCard } from "@/app/(main)/recherche/DocumentChunkFull";
-import { fetchSIContent } from "@/app/(main)/recherche/fetchSIContent";
 import { MasonaryItem } from "@/components/MasonaryItem";
 import SearchBar from "@/components/search/SearchBar";
 import { WEBAPP_URL } from "@/config";
@@ -15,6 +14,7 @@ import Masonry from "@mui/lab/Masonry";
 import { Collapse, Modal, useMediaQuery } from '@mui/material';
 import { EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
+import { useTrackedSearch } from '@/hooks/useTrackedSearch';
 import { Editor } from '@tiptap/react';
 import { useSession } from "next-auth/react";
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -329,16 +329,12 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
         multiple: false
     });
 
-    const { data: results, isLoading, isError } = useQuery({
-        queryKey: ['search-course', {
-            query,
-            filters: {
-                mediaTypes: [MediaTypes.PdfImage],
-                limit: 10
-            }
-        }],
-        queryFn: fetchSIContent,
-        enabled: !!query,
+    const { data: results, isLoading, isError } = useTrackedSearch({
+        query,
+        filters: {
+            mediaTypes: [MediaTypes.PdfImage],
+            limit: 10
+        }
     });
 
     const modalRef = useRef<HTMLDivElement>(null);

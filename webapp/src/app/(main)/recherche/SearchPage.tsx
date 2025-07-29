@@ -1,12 +1,11 @@
 "use client";
 
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChunkWithScoreUnion, MediaType, SearchResults } from "@/types/vectordb";
 import { getSearchWords } from "./text-highlighter";
-import { fetchSIContent } from "./fetchSIContent";
+import { useTrackedSearch } from "@/hooks/useTrackedSearch";
 import Tabs, { selectedTabType, TabType } from "./Tabs";
 import { useEffect } from "@preact-signals/safe-react/react";
 import Snackbar from "@/course_editor/components/Snackbar";
@@ -24,13 +23,9 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
     const { data: session } = useSession();
     const user = session?.user;
 
-    const { data: results, isLoading, isError } = useQuery({
-        queryKey: ['search', {
-            query,
-            filters: props.queryFilters
-        }],
-        queryFn: fetchSIContent,
-        enabled: !!query,
+    const { data: results, isLoading, isError } = useTrackedSearch({
+        query,
+        filters: props.queryFilters
     });
 
     useEffect(() => {

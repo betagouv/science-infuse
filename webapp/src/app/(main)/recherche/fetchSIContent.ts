@@ -11,14 +11,8 @@ export const fetchSIContent: QueryFunction<SearchResults, [string, QueryRequest]
 
   const response = await apiClient.search(params);
 
-  if (window._paq) {
-    const matchCount = response.chunks.length + response.blocks.length
-    window._paq.push(['trackSiteSearch',
-      params.query,
-      false,
-      matchCount
-    ]);
-  }
+  // Removed tracking logic from here - it should be handled separately
+  // to avoid duplicate tracking when React Query refetches
 
   return response;
 };
