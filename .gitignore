@@ -13,3 +13,5 @@ documents/
 h5p/core/
 h5p/editor/
 h5p/libraries/
+gar/node_modules/
+gar/certs/*
