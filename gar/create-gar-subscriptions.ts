@@ -7,13 +7,12 @@ const GAR_BASE_URL_PFPART = 'https://abonnement.partenaire.test-gar.education.fr
 const ID_RESSOURCE_ADA = 'ark:/20521/Ada20250415.pp';
 const ID_DISTRIBUTEUR_COMMERCIAL = '519587851_0000000121463256';
 
-
 const CERT_PATH = './certs/certificat_gar.pem';
 const KEY_PATH = './certs/cle_privee_gar.key';
 
-const DEBUT_VALIDITE_ANNEE_SCOLAIRE = '2025-09-01T00:00:00';
+const DEBUT_VALIDITE_ANNEE_SCOLAIRE = '2024-09-01T00:00:00';
 const FIN_VALIDITE_ANNEE_SCOLAIRE = '2026-08-31T23:59:59';
-const ANNEE_FIN_VALIDITE_ANNEE_SCOLAIRE_STR = '2025-2026'; // Format "AAAA-AAAA"
+const ANNEE_FIN_VALIDITE_ANNEE_SCOLAIRE_STR = '2024-2025'; // Format "AAAA-AAAA"
 
 // --- Chargement des certificats et configuration Axios ---
 const cert = fs.readFileSync(CERT_PATH);
@@ -54,6 +53,7 @@ async function creerAbonnementGAR(abonnementId: string, uaiEtab: string, libelle
     <publicCible>DOCUMENTALISTE</publicCible>
 </abonnement>`;
 
+
   console.log(`Envoi de l'abonnement pour ${libelleEtab} avec ID: ${abonnementId}`);
   try {
     const response = await axiosGAR.put(`/${abonnementId}`, xmlBody);
@@ -72,12 +72,27 @@ async function creerAbonnementGAR(abonnementId: string, uaiEtab: string, libelle
   }
 }
 
+async function listerAbonnementsGAR() {
+  console.log("Récupération de la liste des abonnements...");
+  try {
+    const response = await axios.get(GAR_BASE_URL_PFPART+'/etablissements/etablissements.xml');
+    console.log(`Succès de la récupération des abonnements. Statut HTTP: ${response.status}`);
+    console.log("Réponse de l'API GAR:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Échec de la récupération des abonnements.");
+    if (error.response) {
+      console.error("Statut HTTP:", error.response.status);
+      console.error("Réponse d'erreur de l'API GAR:", error.response.data);
+    } else {
+      console.error("Message d'erreur:", error.message);
+    }
+    throw error;
+  }
+}
+
 // --- Execution of calls for test establishments ---
 (async () => {
-  if (ID_DISTRIBUTEUR_COMMERCIAL === 'VOTRE_ID_DISTRIBUTEUR_COMMERCIAL' || ID_RESSOURCE_ADA === 'VOTRE_ID_RESSOURCE_GAR_POUR_ADA') {
-    console.error("ERREUR: Veuillez renseigner ID_DISTRIBUTEUR_COMMERCIAL et ID_RESSOURCE_ADA dans le script.");
-    return;
-  }
 
   const etablissementsDeTest = [
     { uai: '0015679O', libelle: 'LGT-DU LEON-LANDIVISIAU' },
@@ -98,5 +113,16 @@ async function creerAbonnementGAR(abonnementId: string, uaiEtab: string, libelle
   }
 
   console.log("\nProcessus de création d'abonnements de test terminé.");
-  console.log("If all requests were successful, you can now inform Elsa that the test subscriptions have been created.");
+  
+  // Optionally list all subscriptions after creation
+  console.log("\n--- Liste des abonnements existants ---");
+  try {
+    const abonnements = await listerAbonnementsGAR();
+    // The response is in XML format, you might want to parse it for better display
+    console.log("Abonnements récupérés avec succès.");
+  } catch (e) {
+    console.error("Impossible de récupérer la liste des abonnements.");
+  }
+  
+  console.log("\nIf all requests were successful, you can now inform Elsa that the test subscriptions have been created.");
 })();
