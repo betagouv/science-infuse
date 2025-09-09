@@ -95,14 +95,13 @@ const SignOutWrapper = styled.div`
 `;
 
 
-export default function MonEspaceDropdown() {
+export default function MonEspaceDropdown(props: { isGar?: boolean }) {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
   const user = session?.user;
   const pathName = usePathname();
   const router = useRouter();
   const { isMobile, isTablet } = useWindowSize();
-
   const dropdownRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(dropdownRef, () => setOpen(false));
 
@@ -121,7 +120,7 @@ export default function MonEspaceDropdown() {
         <Button
           linkProps={{ href: "/connexion" }}
           priority="secondary"
-          className={`!m-0 flex !shadow-[inset_0_0_0_1px_#dddddd] ${open ? '!bg-[#e3e3fd]' : ''}`} 
+          className={`!m-0 flex !shadow-[inset_0_0_0_1px_#dddddd] ${open ? '!bg-[#e3e3fd]' : ''}`}
         >
           <div className="flex p-1 px-4 md:px-0 gap-4 items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -142,7 +141,10 @@ export default function MonEspaceDropdown() {
     ...(user.roles || []).includes(UserRoles.ADMIN)
       ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }]
       : [],
-    { icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" },
+    ...(!props.isGar ?
+      [{ icon: "fr-icon-settings-5-line", text: "Paramètres du compte", path: "/prof/parametres" }]
+      : []
+    )
   ];
 
   const handleItemClick = (path: string) => {

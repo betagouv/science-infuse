@@ -26,6 +26,7 @@ interface GarUserInfo {
   DIV?: string[];
   GRO?: string[];
   P_MAT?: string;
+  sessionIndex?: string;
 }
 
 export async function GET(request: NextRequest) {
@@ -109,7 +110,13 @@ export async function GET(request: NextRequest) {
     const userInfo: GarUserInfo = await userInfoResponse.json();
     console.log('[GAR-CALLBACK] User info received:', userInfo);
 
-    console.log('[GAR-CALLBACK] User info received:', userInfo);
+    // Check if sessionIndex is present in the user info
+    if (!userInfo.sessionIndex) {
+      console.error('[GAR-CALLBACK] Missing sessionIndex in GAR user info. This is required for Single Logout functionality.');
+      return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/connexion?error=MissingSessionIndex`);
+    }
+
+    console.log('[GAR-CALLBACK] sessionIndex received:', userInfo.sessionIndex);
     console.log('[GAR-CALLBACK] Signing user into NextAuth session via "gar-credentials" provider...');
 
     await signIn("gar-credentials", { // <-- Use the correct ID here

@@ -4,13 +4,17 @@ import { Session } from 'next-auth'
 import ConnectedHeader from "./ConnectedHeader";
 import React from "react";
 import { PROJECT_NAME } from "@/config";
+import { getUserFull } from "@/lib/utils/db";
 
 interface ClientHeaderProps {
   session: Session | null;
 }
 
-export default function ClientHeader({ session }: ClientHeaderProps) {
+export default async function ClientHeader({ session }: ClientHeaderProps) {
 
+
+  // Fetch the full user data including the source field
+  const user = await getUserFull(session?.user?.id);
   return (
     <Header
       className="z-[10000]"
@@ -31,7 +35,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         //     Nous contacter
         //   </a>
         // </div>,
-        <ConnectedHeader key="connected-header" />]
+        <ConnectedHeader isGar={user?.source === 'gar'} key="connected-header" />]
       }
       homeLinkProps={{
         "href": "/",

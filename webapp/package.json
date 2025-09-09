@@ -88,6 +88,7 @@
     "@tiptap/suggestion": "2.5.8",
     "@types/react-highlight-words": "^0.20.0",
     "@types/react-linkify": "^1.0.4",
+    "@xmldom/xmldom": "^0.8.11",
     "ai": "^4.1.54",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
@@ -131,7 +132,8 @@
     "tss-react": "^4.9.10",
     "use-debounce": "^10.0.1",
     "usehooks-ts": "^3.1.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "xpath": "^0.0.34"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.12.0",
