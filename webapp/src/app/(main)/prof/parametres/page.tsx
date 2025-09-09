@@ -8,7 +8,7 @@ import { getUserFull } from "@/lib/utils/db";
 const Settings = async function () {
     const session = await auth();
 
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
         redirect('/');
     }
 

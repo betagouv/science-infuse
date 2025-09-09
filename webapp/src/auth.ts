@@ -86,7 +86,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const garUserId = profile.IDO;
         const garSchoolId = profile.UAI;
         // IMPORTANT: Récupérer le sessionIndex
-        const sessionIndex = profile.sessionIndex;
+        let sessionIndex = profile.sessionIndex;
 
 
         if (!garUserId) {
@@ -94,8 +94,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null;
         }
         if (!sessionIndex) {
-            console.error("[GAR-CREDENTIALS] GAR profile is missing 'sessionIndex'.");
-            return null;
+            console.warn("[GAR-CREDENTIALS] GAR profile is missing 'sessionIndex'. This may affect Single Logout functionality.");
+            // Generate a fallback sessionIndex if not provided
+            sessionIndex = `${garUserId}_${Date.now()}`;
         }
 
         let user = await prisma.user.findUnique({
@@ -142,8 +143,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           });
           if (isRevoked) {
               console.log(`[JWT Callback] Session révoquée détectée pour l'index ${token.sessionIndex}. Déconnexion.`);
-              // En retournant un token vide, on force la déconnexion
-              return {};
+              // Return null to invalidate the session
+              return null;
           }
       }
 
@@ -169,11 +170,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return token;
     },
 
-    async session({ session, token }: { session: any; token: JWT }) {
-      if (!token.id) {
-          // Si l'ID n'est pas dans le token, c'est une session invalide/révoquée
+    async session({ session, token }: { session: any; token: JWT | null }) {
+      // If token is null (revoked session), return null to invalidate the session
+      if (!token || !token.id) {
           return null;
       }
+      
       session.user.id = token.id || "";
       session.user.name = token.name;
       session.user.email = token.email;

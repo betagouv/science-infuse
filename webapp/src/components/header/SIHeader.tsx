@@ -14,7 +14,7 @@ export default async function ClientHeader({ session }: ClientHeaderProps) {
 
 
   // Fetch the full user data including the source field
-  const user = await getUserFull(session?.user?.id);
+  const user = session?.user?.id ? await getUserFull(session.user.id) : null;
   return (
     <Header
       className="z-[10000]"
