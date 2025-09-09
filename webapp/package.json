@@ -142,6 +142,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cli-progress": "^3.11.6",
     "@types/jsdom": "^21.1.7",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.7",
     "@types/node": "^20",
     "@types/pg": "^8.11.8",
