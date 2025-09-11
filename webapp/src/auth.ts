@@ -21,7 +21,6 @@ interface GarUserInfo {
   UAI: string;
   auth_time: number;
   client_id: string;
-  // IMPORTANT : Vous devez ajouter le sessionIndex ici
   sessionIndex?: string;
 }
 
@@ -85,7 +84,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
         const garUserId = profile.IDO;
         const garSchoolId = profile.UAI;
-        // IMPORTANT: Récupérer le sessionIndex
         let sessionIndex = profile.sessionIndex;
 
 

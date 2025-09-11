@@ -13,8 +13,12 @@ export async function POST(req: NextRequest) {
 
     const body = await req.text();
 
+    console.log("[GAR-SLO] received body | ", body)
+    
     // 1. Parser le corps de la requête XML (qui est une enveloppe SOAP)
     const doc = new DOMParser().parseFromString(body);
+
+    console.log("[GAR-SLO] doc | ", doc)
 
     // 2. Définir les namespaces pour pouvoir requêter le XML avec XPath
     const select = xpath.useNamespaces({
