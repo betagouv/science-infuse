@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
     // GAR doesn't provide a sessionIndex in the OAuth flow, so we create one
     // using the auth_time and user ID to ensure uniqueness and consistency
     let sessionIndex: string;
-    
+
     // Try to decode the ID token to extract session information
     try {
       const idTokenParts = tokens.id_token.split('.');
@@ -126,13 +126,11 @@ export async function GET(request: NextRequest) {
         // Decode the payload (middle part) - base64 decode
         const payload = JSON.parse(Buffer.from(idTokenParts[1], 'base64').toString());
         console.log('[GAR-CALLBACK] Decoded ID token payload:', payload);
-        
+
         // Try to find a session identifier in the token
         // Use jti (JWT ID) if available, otherwise create one from sub and auth_time
-        sessionIndex = payload.jti ||
-                      payload.sid ||
-                      payload.session_index ||
-                      `${userInfo.IDO}_${userInfo.auth_time || Date.now()}`;
+        sessionIndex = payload.sid ||
+          `${userInfo.IDO}_${userInfo.auth_time || Date.now()}`;
       } else {
         // Fallback if token structure is unexpected
         sessionIndex = `${userInfo.IDO}_${userInfo.auth_time || Date.now()}`;
