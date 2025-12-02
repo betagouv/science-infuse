@@ -15,6 +15,7 @@ class SIReranker:
             'jinaai/jina-reranker-v2-base-multilingual',
             torch_dtype="auto",
             trust_remote_code=True,
+            ignore_mismatched_sizes=True,
         )
 
         self.model.to('cuda') # or 'cpu' if no GPU is available

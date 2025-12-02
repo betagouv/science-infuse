@@ -38,7 +38,41 @@ const createEducationLevels = async () => {
 }
 
 const createAcademies = async () => {
-  const academies = ["Aix-Marseille", "Autres", "Besançon", "Créteil", "Grenoble", "Guyane", "La Réunion", "Limoges", "Martinique", "Montpellier", "Nantes", "Orléans-Tours", "Paris", "Poitiers", "Rennes", "Toulouse", "Versailles"]
+  const academies = [
+    "Aix-Marseille",
+    "Amiens",
+    "Autres",
+    "Besançon",
+    "Bordeaux",
+    "Clermont-Ferrand",
+    "Corse",
+    "Créteil",
+    "Dijon",
+    "Grenoble",
+    "Guadeloupe",
+    "Guyane",
+    "La Réunion",
+    "Lille",
+    "Limoges",
+    "Lyon",
+    "Martinique",
+    "Mayotte",
+    "Montpellier",
+    "Nancy-Metz",
+    "Nantes",
+    "Nice",
+    "Normandie",
+    "Nouvelle-Calédonie",
+    "Orléans-Tours",
+    "Paris",
+    "Poitiers",
+    "Polynésie Française",
+    "Reims",
+    "Rennes",
+    "Strasbourg",
+    "Toulouse",
+    "Versailles"
+  ]
   await prisma.academy.createMany({
     data: academies.map(academy => ({ name: academy })),
     skipDuplicates: true,

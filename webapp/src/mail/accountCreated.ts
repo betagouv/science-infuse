@@ -467,7 +467,7 @@ const getTemplate = () => {
                                   valign="middle"
                                 >
                                   <a
-                                    href="https://science-infuse.beta.gouv.fr/connexion"
+                                    href="https://ada.universcience.fr/connexion"
                                     style="
                                       display: inline-block;
                                       background: #000091;
@@ -899,7 +899,7 @@ const getTemplate = () => {
                                 <td style="width: 173px">
                                   <img
                                     alt=""
-                                    src="https://science-infuse.beta.gouv.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
+                                    src="https://ada.universcience.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
                                     style="
                                       border: none;
                                       border-radius: px;

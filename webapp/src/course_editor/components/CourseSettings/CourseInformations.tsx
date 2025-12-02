@@ -4,6 +4,7 @@ import SearchBar from "@/components/search/SearchBar";
 import { WEBAPP_URL } from "@/config";
 import { EditorContext } from '@/course_editor/context/EditorContext';
 import { apiClient } from '@/lib/api-client';
+import { normalizeUrl } from "@/lib/utils";
 import { ChunkWithScore, MediaTypes, s3ToPublicUrl } from "@/types/vectordb";
 import Button from "@codegouvfr/react-dsfr/Button";
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
@@ -368,7 +369,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
                     <div onClick={openModal} className="w-full h-auto aspect-[10/14] relative">
                         {
                             props.chapter?.coverPath ?
-                                <img src={props.chapter.coverPath} className="w-full" />
+                                <img src={normalizeUrl(props.chapter.coverPath) || ""} className="w-full" />
                                 :
                                 <div className="w-full h-full bg-white border-solid border-[3px] border-black">
                                     <div className="flex flex-col justify-center items-center h-full p-4">

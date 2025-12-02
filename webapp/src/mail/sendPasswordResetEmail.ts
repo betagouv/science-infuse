@@ -876,7 +876,7 @@ const getTemplate = (passwordResetLink: string) => {
                                 <td style="width: 173px">
                                   <img
                                     alt=""
-                                    src="https://science-infuse.beta.gouv.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
+                                    src="https://ada.universcience.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
                                     style="
                                       border: none;
                                       border-radius: px;

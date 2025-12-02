@@ -1,5 +1,5 @@
 // PdfBlockView.tsx
-import { cn } from '@/lib/utils'
+import { cn, normalizeUrl } from '@/lib/utils'
 import { Node } from '@tiptap/pm/model'
 import { Editor, NodeViewWrapper } from '@tiptap/react'
 import { useCallback, useRef, useState } from 'react'
@@ -39,7 +39,7 @@ export const PdfBlockView = (props: PdfBlockViewProps) => {
       <div className="pdf-wrapper" ref={imageWrapperRef} style={{ maxHeight: '50vh', overflowY: 'auto', width: '100%' }}>
         <Document
           className={'w-full overflow-hidden'}
-          file={node.attrs.src}
+          file={normalizeUrl(node.attrs.src) || ""}
           onLoadSuccess={({ numPages }) => setNumPages(numPages)}
         >
           {Array.from(new Array(numPages), (el, index) => (

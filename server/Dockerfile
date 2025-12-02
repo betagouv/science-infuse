@@ -16,6 +16,7 @@ RUN apt-get install -y \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt-get update \
     && apt-get install -y python3.9 python3.9-distutils
+RUN apt-get update && apt-get install -y python3.9-dev
 
 # Install pip for Python 3.9
 RUN apt-get install -y curl \

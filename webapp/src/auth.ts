@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-// import type { OAuthTokenEndpoint } from "@auth/core/providers/oauth";
 
 // --- Environment Variable Checks (Optional but Recommended) ---
 if (!process.env.GAR_CLIENT_ID) throw new Error("Missing GAR_CLIENT_ID");
@@ -22,6 +21,7 @@ interface GarUserInfo {
   UAI: string;
   auth_time: number;
   client_id: string;
+  sessionIndex?: string;
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -59,7 +59,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // Return the necessary user object structure
         return {
           id: user.id,
           email: user.email,
@@ -71,10 +70,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
     }),
     CredentialsProvider({
-      id: "gar-credentials", // A unique ID for this provider
+      id: "gar-credentials",
       name: "GAR SSO",
       credentials: {
-        userProfile: { type: "text" }, // We'll pass the JSON profile here
+        userProfile: { type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.userProfile) {
@@ -85,117 +84,132 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const profile: GarUserInfo = JSON.parse(credentials.userProfile as string);
         const garUserId = profile.IDO;
         const garSchoolId = profile.UAI;
+        let sessionIndex = profile.sessionIndex;
+
 
         if (!garUserId) {
-          console.error("[GAR-CREDENTIALS] GAR profile is missing 'IDO' (unique ID).");
+          console.error("[GAR-CREDENTIALS] GAR profile is missing 'IDO'.");
           return null;
         }
+        if (!sessionIndex) {
+            console.warn("[GAR-CREDENTIALS] GAR profile is missing 'sessionIndex'. This may affect Single Logout functionality.");
+            // Generate a fallback sessionIndex if not provided
+            sessionIndex = `${garUserId}_${Date.now()}`;
+        }
 
-
-        const existingUser = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
           where: {
             id: garUserId,
             source: 'gar',
           },
         });
 
-
-        if (existingUser) {
-          return existingUser; // User is already linked, sign them in
+        if (user) {
+            // L'utilisateur existe, on retourne ses données avec le sessionIndex
+            return { ...user, sessionIndex };
         }
-
 
         const newUser = await prisma.user.create({
           data: {
             id: garUserId,
             garSchoolId: garSchoolId,
-            source: 'gar', // Indicate this user is from GAR
+            source: 'gar',
           }
         });
 
-        return newUser;
+        // On retourne le nouvel utilisateur avec le sessionIndex
+        return { ...newUser, sessionIndex };
       }
     }),
   ],
 
-  // --- Session Strategy ---
   session: {
-    strategy: "jwt", // Use JWT for session management, avoids database lookups on every request
+    strategy: "jwt",
   },
 
-  // --- Custom Pages ---
   pages: {
-    signIn: "/connexion", // Your custom sign-in page
+    signIn: "/connexion",
     signOut: "/deconnexion",
-    // error: '/auth/error', // Optional: Custom error page
-    // verifyRequest: '/auth/verify-request', // Optional: For email provider
   },
 
-  // --- Callbacks ---
-  // Control what happens during JWT creation/update and session checks
   callbacks: {
-    // Called when a JWT is created (on sign-in) or updated (on session access)
     async jwt({ token, account, user }) {
+      // 1. VÉRIFIER SI LA SESSION A ÉTÉ RÉVOQUÉE
+      if (token.provider === "gar-credentials" && token.sessionIndex) {
+          const isRevoked = await prisma.revokedSamlSession.findUnique({
+              where: { sessionIndex: token.sessionIndex as string },
+          });
+          if (isRevoked) {
+              console.log(`[JWT Callback] Session révoquée détectée pour l'index ${token.sessionIndex}. Déconnexion.`);
+              // Return null to invalidate the session
+              return null;
+          }
+      }
 
       const isInitialSignIn = !!(account && user);
 
       if (isInitialSignIn) {
-        token.id = user.id; // Persist the user ID from provider profile or authorize
+        token.id = user.id;
         token.provider = account.provider;
-        if (account?.provider === "gar") {
-          // Store OIDC tokens if needed (be mindful of size/security)
-          token.accessToken = account.access_token;
-          token.idToken = account.id_token;
-          // Store relevant info from the GAR user object (mapped in profile callback)
-          // Ensure these keys match what you return from the 'profile' callback & define in JWT declaration
-          token.firstName = (user as any).firstName;
-          token.lastName = (user as any).lastName;
-          token.email = user.email; // Use email mapped in profile
-          token.name = user.name;   // Use name mapped in profile
-          token.uai = (user as any).uai;
-          token.typProfil = (user as any).typProfil;
-          // If roles were determined from GAR profile, add them here:
-          // token.roles = mapGarRolesToAppRoles(profile.GAR_ROLES_CLAIM);
 
-
+        if (account?.provider === "gar-credentials") {
+          // 2. STOCKER LE SESSIONINDEX DANS LE JWT
+          token.sessionIndex = (user as any).sessionIndex;
+          token.uai = (user as any).garSchoolId;
+          console.log(`[JWT Callback] GAR user authenticated with sessionIndex: ${token.sessionIndex}`);
         } else if (account?.provider === "credentials") {
-          // Store info from Credentials user object (returned by authorize)
-          // Ensure these keys match what authorize returns & define in JWT declaration
           token.firstName = (user as any).firstName;
           token.lastName = (user as any).lastName;
           token.email = user.email;
-          token.roles = (user as any).roles; // Roles from your DB user model
+          token.roles = (user as any).roles;
           token.name = user.name;
         }
       }
-      // Subsequent requests: The token already exists, just return it.
-      // Add refresh token rotation logic here if needed for OAuth providers.
       return token;
     },
 
-    // Called when a session is checked (e.g., using useSession, getSession)
-    async session({ session, token }: { session: any; token: JWT }) {
-      // Add common properties from token to session.user
-      // Ensure the types match the declare module Session above
+    async session({ session, token }: { session: any; token: JWT | null }) {
+      // If token is null (revoked session), return null to invalidate the session
+      if (!token || !token.id) {
+          return null;
+      }
+      
       session.user.id = token.id || "";
       session.user.name = token.name;
       session.user.email = token.email;
-
       session.provider = (token.provider || "") as string;
-      // session.user.image = token.picture; // If image is included in token
 
-      // Add provider-specific properties / custom claims from JWT
-      if (token.accessToken) session.accessToken = token.accessToken as string;
-      if (token.idToken) session.idToken = token.idToken as string;
       if (token.uai) session.user.uai = token.uai as string;
       if (token.typProfil) session.user.typProfil = token.typProfil as string;
       if (token.roles) session.user.roles = token.roles as string[];
 
+      // IMPORTANT: ne pas exposer le sessionIndex au client
       return session;
     },
   },
 
-  // --- Optional: Debugging ---
-  // Enable detailed logs in development environment
-  debug: true//process.env.NODE_ENV === 'development',
+  events: {
+      signOut: async (event) => {
+          // Handle both token and session events
+          if ('token' in event && event.token) {
+              const token = event.token;
+              if (token.provider === "gar-credentials" && token.sessionIndex) {
+                  console.log(`[SignOut Event] Cleaning up sessionIndex: ${token.sessionIndex}`);
+                  // Optionnel mais propre : si l'utilisateur se déconnecte de notre app,
+                  // on peut nettoyer notre table de révocation.
+                  await prisma.revokedSamlSession.delete({
+                      where: { sessionIndex: token.sessionIndex as string },
+                  }).catch(() => {
+                      // Ignorer l'erreur si l'entrée n'existe pas
+                  });
+              } else {
+                  const provider = token.provider || 'unknown';
+                  const hasSessionIndex = !!token.sessionIndex;
+                  console.log(`[SignOut Event] No cleanup needed. Provider: ${provider}, has sessionIndex: ${hasSessionIndex}`);
+              }
+          }
+      }
+  },
+
+  debug: true
 });

@@ -8,7 +8,8 @@ import { Chip, Collapse, IconButton, Link, Paper, Table, TableBody, TableCell, T
 import { ChapterStatus } from '@prisma/client';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import Image from 'next/image'
+import Image from 'next/image';
+import { normalizeUrl } from '@/lib/utils';
 
 const statusToSeverity = {
   [ChapterStatus.DRAFT]: undefined,
@@ -46,7 +47,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
         <TableCell>
           <Image
             className='w-64 h-auto object-contain bg-[#f2f2f9]'
-            src={chapter?.coverPath || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"}
+            src={normalizeUrl(chapter?.coverPath) || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"}
             alt={`image de couverture du chapitre "${chapter.title}"`}
             width={1024}
             height={1024} 

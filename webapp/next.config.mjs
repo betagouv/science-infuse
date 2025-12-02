@@ -20,11 +20,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'ada.beta.gouv.fr',
+        hostname: 'ada.universcience.fr',
       },
       {
         protocol: 'https',
-        hostname: 'science-infuse.beta.gouv.fr',
+        hostname: 'ada.beta.gouv.fr',
       },
       {
         protocol: process.env.NEXT_PUBLIC_WEBAPP_URL?.startsWith('https') ? 'https' : 'http',

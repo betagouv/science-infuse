@@ -1,3 +1,4 @@
+numpy==1.24.3
 fastapi==0.111.0
 fastapi-cli==0.0.4
 langchain-core==0.2.8

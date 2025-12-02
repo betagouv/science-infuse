@@ -3,17 +3,26 @@ import UserSettings from "./UserSettings";
 import prisma from "@/lib/prisma";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import { auth } from "@/auth";
+import { getUserFull } from "@/lib/utils/db";
 
 const Settings = async function () {
     const session = await auth();
 
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
+        redirect('/');
+    }
+
+    // Fetch the full user data including the source field
+    const user = await getUserFull(session.user.id);
+    
+    if (!user || user.source === 'gar') {
         redirect('/');
     }
 
     const educationLevels = await prisma.educationLevel.findMany();
     const academies = await prisma.academy.findMany();
     const schoolSubjects = await prisma.schoolSubject.findMany();
+
 
     return <div className="w-full fr-grid-row fr-grid-row--gutters fr-grid-row--center px-4 md:px-0">
         <div className="fr-col-12 mt-8 fr-col-md-10 main-content-item">
@@ -26,7 +35,11 @@ const Settings = async function () {
                 </h1>
             </div>
 
-            <UserSettings educationLevels={educationLevels} academies={academies} schoolSubjects={schoolSubjects} />
+            <UserSettings
+                educationLevels={educationLevels}
+                academies={academies}
+                schoolSubjects={schoolSubjects}
+            />
         </div>
     </div>
 

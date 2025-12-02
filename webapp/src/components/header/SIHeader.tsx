@@ -4,24 +4,27 @@ import { Session } from 'next-auth'
 import ConnectedHeader from "./ConnectedHeader";
 import React from "react";
 import { PROJECT_NAME } from "@/config";
+import { getUserFull } from "@/lib/utils/db";
 
 interface ClientHeaderProps {
   session: Session | null;
 }
 
-export default function ClientHeader({ session }: ClientHeaderProps) {
+export default async function ClientHeader({ session }: ClientHeaderProps) {
 
+
+  // Fetch the full user data including the source field
+  const user = session?.user?.id ? await getUserFull(session.user.id) : null;
   return (
     <Header
       className="z-[10000]"
       brandTop={<>MINISTÈRE DE
         <br />LA CULTURE</>}
-      // operatorLogo={{
-      //   alt: 'logo Ada',
-      //   imgUrl: '/images/science_infuse_logo.jpg',
-      //   // imgUrl: '/images/science_infuse_logo.svg',
-      //   orientation: 'horizontal'
-      // }}
+      operatorLogo={{
+        alt: 'logo Universcience',
+        imgUrl: '/images/universcience-logo.svg',
+        orientation: 'horizontal'
+      }}
       quickAccessItems={[
         // <div key="mail" className="flex h-full items-center justify-center">
         //   <a href="/besoin-d-aide" className="fr-btn flex gap-2 !m-0 h-fit justify-center" id="fr-header-header-with-quick-access-items-quick-access-item-1">
@@ -31,14 +34,13 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
         //     Nous contacter
         //   </a>
         // </div>,
-        <ConnectedHeader key="connected-header" />]
+        <ConnectedHeader isGar={user?.source === 'gar'} key="connected-header" />]
       }
       homeLinkProps={{
         "href": "/",
         "title": `Accueil - ${PROJECT_NAME}`
       }}
-      serviceTitle={<p className="text-xl text-[#161616]">
-        <span className="font-bold">Ada</span>
+      serviceTitle={<p className="text-xl text-[#161616]"><span className="font-bold">Ada</span>
       </p>}
       serviceTagline={<p className="text-sm text-left text-[#3a3a3a]">
         Contenus multimédias gratuits

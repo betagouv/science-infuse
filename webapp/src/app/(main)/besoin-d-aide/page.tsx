@@ -15,7 +15,7 @@ const NeedHelp = () => {
                         <div className="w-full md:w-3/5 flex flex-col">
                             <h1 className='mt-4'>Des questions ou des remarques ?</h1>
 
-                            <p className="mt-8">Vous pouvez contacter notre équipe par email <a className='text-[#000091]' href="mailto:science-infuse@universcience.fr">(science-infuse@universcience.fr)</a> ou par téléphone (06 69 29 18 66) tous les jours entre 9h30 et 19h</p>
+                            <p className="mt-8">Vous pouvez contacter notre équipe par email <a className='text-[#000091]' href="mailto:ada@universcience.fr">(ada@universcience.fr)</a></p>
                             <p>Nous prenons vos questions à coeur, afin de vous être le plus utiles possible. Vos retours d'expérience sont précieux et permettent d'améliorer le service.</p>
                             <p>A bientôt !</p>
                         </div>

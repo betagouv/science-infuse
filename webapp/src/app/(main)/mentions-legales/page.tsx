@@ -21,19 +21,22 @@ const Legals = () => {
 
                         <ul>
                             <li>
+                                <strong>SIRET</strong> : 519 587 851 00014
+                            </li>
+                            <li>
                                 <strong>Siège social</strong> : Palais de la découverte Avenue Franklin
                                 Delano Roosevelt, 75008 Paris
+                            </li>
+                            <li>
+                                <strong>Adresse postale</strong> : Cité des sciences et de
+                                l'industrie 30, avenue Corentin-Cariou, 75019 Paris
                             </li>
                             <li>
                                 <strong>Serveur vocal</strong> : 01 40 05 80 00
                             </li>
                             <li>
-                                <strong>Adresse du projet</strong> : Cité des sciences et de
-                                l'industrie 30, avenue Corentin-Cariou, 75019 Paris
-                            </li>
-                            <li>
-                                <strong>Directeur de la publication</strong> : Bruno Maquart,
-                                Président d’Universcience
+                                <strong>Directrice de la publication</strong> : <strong>SAMSOEN Delphine</strong>, 
+                                Présidente par intérim.
                             </li>
                         </ul>
                     </section>
@@ -41,98 +44,38 @@ const Legals = () => {
                     <section>
                         <h2>1. Hébergement</h2>
                         <p>
-                            Le site Ada est hébergé par :
-                            <br />
-                            <strong>OVH</strong> 2, rue Kellermann 59100 Roubaix – France{' '}
+                            Le site Ada est hébergé par : OVH 2, rue Kellermann 59100
+                            Roubaix – France{' '}
                             <a href="https://www.ovh.com/" target="_blank" rel="noopener">
                                 https://www.ovh.com
                             </a>
                         </p>
-                    </section>
-
-                    <section>
-                        <h2>2. Données personnelles</h2>
                         <p>
-                            La plateforme Ada collecte et traite des données personnelles dans le
-                            cadre de ses services destinés aux enseignants du secondaire.
-                            Universcience est responsable du traitement des données à caractère
-                            personnel collectées sur le site. Ces données sont nécessaires pour :
-                        </p>
-                        <ul>
-                            <li>créer un compte utilisateur sécurisé</li>
-                            <li>proposer des ressources pédagogiques adaptées</li>
-                            <li>
-                                améliorer la plateforme via des statistiques anonymisées (Matomo)
-                            </li>
-                        </ul>
-
-                        <h3>Exercer vos droits</h3>
-                        <p>
-                            Conformément au RGPD et à la Loi Informatique et Libertés, vous
-                            disposez des droits suivants : Accès, Rectification, Suppression (droit
-                            à l’oubli), Portabilité, Opposition, Limitation du traitement, Retrait du
-                            consentement.
-                        </p>
-                        <p>Vous pouvez exercer ces droits en contactant Universcience :</p>
-                        <ul>
-                            <li>
-                                par courriel :{' '}
-                                <a href="mailto:rgpd@universcience.fr">rgpd@universcience.fr</a>
-                            </li>
-                            <li>
-                                par courrier postal : Universcience 30 avenue Corentin Cariou, 75019
-                                Paris
-                            </li>
-                        </ul>
-                        <p>
-                            Un justificatif d’identité doit être joint à votre demande pour que nous
-                            puissions vous identifier. Si vous estimez, après nous avoir contactés, que
-                            vos droits ne sont pas respectés, vous pouvez adresser une réclamation à
-                            la CNIL :{' '}
-                            <a href="https://www.cnil.fr/" target="_blank" rel="noopener">
-                                https://www.cnil.fr
-                            </a>
+                            <strong>Téléphone</strong> : +33 9 72 10 10 07
                         </p>
                     </section>
 
                     <section>
-                        <h2>3. Cookies et traceurs</h2>
+                        <h2>2. Protection des données</h2>
                         <p>
-                            La plateforme utilise Matomo, un outil de mesure d’audience respectueux
-                            de la vie privée, configuré en mode exempté, ce qui signifie :
-                        </p>
-                        <ul>
-                            <li>Aucune collecte de données personnelles identifiantes</li>
-                            <li>Aucune transmission à des tiers</li>
-                            <li>Aucune création de profils</li>
-                        </ul>
-                        <p>
-                            Les données collectées sont anonymisées (adresse IP tronquée, informations
-                            techniques globales, pages consultées, requêtes, etc.) et servent
-                            uniquement à améliorer le service.
+                            Vos données sont traitées conformément au RGPD. Pour en savoir
+                            plus, consultez la Politique de Confidentialité du site Ada.
                         </p>
                     </section>
 
                     <section>
-                        <h2>4. Propriété intellectuelle</h2>
+                        <h2>3. Conditions d'utilisation</h2>
                         <p>
-                            L’ensemble des contenus présents sur le site Ada (textes,
-                            illustrations, vidéos, interfaces, bases de données, etc.) est protégé par
-                            les lois en vigueur sur la propriété intellectuelle et appartient à
-                            Universcience ou à des tiers ayant autorisé leur utilisation. Toute
-                            reproduction, représentation ou exploitation, partielle ou totale, sans
-                            autorisation écrite préalable, est strictement interdite, notamment à
-                            des fins commerciales ou dans des environnements en réseau.
-                        </p>
-                    </section>
-
-                    <section>
-                        <h2>5. Conditions d’utilisation</h2>
-                        <p>
-                            L’accès au site Ada implique l’acceptation pleine et entière des
-                            Conditions Générales d’Utilisation (CGU). Universcience se réserve le
+                            L'accès au site Ada implique l'acceptation pleine et entière des
+                            Conditions Générales d'Utilisation (CGU). Universcience se réserve le
                             droit de modifier à tout moment le contenu du site ainsi que les présentes
                             mentions légales, sans préavis.
+                        </p>
+                        <p>
+                            Pour accéder aux mentions légales spécifiques à la ressource GAR, veuillez consulter :{' '}
+                            <a href="https://gar.education.fr/mentions-legales/" target="_blank" rel="noopener">
+                                https://gar.education.fr/mentions-legales/
+                            </a>
                         </p>
                     </section>
                 </div>

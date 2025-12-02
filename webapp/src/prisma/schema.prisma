@@ -369,3 +369,11 @@ enum ChapterStatus {
   PUBLISHED
   DELETED
 }
+
+
+// Used for GAR to revoke JWT
+model RevokedSamlSession {
+  sessionIndex String @id @unique
+  expiresAt    DateTime
+  createdAt DateTime @default(now())
+}

@@ -1,5 +1,5 @@
 // ImageBlockView.tsx
-import { cn } from '@/lib/utils'
+import { cn, normalizeUrl } from '@/lib/utils'
 import { File } from '@prisma/client'
 import { Node } from '@tiptap/pm/model'
 import { Editor, NodeViewWrapper } from '@tiptap/react'
@@ -52,7 +52,7 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
                 "block w-full transition-opacity duration-300 my-4",
                 src ? "opacity-100" : "opacity-0"
               )} 
-              src={src} 
+              src={normalizeUrl(src) || ""} 
               alt="" 
               onClick={onClick} 
             />

@@ -58,6 +58,15 @@ h1 {
   color: #161616;
 }
 
+/* Header service title styling - only target our specific text */
+.service-title-text {
+  font-weight: 300 !important;
+}
+
+.service-title-text .font-bold {
+  font-weight: 700 !important;
+}
+
 /* header */
 
 @media (min-width: 992px) {

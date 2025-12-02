@@ -5,6 +5,7 @@ import { WEBAPP_URL } from "@/config";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
 import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/components/CourseSettings/ChapterTableOfContents";
 import { apiClient } from "@/lib/api-client";
+import { normalizeUrl } from "@/lib/utils";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
 import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
@@ -671,7 +672,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         }
         horizontal
         imageAlt="image d'illustration du bloc"
-        imageUrl={props.block.chapter?.coverPath || baseImageSrc}
+        imageUrl={normalizeUrl(props.block.chapter?.coverPath) || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
             <div className="flex justify-between items-center">
@@ -725,7 +726,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         }
         horizontal
         imageAlt="image d'illustration du chapitre"
-        imageUrl={chapter.coverPath || baseImageSrc}
+        imageUrl={normalizeUrl(chapter.coverPath) || baseImageSrc}
         // imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
         footer={
             <a href={`/prof/chapitres/${chapter.id}/view`} id="">

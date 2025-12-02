@@ -34,7 +34,10 @@ export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWith
     });
 }
 
-export const getUserFull = async (userId: string) => {
+export const getUserFull = async (userId: string | undefined) => {
+    if (!userId) {
+        return null;
+    }
     const user: UserFull | null = await prisma.user.findUnique({
         where: { id: userId },
         select: userFullFields

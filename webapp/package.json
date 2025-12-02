@@ -88,6 +88,7 @@
     "@tiptap/suggestion": "2.5.8",
     "@types/react-highlight-words": "^0.20.0",
     "@types/react-linkify": "^1.0.4",
+    "@xmldom/xmldom": "^0.8.11",
     "ai": "^4.1.54",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
@@ -96,7 +97,9 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.22",
     "groq-sdk": "^0.9.1",
+    "jose": "^6.1.0",
     "jsdom": "^25.0.1",
+    "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.408.0",
     "next": "14.2.4",
@@ -131,7 +134,8 @@
     "tss-react": "^4.9.10",
     "use-debounce": "^10.0.1",
     "usehooks-ts": "^3.1.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "xpath": "^0.0.34"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.12.0",
@@ -139,6 +143,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cli-progress": "^3.11.6",
     "@types/jsdom": "^21.1.7",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.7",
     "@types/node": "^20",
     "@types/pg": "^8.11.8",
