@@ -1,8 +1,10 @@
 import { ExportH5pResponse } from '@/types/api';
 import { ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
+import { Dialogcard } from '@/lib/api-client';
 import { NextRequest, NextResponse } from "next/server";
 import createQuestionSet from './creation-requests/createQuestionSet';
 import createInteractiveVideo from './creation-requests/createInteractiveVideo';
+import createDialogcards from './creation-requests/createDialogcards';
 import { withAccessControl } from '../../accessControl';
 import { User } from 'next-auth';
 import s3Storage from '../../S3Storage';
@@ -18,6 +20,10 @@ function isQuestionRequest(body: ExportH5PRequestBody): body is ExportH5PQuestio
 
 function isInteractiveVideoRequest(body: ExportH5PRequestBody): body is ExportH5PInteractiveVideoRequest {
     return body.type === 'interactive-video';
+}
+
+function isDialogcardsRequest(body: ExportH5PRequestBody): body is ExportH5PRequestBody & { type: 'dialogcards'; data: { cards: Dialogcard[]; documentId: string } } {
+    return body.type === 'dialogcards';
 }
 
 async function downloadH5PFile(id: string): Promise<string> {
@@ -42,6 +48,9 @@ export const POST = withAccessControl(
         } else if (isInteractiveVideoRequest(body)) {
             game = await createInteractiveVideo(body.data, body.h5pContentId);
             type = "video";
+        } else if (isDialogcardsRequest(body)) {
+            game = await createDialogcards(body.data, body.h5pContentId);
+            type = "dialogcards";
         }
         else {
             throw new Error(`Unsupported type: ${body.type}`);

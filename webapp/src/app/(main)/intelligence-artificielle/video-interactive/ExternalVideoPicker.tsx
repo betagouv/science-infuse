@@ -1,14 +1,13 @@
 
 
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { useCallback, useEffect, useRef, useState } from "@preact-signals/safe-react/react";
+import { useCallback, useRef, useState } from "@preact-signals/safe-react/react";
 import { useDropzone } from "react-dropzone";
 import { apiClient } from "@/lib/api-client";
 import Input from "@codegouvfr/react-dsfr/Input";
-import { useSnackbar } from "@/app/SnackBarProvider";
-import { useAlertToast } from "@/components/AlertToast";
+import { DocumentPickerProps } from "../shared/types";
 
-export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
+export default (props: DocumentPickerProps) => {
 
     const [mediaName, setMediaName] = useState("");
     const [droppedFile, setDroppedFile] = useState<File | null>(null)

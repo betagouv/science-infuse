@@ -45,6 +45,11 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
             {children}
             <SIFooter />
             <Footer
+              brandTop={<>MINISTÈRE DE<br />LA CULTURE</>}
+              homeLinkProps={{
+                href: '/'
+              }}
+
               accessibility="non compliant"
               accessibilityLinkProps={{
                 href: "/declaration-d-accessibilite",

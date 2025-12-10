@@ -4,119 +4,30 @@ import toast from 'react-hot-toast';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import { InteractiveVideoQuestion, InteractiveVideoQuestionGroup, InteractiveVideoDefinition, InteractiveVideoDefinitionGroup, generateInteraciveVideoData, } from "@/app/api/export/h5p/contents/interactiveVideo";
-import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { s3ToPublicUrl } from "@/types/vectordb";
 import Button from '@codegouvfr/react-dsfr/Button';
 import { Input } from "@codegouvfr/react-dsfr/Input";
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import { CircularProgress } from "@mui/material";
 import { apiClient } from "@/lib/api-client";
-import { secondsToTime, TimeCode, timeToSeconds } from "@/lib/utils";
 import { ExportH5pResponse } from "@/types/api";
-import styled from '@emotion/styled';
 import H5PRenderer from '@/app/(main)/mediaViewers/H5PRenderer';
 import { LLMGenerateDefinition } from '@/lib/server/ia/external_llm';
 import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
-import EmbedVideo from '@/components/interactifs/EmbedVideo';
 import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import LatexExample from './latex.svg'
+import { DeleteButton, TimestampInput } from '../shared/components';
 
 const modal = createModal({
     id: "modal-quit-without-saving",
     isOpenedByDefault: false
 });
 
-
-
-export const DeleteButton = styled(Button)`
-    aspect-ratio: 1;
-  --border-action-high-blue-france: red;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:before {
-      --icon-size: 1rem !important;
-      margin: 0 !important;
-    /* display: none; */
-  }
-`
-//////////////////////////////
-// Reusable Timestamp Input //
-//////////////////////////////
-
-type TimestampInputProps = {
-    timestamp?: number;
-    onChange: (newTimestamp: number) => void;
-};
-
-const StyledInput = styled(Input)`
-.fr-input-group {
-    margin:0;
-}
-*::-webkit-datetime-edit {
-  display: 24-hour;
-}
-`
-
-const TimestampInput: React.FC<TimestampInputProps> = ({ timestamp, onChange }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempTime, setTempTime] = useState<TimeCode | null>(timestamp ? secondsToTime(timestamp) : null);
-
-    const handleSave = () => {
-        if (!tempTime) return;
-        const totalSeconds = timeToSeconds(tempTime.hours, tempTime.minutes, tempTime.seconds);
-        onChange(totalSeconds);
-        setIsEditing(false);
-    };
-
-    return (
-        <div className="flex gap-4 items-center">
-            {!isEditing ? (
-                <Button
-                    size='medium'
-                    onClick={() => setIsEditing(true)}
-                    iconId='fr-icon-timer-line'
-                    iconPosition='left'
-                    priority="secondary"
-                    className='w-[18rem] text-center flex items-center justify-center'
-                >
-                    {!tempTime ? "Indiquer la position" : `Modifier la position (${String(tempTime.hours).padStart(2, '0')}:${String(tempTime.minutes).padStart(2, '0')}:${String(tempTime.seconds).padStart(2, '0')})`}
-                </Button>
-            ) : (
-                <>
-                    <StyledInput
-                        label=""
-                        className="w-40 !m-0"
-                        nativeInputProps={{
-                            lang: "fr-FR", // Use a locale that defaults to 24-hour time
-                            type: "time",
-                            step: "1",
-                            value: !tempTime ? "00:00:00" : `${String(tempTime.hours).padStart(2, '0')}:${String(tempTime.minutes).padStart(2, '0')}:${String(tempTime.seconds).padStart(2, '0')}`,
-                            onChange: (e) => {
-                                const [hours, minutes, seconds] = e.target.value.split(':').map(Number);
-                                setTempTime({ hours, minutes, seconds: seconds || 0 });
-                            },
-                            required: true,
-                            pattern: "[0-9]{2}:[0-9]{2}:[0-9]{2}",
-                        }}
-                    />
-                    <Button
-                        onClick={handleSave}
-                        className='w-30'
-                        priority="primary"
-                    >
-                        Enregistrer
-                    </Button>
-                </>
-            )}
-        </div>
-    );
-};
 //////////////////////////////
 // QCM Editor Component     //
 //////////////////////////////
