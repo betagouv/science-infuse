@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { createH5P } from "."
-import { Dialogcard } from "@/lib/api-client";
+import { Dialogcard } from "@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor";
 
 export interface DialogcardsData {
   cards: Dialogcard[];

@@ -1,14 +1,7 @@
+import { Dialogcards } from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
+import { ImageACompleterBox } from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor';
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
-
-export interface Dialogcard {
-  question: string;
-  answer: string;
-}
-
-export interface DialogcardSet {
-  cards: Dialogcard[];
-}
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
@@ -323,14 +316,20 @@ class ApiClient {
     return "";
   }
 
-  async generateDialogcards(documentId: string): Promise<DialogcardSet> {
-    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { documentId });
+  async generateDialogcards(documentId: string): Promise<Dialogcards> {
+    const response = await this.axiosInstance.post<Dialogcards>('/ai/dialogcards', { documentId });
     return response.data;
   }
 
   async generateDialogcardAnswer(question: string, documentId?: string): Promise<string> {
     const response = await this.axiosInstance.post<{ answer: string }>('/ai/dialogcard-answer', { question, documentId });
     return response.data.answer;
+  }
+
+  async generateImageACompleter(documentId: string): Promise<ImageACompleterBox[]> {
+    const response = await this.axiosInstance.post<ImageACompleterBox[]>('/ai/image-a-completer', { documentId });
+    return response.data;
+
   }
 
   async updateBlock(chapterId: string, blockId: string, title: string, content: any[]): Promise<boolean> {

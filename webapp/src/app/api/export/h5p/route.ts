@@ -1,5 +1,5 @@
 import { ExportH5pResponse } from '@/types/api';
-import { ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
+import { ExportH5PDialogcardsRequest, ExportH5PImageACompleterRequest, ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
 import { Dialogcard } from '@/lib/api-client';
 import { NextRequest, NextResponse } from "next/server";
 import createQuestionSet from './creation-requests/createQuestionSet';
@@ -11,6 +11,7 @@ import s3Storage from '../../S3Storage';
 import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
 import { h5pIdToPublicUrl } from '@/types/vectordb';
+import createImageACompleter from './creation-requests/createImageACompleter';
 
 export const dynamic = 'force-dynamic'
 
@@ -22,8 +23,12 @@ function isInteractiveVideoRequest(body: ExportH5PRequestBody): body is ExportH5
     return body.type === 'interactive-video';
 }
 
-function isDialogcardsRequest(body: ExportH5PRequestBody): body is ExportH5PRequestBody & { type: 'dialogcards'; data: { cards: Dialogcard[]; documentId: string } } {
+function isDialogcardsRequest(body: ExportH5PRequestBody): body is ExportH5PDialogcardsRequest {
     return body.type === 'dialogcards';
+}
+
+function isImageACompleterRequest(body: ExportH5PRequestBody): body is ExportH5PImageACompleterRequest {
+    return body.type === 'image-a-completer';
 }
 
 async function downloadH5PFile(id: string): Promise<string> {
@@ -51,7 +56,10 @@ export const POST = withAccessControl(
         } else if (isDialogcardsRequest(body)) {
             game = await createDialogcards(body.data, body.h5pContentId);
             type = "dialogcards";
-        }
+        } else if (isImageACompleterRequest(body)) {
+            game = await createImageACompleter(body.data, body.h5pContentId)
+            type = "image-a-completer"
+        } 
         else {
             throw new Error(`Unsupported type: ${body.type}`);
         }
