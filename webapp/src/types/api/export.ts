@@ -5,6 +5,7 @@ import { DialogcardSet } from "@/app/(main)/intelligence-artificielle/dialogcard
 import { DialogcardsData } from "@/app/api/export/h5p/creation-requests/createDialogcards";
 import { ImageACompleterData } from "@/app/api/export/h5p/creation-requests/createImageACompleter";
 import { TexteATrousData } from "@/app/api/export/h5p/creation-requests/createTexteATrous";
+import { MotsCroisesData } from "@/app/api/export/h5p/creation-requests/createMotsCroises";
 
 export type ExportH5PGenericRequest = {
     type: string;
@@ -38,7 +39,12 @@ export type ExportH5PTexteATrousRequest = ExportH5PGenericRequest & {
     data: TexteATrousData
 }
 
-export type ExportH5PRequestBody = ExportH5PQuestionRequest | ExportH5PInteractiveVideoRequest | ExportH5PDialogcardsRequest | ExportH5PImageACompleterRequest | ExportH5PTexteATrousRequest;
+export type ExportH5PMotsCroisesRequest = ExportH5PGenericRequest & {
+    type: "mots-croises",
+    data: MotsCroisesData
+}
+
+export type ExportH5PRequestBody = ExportH5PQuestionRequest | ExportH5PInteractiveVideoRequest | ExportH5PDialogcardsRequest | ExportH5PImageACompleterRequest | ExportH5PTexteATrousRequest | ExportH5PMotsCroisesRequest;
 
 export type ExportMbzRequestBody = {
     html: string,

@@ -38,6 +38,20 @@ return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--cent
                     titleAs="h3"
                 />
 
+                <Card
+                    className="max-w-96"
+                    background
+                    border
+                    title="Créer des mots croisés"
+                    desc="Transformez vos documents en jeux de mots croisés éducatifs. L'IA extrait les concepts clés et génère automatiquement des définitions pour créer des grilles de mots croisés interactives."
+                    enlargeLink
+                    linkProps={{
+                        href: '/intelligence-artificielle/mots-croises'
+                    }}
+                    size="medium"
+                    titleAs="h3"
+                />
+
             </div>
 
         </div>

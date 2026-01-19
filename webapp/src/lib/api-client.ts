@@ -1,6 +1,7 @@
-import { Dialogcards } from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
+import { DialogcardSet } from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
 import { ImageACompleterBox } from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor';
 import { TexteATrousSet } from '@/app/(main)/intelligence-artificielle/texte-a-trous/TexteATrousEditor';
+import { CrosswordSet } from '@/app/(main)/intelligence-artificielle/mots-croises/MotsCroisesEditor';
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
@@ -317,8 +318,8 @@ class ApiClient {
     return "";
   }
 
-  async generateDialogcards(documentId: string): Promise<Dialogcards> {
-    const response = await this.axiosInstance.post<Dialogcards>('/ai/dialogcards', { documentId });
+  async generateDialogcards(documentId: string): Promise<DialogcardSet> {
+    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { documentId });
     return response.data;
   }
 
@@ -341,6 +342,16 @@ class ApiClient {
   async generateTexteATrousAnswer(text: string, documentId?: string): Promise<string> {
     const response = await this.axiosInstance.post<{ answer: string }>('/ai/texte-a-trous-answer', { text, documentId });
     return response.data.answer;
+  }
+
+  async generateMotsCroises(documentId: string): Promise<CrosswordSet> {
+    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', { documentId });
+    return response.data;
+  }
+
+  async generateMotsCroisesClue(answer: string, documentId?: string): Promise<string> {
+    const response = await this.axiosInstance.post<{ clue: string }>('/ai/mots-croises-clue', { answer, documentId });
+    return response.data.clue;
   }
 
   async updateBlock(chapterId: string, blockId: string, title: string, content: any[]): Promise<boolean> {

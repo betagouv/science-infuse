@@ -54,7 +54,7 @@ if (!process.env.SESSION_SECRET) {
     console.warn("WARN: SESSION_SECRET is not set. Session security is compromised.");
 }
 
-const LIBRARIES_TO_INSTALL = ['H5P.InteractiveVideo', 'H5P.QuestionSet', 'H5P.Flashcards', 'H5P.Dialogcards', 'H5P.DragQuestion', 'H5P.Blanks'];
+const LIBRARIES_TO_INSTALL = ['H5P.InteractiveVideo', 'H5P.QuestionSet', 'H5P.Flashcards', 'H5P.Dialogcards', 'H5P.DragQuestion', 'H5P.Blanks', 'H5P.Crossword'];
 
 // Marked async but doesn't use await - could be synchronous if installLibraryFromHub doesn't need setupLibraries context
 async function installLibrary(id: string, user: H5P.IUser, h5pEditor: H5P.H5PEditor): Promise<boolean> {
