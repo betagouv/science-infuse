@@ -1,5 +1,6 @@
 import { Dialogcards } from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
 import { ImageACompleterBox } from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor';
+import { TexteATrousSet } from '@/app/(main)/intelligence-artificielle/texte-a-trous/TexteATrousEditor';
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
@@ -330,6 +331,16 @@ class ApiClient {
     const response = await this.axiosInstance.post<ImageACompleterBox[]>('/ai/image-a-completer', { chunkId });
     return response.data;
 
+  }
+
+  async generateTexteATrous(documentId: string): Promise<TexteATrousSet> {
+    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', { documentId });
+    return response.data;
+  }
+
+  async generateTexteATrousAnswer(text: string, documentId?: string): Promise<string> {
+    const response = await this.axiosInstance.post<{ answer: string }>('/ai/texte-a-trous-answer', { text, documentId });
+    return response.data.answer;
   }
 
   async updateBlock(chapterId: string, blockId: string, title: string, content: any[]): Promise<boolean> {

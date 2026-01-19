@@ -24,6 +24,20 @@ return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--cent
                     titleAs="h3"
                 />
 
+                <Card
+                    className="max-w-96"
+                    background
+                    border
+                    title="Créer des textes à trous"
+                    desc="Générez automatiquement des exercices de type 'fill in the blank' à partir de vos documents. L'IA identifie les mots clés importants et crée des phrases interactives où les élèves doivent compléter les mots manquants."
+                    enlargeLink
+                    linkProps={{
+                        href: '/intelligence-artificielle/texte-a-trous'
+                    }}
+                    size="medium"
+                    titleAs="h3"
+                />
+
             </div>
 
         </div>

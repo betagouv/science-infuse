@@ -4,6 +4,7 @@ import { ImageACompleterBox } from "@/app/(main)/intelligence-artificielle/image
 import { DialogcardSet } from "@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor";
 import { DialogcardsData } from "@/app/api/export/h5p/creation-requests/createDialogcards";
 import { ImageACompleterData } from "@/app/api/export/h5p/creation-requests/createImageACompleter";
+import { TexteATrousData } from "@/app/api/export/h5p/creation-requests/createTexteATrous";
 
 export type ExportH5PGenericRequest = {
     type: string;
@@ -32,7 +33,12 @@ export type ExportH5PImageACompleterRequest = ExportH5PGenericRequest & {
     data: ImageACompleterData
 }
 
-export type ExportH5PRequestBody = ExportH5PQuestionRequest | ExportH5PInteractiveVideoRequest | ExportH5PGenericRequest;
+export type ExportH5PTexteATrousRequest = ExportH5PGenericRequest & {
+    type: "texte-a-trous",
+    data: TexteATrousData
+}
+
+export type ExportH5PRequestBody = ExportH5PQuestionRequest | ExportH5PInteractiveVideoRequest | ExportH5PDialogcardsRequest | ExportH5PImageACompleterRequest | ExportH5PTexteATrousRequest;
 
 export type ExportMbzRequestBody = {
     html: string,

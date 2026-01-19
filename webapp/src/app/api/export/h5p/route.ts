@@ -1,5 +1,5 @@
 import { ExportH5pResponse } from '@/types/api';
-import { ExportH5PDialogcardsRequest, ExportH5PImageACompleterRequest, ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
+import { ExportH5PDialogcardsRequest, ExportH5PImageACompleterRequest, ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody, ExportH5PTexteATrousRequest } from '@/types/api/export';
 import { Dialogcard } from '@/lib/api-client';
 import { NextRequest, NextResponse } from "next/server";
 import createQuestionSet from './creation-requests/createQuestionSet';
@@ -12,6 +12,7 @@ import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
 import { h5pIdToPublicUrl } from '@/types/vectordb';
 import createImageACompleter from './creation-requests/createImageACompleter';
+import createTexteATrous from './creation-requests/createTexteATrous';
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,10 @@ function isDialogcardsRequest(body: ExportH5PRequestBody): body is ExportH5PDial
 
 function isImageACompleterRequest(body: ExportH5PRequestBody): body is ExportH5PImageACompleterRequest {
     return body.type === 'image-a-completer';
+}
+
+function isTexteATrousRequest(body: ExportH5PRequestBody): body is ExportH5PTexteATrousRequest {
+    return body.type === 'texte-a-trous';
 }
 
 async function downloadH5PFile(id: string): Promise<string> {
@@ -59,7 +64,10 @@ export const POST = withAccessControl(
         } else if (isImageACompleterRequest(body)) {
             game = await createImageACompleter(body.data, body.h5pContentId)
             type = "image-a-completer"
-        } 
+        } else if (isTexteATrousRequest(body)) {
+            game = await createTexteATrous(body.data, body.h5pContentId)
+            type = "texte-a-trous"
+        }
         else {
             throw new Error(`Unsupported type: ${body.type}`);
         }
