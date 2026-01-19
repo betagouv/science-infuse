@@ -326,8 +326,8 @@ class ApiClient {
     return response.data.answer;
   }
 
-  async generateImageACompleter(documentId: string): Promise<ImageACompleterBox[]> {
-    const response = await this.axiosInstance.post<ImageACompleterBox[]>('/ai/image-a-completer', { documentId });
+  async generateImageACompleter(chunkId: string): Promise<ImageACompleterBox[]> {
+    const response = await this.axiosInstance.post<ImageACompleterBox[]>('/ai/image-a-completer', { chunkId });
     return response.data;
 
   }

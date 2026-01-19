@@ -20,7 +20,9 @@ export default (props: DocumentPickerProps) => {
 
         try {
             const response = await apiClient.indexFile({ youtubeUrl });
-            props.onDocumentIdPicked(response.documentId)
+            // TODO: review logic
+            // @ts-ignore
+            props.onChunkPicked({document: {id: response.documentId}})
         } catch (error) {
             if (error instanceof Error) {
                 props.onError(error.message);

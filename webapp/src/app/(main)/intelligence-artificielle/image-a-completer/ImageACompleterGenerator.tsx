@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import { useAlertToast } from '@/components/AlertToast';
 import { GeneratorLoading, type LoadingMessagesConfig, DocumentSearchPicker } from '../shared/components';
 import { TabType } from "@/app/(main)/recherche/Tabs";
-import { MediaTypes } from "@/types/vectordb";
-import DialogcardEditor from './ImageACompleterEditor';
+import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
+import ImageACompleterEditor from './ImageACompleterEditor';
 
 const StyledSegControl = styled(SegmentedControl)`
 color: #161616;
@@ -53,19 +53,19 @@ const loadingMessages: LoadingMessagesConfig = {
 
 export default () => {
     const [importType, setImportType] = useState<DialogcardImportType>(DialogcardImportType.RECHERCHE);
-    const [documentId, setDocumentId] = useState<string>("b5baec40-3e27-41bb-a16e-69a0dea7ee21")
+    const [chunk, setChunk] = useState<ChunkWithScoreUnion>()
     const [loading, setLoading] = useState(false);
     const alertToast = useAlertToast();
 
-    const onDocumentIdPicked = async (_documentId: string) => {
+    const onChunkPicked = async (_chunk: ChunkWithScoreUnion) => {
         window.scrollTo(0, 0);
-        setDocumentId(_documentId);
+        setChunk(_chunk)
     }
 
     const onError = (message: string) => {
         alertToast.error("Erreur", message);
         setLoading(false);
-        setDocumentId(undefined);
+        setChunk(undefined)
     }
 
     const onDocumentProcessingStart = () => {
@@ -79,7 +79,7 @@ export default () => {
     return (
         <div className="flex flex-col w-full gap-4 items-center">
 
-            {!documentId && !loading && <>
+            {!chunk && !loading && <>
                 <h1 className="m-0 h1 text-center">Je crée une image à compléter</h1>
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     <Image
@@ -116,12 +116,12 @@ export default () => {
                 </div>
             </>}
 
-            {!documentId && !loading && <>
+            {!chunk && !loading && <>
                 <div className={`w-full ${importType === DialogcardImportType.RECHERCHE ? 'block' : 'hidden'}`}>
                     <DocumentSearchPicker
                         onDocumentProcessingStart={onDocumentProcessingStart}
                         onError={onError}
-                        onDocumentIdPicked={onDocumentIdPicked}
+                        onChunkPicked={onChunkPicked}
                         config={{
                             searchBarLabel: "Rechercher par mot-clé :",
                             searchBarPlaceholder: "Rechercher un document par mot-clé...",
@@ -142,13 +142,13 @@ export default () => {
                 </div>
             </>}
 
-            {documentId && <>
-                <DialogcardEditor
+            {chunk && <>
+                <ImageACompleterEditor
                     onBackClicked={() => {
-                        setDocumentId(undefined)
+                        setChunk(undefined)
                         setLoading(false);
                     }}
-                    documentId={documentId}
+                    chunk={chunk}
                     onDocumentProcessingEnd={onDocumentProcessingEnd}
                 />
             </>}

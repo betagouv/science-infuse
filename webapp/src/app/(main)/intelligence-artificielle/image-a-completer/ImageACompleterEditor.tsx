@@ -1,83 +1,113 @@
 'use client'
-import toast from 'react-hot-toast';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import Button from '@codegouvfr/react-dsfr/Button';
-import { Input } from "@codegouvfr/react-dsfr/Input";
 import { CircularProgress } from "@mui/material";
 import { apiClient } from "@/lib/api-client";
 import { ExportH5pResponse } from "@/types/api";
 import H5PRenderer from '@/app/(main)/mediaViewers/H5PRenderer';
-import AutoAwesome from '@mui/icons-material/AutoAwesomeOutlined';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { createPortal } from 'react-dom';
-import CallOut from '@codegouvfr/react-dsfr/CallOut';
-import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
-import { DeleteButton } from '../shared/components';
-import { X, Plus, Edit2, Trash2, Undo2, Redo2, MousePointer2, Square } from 'lucide-react';
+import { Edit2, Trash2, Undo2, Redo2, MousePointer2, Square } from 'lucide-react';
 import { ImageACompleterData } from '@/app/api/export/h5p/creation-requests/createImageACompleter';
+import { ChunkWithScore, ChunkWithScoreUnion, s3ToPublicUrl } from '@/types/vectordb';
 
 const COLORS = [
     '#ef4444', '#f97316', '#eab308', '#22c55e',
     '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
 
-const BoundingBoxAnnotator = () => {
-    const [image, setImage] = useState(null);
-    const [boxes, setBoxes] = useState([]);
-    const [history, setHistory] = useState([]);
-    const [historyIndex, setHistoryIndex] = useState(-1);
+// TypeScript interfaces
+interface BBox {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    label: string;
+    color: string;
+}
+
+interface DraggingState {
+    index: number;
+    startX: number;
+    startY: number;
+}
+
+interface ResizingState {
+    index: number;
+    corner: number;
+}
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+interface BoundingBoxAnnotatorProps {
+    imageUrl: string;
+    initialBoxes?: BBox[];
+    onChange?: (boxes: BBox[]) => void;
+}
+
+const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: BoundingBoxAnnotatorProps) => {
+    const [boxes, setBoxes] = useState<BBox[]>(initialBoxes);
+    const [history, setHistory] = useState<BBox[][]>([initialBoxes]);
+    const [historyIndex, setHistoryIndex] = useState(0);
     const [drawing, setDrawing] = useState(false);
-    const [currentBox, setCurrentBox] = useState(null);
-    const [selectedBox, setSelectedBox] = useState(null);
-    const [dragging, setDragging] = useState(null);
-    const [resizing, setResizing] = useState(null);
-    const [editingLabel, setEditingLabel] = useState(null);
-    const [mode, setMode] = useState('select'); // 'select' or 'draw'
-    const canvasRef = useRef(null);
-    const containerRef = useRef(null);
+    const [currentBox, setCurrentBox] = useState<Partial<BBox> | null>(null);
+    const [selectedBox, setSelectedBox] = useState<number | null>(null);
+    const [dragging, setDragging] = useState<DraggingState | null>(null);
+    const [resizing, setResizing] = useState<ResizingState | null>(null);
+    const [editingLabel, setEditingLabel] = useState<number | null>(null);
+    const [mode, setMode] = useState<'select' | 'draw'>('select');
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
+    // Load image dimensions
     useEffect(() => {
-        if (image) {
-            const img = new Image();
-            img.onload = () => {
-                setImageDimensions({ width: img.width, height: img.height });
-            };
-            img.src = image;
-        }
-    }, [image]);
+        const img = new Image();
+        img.onload = () => {
+            setImageDimensions({ width: img.width, height: img.height });
+        };
+        img.src = imageUrl;
+    }, [imageUrl]);
 
-    // Add to history
-    const addToHistory = (newBoxes) => {
+    // Add to history and notify parent
+    const addToHistory = useCallback((newBoxes: BBox[]) => {
         const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push(JSON.parse(JSON.stringify(newBoxes)));
+        newHistory.push([...newBoxes]);
         setHistory(newHistory);
         setHistoryIndex(newHistory.length - 1);
         setBoxes(newBoxes);
-    };
+        onChange?.(newBoxes);
+    }, [history, historyIndex, onChange]);
 
     // Undo/Redo handlers
-    const undo = () => {
+    const undo = useCallback(() => {
         if (historyIndex > 0) {
-            setHistoryIndex(historyIndex - 1);
-            setBoxes(JSON.parse(JSON.stringify(history[historyIndex - 1])));
+            const newIndex = historyIndex - 1;
+            setHistoryIndex(newIndex);
+            const newBoxes = [...history[newIndex]];
+            setBoxes(newBoxes);
             setSelectedBox(null);
+            onChange?.(newBoxes);
         }
-    };
+    }, [historyIndex, history, onChange]);
 
-    const redo = () => {
+    const redo = useCallback(() => {
         if (historyIndex < history.length - 1) {
-            setHistoryIndex(historyIndex + 1);
-            setBoxes(JSON.parse(JSON.stringify(history[historyIndex + 1])));
+            const newIndex = historyIndex + 1;
+            setHistoryIndex(newIndex);
+            const newBoxes = [...history[newIndex]];
+            setBoxes(newBoxes);
             setSelectedBox(null);
+            onChange?.(newBoxes);
         }
-    };
+    }, [historyIndex, history, onChange]);
 
     // Keyboard shortcuts
     useEffect(() => {
-        const handleKeyDown = (e) => {
+        const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 undo();
@@ -90,23 +120,7 @@ const BoundingBoxAnnotator = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [historyIndex, history]);
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setImage(event.target.result);
-                const initialBoxes = [];
-                setBoxes(initialBoxes);
-                setHistory([initialBoxes]);
-                setHistoryIndex(0);
-                setSelectedBox(null);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const getMousePos = (e) => {
+    const getMousePos = (e: React.MouseEvent): Point => {
         const canvas = canvasRef.current;
         if (!canvas) return { x: 0, y: 0 };
 
@@ -120,8 +134,7 @@ const BoundingBoxAnnotator = () => {
         };
     };
 
-    const handleMouseDown = (e) => {
-        if (!image) return;
+    const handleMouseDown = (e: React.MouseEvent) => {
         const pos = getMousePos(e);
 
         if (mode === 'draw') {
@@ -152,7 +165,7 @@ const BoundingBoxAnnotator = () => {
         }
     };
 
-    const getResizeHandle = (pos) => {
+    const getResizeHandle = (pos: Point): ResizingState | null => {
         if (selectedBox === null) return null;
         const box = boxes[selectedBox];
         const handles = getHandles(box);
@@ -161,7 +174,7 @@ const BoundingBoxAnnotator = () => {
 
         const rect = canvas.getBoundingClientRect();
         const scaleX = rect.width / imageDimensions.width;
-        const threshold = 8 / scaleX;
+        const threshold = 12 / scaleX;
 
         for (let i = 0; i < handles.length; i++) {
             const dist = Math.sqrt(Math.pow(pos.x - handles[i].x, 2) + Math.pow(pos.y - handles[i].y, 2));
@@ -172,7 +185,7 @@ const BoundingBoxAnnotator = () => {
         return null;
     };
 
-    const getHandles = (box) => {
+    const getHandles = (box: BBox): Point[] => {
         const x1 = Math.min(box.x1, box.x2);
         const y1 = Math.min(box.y1, box.y2);
         const x2 = Math.max(box.x1, box.x2);
@@ -185,8 +198,7 @@ const BoundingBoxAnnotator = () => {
         ];
     };
 
-    const handleMouseMove = (e) => {
-        if (!image) return;
+    const handleMouseMove = (e: React.MouseEvent) => {
         const pos = getMousePos(e);
 
         if (drawing && currentBox) {
@@ -223,15 +235,19 @@ const BoundingBoxAnnotator = () => {
     };
 
     const handleMouseUp = () => {
-        if (drawing && currentBox) {
+        if (drawing && currentBox && currentBox.x1 !== undefined && currentBox.y1 !== undefined && currentBox.x2 !== undefined && currentBox.y2 !== undefined) {
             const width = Math.abs(currentBox.x2 - currentBox.x1);
             const height = Math.abs(currentBox.y2 - currentBox.y1);
             if (width > 5 && height > 5) {
-                const newBoxes = [...boxes, {
-                    ...currentBox,
+                const newBox: BBox = {
+                    x1: currentBox.x1,
+                    y1: currentBox.y1,
+                    x2: currentBox.x2,
+                    y2: currentBox.y2,
                     label: `Object ${boxes.length + 1}`,
                     color: COLORS[boxes.length % COLORS.length]
-                }];
+                };
+                const newBoxes = [...boxes, newBox];
                 addToHistory(newBoxes);
                 setSelectedBox(boxes.length);
                 setMode('select');
@@ -249,13 +265,13 @@ const BoundingBoxAnnotator = () => {
         setResizing(null);
     };
 
-    const deleteBox = (index) => {
+    const deleteBox = (index: number) => {
         const newBoxes = boxes.filter((_, i) => i !== index);
         addToHistory(newBoxes);
         setSelectedBox(null);
     };
 
-    const updateLabel = (index, label) => {
+    const updateLabel = (index: number, label: string) => {
         const updated = [...boxes];
         updated[index].label = label;
         addToHistory(updated);
@@ -263,9 +279,11 @@ const BoundingBoxAnnotator = () => {
 
     const drawBoxes = () => {
         const canvas = canvasRef.current;
-        if (!canvas || !image) return;
+        if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
         const img = new Image();
         img.onload = () => {
             canvas.width = img.width;
@@ -274,7 +292,14 @@ const BoundingBoxAnnotator = () => {
             ctx.drawImage(img, 0, 0);
 
             // Draw all boxes
-            [...boxes, currentBox].filter(Boolean).forEach((box, i) => {
+            const allBoxes: (BBox | Partial<BBox>)[] = [...boxes];
+            if (currentBox && currentBox.x1 !== undefined && currentBox.y1 !== undefined && currentBox.x2 !== undefined && currentBox.y2 !== undefined) {
+                allBoxes.push(currentBox as BBox);
+            }
+            
+            allBoxes.forEach((box, i) => {
+                if (!box || box.x1 === undefined || box.y1 === undefined || box.x2 === undefined || box.y2 === undefined) return;
+                
                 const isSelected = i === selectedBox && !currentBox;
                 const x1 = Math.min(box.x1, box.x2);
                 const y1 = Math.min(box.y1, box.y2);
@@ -297,24 +322,32 @@ const BoundingBoxAnnotator = () => {
                 }
 
                 // Draw resize handles for selected box
-                if (isSelected) {
-                    const handles = getHandles(box);
-                    ctx.fillStyle = box.color || COLORS[i % COLORS.length];
+                if (isSelected && box.x1 !== undefined && box.y1 !== undefined && box.x2 !== undefined && box.y2 !== undefined) {
+                    const fullBox: BBox = box as BBox;
+                    const handles = getHandles(fullBox);
+                    ctx.fillStyle = fullBox.color || COLORS[i % COLORS.length];
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
                     handles.forEach(handle => {
-                        ctx.fillRect(handle.x - 6, handle.y - 6, 12, 12);
+                        // Draw white border first
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(handle.x - 10, handle.y - 10, 20, 20);
+                        // Draw colored center
+                        ctx.fillStyle = fullBox.color || COLORS[i % COLORS.length];
+                        ctx.fillRect(handle.x - 8, handle.y - 8, 16, 16);
                     });
                 }
             });
         };
-        img.src = image;
+        img.src = imageUrl;
     };
 
     useEffect(() => {
         drawBoxes();
-    }, [boxes, currentBox, selectedBox, image]);
+    }, [boxes, currentBox, selectedBox, imageUrl]);
 
     return (
-        <div className="flex flex-col h-screen bg-gray-50">
+        <div className="flex flex-col h-full bg-gray-50">
             <div className="bg-white border-b p-4 shadow-sm">
                 <div className="flex items-center justify-between max-w-7xl mx-auto gap-4">
                     <h1 className="text-2xl font-bold text-gray-800">Bounding Box Annotator</h1>
@@ -325,8 +358,8 @@ const BoundingBoxAnnotator = () => {
                             <button
                                 onClick={() => setMode('select')}
                                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition ${mode === 'select'
-                                    ? 'bg-white shadow-sm text-blue-600'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                        ? 'bg-white shadow-sm text-blue-600'
+                                        : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 <MousePointer2 size={18} />
@@ -335,8 +368,8 @@ const BoundingBoxAnnotator = () => {
                             <button
                                 onClick={() => setMode('draw')}
                                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition ${mode === 'draw'
-                                    ? 'bg-white shadow-sm text-blue-600'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                        ? 'bg-white shadow-sm text-blue-600'
+                                        : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 <Square size={18} />
@@ -363,136 +396,113 @@ const BoundingBoxAnnotator = () => {
                                 <Redo2 size={20} />
                             </button>
                         </div>
-
-                        <label className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition flex items-center gap-2">
-                            <Plus size={20} />
-                            Upload Image
-                            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                        </label>
                     </div>
                 </div>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-                <div
-                    ref={containerRef}
-                    className="flex-1 relative bg-gray-900 flex items-center justify-center"
+                <div className="flex-1 relative bg-gray-900 flex items-center justify-center overflow-hidden"
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                 >
-                    {image ? (
-                        <canvas
-                            ref={canvasRef}
-                            style={{
-                                maxWidth: '100%',
-                                maxHeight: '100%',
-                                width: 'auto',
-                                height: 'auto',
-                                cursor: mode === 'draw' ? 'crosshair'
-                                    : drawing ? 'crosshair'
-                                        : dragging ? 'move'
-                                            : resizing ? 'nwse-resize'
-                                                : 'default'
-                            }}
-                        />
-                    ) : (
-                        <div className="text-gray-400">
-                            <div className="text-center">
-                                <Plus size={64} className="mx-auto mb-4 opacity-50" />
-                                <p className="text-xl">Upload an image to start annotating</p>
-                            </div>
-                        </div>
-                    )}
+                    <canvas
+                        ref={canvasRef}
+                        className="max-w-full max-h-full object-contain"
+                        style={{
+                            cursor: mode === 'draw' ? 'crosshair'
+                                : drawing ? 'crosshair'
+                                    : dragging ? 'move'
+                                        : resizing ? 'nwse-resize'
+                                            : 'default'
+                        }}
+                    />
                 </div>
 
-                {image && (
-                    <div className="w-80 bg-white border-l overflow-y-auto">
-                        <div className="p-4">
-                            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                                Bounding Boxes ({boxes.length})
-                            </h2>
-                            <div className="space-y-2">
-                                {boxes.map((box, i) => (
-                                    <div
-                                        key={i}
-                                        className={`p-3 rounded-lg border-2 cursor-pointer transition ${selectedBox === i ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        onClick={() => setSelectedBox(i)}
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <div
-                                                    className="w-4 h-4 rounded"
-                                                    style={{ backgroundColor: box.color }}
+                <div className="w-80 bg-white border-l overflow-y-auto">
+                    <div className="p-4">
+                        <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                            Bounding Boxes ({boxes.length})
+                        </h2>
+                        <div className="space-y-2">
+                            {boxes.map((box, i) => (
+                                <div
+                                    key={i}
+                                    className={`p-3 rounded-lg border-2 cursor-pointer transition ${selectedBox === i ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    onClick={() => setSelectedBox(i)}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="w-4 h-4 rounded"
+                                                style={{ backgroundColor: box.color }}
+                                            />
+                                            {editingLabel === i ? (
+                                                <input
+                                                    type="text"
+                                                    value={box.label}
+                                                    onChange={(e) => updateLabel(i, e.target.value)}
+                                                    onBlur={() => setEditingLabel(null)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && setEditingLabel(null)}
+                                                    className="px-2 py-1 border rounded text-sm flex-1"
+                                                    autoFocus
                                                 />
-                                                {editingLabel === i ? (
-                                                    <input
-                                                        type="text"
-                                                        value={box.label}
-                                                        onChange={(e) => updateLabel(i, e.target.value)}
-                                                        onBlur={() => setEditingLabel(null)}
-                                                        onKeyDown={(e) => e.key === 'Enter' && setEditingLabel(null)}
-                                                        className="px-2 py-1 border rounded text-sm flex-1"
-                                                        autoFocus
-                                                    />
-                                                ) : (
-                                                    <span className="font-medium text-sm">{box.label}</span>
-                                                )}
-                                            </div>
-                                            <div className="flex gap-1">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setEditingLabel(i);
-                                                    }}
-                                                    className="p-1 hover:bg-gray-200 rounded"
-                                                >
-                                                    <Edit2 size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteBox(i);
-                                                    }}
-                                                    className="p-1 hover:bg-red-100 text-red-600 rounded"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
+                                            ) : (
+                                                <span className="font-medium text-sm">{box.label}</span>
+                                            )}
                                         </div>
-                                        <div className="text-xs text-gray-500 font-mono">
-                                            ({Math.round(Math.min(box.x1, box.x2))}, {Math.round(Math.min(box.y1, box.y2))}) →
-                                            ({Math.round(Math.max(box.x1, box.x2))}, {Math.round(Math.max(box.y1, box.y2))})
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingLabel(i);
+                                                }}
+                                                className="p-1 hover:bg-gray-200 rounded"
+                                            >
+                                                <Edit2 size={14} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    deleteBox(i);
+                                                }}
+                                                className="p-1 hover:bg-red-100 text-red-600 rounded"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="text-xs text-gray-500 font-mono">
+                                        ({Math.round(Math.min(box.x1, box.x2))}, {Math.round(Math.min(box.y1, box.y2))}) →
+                                        ({Math.round(Math.max(box.x1, box.x2))}, {Math.round(Math.max(box.y1, box.y2))})
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                )}
+                </div>
             </div>
 
             <div className="bg-white border-t p-3 text-sm text-gray-600">
                 <div className="max-w-7xl mx-auto flex gap-6 items-center">
                     <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${mode === 'draw' ? 'bg-blue-100 text-blue-700 font-medium' : ''
                         }`}>
-                        <span className="text-lg">{mode === 'draw' ? '✏️' : '🖱️'}</span>
                         <span>{mode === 'draw' ? 'Draw mode: Click and drag to create boxes' : 'Select mode: Click boxes to select, drag to move'}</span>
                     </div>
-                    <span>🔲 Drag corners to resize</span>
-                    <span>⌨️ Ctrl+Z/Y to undo/redo</span>
+                    <span>Drag corners to resize</span>
+                    <span>Ctrl+Z/Y to undo/redo</span>
                 </div>
             </div>
         </div>
     );
-}
+};
+
 const modal = createModal({
     id: "modal-quit-page-without-saving",
     isOpenedByDefault: false
 });
-
 
 export interface ImageACompleterBox {
     label: string;
@@ -504,9 +514,9 @@ export interface ImageACompleterBox {
     };
 }
 
-export const generateImagesACompleterData = async (params: { documentId: string }): Promise<[Error | null, ImageACompleterBox[] | null]> => {
+export const generateImagesACompleterData = async (params: { chunkId: string }): Promise<[Error | null, ImageACompleterBox[] | null]> => {
     try {
-        const response = await apiClient.generateImageACompleter(params.documentId);
+        const response = await apiClient.generateImageACompleter(params.chunkId);
         return [null, response];
     } catch (error) {
         return [error as Error, null];
@@ -518,12 +528,68 @@ type ImageACompleterEditorProps = {
     initialItems: ImageACompleterBox[];
     onChange: (updated: ImageACompleterBox[]) => void;
     onSave: () => Promise<void>;
-    documentId: string;
+    chunk: ChunkWithScoreUnion;
 };
 
-const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialItems, onChange, onSave, documentId }) => {
+const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialItems, onChange, onSave, chunk }) => {
+    const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+    const imageUrl = s3ToPublicUrl((chunk as ChunkWithScore<"pdf_image">).metadata.s3ObjectName);
+
+    // Load image to get dimensions
+    useEffect(() => {
+        const img = new Image();
+        img.onload = () => {
+            setImageDimensions({ width: img.width, height: img.height });
+        };
+        img.src = imageUrl;
+    }, [imageUrl]);
+
+    const convertToBoxFormat = (items: ImageACompleterBox[], dimensions: { width: number; height: number }): BBox[] => {
+        return items.map((item, index) => {
+            // Check if coordinates are normalized (0-1) or pixel values
+            const isNormalized = item.bbox.x1 <= 1 && item.bbox.y1 <= 1 && item.bbox.x2 <= 1 && item.bbox.y2 <= 1;
+            
+            return {
+                x1: isNormalized ? item.bbox.x1 * dimensions.width : item.bbox.x1,
+                y1: isNormalized ? item.bbox.y1 * dimensions.height : item.bbox.y1,
+                x2: isNormalized ? item.bbox.x2 * dimensions.width : item.bbox.x2,
+                y2: isNormalized ? item.bbox.y2 * dimensions.height : item.bbox.y2,
+                label: item.label,
+                color: COLORS[index % COLORS.length]
+            };
+        });
+    };
+
+    const convertFromBoxFormat = (boxes: BBox[], dimensions: { width: number; height: number }): ImageACompleterBox[] => {
+        return boxes.map(box => ({
+            label: box.label,
+            bbox: {
+                // Store as normalized coordinates for consistency
+                x1: box.x1 / dimensions.width,
+                y1: box.y1 / dimensions.height,
+                x2: box.x2 / dimensions.width,
+                y2: box.y2 / dimensions.height
+            }
+        }));
+    };
+
+    const handleBoxChange = (boxes: BBox[]) => {
+        if (imageDimensions) {
+            onChange(convertFromBoxFormat(boxes, imageDimensions));
+        }
+    };
+
+    // Wait for image dimensions before rendering
+    if (!imageDimensions) {
+        return <div className="flex items-center justify-center p-8">Loading image...</div>;
+    }
+
     return (
-        <BoundingBoxAnnotator />
+        <BoundingBoxAnnotator
+            imageUrl={imageUrl}
+            initialBoxes={convertToBoxFormat(initialItems, imageDimensions)}
+            onChange={handleBoxChange}
+        />
     );
 };
 
@@ -532,11 +598,12 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
 //////////////////////////////
 
 export default function ImageACompleterManager(props: {
-    documentId: string,
+    chunk: ChunkWithScoreUnion,
     onBackClicked?: () => void,
     onDocumentProcessingEnd?: () => void
 }) {
-    const { documentId, onDocumentProcessingEnd } = props;
+    const { chunk, onDocumentProcessingEnd } = props;
+    const chunkId = chunk.id;
     const [imagesACompleter, setImagesACompleter] = useState<ImageACompleterBox[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [editContentActive, setEditContentActive] = useState(true);
@@ -550,19 +617,18 @@ export default function ImageACompleterManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
-    const updateImageACompleter = useCallback(async (documentId: string, boxes: ImageACompleterBox[]) => {
+    const updateImageACompleter = useCallback(async (chunkId: string, boxes: ImageACompleterBox[]) => {
         setIsSaving(true);
         try {
             const exportData: ImageACompleterData = {
                 boxes,
-                documentId,
-                chunkId
+                chunkId,
             }
             const data: ExportH5pResponse = await apiClient.exportH5p({
                 h5pContentId: h5pContentId,
                 type: 'image-a-completer',
                 data: exportData,
-                documentIds: documentId ? [documentId] : [],
+                documentIds: chunk ? [chunk.document.id] : [],
             });
 
             if (data) {
@@ -587,12 +653,12 @@ export default function ImageACompleterManager(props: {
         onDocumentProcessingEnd && onDocumentProcessingEnd();
 
         try {
-            if (!documentId) {
-                console.warn("Document ID manquant");
+            if (!chunk) {
+                console.warn("Chunk manquant");
                 return;
             }
 
-            const [error, imageACompleterData] = await generateImagesACompleterData({ documentId });
+            const [error, imageACompleterData] = await generateImagesACompleterData({ chunkId: chunkId });
 
             if (error) {
                 alertToast.error(
@@ -608,21 +674,21 @@ export default function ImageACompleterManager(props: {
 
             setImagesACompleter(imageACompleterData);
 
-            await updateImageACompleter(documentId, imageACompleterData);
+            await updateImageACompleter(chunkId, imageACompleterData,);
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateImageACompleter, onDocumentProcessingEnd, alertToast]);
+    }, [chunkId, updateImageACompleter, onDocumentProcessingEnd, alertToast]);
 
 
     useEffect(() => {
-        if (documentId && isInitialLoad.current) {
+        if (chunkId && isInitialLoad.current) {
             isInitialLoad.current = false;
             generateImageACompleter();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [documentId]);
+    }, [chunkId]);
 
     return (
         <>
@@ -651,14 +717,6 @@ export default function ImageACompleterManager(props: {
                 <modal.Component title="">
                     <div className="flex flex-col gap-4">
                         <p>Attention, certaines modifications n'ont pas été enregistrées.</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            {/* <Button onClick={handleSaveAndQuit}>
-                                {isSaving ? "Enregistrement en cours" : "Enregistrer et quitter"}
-                            </Button> */}
-                            {/* <Button priority='secondary' onClick={handleQuitWithoutSave}>
-                                Quitter sans enregistrer
-                            </Button> */}
-                        </div>
                     </div>
                 </modal.Component>
 
@@ -671,11 +729,14 @@ export default function ImageACompleterManager(props: {
                 {processingDone && editContentActive && imagesACompleter && (
                     <ImageACompleterEditor
                         initialItems={imagesACompleter}
-                        onChange={() => { }}
-                        onSave={async () => { }}
-                        // onChange={handleItemsChange}
-                        // onSave={handleSaveChanges}
-                        documentId={documentId}
+                        onChange={(updated) => {
+                            setImagesACompleter(updated);
+                            updateImageACompleter(chunkId, updated);
+                        }}
+                        onSave={async () => {
+                            await updateImageACompleter(chunkId, imagesACompleter);
+                        }}
+                        chunk={chunk}
                     />
                 )}
             </div>

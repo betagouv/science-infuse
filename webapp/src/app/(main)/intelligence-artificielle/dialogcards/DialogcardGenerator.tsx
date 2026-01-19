@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { useAlertToast } from '@/components/AlertToast';
 import { GeneratorLoading, type LoadingMessagesConfig, DocumentSearchPicker } from '../shared/components';
 import { TabType } from "@/app/(main)/recherche/Tabs";
-import { MediaTypes } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 import DialogcardEditor from './DialogcardEditor';
 
 const StyledSegControl = styled(SegmentedControl)`
@@ -57,9 +57,9 @@ export default () => {
     const [loading, setLoading] = useState(false);
     const alertToast = useAlertToast();
 
-    const onDocumentIdPicked = async (_documentId: string) => {
+    const onChunkPicked = async (_chunk: ChunkWithScoreUnion) => {
         window.scrollTo(0, 0);
-        setDocumentId(_documentId);
+        setDocumentId(_chunk.document.id);
     }
 
     const onError = (message: string) => {
@@ -121,7 +121,7 @@ export default () => {
                     <DocumentSearchPicker
                         onDocumentProcessingStart={onDocumentProcessingStart}
                         onError={onError}
-                        onDocumentIdPicked={onDocumentIdPicked}
+                        onChunkPicked={onChunkPicked}
                         config={{
                             searchBarLabel: "Rechercher par mot-clé :",
                             searchBarPlaceholder: "Rechercher un document par mot-clé...",

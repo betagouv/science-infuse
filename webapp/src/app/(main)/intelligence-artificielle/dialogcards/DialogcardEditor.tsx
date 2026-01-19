@@ -483,6 +483,7 @@ export default function DialogcardManager(props: {
                             >
                                 Modifier les dialogcards
                             </Button>
+                            {/* TODO: checkbox pour activer : {"randomCards": false,} */}
 
                             {downloadHTMLUrl && (
                                 <Button

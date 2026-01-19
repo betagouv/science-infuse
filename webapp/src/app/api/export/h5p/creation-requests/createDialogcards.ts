@@ -34,7 +34,7 @@ export default async (input: DialogcardsData, h5pContentId?: string) => {
           "enableRetry": true,
           "disableBackwardsNavigation": false,
           "scaleTextNotCard": false,
-          "randomCards": false,
+          "randomCards": true,
           "maxProficiency": 5,
           "quickProgression": false
         },

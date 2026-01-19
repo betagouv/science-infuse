@@ -9,7 +9,7 @@ import InteractiveVideoEditor from './InteractiveVideoEditor';
 import { useAlertToast } from '@/components/AlertToast';
 import { GeneratorLoading, type LoadingMessagesConfig, DocumentSearchPicker } from '../shared/components';
 import { TabType } from "@/app/(main)/recherche/Tabs";
-import { MediaTypes } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 
 
 const StyledSegControl = styled(SegmentedControl)`
@@ -73,9 +73,9 @@ export default () => {
     const [loading, setLoading] = useState(false);
     const alertToast = useAlertToast();
 
-    const onDocumentIdPicked = async (_documentId: string) => {
+    const onChunkPicked = async (_chunk: ChunkWithScoreUnion) => {
         window.scrollTo(0, 0);
-        setDocumentId(_documentId);
+        setDocumentId(_chunk.document.id);
     }
 
     const onError = (message: string) => {
@@ -146,7 +146,7 @@ export default () => {
                     <DocumentSearchPicker
                         onDocumentProcessingStart={onDocumentProcessingStart}
                         onError={onError}
-                        onDocumentIdPicked={onDocumentIdPicked}
+                        onChunkPicked={onChunkPicked}
                         config={{
                             searchBarLabel: "Rechercher par mot-clé :",
                             searchBarPlaceholder: "Rechercher une vidéo par mot-clé...",
@@ -163,10 +163,10 @@ export default () => {
                     />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.LIEN ? 'block' : 'hidden'}`}>
-                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
+                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onChunkPicked={onChunkPicked} />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.IMPORT ? 'block' : 'hidden'}`}>
-                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
+                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onChunkPicked={onChunkPicked} />
                 </div>
             </>}
 

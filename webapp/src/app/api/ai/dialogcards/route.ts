@@ -38,7 +38,7 @@ En te basant STRICTEMENT sur le <context>, génère EXACTEMENT ${numCards} dialo
 
 Règles:
 - Questions ouvertes, couvrant les points scientifiques essentiels.
-- Réponses factuelles, sans invention.
+- Réponses factuelles, sans invention, toujours en Français.
 - Pas de texte avant ou après le JSON.
 `;
 

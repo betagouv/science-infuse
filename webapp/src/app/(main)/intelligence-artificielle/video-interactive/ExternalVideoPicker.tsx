@@ -42,7 +42,9 @@ export default (props: DocumentPickerProps) => {
         try {
             props.onDocumentProcessingStart();
             const response = await apiClient.indexFile({ file, mediaName });
-            props.onDocumentIdPicked(response.documentId)
+            // TODO: review logic
+            // @ts-ignore
+            props.onChunkPicked({document: {id: response.documentId}})
         } catch (error) {
             if (error instanceof Error) {
                 props.onError(error.message);

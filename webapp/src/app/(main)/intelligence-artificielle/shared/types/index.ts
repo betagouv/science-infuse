@@ -1,16 +1,16 @@
 // Shared types for interactive content generators
 
-import { MediaTypes } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 import { TabType } from "@/app/(main)/recherche/Tabs";
 
 export interface DocumentPickerProps {
-    onDocumentIdPicked: (documentId: string) => void;
+    onChunkPicked: (chunk: ChunkWithScoreUnion) => void;
     onDocumentProcessingStart: () => void;
     onError: (message: string) => void;
 }
 
 export interface ContentGeneratorCallbacks {
-    onDocumentIdPicked: (documentId: string) => void;
+    onChunkPicked: (chunk: ChunkWithScoreUnion) => void;
     onError: (message: string) => void;
     onDocumentProcessingStart: () => void;
     onDocumentProcessingEnd: () => void;

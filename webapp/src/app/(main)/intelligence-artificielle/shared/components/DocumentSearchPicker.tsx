@@ -66,7 +66,7 @@ export const DocumentSearchPicker = (props: GenericDocumentPickerProps) => {
             onInsertedLabel={config.onInsertedLabel}
             onInserted={(chunk) => {
                 props.onDocumentProcessingStart();
-                props.onDocumentIdPicked(chunk.document.id);
+                props.onChunkPicked(chunk);
             }}
             query={query}
             queryFilters={config.queryFilters}
