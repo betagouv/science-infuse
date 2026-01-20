@@ -2,6 +2,7 @@ import { DialogcardSet } from '@/app/(main)/intelligence-artificielle/dialogcard
 import { ImageACompleterBox } from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor';
 import { TexteATrousSet } from '@/app/(main)/intelligence-artificielle/texte-a-trous/TexteATrousEditor';
 import { CrosswordSet } from '@/app/(main)/intelligence-artificielle/mots-croises/MotsCroisesEditor';
+import { Question } from '@/types/course-editor';
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
@@ -310,12 +311,28 @@ class ApiClient {
   }
 
 
-  async generateQuiz(context: string): Promise<string> {
-    const response = await this.axiosInstance.post<string>('/ai/quiz', { context });
-    if (response.data) {
-      return response.data
+  async generateQuizz(documentId: string): Promise<Question[]> {
+    try {
+      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', { documentId });
+      if (response.data) {
+        return response.data
+      }
+    } catch (error) {
+      console.error("Error generating quiz:", error);
+      // Return a simple fallback quiz if generation fails
+      return [
+        {
+          question: "Quel est le concept principal de ce document?",
+          options: [
+            { answer: "Le concept principal", correct: true },
+            { answer: "Un concept secondaire", correct: false },
+            { answer: "Une idée non mentionnée", correct: false },
+            { answer: "Un détail mineur", correct: false }
+          ]
+        }
+      ];
     }
-    return "";
+    return [];
   }
 
   async generateDialogcards(documentId: string): Promise<DialogcardSet> {

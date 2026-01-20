@@ -52,6 +52,20 @@ return <div className='w-full fr-grid-row fr-grid-row--gutters fr-grid-row--cent
                     titleAs="h3"
                 />
 
+                <Card
+                    className="max-w-96"
+                    background
+                    border
+                    title="Créer des quiz"
+                    desc="Générez automatiquement des quiz interactifs à partir de vos documents. L'IA crée des questions à choix multiples avec des options pertinentes pour tester la compréhension des élèves."
+                    enlargeLink
+                    linkProps={{
+                        href: '/intelligence-artificielle/quizz'
+                    }}
+                    size="medium"
+                    titleAs="h3"
+                />
+
             </div>
 
         </div>
