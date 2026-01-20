@@ -27,7 +27,8 @@ const indexFile = async (content: File, author: string, documentTags: DocumentTa
     try {
         await writeFile(localFilePath, new Uint8Array(buffer));
         const fileContent = await fs.promises.readFile(localFilePath);
-        const file = new File([fileContent], localFilePath.split('/').pop() || 'unknown', { type: 'application/octet-stream' });
+        // Node's Buffer is not a valid BlobPart in TS typings; wrap it.
+        const file = new File([new Uint8Array(fileContent)], localFilePath.split('/').pop() || 'unknown', { type: 'application/octet-stream' });
         console.log(`Created File object: ${file.name}`);
 
         // Calculate the hash of the file

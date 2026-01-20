@@ -4,3 +4,5 @@ export type { GeneratorLoadingProps, LoadingMessagesConfig } from './GeneratorLo
 export { DeleteButton } from './DeleteButton';
 export { TimestampInput } from './TimestampInput';
 export { DocumentSearchPicker } from './DocumentSearchPicker';
+export { default as FileUploadPicker } from './FileUploadPicker';
+export { default as DirectFileDocumentPicker } from './DirectFileDocumentPicker';

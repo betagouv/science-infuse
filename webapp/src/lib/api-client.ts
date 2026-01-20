@@ -9,6 +9,7 @@ import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults } from '@/types/vectordb';
+import type { ProcessDirectFileResponse } from '@/types/api/direct-file';
 import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, ReportedDocumentChunk, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
 
@@ -258,6 +259,35 @@ class ApiClient {
         },
       });
 
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Upload error:', error.response?.data || error.message);
+        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
+      } else {
+        console.error('Unexpected error:', error);
+        throw new Error('An unexpected error occurred during upload');
+      }
+    }
+  }
+
+  async processDirectFile(props: { file: File; mediaName?: string; pickMediaType?: string }): Promise<ProcessDirectFileResponse> {
+    const { file, mediaName, pickMediaType } = props;
+    const formData = new FormData();
+    formData.append('file', file);
+    if (mediaName) formData.append('mediaName', mediaName);
+    if (pickMediaType) formData.append('pickMediaType', pickMediaType);
+
+    try {
+      const response = await this.axiosInstance.post<ProcessDirectFileResponse>(
+        '/file/process',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {

@@ -4,6 +4,7 @@ import { SegmentedControl } from "@codegouvfr/react-dsfr/SegmentedControl";
 import styled from '@emotion/styled';
 import { useAlertToast } from '@/components/AlertToast';
 import { GeneratorLoading, type LoadingMessagesConfig, DocumentSearchPicker } from '../shared/components';
+import { DirectFileDocumentPicker } from '../shared/components';
 import { TabType } from "@/app/(main)/recherche/Tabs";
 import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 import DialogcardEditor from './DialogcardEditor';
@@ -137,8 +138,18 @@ export default () => {
                     />
                 </div>
                 <div className={`w-full ${importType === DialogcardImportType.IMPORT ? 'block' : 'hidden'}`}>
-                    {/* TODO: Add file upload component */}
-                    <p>File upload to be implemented</p>
+                    <DirectFileDocumentPicker
+                        accept={{
+                            'application/pdf': ['.pdf'],
+                            'image/jpeg': ['.jpg', '.jpeg'],
+                            'image/png': ['.png'],
+                        }}
+                        hintText="Formats supportés : PDF, JPG, PNG."
+                        submitLabel="Générer des dialogcards"
+                        onDocumentProcessingStart={onDocumentProcessingStart}
+                        onError={onError}
+                        onChunkPicked={onChunkPicked}
+                    />
                 </div>
             </>}
 

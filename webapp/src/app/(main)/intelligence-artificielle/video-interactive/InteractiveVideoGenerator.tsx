@@ -66,6 +66,16 @@ const loadingMessages: LoadingMessagesConfig = {
     ]
 };
 
+export const InteractiveVideoGeneratorLoading = (props: { importType: InteractiveVideoImportType }) => {
+    return (
+        <GeneratorLoading
+            title="Création de la vidéo interactive"
+            messageType={props.importType}
+            loadingMessages={loadingMessages}
+        />
+    );
+}
+
 
 export default () => {
     const [importType, setImportType] = useState<InteractiveVideoImportType>(InteractiveVideoImportType.RECHERCHE);
