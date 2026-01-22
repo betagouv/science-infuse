@@ -349,7 +349,7 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
     return (
         <div className="flex flex-col h-full bg-gray-50">
             <div className="bg-white border-b p-4 shadow-sm">
-                <div className="flex items-center justify-between max-w-7xl mx-auto gap-4">
+                <div className="flex items-center justify-between max-w-12xl mx-auto gap-4">
                     <h1 className="text-2xl font-bold text-gray-800">Bounding Box Annotator</h1>
 
                     <div className="flex items-center gap-4">

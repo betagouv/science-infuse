@@ -140,11 +140,11 @@ export default () => {
                 <div className={`w-full ${importType === DialogcardImportType.IMPORT ? 'block' : 'hidden'}`}>
                     <DirectFileDocumentPicker
                         accept={{
-                            'application/pdf': ['.pdf'],
+                            // 'application/pdf': ['.pdf'],
                             'image/jpeg': ['.jpg', '.jpeg'],
                             'image/png': ['.png'],
                         }}
-                        hintText="Formats supportés : PDF, JPG, PNG."
+                        hintText="Formats supportés : JPG, PNG."
                         submitLabel="Générer une image à compléter"
                         returnPickedChunk
                         pickChunkMediaType={MediaTypes.PdfImage}

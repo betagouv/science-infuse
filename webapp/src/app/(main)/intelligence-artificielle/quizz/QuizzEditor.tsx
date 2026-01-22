@@ -15,6 +15,7 @@ import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
+import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 import { Question, Option } from '@/types/course-editor';
 
 const modal = createModal({
@@ -42,6 +43,18 @@ export const generateQuizzData = async (params: { documentId: string }): Promise
         return [error as Error, null];
     }
 };
+
+const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
+    const doc = await apiClient.getDocument(params.documentId);
+    const chunks = (doc?.chunks || []) as any[];
+
+    if (params.scope.mode === 'chunk') {
+        const picked = chunks.find(c => c.id === params.scope.chunkId);
+        return (picked?.text || '').toString();
+    }
+
+    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+}
 
 export const LLMGenerateQuizzOption = async (question: string, documentId?: string): Promise<[Error | null, Question | null]> => {
     try {
@@ -338,6 +351,8 @@ export default function QuizzManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+
     const updateQuizz = useCallback(async (documentId: string, questions: Question[]) => {
         setIsSaving(true);
         try {
@@ -380,8 +395,16 @@ export default function QuizzManager(props: {
                 console.warn("Document ID manquant");
                 return;
             }
-            
-            const [error, quizzData] = await generateQuizzData({ documentId });
+
+            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const [error, quizzData] = await (async () => {
+                try {
+                    const response = await apiClient.generateQuizzFromText(context);
+                    return [null, { questions: response }] as [null, QuizzSet];
+                } catch (e) {
+                    return [e as Error, null] as [Error, null];
+                }
+            })();
             
             if (error) {
                 alertToast.error(
@@ -402,7 +425,7 @@ export default function QuizzManager(props: {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateQuizz, onDocumentProcessingEnd, alertToast]);
+    }, [documentId, updateQuizz, onDocumentProcessingEnd, alertToast, generationScope]);
 
     const handleQuestionsChange = useCallback(
         (updated: Question[]) => {
@@ -497,6 +520,25 @@ export default function QuizzManager(props: {
 
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
+
+                {processingDone && (
+                    <div className="w-full">
+                        <DocumentChunkScopePicker
+                            documentId={documentId}
+                            value={generationScope}
+                            onChange={setGenerationScope}
+                        />
+                        <div className="flex flex-wrap items-center gap-4 mt-4">
+                            <Button
+                                priority="secondary"
+                                className="w-full sm:w-fit justify-center"
+                                onClick={() => generateQuizz()}
+                            >
+                                Régénérer avec cette source
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-4">
                     {processingDone && (

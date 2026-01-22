@@ -15,6 +15,7 @@ import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
+import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 
 const modal = createModal({
     id: "modal-quit-texte-a-trous-without-saving",
@@ -46,6 +47,18 @@ export const generateTexteATrousData = async (params: { documentId: string }): P
         return [error as Error, null];
     }
 };
+
+const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
+    const doc = await apiClient.getDocument(params.documentId);
+    const chunks = (doc?.chunks || []) as any[];
+
+    if (params.scope.mode === 'chunk') {
+        const picked = chunks.find(c => c.id === params.scope.chunkId);
+        return (picked?.text || '').toString();
+    }
+
+    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+}
 
 export const LLMGenerateTexteATrousAnswer = async (text: string, documentId?: string): Promise<[Error | null, string | null]> => {
     try {
@@ -313,6 +326,8 @@ export default function TexteATrousManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+
     const updateTexteATrous = useCallback(async (documentId: string, questions: TexteATrousQuestion[]) => {
         setIsSaving(true);
         try {
@@ -358,8 +373,16 @@ export default function TexteATrousManager(props: {
                 console.warn("Document ID manquant");
                 return;
             }
-            
-            const [error, texteATrousData] = await generateTexteATrousData({ documentId });
+
+            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const [error, texteATrousData] = await (async () => {
+                try {
+                    const response = await apiClient.generateTexteATrousFromText(context);
+                    return [null, response] as [null, TexteATrousSet];
+                } catch (e) {
+                    return [e as Error, null] as [Error, null];
+                }
+            })();
             
             if (error) {
                 alertToast.error(
@@ -380,7 +403,7 @@ export default function TexteATrousManager(props: {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateTexteATrous, onDocumentProcessingEnd, alertToast]);
+    }, [documentId, updateTexteATrous, onDocumentProcessingEnd, alertToast, generationScope]);
 
     const handleQuestionsChange = useCallback(
         (updated: TexteATrousQuestion[]) => {
@@ -475,6 +498,25 @@ export default function TexteATrousManager(props: {
 
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
+
+                {processingDone && (
+                    <div className="w-full">
+                        <DocumentChunkScopePicker
+                            documentId={documentId}
+                            value={generationScope}
+                            onChange={setGenerationScope}
+                        />
+                        <div className="flex flex-wrap items-center gap-4 mt-4">
+                            <Button
+                                priority="secondary"
+                                className="w-full sm:w-fit justify-center"
+                                onClick={() => generateTexteATrous()}
+                            >
+                                Régénérer avec cette source
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-4">
                     {processingDone && (

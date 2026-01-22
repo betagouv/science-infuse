@@ -5,19 +5,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { documentId } = await request.json();
+    const { documentId, context: providedContext } = await request.json();
 
-    if (!documentId) {
-      return NextResponse.json({ error: "documentId is required" }, { status: 400 });
+    if (!documentId && !providedContext) {
+      return NextResponse.json({ error: "documentId or context is required" }, { status: 400 });
     }
 
-    const chunks: Pick<DocumentChunk, "text">[] = await prisma.documentChunk.findMany({
-      where: { documentId },
-      select: { text: true },
-    });
+    let context = (providedContext as string | undefined) || "";
 
+    if (!context) {
+      const chunks: Pick<DocumentChunk, "text">[] = await prisma.documentChunk.findMany({
+        where: { documentId },
+        select: { text: true },
+      });
 
-    const context = chunks.map((chunk) => chunk.text).join("\n\n");
+      context = chunks.map((chunk) => chunk.text).join("\n\n");
+    }
 
     if (!context.trim()) {
       return NextResponse.json({ error: "No content found for document" }, { status: 404 });

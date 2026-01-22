@@ -15,6 +15,7 @@ import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
+import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 
 const modal = createModal({
     id: "modal-quit-mots-croises-without-saving",
@@ -46,6 +47,18 @@ export const generateMotsCroisesData = async (params: { documentId: string }): P
         return [error as Error, null];
     }
 };
+
+const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
+    const doc = await apiClient.getDocument(params.documentId);
+    const chunks = (doc?.chunks || []) as any[];
+
+    if (params.scope.mode === 'chunk') {
+        const picked = chunks.find(c => c.id === params.scope.chunkId);
+        return (picked?.text || '').toString();
+    }
+
+    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+}
 
 export const LLMGenerateMotsCroisesClue = async (answer: string, documentId?: string): Promise<[Error | null, string | null]> => {
     try {
@@ -306,6 +319,8 @@ export default function MotsCroisesManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+
     const updateMotsCroises = useCallback(async (documentId: string, words: CrosswordWord[]) => {
         setIsSaving(true);
         try {
@@ -351,8 +366,16 @@ export default function MotsCroisesManager(props: {
                 console.warn("Document ID manquant");
                 return;
             }
-            
-            const [error, motsCroisesData] = await generateMotsCroisesData({ documentId });
+
+            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const [error, motsCroisesData] = await (async () => {
+                try {
+                    const response = await apiClient.generateMotsCroisesFromText(context);
+                    return [null, response] as [null, CrosswordSet];
+                } catch (e) {
+                    return [e as Error, null] as [Error, null];
+                }
+            })();
             
             if (error) {
                 alertToast.error(
@@ -373,7 +396,7 @@ export default function MotsCroisesManager(props: {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateMotsCroises, onDocumentProcessingEnd, alertToast]);
+    }, [documentId, updateMotsCroises, onDocumentProcessingEnd, alertToast, generationScope]);
 
     const handleWordsChange = useCallback(
         (updated: CrosswordWord[]) => {
@@ -468,6 +491,25 @@ export default function MotsCroisesManager(props: {
 
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
+
+                {processingDone && (
+                    <div className="w-full">
+                        <DocumentChunkScopePicker
+                            documentId={documentId}
+                            value={generationScope}
+                            onChange={setGenerationScope}
+                        />
+                        <div className="flex flex-wrap items-center gap-4 mt-4">
+                            <Button
+                                priority="secondary"
+                                className="w-full sm:w-fit justify-center"
+                                onClick={() => generateMotsCroises()}
+                            >
+                                Régénérer avec cette source
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-4">
                     {processingDone && (

@@ -15,6 +15,7 @@ import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
+import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 
 const modal = createModal({
     id: "modal-quit-dialogcards-without-saving",
@@ -47,6 +48,18 @@ export const generateDialogcardsData = async (params: { documentId: string }): P
         return [error as Error, null];
     }
 };
+
+const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
+    const doc = await apiClient.getDocument(params.documentId);
+    const chunks = (doc?.chunks || []) as any[];
+
+    if (params.scope.mode === 'chunk') {
+        const picked = chunks.find(c => c.id === params.scope.chunkId);
+        return (picked?.text || '').toString();
+    }
+
+    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+}
 
 export const LLMGenerateDialogcardAnswer = async (question: string, documentId?: string): Promise<[Error | null, string | null]> => {
     try {
@@ -310,6 +323,8 @@ export default function DialogcardManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+
     const updateDialogcards = useCallback(async (documentId: string, cards: Dialogcard[]) => {
         setIsSaving(true);
         try {
@@ -355,8 +370,16 @@ export default function DialogcardManager(props: {
                 console.warn("Document ID manquant");
                 return;
             }
-            
-            const [error, dialogcardData] = await generateDialogcardsData({ documentId });
+
+            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const [error, dialogcardData] = await (async () => {
+                try {
+                    const response = await apiClient.generateDialogcardsFromText(context);
+                    return [null, response] as [null, DialogcardSet];
+                } catch (e) {
+                    return [e as Error, null] as [Error, null];
+                }
+            })();
             
             if (error) {
                 alertToast.error(
@@ -377,7 +400,7 @@ export default function DialogcardManager(props: {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateDialogcards, onDocumentProcessingEnd, alertToast]);
+    }, [documentId, updateDialogcards, onDocumentProcessingEnd, alertToast, generationScope]);
 
     const handleDialogcardsChange = useCallback(
         (updated: Dialogcard[]) => {
@@ -472,6 +495,25 @@ export default function DialogcardManager(props: {
 
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
+
+                {processingDone && (
+                    <div className="w-full">
+                        <DocumentChunkScopePicker
+                            documentId={documentId}
+                            value={generationScope}
+                            onChange={setGenerationScope}
+                        />
+                        <div className="flex flex-wrap items-center gap-4 mt-4">
+                            <Button
+                                priority="secondary"
+                                className="w-full sm:w-fit justify-center"
+                                onClick={() => generateDialogcards()}
+                            >
+                                Régénérer avec cette source
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-4">
                     {processingDone && (
