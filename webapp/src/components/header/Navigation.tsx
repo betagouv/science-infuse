@@ -252,12 +252,21 @@ const buildMainLinks = (segments: string[], user: any) => {
 
 // Main Component
 export function Navigation() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const user = session?.user;
   const segments = useSelectedLayoutSegments();
   const { isMobile } = useWindowSize();
 
   const [themes, setThemes] = useState<Theme[]>([]);
+
+  useEffect(() => {
+    // Periodically refresh session to pick up role changes (like being accepted into Club Ada)
+    const interval = setInterval(() => {
+      update();
+    }, 1000 * 60 * 5); // Every 5 minutes
+
+    return () => clearInterval(interval);
+  }, [update]);
 
   useEffect(() => {
     const fetchThemes = async () => {

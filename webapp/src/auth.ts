@@ -181,7 +181,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       if (token.uai) session.user.uai = token.uai as string;
       if (token.typProfil) session.user.typProfil = token.typProfil as string;
-      if (token.roles) session.user.roles = token.roles as string[];
+      
+      // Fetch fresh roles from DB to ensure UI updates immediately when roles change
+      const user = await prisma.user.findUnique({
+        where: { id: token.id as string },
+        select: { roles: true }
+      });
+      session.user.roles = user?.roles || [];
 
       // IMPORTANT: ne pas exposer le sessionIndex au client
       return session;

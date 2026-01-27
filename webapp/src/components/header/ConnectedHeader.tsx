@@ -138,6 +138,7 @@ export default function MonEspaceDropdown(props: { isGar?: boolean }) {
     { icon: "fr-icon-book-2-line", text: "Mes cours", path: "/prof/mes-cours" },
     { icon: "fr-icon-star-line", text: "Mes contenus favoris", path: "/prof/mes-favoris" },
     { icon: "fr-icon-play-circle-line", text: "Mes contenus interactifs", path: "/prof/mes-interactifs" },
+    { icon: "fr-icon-star-fill", text: "Club Ada", path: "/prof/club-ada" },
     ...(user.roles || []).includes(UserRoles.ADMIN)
       ? [{ icon: "fr-icon-admin-line", text: "Espace admin", path: "/admin/utilisateurs" }]
       : [],

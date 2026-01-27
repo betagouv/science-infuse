@@ -38,11 +38,11 @@ export const POST = withAccessControl(
 
     const userSystemPrompt = system ? `### **Informations supplementaires fournies par l'utilisateur du chatbot**\n${system}` : undefined;
     const result = await streamText({
-      // model: groq('deepseek-r1-distill-llama-70b'),
+      model: groq('moonshotai/kimi-k2-instruct-0905'),
       // model: openai('gpt-4o-2024-08-06'),
       // model: groq('llama-3.3-70b-specdec'),
       // model: mistral('mistral-large-latest'),
-      model: google('gemini-2.0-flash-001'),
+      // model: google('gemini-2.0-flash-001'),
       system: `Tu es un professeur de SVT pour le collège et le lycée.  
 Tu disposes d’outils de recherche te permettant de retrouver et d’afficher des documents pour répondre aux questions des utilisateurs de manière précise et pédagogique.
 

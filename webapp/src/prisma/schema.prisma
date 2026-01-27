@@ -301,6 +301,7 @@ model User {
   academyId          String?
   creationDate       DateTime               @default(now())
   acceptMail         Boolean?
+  requestedClubAda   Boolean                @default(false)
   source             String                 @default("website")
   garSchoolId        String?
   Account            Account[]

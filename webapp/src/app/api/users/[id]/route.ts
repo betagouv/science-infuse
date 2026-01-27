@@ -53,13 +53,14 @@ export async function PUT(request: NextRequest,
 
   try {
     const body = await request.json();
-    const { school, firstName, roles, lastName, job, academyId, educationLevels, schoolSubjects, otherSchoolSubject }: Partial<UserFull> = body;
+    const { school, firstName, roles, lastName, job, academyId, educationLevels, schoolSubjects, otherSchoolSubject, requestedClubAda }: Partial<UserFull> & { requestedClubAda?: boolean } = body;
 
     const updateData: any = {};
     if (school !== undefined) updateData.school = school;
     if (job !== undefined) updateData.job = job;
     if (firstName !== undefined) updateData.firstName = firstName;
     if (isAdmin && roles !== undefined) updateData.roles = roles;
+    if (requestedClubAda !== undefined) updateData.requestedClubAda = requestedClubAda;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (academyId !== undefined) updateData.academyId = academyId;
     if (otherSchoolSubject !== undefined) updateData.otherSchoolSubject = otherSchoolSubject;

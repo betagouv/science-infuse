@@ -37,6 +37,12 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                             },
                             {
                                 linkProps: {
+                                    href: "/admin/club-ada",
+                                },
+                                text: "Club Ada"
+                            },
+                            {
+                                linkProps: {
                                     href: "/admin/chapitres",
                                 },
                                 text: "Chapitres"

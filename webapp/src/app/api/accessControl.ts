@@ -24,7 +24,8 @@ export const userFullFields = {
     academyId: true,
     educationLevels: true,
     schoolSubjects: true,
-    otherSchoolSubject: true
+    otherSchoolSubject: true,
+    requestedClubAda: true
 }
 
 export const userIs = async (userIdOrUser: string | User | undefined, roles: UserRoles[]) => {

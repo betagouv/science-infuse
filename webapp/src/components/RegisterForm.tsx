@@ -30,6 +30,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
     const [otherSchoolSubject, setOtherSchoolSubject] = useState("");
     const [acceptCGU, setAcceptCGU] = useState(false);
     const [acceptMail, setAcceptMail] = useState(false);
+    const [joinClubAda, setJoinClubAda] = useState(false);
 
     const educationOptions = props.educationLevels.map(e => ({ value: e.id, label: e.name }))
     const schoolSubjectsOptions = props.schoolSubjects.map(e => ({ value: e.id, label: e.name }))
@@ -77,6 +78,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     schoolSubjects: props.schoolSubjects.filter(ss => schoolSubjects.includes(ss.id)),
                     otherSchoolSubject,
                     educationLevels: props.educationLevels.filter(el => educationLevels.includes(el.id)),
+                    joinClubAda,
                 }),
             })
 
@@ -252,6 +254,21 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                                 onChange: (e) => setAcceptMail(e.target.checked),
                                 checked: acceptMail,
                                 required: true,
+                            }
+                        }
+                    ]}
+                    state="default"
+                />
+
+                <Checkbox
+                    className='mt-0'
+                    options={[
+                        {
+                            label: <p className='m-0 ml-2'>Je rejoins le <b>Club Ada</b> afin de pouvoir découvrir en exclusivité les nouvelles fonctionnalités de la plateforme !</p>,
+                            nativeInputProps: {
+                                name: 'joinClubAda',
+                                onChange: (e) => setJoinClubAda(e.target.checked),
+                                checked: joinClubAda,
                             }
                         }
                     ]}

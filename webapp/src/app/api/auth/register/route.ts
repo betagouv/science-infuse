@@ -9,7 +9,7 @@ import { userFullFields } from "../../accessControl";
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password, firstName, lastName, job, school, academyId, schoolSubjects, educationLevels, otherSchoolSubject, acceptMail }: Partial<User & UserFull> = body;
+    const { email, password, firstName, lastName, job, school, academyId, schoolSubjects, educationLevels, otherSchoolSubject, acceptMail, joinClubAda }: Partial<User & UserFull> & { joinClubAda?: boolean } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: "Vous devez fournir un email et un mot de passe." }, { status: 400 })
@@ -44,6 +44,10 @@ export async function POST(req: Request) {
       userData.educationLevels = {
         connect: educationLevels.map(e => ({ id: e.id }))
       };
+    }
+
+    if (joinClubAda) {
+      userData.requestedClubAda = true;
     }
 
     // Create new user
