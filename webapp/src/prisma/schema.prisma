@@ -67,11 +67,18 @@ model DocumentChunk {
 
 enum AdminSettingKey {
   H5P_URL
+  FEATURE_DIALOGCARDS_BETA_ONLY
+  FEATURE_TEXTE_A_TROUS_BETA_ONLY
+  FEATURE_MOTS_CROISES_BETA_ONLY
+  FEATURE_QUIZZ_BETA_ONLY
+  FEATURE_VIDEO_INTERACTIVE_BETA_ONLY
+  FEATURE_IMAGE_A_COMPLETER_BETA_ONLY
+  FEATURE_CHATBOT_BETA_ONLY
 }
 
 model AdminSetting {
   id          String          @id @default(cuid())
-  key         AdminSettingKey
+  key         AdminSettingKey @unique
   value       String          @default("")
   description String          @default("")
   createdAt   DateTime        @default(now())

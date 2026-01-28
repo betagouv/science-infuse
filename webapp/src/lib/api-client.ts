@@ -469,6 +469,16 @@ class ApiClient {
 
     return response.data;
   }
+
+  async getAdminSettings(): Promise<{ key: string; value: string }[]> {
+    const response = await this.axiosInstance.get<{ key: string; value: string }[]>(`/admin/settings`);
+    return response.data;
+  }
+
+  async updateAdminSetting(key: string, value: string): Promise<{ key: string; value: string }> {
+    const response = await this.axiosInstance.put<{ key: string; value: string }>(`/admin/settings`, { key, value });
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

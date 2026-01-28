@@ -49,7 +49,8 @@ const buildContextFromScope = async (params: { documentId: string; scope: Genera
     const chunks = (doc?.chunks || []) as any[];
 
     if (params.scope.mode === 'chunk') {
-        const picked = chunks.find(c => c.id === params.scope.chunkId);
+        const scope = params.scope;
+        const picked = chunks.find(c => c.id === scope.chunkId);
         return (picked?.text || '').toString();
     }
 

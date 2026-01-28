@@ -1,21 +1,18 @@
-'use client'
 import AutoBreadCrumb from '@/components/AutoBreadCrumb';
-import dynamic from 'next/dynamic'
+import { checkBetaAccess } from '@/lib/betaAccessControl';
+import QuizzClient from './QuizzClient';
 
-const QuizzGenerator = dynamic(() => import('./QuizzGenerator'), {
-    ssr: false
-})
-
-export default function QuizzPage() {
+export default async function QuizzPage() {
+    // Check beta access - will redirect to /prof/club-ada if not allowed
+    await checkBetaAccess('/intelligence-artificielle/quizz');
+    
     return (
         <div className='w-full fr-grid-row fr-grid-row--center'>
             <div className='flex flex-col fr-container main-content-item mt-4'>
                 <AutoBreadCrumb className='mb-4' />
                 <div id="quizz-back-portal"></div>
-                <div className="fr-col-12 fr-col-md-8 main-content-item mb-4 self-center">
-                    <QuizzGenerator />
-                </div>
+                <QuizzClient />
             </div>
         </div>
-    )
+    );
 }

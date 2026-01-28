@@ -72,12 +72,12 @@ const NAV_CONFIG = {
     interactiveActivities: {
       text: 'Activités interactives',
       links: [
-        { path: 'intelligence-artificielle/dialogcards', text: 'Dialogcards' },
-        { path: 'intelligence-artificielle/texte-a-trous', text: 'Texte à trous' },
-        { path: 'intelligence-artificielle/mots-croises', text: 'Mots croisés' },
-        { path: 'intelligence-artificielle/quizz', text: 'Quizz' },
-        { path: 'intelligence-artificielle/video-interactive', text: 'Vidéo Interactive' },
-        { path: 'intelligence-artificielle/image-a-completer', text: 'Image à compléter' },
+        { path: 'intelligence-artificielle/dialogcards', text: 'Dialogcards', settingKey: 'FEATURE_DIALOGCARDS_BETA_ONLY' },
+        { path: 'intelligence-artificielle/texte-a-trous', text: 'Texte à trous', settingKey: 'FEATURE_TEXTE_A_TROUS_BETA_ONLY' },
+        { path: 'intelligence-artificielle/mots-croises', text: 'Mots croisés', settingKey: 'FEATURE_MOTS_CROISES_BETA_ONLY' },
+        { path: 'intelligence-artificielle/quizz', text: 'Quizz', settingKey: 'FEATURE_QUIZZ_BETA_ONLY' },
+        { path: 'intelligence-artificielle/video-interactive', text: 'Vidéo Interactive', settingKey: 'FEATURE_VIDEO_INTERACTIVE_BETA_ONLY' },
+        { path: 'intelligence-artificielle/image-a-completer', text: 'Image à compléter', settingKey: 'FEATURE_IMAGE_A_COMPLETER_BETA_ONLY' },
       ],
     },
     inspirations: {
@@ -94,7 +94,7 @@ const NAV_CONFIG = {
     chatbot: {
       path: 'intelligence-artificielle/chatbot',
       text: 'Chatbot',
-      betaOnly: true,
+      settingKey: 'FEATURE_CHATBOT_BETA_ONLY',
     },
   },
 };
@@ -193,18 +193,42 @@ const buildCoursesMenu = (segments: string[], user: any) => {
   };
 };
 
-const buildMainLinks = (segments: string[], user: any) => {
+const buildMainLinks = (segments: string[], user: any, featureSettings: Record<string, boolean>) => {
   const links = [];
+  const isBetaTester = user?.roles?.includes(UserRoles.BETA_TESTER);
 
+  // Helper to check if feature is locked (setting exists and is true, and user is not beta tester)
+  const isFeatureLocked = (settingKey?: string): boolean => {
+    if (!settingKey) return false;
+    const isRestricted = featureSettings[settingKey] === true;
+    return isRestricted && !isBetaTester;
+  };
 
-  // Interactive Activities menu
+  // Interactive Activities menu - sort available options first
+  const sortedActivityLinks = [...NAV_CONFIG.MAIN_LINKS.interactiveActivities.links].sort((a, b) => {
+    const aLocked = isFeatureLocked(a.settingKey);
+    const bLocked = isFeatureLocked(b.settingKey);
+    // Available (unlocked) items come first (false < true)
+    if (aLocked === bLocked) return 0;
+    return aLocked ? 1 : -1;
+  });
+
   links.push({
     isActive: isActiveRoot(segments, 'activites'),
-    menuLinks: NAV_CONFIG.MAIN_LINKS.interactiveActivities.links.map(link => ({
-      linkProps: { href: `/${link.path}` },
-      isActive: isActiveSegment(segments, link.path),
-      text: link.text,
-    })),
+    menuLinks: sortedActivityLinks.map(link => {
+      const locked = isFeatureLocked(link.settingKey);
+      return {
+        linkProps: { href: locked ? '#' : `/${link.path}` },
+        isActive: isActiveSegment(segments, link.path),
+        text: locked ? (
+          <Tooltip title="Réservé aux membres du Club Ada">
+            <span className="flex items-center justify-start gap-2 text-[#666]">
+              {link.text} <LockIcon size={12} />
+            </span>
+          </Tooltip>
+        ) : link.text,
+      };
+    }),
     text: NAV_CONFIG.MAIN_LINKS.interactiveActivities.text,
   });
 
@@ -229,23 +253,22 @@ const buildMainLinks = (segments: string[], user: any) => {
     text: NAV_CONFIG.MAIN_LINKS.help.text,
   });
 
-  // Chatbot (beta testers only)
-  if (user?.roles?.includes(UserRoles.BETA_TESTER)) {
-    links.push({
-      isActive: isActiveSegment(segments, NAV_CONFIG.MAIN_LINKS.chatbot.path),
-      linkProps: {
-        href: `/${NAV_CONFIG.MAIN_LINKS.chatbot.path}`,
-        target: '_self',
-      },
-      text: (
-        <Tooltip title="Réservé aux bêta-testeurs">
-          <span className="flex items-center justify-start gap-2">
-            {NAV_CONFIG.MAIN_LINKS.chatbot.text} <LockIcon size={12} />
-          </span>
-        </Tooltip>
-      ),
-    });
-  }
+  // Chatbot
+  const chatbotLocked = isFeatureLocked(NAV_CONFIG.MAIN_LINKS.chatbot.settingKey);
+  links.push({
+    isActive: isActiveSegment(segments, NAV_CONFIG.MAIN_LINKS.chatbot.path),
+    linkProps: {
+      href: chatbotLocked ? '#' : `/${NAV_CONFIG.MAIN_LINKS.chatbot.path}`,
+      target: '_self',
+    },
+    text: chatbotLocked ? (
+      <Tooltip title="Réservé aux membres du Club Ada">
+        <span className="flex items-center justify-start gap-2 text-[#666]">
+          {NAV_CONFIG.MAIN_LINKS.chatbot.text} <LockIcon size={12} />
+        </span>
+      </Tooltip>
+    ) : NAV_CONFIG.MAIN_LINKS.chatbot.text,
+  });
 
   return links;
 };
@@ -258,6 +281,7 @@ export function Navigation() {
   const { isMobile } = useWindowSize();
 
   const [themes, setThemes] = useState<Theme[]>([]);
+  const [featureSettings, setFeatureSettings] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Periodically refresh session to pick up role changes (like being accepted into Club Ada)
@@ -281,10 +305,27 @@ export function Navigation() {
     fetchThemes();
   }, []);
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await apiClient.getAdminSettings();
+        const settingsMap: Record<string, boolean> = {};
+        settings.forEach((s: { key: string; value: string }) => {
+          settingsMap[s.key] = s.value === 'true';
+        });
+        setFeatureSettings(settingsMap);
+      } catch (error) {
+        console.error("Error fetching admin settings:", error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const navigationItems = [
     ...buildAccountMenu(segments, user, isMobile),
     buildCoursesMenu(segments, user),
-    ...buildMainLinks(segments, user),
+    ...buildMainLinks(segments, user, featureSettings),
   ];
 
   return (
