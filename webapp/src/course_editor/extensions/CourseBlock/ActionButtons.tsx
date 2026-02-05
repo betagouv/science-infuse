@@ -30,7 +30,7 @@ const ActionButtons = (props: { courseBlockNode: PMNode, editor: Editor, pos?: n
         <div
             onClick={() => {
                 if (props.pos) {
-                    props.editor.commands.openQuizPopup(props.courseBlockNode);
+                    props.editor.commands.openH5pPopup(props.courseBlockNode);
                 }
             }}
             className="w-full sm:max-w-[calc(100%/3)] cursor-pointer flex items-center gap-3 p-3 rounded bg-white border-2 border-[#e8edff]"

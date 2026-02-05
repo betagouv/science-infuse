@@ -1,12 +1,12 @@
 import { Extension } from '@tiptap/core'
 import { Command, Editor, RawCommands, ReactRenderer } from '@tiptap/react'
 import { Node as PMNode } from '@tiptap/pm/model'
-import QuizPopup from './QuizPopup'
+import H5PSourcePicker from './H5PSourcePicker'
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
         Quiz: {
-            openQuizPopup: (courseBlockNode: PMNode) => ReturnType;
+            openH5pPopup: (courseBlockNode: PMNode) => ReturnType;
         };
     }
 }
@@ -16,12 +16,12 @@ export const QuizExtension = Extension.create({
 
     addCommands() {
         return {
-            openQuizPopup:
+            openH5pPopup:
                 (courseBlockNode: PMNode) =>
                     ({ editor, chain }) => {
                         let popupElement: HTMLDivElement | null = null;
 
-                        const component = new ReactRenderer(QuizPopup, {
+                        const component = new ReactRenderer(H5PSourcePicker, {
                             props: {
                                 editor,
                                 courseBlockNode,

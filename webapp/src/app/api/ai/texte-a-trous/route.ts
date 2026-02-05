@@ -4,13 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { documentId, chunkId } = await request.json();
+    const { documentId, chunkId, additionalContext } = await request.json();
 
     if (!documentId && !chunkId) {
       return NextResponse.json({ error: "documentId or chunkId is required" }, { status: 400 });
     }
 
-    const context = await getContext({ documentId, chunkId });
+    const context = await getContext({ documentId, chunkId, additionalContext });
 
     const numQuestions = 4 + Math.floor(Math.random() * 3); // 4-6 questions
 

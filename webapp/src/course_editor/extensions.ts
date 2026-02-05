@@ -32,7 +32,7 @@ import SIVideo from './extensions/VideoBlock'
 import { TSeverity } from '@/types/snackbar'
 import Comments from './extensions/Comments'
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
-import Quiz from './extensions/Quiz'
+import H5P from './extensions/H5P'
 import { SaveCourse } from './extensions/SaveCourse'
 
 
@@ -101,7 +101,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
             showSnackbar: showSnackbar,
         }),
         PdfBlock,
-        Quiz,
+        H5P,
         ContentSearch,
         FileImport,
         FileHandler.configure({

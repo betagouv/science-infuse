@@ -343,7 +343,7 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
         {/* quiz if available */}
         {quizQuestions.length > 0 && <RenderBlockQuiz editor={editor} questions={quizQuestions} openQuizPopup={() => {
-          editor.commands.openQuizPopup(node);
+          editor.commands.openH5pPopup(node);
         }} />}
 
       </div>

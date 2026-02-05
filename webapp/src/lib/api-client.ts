@@ -12,6 +12,7 @@ import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults 
 import type { ProcessDirectFileResponse } from '@/types/api/direct-file';
 import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, ReportedDocumentChunk, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
+import { AiGenerationParams } from './server/context-helper';
 
 
 
@@ -341,7 +342,7 @@ class ApiClient {
   }
 
 
-  async generateQuizz(params: { documentId?: string; chunkId?: string }): Promise<Question[]> {
+  async generateQuizz(params: AiGenerationParams): Promise<Question[]> {
     try {
       const response = await this.axiosInstance.post<Question[]>('/ai/quizz', params);
       if (response.data) {
@@ -365,7 +366,7 @@ class ApiClient {
     return [];
   }
 
-  async generateDialogcards(params: { documentId?: string; chunkId?: string }): Promise<DialogcardSet> {
+  async generateDialogcards(params: AiGenerationParams): Promise<DialogcardSet> {
     const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', params);
     return response.data;
   }
@@ -381,7 +382,7 @@ class ApiClient {
 
   }
 
-  async generateTexteATrous(params: { documentId?: string; chunkId?: string }): Promise<TexteATrousSet> {
+  async generateTexteATrous(params: AiGenerationParams): Promise<TexteATrousSet> {
     const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', params);
     return response.data;
   }
@@ -391,13 +392,13 @@ class ApiClient {
     return response.data.answer;
   }
 
-  async generateMotsCroises(params: { documentId?: string; chunkId?: string }): Promise<CrosswordSet> {
+  async generateMotsCroises(params: AiGenerationParams): Promise<CrosswordSet> {
     const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', params);
     return response.data;
   }
 
   async generateMotsCroisesClue(answer: string, documentId?: string): Promise<string> {
-    const response = await this.axiosInstance.post<{ clue: string }>('/ai/mots-croises-clue', { answer, documentId });
+    const response = await this.axiosInstance.post<{ clue: string }>('/ai/mots-croises/clue', { answer, documentId });
     return response.data.clue;
   }
 

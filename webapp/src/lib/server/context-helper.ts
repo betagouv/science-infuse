@@ -1,9 +1,13 @@
 import prisma from "@/lib/prisma";
 import { DocumentChunk } from "@prisma/client";
 
-export interface GetContextParams {
+export interface AiGenerationParams {
   documentId?: string;
   chunkId?: string;
+  additionalContext?: string;
+}
+
+export type GetContextParams = AiGenerationParams & {
   maxTextLength?: number;
 }
 
@@ -18,11 +22,11 @@ export interface GetContextParams {
  * @throws {Error} If neither documentId nor chunkId is provided, or if no content is found
  */
 export async function getContext(params: GetContextParams): Promise<string> {
-  const defaultMaxLength = process.env.LLM_MAX_CONTEXT_LENGTH 
-    ? parseInt(process.env.LLM_MAX_CONTEXT_LENGTH, 10) 
+  const defaultMaxLength = process.env.LLM_MAX_CONTEXT_LENGTH
+    ? parseInt(process.env.LLM_MAX_CONTEXT_LENGTH, 10)
     : 10000;
-  
-  const { documentId, chunkId, maxTextLength = defaultMaxLength } = params;
+
+  const { documentId, chunkId, maxTextLength = defaultMaxLength, additionalContext } = params;
 
   if (!documentId && !chunkId) {
     throw new Error("Either documentId or chunkId is required");
