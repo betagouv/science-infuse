@@ -35,32 +35,26 @@ export interface QuizzSet {
 // API Functions            //
 //////////////////////////////
 
-export const generateQuizzData = async (params: { documentId: string }): Promise<[Error | null, QuizzSet | null]> => {
+export const generateQuizzData = async (params: { documentId?: string; chunkId?: string }): Promise<[Error | null, QuizzSet | null]> => {
     try {
-        const response = await apiClient.generateQuizz(params.documentId);
+        const response = await apiClient.generateQuizz(params);
         return [null, { questions: response }];
     } catch (error) {
         return [error as Error, null];
     }
 };
 
-const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
-    const doc = await apiClient.getDocument(params.documentId);
-    const chunks = (doc?.chunks || []) as any[];
-
+const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
     if (params.scope.mode === 'chunk') {
-        const scope = params.scope;
-        const picked = chunks.find(c => c.id === scope.chunkId);
-        return (picked?.text || '').toString();
+        return { chunkId: params.scope.chunkId };
     }
-
-    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+    return { documentId: params.documentId };
 }
 
 export const LLMGenerateQuizzOption = async (question: string, documentId?: string): Promise<[Error | null, Question | null]> => {
     try {
         // For quiz options, we'll generate a complete question with options
-        const response = await apiClient.generateQuizz(documentId || '');
+        const response = await apiClient.generateQuizz({ documentId });
         // Return the first question from the generated set, or null if empty
         return [null, response.length > 0 ? response[0] : null];
     } catch (error) {
@@ -397,10 +391,10 @@ export default function QuizzManager(props: {
                 return;
             }
 
-            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, quizzData] = await (async () => {
                 try {
-                    const response = await apiClient.generateQuizzFromText(context);
+                    const response = await apiClient.generateQuizz(apiParams);
                     return [null, { questions: response }] as [null, QuizzSet];
                 } catch (e) {
                     return [e as Error, null] as [Error, null];

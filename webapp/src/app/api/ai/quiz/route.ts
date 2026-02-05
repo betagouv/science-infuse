@@ -1,12 +1,20 @@
 import { OLLAMA_URL } from "@/config";
 import { callGroq } from "@/lib/server/ia/external_llm";
+import { getContext } from "@/lib/server/context-helper";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(request: NextRequest): Promise<NextResponse<string | { error: string }>> {
     try {
-        const { context } = await request.json()
+        const { documentId, chunkId } = await request.json()
+        
+        if (!documentId && !chunkId) {
+            return NextResponse.json({ error: "documentId or chunkId is required" }, { status: 400 });
+        }
+
+        const context = await getContext({ documentId, chunkId });
+        
         try {
             const prompt = `<context>${context}</context>
 en te basant sur le <context> propose un qcm avec 4 choix par questions sous la forme suivante

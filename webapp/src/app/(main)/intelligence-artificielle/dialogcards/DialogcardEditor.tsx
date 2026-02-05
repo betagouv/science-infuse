@@ -39,27 +39,20 @@ export interface DialogcardSet {
 // API Functions            //
 //////////////////////////////
 
-export const generateDialogcardsData = async (params: { documentId: string }): Promise<[Error | null, DialogcardSet | null]> => {
+export const generateDialogcardsData = async (params: { documentId?: string; chunkId?: string }): Promise<[Error | null, DialogcardSet | null]> => {
     try {
-        // Replace with your actual API call
-        const response = await apiClient.generateDialogcards(params.documentId);
+        const response = await apiClient.generateDialogcards(params);
         return [null, response];
     } catch (error) {
         return [error as Error, null];
     }
 };
 
-const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
-    const doc = await apiClient.getDocument(params.documentId);
-    const chunks = (doc?.chunks || []) as any[];
-
+const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
     if (params.scope.mode === 'chunk') {
-        const scope = params.scope;
-        const picked = chunks.find(c => c.id === scope.chunkId);
-        return (picked?.text || '').toString();
+        return { chunkId: params.scope.chunkId };
     }
-
-    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+    return { documentId: params.documentId };
 }
 
 export const LLMGenerateDialogcardAnswer = async (question: string, documentId?: string): Promise<[Error | null, string | null]> => {
@@ -372,10 +365,10 @@ export default function DialogcardManager(props: {
                 return;
             }
 
-            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, dialogcardData] = await (async () => {
                 try {
-                    const response = await apiClient.generateDialogcardsFromText(context);
+                    const response = await apiClient.generateDialogcards(apiParams);
                     return [null, response] as [null, DialogcardSet];
                 } catch (e) {
                     return [e as Error, null] as [Error, null];

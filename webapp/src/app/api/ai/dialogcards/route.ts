@@ -1,30 +1,16 @@
-import prisma from "@/lib/prisma";
-import { DocumentChunk } from "@prisma/client";
+import { getContext } from "@/lib/server/context-helper";
 import { callGroq } from "@/lib/server/ia/external_llm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { documentId, context: providedContext } = await request.json();
+    const { documentId, chunkId } = await request.json();
 
-    if (!documentId && !providedContext) {
-      return NextResponse.json({ error: "documentId or context is required" }, { status: 400 });
+    if (!documentId && !chunkId) {
+      return NextResponse.json({ error: "documentId or chunkId is required" }, { status: 400 });
     }
 
-    let context = (providedContext as string | undefined) || "";
-
-    if (!context) {
-      const chunks: Pick<DocumentChunk, "text">[] = await prisma.documentChunk.findMany({
-        where: { documentId },
-        select: { text: true },
-      });
-
-      context = chunks.map((chunk) => chunk.text).join("\n\n");
-    }
-
-    if (!context.trim()) {
-      return NextResponse.json({ error: "No content found for document" }, { status: 404 });
-    }
+    const context = await getContext({ documentId, chunkId });
 
     const numCards = 6 + Math.floor(Math.random() * 4); // 6-9 cards
 

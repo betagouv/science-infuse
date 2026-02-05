@@ -88,6 +88,7 @@ services:
         - GAR_CLIENT_SECRET=${GAR_CLIENT_SECRET}
         - GAR_ISSUER=${GAR_ISSUER}
         - GAR_ID_RESSOURCE=${GAR_ID_RESSOURCE}
+        - LLM_MAX_CONTEXT_LENGTH=${LLM_MAX_CONTEXT_LENGTH}
 
 
     ports:
@@ -126,6 +127,7 @@ services:
       - GAR_CLIENT_SECRET=${GAR_CLIENT_SECRET}
       - GAR_ISSUER=${GAR_ISSUER}
       - GAR_ID_RESSOURCE=${GAR_ID_RESSOURCE}
+      - LLM_MAX_CONTEXT_LENGTH=${LLM_MAX_CONTEXT_LENGTH}
     healthcheck:
       test: ["CMD", "npx", "prisma", "db", "push"]
       interval: 10s

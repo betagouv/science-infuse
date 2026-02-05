@@ -341,9 +341,9 @@ class ApiClient {
   }
 
 
-  async generateQuizz(documentId: string): Promise<Question[]> {
+  async generateQuizz(params: { documentId?: string; chunkId?: string }): Promise<Question[]> {
     try {
-      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', { documentId });
+      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', params);
       if (response.data) {
         return response.data
       }
@@ -365,23 +365,8 @@ class ApiClient {
     return [];
   }
 
-  async generateQuizzFromText(context: string): Promise<Question[]> {
-    try {
-      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', { context });
-      return response.data;
-    } catch (error) {
-      console.error("Error generating quiz from text:", error);
-      return [];
-    }
-  }
-
-  async generateDialogcards(documentId: string): Promise<DialogcardSet> {
-    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { documentId });
-    return response.data;
-  }
-
-  async generateDialogcardsFromText(context: string): Promise<DialogcardSet> {
-    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { context });
+  async generateDialogcards(params: { documentId?: string; chunkId?: string }): Promise<DialogcardSet> {
+    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', params);
     return response.data;
   }
 
@@ -396,13 +381,8 @@ class ApiClient {
 
   }
 
-  async generateTexteATrous(documentId: string): Promise<TexteATrousSet> {
-    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', { documentId });
-    return response.data;
-  }
-
-  async generateTexteATrousFromText(context: string): Promise<TexteATrousSet> {
-    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', { context });
+  async generateTexteATrous(params: { documentId?: string; chunkId?: string }): Promise<TexteATrousSet> {
+    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', params);
     return response.data;
   }
 
@@ -411,13 +391,8 @@ class ApiClient {
     return response.data.answer;
   }
 
-  async generateMotsCroises(documentId: string): Promise<CrosswordSet> {
-    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', { documentId });
-    return response.data;
-  }
-
-  async generateMotsCroisesFromText(context: string): Promise<CrosswordSet> {
-    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', { context });
+  async generateMotsCroises(params: { documentId?: string; chunkId?: string }): Promise<CrosswordSet> {
+    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', params);
     return response.data;
   }
 

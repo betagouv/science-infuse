@@ -39,26 +39,20 @@ export interface CrosswordSet {
 // API Functions            //
 //////////////////////////////
 
-export const generateMotsCroisesData = async (params: { documentId: string }): Promise<[Error | null, CrosswordSet | null]> => {
+export const generateMotsCroisesData = async (params: { documentId?: string; chunkId?: string }): Promise<[Error | null, CrosswordSet | null]> => {
     try {
-        const response = await apiClient.generateMotsCroises(params.documentId);
+        const response = await apiClient.generateMotsCroises(params);
         return [null, response];
     } catch (error) {
         return [error as Error, null];
     }
 };
 
-const buildContextFromScope = async (params: { documentId: string; scope: GenerationSourceScope }): Promise<string> => {
-    const doc = await apiClient.getDocument(params.documentId);
-    const chunks = (doc?.chunks || []) as any[];
-
+const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
     if (params.scope.mode === 'chunk') {
-        const scope = params.scope;
-        const picked = chunks.find(c => c.id === scope.chunkId);
-        return (picked?.text || '').toString();
+        return { chunkId: params.scope.chunkId };
     }
-
-    return chunks.map(c => (c?.text || '').toString()).join("\n\n");
+    return { documentId: params.documentId };
 }
 
 export const LLMGenerateMotsCroisesClue = async (answer: string, documentId?: string): Promise<[Error | null, string | null]> => {
@@ -368,10 +362,10 @@ export default function MotsCroisesManager(props: {
                 return;
             }
 
-            const context = await buildContextFromScope({ documentId, scope: generationScope });
+            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, motsCroisesData] = await (async () => {
                 try {
-                    const response = await apiClient.generateMotsCroisesFromText(context);
+                    const response = await apiClient.generateMotsCroises(apiParams);
                     return [null, response] as [null, CrosswordSet];
                 } catch (e) {
                     return [e as Error, null] as [Error, null];
