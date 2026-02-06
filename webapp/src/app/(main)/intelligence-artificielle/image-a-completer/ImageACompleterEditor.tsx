@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Button from '@codegouvfr/react-dsfr/Button';
-import { CircularProgress } from "@mui/material";
 import { apiClient } from "@/lib/api-client";
+import { GeneratorLoading, type LoadingMessagesConfig } from '../shared/components';
 import { ExportH5pResponse } from "@/types/api";
 import H5PRenderer from '@/app/(main)/mediaViewers/H5PRenderer';
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
@@ -11,6 +11,15 @@ import { useAlertToast } from '@/components/AlertToast';
 import { Edit2, Trash2, Undo2, Redo2, MousePointer2, Square } from 'lucide-react';
 import { ImageACompleterData } from '@/app/api/export/h5p/creation-requests/createImageACompleter';
 import { ChunkWithScore, ChunkWithScoreUnion, s3ToPublicUrl } from '@/types/vectordb';
+
+const loadingMessages: LoadingMessagesConfig = {
+    default: [
+        "Analyse de l'image en cours...",
+        "Détection des zones à compléter...",
+        "Génération des labels...",
+        "Création de l'interactif..."
+    ]
+};
 
 const COLORS = [
     '#ef4444', '#f97316', '#eab308', '#22c55e',
@@ -725,7 +734,13 @@ export default function ImageACompleterManager(props: {
                     </div>
                 </modal.Component>
 
-                {isLoading && <CircularProgress />}
+                {isLoading && (
+                    <GeneratorLoading
+                        title="Création de l'image à compléter"
+                        messageType="default"
+                        loadingMessages={loadingMessages}
+                    />
+                )}
 
                 {processingDone && <p>Analyse terminée ! Voici une suggestion pour faciliter l'apprentissage :</p>}
 

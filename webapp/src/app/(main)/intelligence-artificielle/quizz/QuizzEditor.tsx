@@ -14,10 +14,19 @@ import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
-import { DeleteButton } from '../shared/components';
+import { DeleteButton, GeneratorLoading, type LoadingMessagesConfig } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
 import { Question, Option } from '@/types/course-editor';
+
+const loadingMessages: LoadingMessagesConfig = {
+    default: [
+        "Analyse du document en cours...",
+        "Génération des questions...",
+        "Création des options de réponse...",
+        "Création de l'interactif..."
+    ]
+};
 
 const modal = createModal({
     id: "modal-quit-quizz-without-saving",
@@ -543,10 +552,11 @@ export default function QuizzManager(props: {
                 </modal.Component>
 
                 {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <CircularProgress size={60} />
-                        <p className="mt-4 text-lg text-gray-600">Génération des quiz en cours...</p>
-                    </div>
+                    <GeneratorLoading
+                        title="Création des quiz"
+                        messageType="default"
+                        loadingMessages={loadingMessages}
+                    />
                 )}
 
                 {processingDone && (

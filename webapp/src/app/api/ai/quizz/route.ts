@@ -29,16 +29,12 @@ Règles:
 
 Génère ${numQuestions} questions:`;
 
-    console.log("Calling LLM with prompt length:", prompt.length);
     const [error, output] = await callGroq(prompt, "openai/gpt-oss-120b");
 
     if (error || !output) {
       console.error("LLM generation failed:", error);
       throw new Error(`LLM generation failed: ${error?.message || 'Unknown error'}`);
     }
-
-    console.log("LLM output received, length:", output.length);
-    console.log("Raw LLM output:", output.substring(0, 200) + "...");
 
     // Try multiple approaches to extract JSON
     let jsonStr = output;
@@ -55,12 +51,10 @@ Génère ${numQuestions} questions:`;
     jsonStr = jsonStr.replace(/```/g, '');
     jsonStr = jsonStr.trim();
 
-    console.log("Cleaned JSON string:", jsonStr.substring(0, 200) + "...");
 
     let questions;
     try {
       questions = JSON.parse(jsonStr);
-      console.log("Successfully parsed JSON, questions count:", questions.length);
 
       // Validate structure
       if (!Array.isArray(questions) || questions.length === 0) {

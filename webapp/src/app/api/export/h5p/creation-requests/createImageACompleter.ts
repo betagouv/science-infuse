@@ -264,8 +264,8 @@ export default async (input: ImageACompleterData, h5pContentId?: string) => {
         "license": "U",
         "authors": [],
         "changes": [],
-        "extraTitle": `Image à compléter`,
-        "title": `Image à compléter`
+        "extraTitle": " ",
+        "title": " "
       }
     }
   };

@@ -14,9 +14,18 @@ import { createPortal } from 'react-dom';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
-import { DeleteButton } from '../shared/components';
+import { DeleteButton, GeneratorLoading, type LoadingMessagesConfig } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
+
+const loadingMessages: LoadingMessagesConfig = {
+    default: [
+        "Analyse du document en cours...",
+        "Génération des mots...",
+        "Création des définitions...",
+        "Création de l'interactif..."
+    ]
+};
 
 const modal = createModal({
     id: "modal-quit-mots-croises-without-saving",
@@ -539,10 +548,11 @@ export default function MotsCroisesManager(props: {
                 </modal.Component>
 
                 {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <CircularProgress size={60} />
-                        <p className="mt-4 text-lg text-gray-600">Génération des mots croisés en cours...</p>
-                    </div>
+                    <GeneratorLoading
+                        title="Création des mots croisés"
+                        messageType="default"
+                        loadingMessages={loadingMessages}
+                    />
                 )}
 
                 {processingDone && (
