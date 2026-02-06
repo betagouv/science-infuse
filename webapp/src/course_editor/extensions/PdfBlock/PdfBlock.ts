@@ -189,11 +189,21 @@ const PdfBlock = Node.create<PdfBlockOptions>({
   },
 
   renderHTML({ HTMLAttributes, node }) {
-    return ['div', { class: 'chapter-course-inline-pdf', dataSrc: node.attrs.src }, ['a', mergeAttributes(HTMLAttributes, {
-      'href': node.attrs.src,
-      'download': '',
+    return ['div', mergeAttributes(HTMLAttributes, {
       'data-type': 'pdf',
-    }), 'Télécharger le PDF']]
+      class: 'chapter-course-inline-pdf',
+      style: 'border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; margin: 16px 0; background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%); text-align: center; font-family: system-ui, -apple-system, sans-serif;',
+    }),
+      ['div', { style: 'display: inline-block; padding: 6px 16px; border-radius: 20px; background-color: #dc2626; color: white; font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.02em;' }, '📄 Document PDF'],
+      ['p', { style: 'color: #374151; font-size: 15px; margin: 8px 0 16px 0; line-height: 1.5;' }, 'Un document PDF est inclus dans ce cours.'],
+      ['div', { style: 'display: flex; justify-content: center;' },
+        ['a', {
+          href: node.attrs.src,
+          download: '',
+          style: 'display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; background-color: #dc2626; color: white; text-decoration: none; font-size: 14px; font-weight: 500;',
+        }, '📥 Télécharger le PDF'],
+      ],
+    ]
   },
 
   addNodeView() {

@@ -7,7 +7,6 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import StyleIcon from '@mui/icons-material/Style';
-import ImageIcon from '@mui/icons-material/Image';
 import SubjectIcon from '@mui/icons-material/Subject';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -80,21 +79,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ courseBlockNode, editor, 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleH5PClick('dialogcards')}
-                            className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-[#e8edff] text-[#6366f1] hover:opacity-80 transition-opacity"
+                            className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-[#d1fae5] text-[#059669] hover:opacity-80 transition-opacity"
                             title="Flash cards"
                         >
                             <StyleIcon className="text-xl" />
-                        </motion.button>
-
-                        {/* Image à compléter - Icon only */}
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleH5PClick('texte-a-trous')}
-                            className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-[#d1fae5] text-[#059669] hover:opacity-80 transition-opacity"
-                            title="Image à compléter"
-                        >
-                            <ImageIcon className="text-xl" />
                         </motion.button>
 
                         {/* Texte à trous - Icon only */}
@@ -197,24 +185,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ courseBlockNode, editor, 
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => handleH5PClick('dialogcards')}
-                                    className="flex-1 min-w-[180px] max-w-[280px] cursor-pointer flex items-center gap-3 p-4 rounded-lg bg-[#e8edff] text-[#6366f1] hover:opacity-80 transition-opacity"
+                                    className="flex-1 min-w-[180px] max-w-[280px] cursor-pointer flex items-center gap-3 p-4 rounded-lg bg-[#d1fae5] text-[#059669] hover:opacity-80 transition-opacity"
                                 >
                                     <StyleIcon className="text-2xl flex-shrink-0" />
                                     <p className="m-0 text-base font-medium">
                                         Flash cards
-                                    </p>
-                                </motion.button>
-
-                                {/* Image à compléter Button */}
-                                <motion.button
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleH5PClick('texte-a-trous')}
-                                    className="flex-1 min-w-[180px] max-w-[280px] cursor-pointer flex items-center gap-3 p-4 rounded-lg bg-[#d1fae5] text-[#059669] hover:opacity-80 transition-opacity"
-                                >
-                                    <ImageIcon className="text-2xl flex-shrink-0" />
-                                    <p className="m-0 text-base font-medium">
-                                        Image à compléter
                                     </p>
                                 </motion.button>
 

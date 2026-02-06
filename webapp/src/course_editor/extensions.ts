@@ -1,4 +1,5 @@
 import { Editor } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
 import FileHandler from '@tiptap/extension-file-handler'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
@@ -33,6 +34,7 @@ import { TSeverity } from '@/types/snackbar'
 import Comments from './extensions/Comments'
 import { TitleNode } from './extensions/CourseBlock/TitleNode'
 import H5P from './extensions/H5P'
+import H5PBlock from './extensions/H5P/H5PBlock'
 import { SaveCourse } from './extensions/SaveCourse'
 
 
@@ -102,6 +104,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         }),
         PdfBlock,
         H5P,
+        H5PBlock,
         ContentSearch,
         FileImport,
         FileHandler.configure({
@@ -151,7 +154,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
                 return ""
             },
             showOnlyWhenEditable: true,
-            showOnlyCurrent: false,
+            showOnlyCurrent: true,
             includeChildren: true
         }),
     ]

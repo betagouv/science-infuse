@@ -1,6 +1,20 @@
 import { PROJECT_NAME } from '@/config'
 import { apiClient } from '@/lib/api-client'
 import { Group } from '@/types/course-editor'
+import { Editor } from '@tiptap/core'
+import { Node as PMNode } from '@tiptap/pm/model'
+
+function findCourseBlockNode(editor: Editor): PMNode | null {
+  const { selection, doc } = editor.state
+  const pos = selection.$from
+  for (let depth = pos.depth; depth >= 0; depth--) {
+    const node = pos.node(depth)
+    if (node.type.name === 'courseBlock') {
+      return node
+    }
+  }
+  return null
+}
 
 export const GROUPS: Group[] = [
   {
@@ -34,6 +48,60 @@ export const GROUPS: Group[] = [
         },
       },
     ]
+  },
+  {
+    name: 'interactifs',
+    title: 'Contenus interactifs',
+    commands: [
+      {
+        name: 'quiz',
+        label: 'Quiz',
+        iconName: 'CircleHelp',
+        description: 'Générer un quiz interactif',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'quiz')
+          }
+        },
+      },
+      {
+        name: 'texte-a-trous',
+        label: 'Texte à trous',
+        iconName: 'TextCursorInput',
+        description: 'Générer un texte à trous interactif',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'texte-a-trous')
+          }
+        },
+      },
+      {
+        name: 'dialogcards',
+        label: 'Flash Cards',
+        iconName: 'Layers',
+        description: 'Générer des flash cards interactives',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'dialogcards')
+          }
+        },
+      },
+      {
+        name: 'mots-croises',
+        label: 'Mots croisés',
+        iconName: 'Grid3x3',
+        description: 'Générer des mots croisés interactifs',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'mots-croises')
+          }
+        },
+      },
+    ],
   },
   {
     name: 'format',

@@ -3,12 +3,14 @@ import { Editor } from '@tiptap/react'
 import { useCallback } from 'react'
 import { ImageBlock } from '../extensions/ImageBlock'
 import PdfBlock from '../extensions/PdfBlock/PdfBlock'
+import H5PBlock from '../extensions/H5P/H5PBlock'
 import isTextSelected from '../utils/isTextSelected'
 
 export const isCustomNodeSelected = (editor: Editor, node: HTMLElement) => {
   const customNodes = [
     ImageBlock.name,
     PdfBlock.name,
+    H5PBlock.name,
   ]
   return customNodes.some(type => editor.isActive(type)) //|| isTableGripSelected(node)
 }

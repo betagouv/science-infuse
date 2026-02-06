@@ -85,26 +85,30 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
     const { view, state } = editor;
     const { doc } = state;
 
-    // Find the position of the node in the document
+    // Find the position of the node in the document by matching on id attribute
+    // (reference equality fails because ProseMirror creates new node instances on transactions)
+    const courseBlockId = courseBlockNode.attrs.id;
     let nodePos: number | null = null;
+    let matchedNode: PMNode | null = null;
     doc.descendants((node, pos) => {
-      if (node === courseBlockNode) {
+      if (node.attrs.id && node.attrs.id === courseBlockId) {
         nodePos = pos;
+        matchedNode = node;
         return false; // Stop searching
       }
     });
 
-    if (nodePos === null) return '';
+    if (nodePos === null || !matchedNode) return '';
 
     const $start = doc.resolve(nodePos);
-    const $end = doc.resolve(nodePos + courseBlockNode.nodeSize);
+    const $end = doc.resolve(nodePos + (matchedNode as PMNode).nodeSize);
 
     // Extract text content
     let text = doc.textBetween($start.pos, $end.pos);
 
     // Get DOM element to extract PDF text if present
     const domElement = view.nodeDOM(nodePos) as HTMLElement | null;
-    const domElementById = document.getElementById(courseBlockNode.attrs.id);
+    const domElementById = document.getElementById(courseBlockId);
     const element = domElement || domElementById;
 
     if (element) {
@@ -147,7 +151,7 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
       case 'texte-a-trous':
         return { icon: SubjectIcon, label: 'Texte à trous', color: '#d97706', bgColor: '#fef3c7' };
       case 'dialogcards':
-        return { icon: StyleIcon, label: 'Flash Cards', color: '#6366f1', bgColor: '#e8edff' };
+        return { icon: StyleIcon, label: 'Flash Cards', color: '#059669', bgColor: '#d1fae5' };
       case 'mots-croises':
         return { icon: GridOnIcon, label: 'Mots croisés', color: '#dc2626', bgColor: '#fee2e2' };
       default:
@@ -290,17 +294,22 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
             <span className="text-lg font-semibold text-[#161616]">{label}</span>
           </div>
 
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white transition-colors"
-          >
-            <AddIcon className="text-xl" />
-            <span>Insérer</span>
-          </motion.button>
+          {generatedH5pId && (
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                editor.chain().focus().insertH5PBlock({ h5pContentId: generatedH5pId, h5pContentType: h5PContentType }).run();
+                handleClosePopup();
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white transition-colors"
+            >
+              <AddIcon className="text-xl" />
+              <span>Insérer</span>
+            </motion.button>
+          )}
 
 
         </div>

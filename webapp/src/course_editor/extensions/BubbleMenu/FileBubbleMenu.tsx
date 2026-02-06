@@ -15,6 +15,7 @@ import PdfBlock from '../PdfBlock/PdfBlock';
 import getRenderContainer from '@/lib/utils/getRenderContainer';
 import FileTypePicker from './FileTypePicker';
 import VideoSearch from '../VideoBlock';
+import H5PBlock from '../H5P/H5PBlock';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { File } from '@prisma/client';
 
@@ -230,11 +231,69 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
           sticky: 'popper',
         }}
       >
-        <Toolbar.Wrapper shouldShowContent={[ImageBlock.name, VideoSearch.name, PdfBlock.name].includes(nodeName)} ref={menuRef}>
+        <Toolbar.Wrapper shouldShowContent={[ImageBlock.name, VideoSearch.name, PdfBlock.name, H5PBlock.name].includes(nodeName)} ref={menuRef}>
 
 
 
           {nodeName == ImageBlock.name && <ImageOptions editor={editor} />}
+
+          {nodeName == H5PBlock.name && (<>
+            <Toolbar.Button
+              tooltip="Aligner à gauche"
+              active={editor.isActive('h5pBlock', { align: 'left' })}
+              onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setH5PBlockAlign('left').run()}
+            >
+              <Icon name="AlignHorizontalDistributeStart" />
+            </Toolbar.Button>
+            <Toolbar.Button
+              tooltip="Aligner au centre"
+              active={editor.isActive('h5pBlock', { align: 'center' })}
+              onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setH5PBlockAlign('center').run()}
+            >
+              <Icon name="AlignHorizontalDistributeCenter" />
+            </Toolbar.Button>
+            <Toolbar.Button
+              tooltip="Aligner à droite"
+              active={editor.isActive('h5pBlock', { align: 'right' })}
+              onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setH5PBlockAlign('right').run()}
+            >
+              <Icon name="AlignHorizontalDistributeEnd" />
+            </Toolbar.Button>
+            <Toolbar.Divider />
+            <ImageBlockWidth
+              onChange={(value: number) => {
+                editor.chain().focus(undefined, { scrollIntoView: false }).setH5PBlockWidth(value).run()
+              }}
+              value={parseInt(editor.getAttributes('h5pBlock').width)}
+            />
+            <Toolbar.Divider />
+            <Toolbar.Button
+              tooltip="Télécharger en H5P"
+              active={false}
+              onClick={() => {
+                const h5pId = selectedNodeAttrs?.h5pContentId
+                if (h5pId) {
+                  window.open(`${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${h5pId}&name=h5p-content&media=h5p`, '_blank')
+                }
+              }}
+            >
+              <Icon name="Download" />
+              <span className="text-xs ml-1">H5P</span>
+            </Toolbar.Button>
+            <Toolbar.Button
+              tooltip="Télécharger en HTML"
+              active={false}
+              onClick={() => {
+                const h5pId = selectedNodeAttrs?.h5pContentId
+                if (h5pId) {
+                  window.open(`${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${h5pId}&name=h5p-content&media=html`, '_blank')
+                }
+              }}
+            >
+              <Icon name="Download" />
+              <span className="text-xs ml-1">HTML</span>
+            </Toolbar.Button>
+          </>)}
 
           {/* source */}
           {[ImageBlock.name, VideoSearch.name, PdfBlock.name].includes(nodeName) && <FileSourceOption key={selectedNodeAttrs.src} onSubmit={(newSource: string) => {

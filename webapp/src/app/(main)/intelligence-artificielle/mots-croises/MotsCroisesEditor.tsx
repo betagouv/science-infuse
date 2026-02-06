@@ -355,10 +355,33 @@ export default function MotsCroisesManager(props: {
             await updateMotsCroises(documentId, words);
             alertToast.success("Succès", "Changements enregistrés");
         } else {
-            // AdditionalContext mode: just show success, no document to save to
-            alertToast.success("Succès", "Mots croisés générés avec succès");
+            // AdditionalContext mode: export H5P without a document
+            setIsSaving(true);
+            try {
+                const data: ExportH5pResponse = await apiClient.exportH5p({
+                    h5pContentId: h5pContentId,
+                    type: 'mots-croises',
+                    data: {
+                        words,
+                        documentId: '',
+                    } as any,
+                    documentIds: [],
+                });
+                
+                if (data) {
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
+                    setH5pContentId(data.h5pContentId);
+                    setRefreshKey(prev => prev + 1);
+                    onH5PGenerated?.(data.h5pContentId);
+                }
+                alertToast.success("Succès", "Mots croisés mis à jour avec succès");
+            } finally {
+                setIsSaving(false);
+            }
         }
-    }, [words, isDocumentMode, documentId, updateMotsCroises, alertToast]);
+    }, [words, isDocumentMode, documentId, updateMotsCroises, alertToast, h5pContentId, onH5PGenerated]);
 
     const generateMotsCroises = useCallback(async () => {
         setProcessingDone(false);
