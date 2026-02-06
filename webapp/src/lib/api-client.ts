@@ -235,7 +235,7 @@ class ApiClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Upload error:', error.response?.data || error.message);
-        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
+        throw new Error(`${error.response?.data?.error || error.message} `);
       } else {
         console.error('Unexpected error:', error);
         throw new Error('An unexpected error occurred during upload');
@@ -264,7 +264,7 @@ class ApiClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Upload error:', error.response?.data || error.message);
-        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
+        throw new Error(`${error.response?.data?.error || error.message} `);
       } else {
         console.error('Unexpected error:', error);
         throw new Error('An unexpected error occurred during upload');
@@ -293,7 +293,7 @@ class ApiClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Upload error:', error.response?.data || error.message);
-        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
+        throw new Error(`${error.response?.data?.error || error.message} `);
       } else {
         console.error('Unexpected error:', error);
         throw new Error('An unexpected error occurred during upload');

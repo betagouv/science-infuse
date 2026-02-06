@@ -1,9 +1,10 @@
 import AutoBreadCrumb from '@/components/AutoBreadCrumb';
 import { checkBetaAccess } from '@/lib/betaAccessControl';
+import { requireAuthenticated } from '@/lib/userAccessControl';
 import VideoInteractiveClient from './VideoInteractiveClient';
 
 export default async function InteractiveVideoPage() {
-    // Check beta access - will redirect to /prof/club-ada if not allowed
+    await requireAuthenticated();
     await checkBetaAccess('/intelligence-artificielle/video-interactive');
     
     return (

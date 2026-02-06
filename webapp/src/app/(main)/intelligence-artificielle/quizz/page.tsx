@@ -1,9 +1,10 @@
 import AutoBreadCrumb from '@/components/AutoBreadCrumb';
 import { checkBetaAccess } from '@/lib/betaAccessControl';
+import { requireAuthenticated } from '@/lib/userAccessControl';
 import QuizzClient from './QuizzClient';
 
 export default async function QuizzPage() {
-    // Check beta access - will redirect to /prof/club-ada if not allowed
+    await requireAuthenticated();
     await checkBetaAccess('/intelligence-artificielle/quizz');
     
     return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { checkBetaAccess } from '@/lib/betaAccessControl';
+import { requireAuthenticated } from '@/lib/userAccessControl';
 import DocumentPageClient from './DocumentPageClient';
 
 interface PageProps {
@@ -7,7 +8,7 @@ interface PageProps {
 }
 
 export default async function DocumentPage({ params }: PageProps) {
-    // Check beta access - will redirect to /prof/club-ada if not allowed
+    await requireAuthenticated();
     await checkBetaAccess('/intelligence-artificielle/video-interactive');
     
     // Pass params to client component

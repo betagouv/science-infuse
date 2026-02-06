@@ -51,6 +51,9 @@ export async function POST(request: NextRequest) {
   const { file, mediaName, pickMediaType } = result.data;
 
   const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Vous devez être authentifié pour pouvoir téléverser un fichier." }, { status: 401 });
+  }
   const user = await prisma.user.findUnique({ where: { id: session?.user?.id } });
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

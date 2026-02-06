@@ -1,9 +1,10 @@
 import AutoBreadCrumb from '@/components/AutoBreadCrumb';
 import { checkBetaAccess } from '@/lib/betaAccessControl';
+import { requireAuthenticated } from '@/lib/userAccessControl';
 import ImageACompleterClient from './ImageACompleterClient';
 
 export default async function ImageACompleterPage() {
-    // Check beta access - will redirect to /prof/club-ada if not allowed
+    await requireAuthenticated();
     await checkBetaAccess('/intelligence-artificielle/image-a-completer');
     
     return (
