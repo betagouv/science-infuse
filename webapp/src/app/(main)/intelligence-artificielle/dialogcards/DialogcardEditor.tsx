@@ -16,6 +16,7 @@ import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
+import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
 
 const modal = createModal({
     id: "modal-quit-dialogcards-without-saving",
@@ -48,13 +49,6 @@ export const generateDialogcardsData = async (params: { documentId?: string; chu
     }
 };
 
-const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
-    if (params.scope.mode === 'chunk') {
-        return { chunkId: params.scope.chunkId };
-    }
-    return { documentId: params.documentId };
-}
-
 export const LLMGenerateDialogcardAnswer = async (question: string, documentId?: string): Promise<[Error | null, string | null]> => {
     try {
         // Replace with your actual API call
@@ -73,7 +67,7 @@ type DialogcardEditorProps = {
     initialCards: Dialogcard[];
     onChange: (updated: Dialogcard[]) => void;
     onSave: () => Promise<void>;
-    documentId: string;
+    documentId?: string;
 };
 
 const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onChange, onSave, documentId }) => {
@@ -298,12 +292,14 @@ const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onCha
 // Main Dialogcard Manager   //
 //////////////////////////////
 
-export default function DialogcardManager(props: { 
-    documentId: string, 
-    onBackClicked?: () => void, 
-    onDocumentProcessingEnd?: () => void 
+export default function DialogcardManager(props: {
+    source: H5PManagerSource;
+    onBackClicked?: () => void;
+    onDocumentProcessingEnd?: () => void;
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
 }) {
-    const { documentId, onDocumentProcessingEnd } = props;
+    const { source, onDocumentProcessingEnd, hideBackButton = false, onH5PGenerated } = props;
     const [dialogcards, setDialogcards] = useState<Dialogcard[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [editContentActive, setEditContentActive] = useState(false);
@@ -317,9 +313,18 @@ export default function DialogcardManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
-    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+    // Local state for document scope (only used when source.type === 'document')
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>(
+        source.type === 'document' && source.scope
+            ? source.scope
+            : { mode: 'document' }
+    );
 
-    const updateDialogcards = useCallback(async (documentId: string, cards: Dialogcard[]) => {
+    // Helper to determine if we're in document mode
+    const isDocumentMode = source.type === 'document';
+    const documentId = isDocumentMode ? source.documentId : undefined;
+
+    const updateDialogcards = useCallback(async (docId: string, cards: Dialogcard[]) => {
         setIsSaving(true);
         try {
             const data: ExportH5pResponse = await apiClient.exportH5p({
@@ -327,9 +332,9 @@ export default function DialogcardManager(props: {
                 type: 'dialogcards',
                 data: {
                     cards,
-                    documentId: documentId,
-                },
-                documentIds: documentId ? [documentId] : [],
+                    documentId: docId,
+                } as any,
+                documentIds: docId ? [docId] : [],
             });
             
             if (data) {
@@ -338,18 +343,25 @@ export default function DialogcardManager(props: {
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
                 setRefreshKey(prev => prev + 1);
+                onH5PGenerated?.(data.h5pContentId);
             }
         } finally {
             setIsSaving(false);
         }
-    }, [h5pContentId]);
+    }, [h5pContentId, onH5PGenerated]);
 
     const handleSaveChanges = useCallback(async () => {
-        if (dialogcards && documentId) {
+        if (!dialogcards) return;
+        
+        if (isDocumentMode && documentId) {
+            // Document mode: save to document
             await updateDialogcards(documentId, dialogcards);
             alertToast.success("Succès", "Changements enregistrés");
+        } else {
+            // AdditionalContext mode: just show success, no document to save to
+            alertToast.success("Succès", "Dialogcards générées avec succès");
         }
-    }, [dialogcards, documentId, updateDialogcards, alertToast]);
+    }, [dialogcards, isDocumentMode, documentId, updateDialogcards, alertToast]);
 
     const generateDialogcards = useCallback(async () => {
         setProcessingDone(false);
@@ -360,12 +372,22 @@ export default function DialogcardManager(props: {
         onDocumentProcessingEnd && onDocumentProcessingEnd();
         
         try {
-            if (!documentId) {
-                console.warn("Document ID manquant");
+            let apiParams: { documentId?: string; chunkId?: string; additionalContext?: string } = {};
+            
+            if (source.type === 'additionalContext') {
+                // Use additionalContext when provided (from H5PSourcePicker)
+                apiParams = { additionalContext: source.context };
+            } else if (source.type === 'document') {
+                // Use documentId/chunkId when available
+                apiParams = buildParamsFromScope({
+                    documentId: source.documentId,
+                    scope: generationScope
+                });
+            } else {
+                console.warn("Source manquant");
                 return;
             }
 
-            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, dialogcardData] = await (async () => {
                 try {
                     const response = await apiClient.generateDialogcards(apiParams);
@@ -381,7 +403,7 @@ export default function DialogcardManager(props: {
                     `Le traitement a échoué`
                 );
                 handleQuitWithoutSave();
-                console.log("ERROR GENERATING FLASHCARDS", error);
+                console.log("ERROR GENERATING DIALOGCARDS", error);
                 return;
             }
             
@@ -389,12 +411,36 @@ export default function DialogcardManager(props: {
             
             setDialogcards(dialogcardData.cards);
             
-            await updateDialogcards(documentId, dialogcardData.cards);
+            if (source.type === 'document') {
+                // Document mode: save and export
+                await updateDialogcards(source.documentId, dialogcardData.cards);
+            } else {
+                // AdditionalContext mode: just export without saving
+                const exportData = {
+                    cards: dialogcardData.cards,
+                    documentId: '',
+                };
+                const data: ExportH5pResponse = await apiClient.exportH5p({
+                    h5pContentId: h5pContentId,
+                    type: 'dialogcards',
+                    data: exportData as any,
+                    documentIds: [],
+                });
+                
+                if (data) {
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
+                    setH5pContentId(data.h5pContentId);
+                    setRefreshKey(prev => prev + 1);
+                    onH5PGenerated?.(data.h5pContentId);
+                }
+            }
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateDialogcards, onDocumentProcessingEnd, alertToast, generationScope]);
+    }, [source, updateDialogcards, onDocumentProcessingEnd, alertToast, generationScope, h5pContentId]);
 
     const handleDialogcardsChange = useCallback(
         (updated: Dialogcard[]) => {
@@ -415,38 +461,40 @@ export default function DialogcardManager(props: {
     };
 
     useEffect(() => {
-        if (documentId && isInitialLoad.current) {
+        if (isInitialLoad.current) {
             isInitialLoad.current = false;
             generateDialogcards();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [documentId]);
+    }, []);
 
     return (
         <>
-            {document.getElementById("dialogcard-back-portal") ? createPortal(
-                <Button
-                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>,
-                document.getElementById("dialogcard-back-portal") as HTMLElement
-            ) : (
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>
+            {!hideBackButton && (
+                document.getElementById("dialogcard-back-portal") ? createPortal(
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>,
+                    document.getElementById("dialogcard-back-portal") as HTMLElement
+                ) : (
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>
+                )
             )}
 
             <div className="w-full relative flex flex-col gap-8">
@@ -490,10 +538,11 @@ export default function DialogcardManager(props: {
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
 
-                {processingDone && (
+                {/* Source picker - only shown in document mode */}
+                {processingDone && isDocumentMode && (
                     <div className="w-full">
                         <DocumentChunkScopePicker
-                            documentId={documentId}
+                            documentId={documentId || ''}
                             value={generationScope}
                             onChange={setGenerationScope}
                         />

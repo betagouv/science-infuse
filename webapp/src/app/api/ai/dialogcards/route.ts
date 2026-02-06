@@ -6,8 +6,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { documentId, chunkId, additionalContext } = await request.json();
 
-    if (!documentId && !chunkId) {
-      return NextResponse.json({ error: "documentId or chunkId is required" }, { status: 400 });
+    if (!documentId && !chunkId && !additionalContext) {
+      return NextResponse.json({ error: "documentId, chunkId or additionalContext is required" }, { status: 400 });
     }
 
     const context = await getContext({ documentId, chunkId, additionalContext });

@@ -8,14 +8,14 @@ export interface DialogcardsData {
 }
 
 export default async (input: DialogcardsData, h5pContentId?: string) => {
-  const document = await prisma.document.findUnique({
-    where: {
-      id: input.documentId
-    },
-  });
-
-  if (!document) {
-    throw new Error(`Document not found for id: ${input.documentId}`);
+  let title = ""
+  if (input?.documentId) {
+    const document = await prisma.document.findUnique({
+      where: {
+        id: input.documentId
+      },
+    });
+    title = document?.mediaName || "";
   }
 
   const h5pDialogs = input.cards.map(card => ({
@@ -68,16 +68,16 @@ export default async (input: DialogcardsData, h5pContentId?: string) => {
           "cancelLabel": "Annuler",
           "confirmLabel": "Recommencer"
         },
-        // "title": `<p>${document.mediaName || "Dialogcards"}</p>`,
-        // "description": `<p>Dialogcards sur ${document.mediaName || "le document"}</p>`
+        // "title": `<p>${title || "Dialogcards"}</p>`,
+        // "description": `<p>Dialogcards sur ${title || "le document"}</p>`
       },
       "metadata": {
         "defaultLanguage": "fr",
         "license": "U",
         "authors": [],
         "changes": [],
-        "extraTitle": `Dialogcards : ${document.mediaName}`,
-        "title": `Dialogcards : ${document.mediaName}`
+        "extraTitle": `Dialogcards : ${title}`,
+        "title": `Dialogcards : ${title}`
       }
     }
   };

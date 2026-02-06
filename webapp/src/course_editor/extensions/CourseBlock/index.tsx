@@ -8,7 +8,7 @@ import { keymap } from '@tiptap/pm/keymap';
 import { Node as PMNode } from '@tiptap/pm/model';
 import { Selection, TextSelection } from '@tiptap/pm/state';
 import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import ActionButtons from './ActionButtons';
 import { apiClient } from '@/lib/api-client';
 import { Question } from '@/types/course-editor';
@@ -301,6 +301,31 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
 
   const quizQuestions: Question[] = node.attrs?.quizQuestions || []
 
+  // Detect when sticky header is "sticking" using IntersectionObserver
+  // Once collapsed, it stays collapsed until user manually toggles
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const wasStickyRef = useRef(false);
+  const stickySentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = stickySentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isSticky = !entry.isIntersecting;
+        // Only collapse when becoming sticky, never auto-expand
+        if (isSticky && !wasStickyRef.current) {
+          setIsCollapsed(true);
+        }
+        wasStickyRef.current = isSticky;
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -332,13 +357,23 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
       )}
 
       <div className="flex flex-col bg-[#f6f6f6] sm:rounded-xl sm:border sm:shadow-lg p-4 md:p-8">
-        {editor.isEditable && <div
-          className='sticky top-0 py-4 bg-[#f6f6f6] z-[103]'
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <ActionButtons courseBlockNode={node} pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos} editor={editor} />
-        </div>}
+        {editor.isEditable && <>
+          {/* Sentinel element to detect when sticky header is "sticking" */}
+          <div ref={stickySentinelRef} className="h-px" />
+          <div
+            className='sticky top-0 py-4 bg-[#f6f6f6] z-[103]'
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <ActionButtons
+              courseBlockNode={node}
+              pos={storedSelection?.$anchor.pos || editor.view.state.selection.$anchor.pos}
+              editor={editor}
+              collapsed={isCollapsed}
+              onToggleCollapse={() => setIsCollapsed(prev => !prev)}
+            />
+          </div>
+        </>}
         <NodeViewContent className="content" />
 
         {/* quiz if available */}

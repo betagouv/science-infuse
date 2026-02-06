@@ -16,6 +16,7 @@ import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
+import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
 
 const modal = createModal({
     id: "modal-quit-mots-croises-without-saving",
@@ -48,13 +49,6 @@ export const generateMotsCroisesData = async (params: { documentId?: string; chu
     }
 };
 
-const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
-    if (params.scope.mode === 'chunk') {
-        return { chunkId: params.scope.chunkId };
-    }
-    return { documentId: params.documentId };
-}
-
 export const LLMGenerateMotsCroisesClue = async (answer: string, documentId?: string): Promise<[Error | null, string | null]> => {
     try {
         const response = await apiClient.generateMotsCroisesClue(answer, documentId);
@@ -72,7 +66,7 @@ type MotsCroisesEditorProps = {
     initialWords: CrosswordWord[];
     onChange: (updated: CrosswordWord[]) => void;
     onSave: () => Promise<void>;
-    documentId: string;
+    documentId?: string;
 };
 
 const MotsCroisesEditor: React.FC<MotsCroisesEditorProps> = ({ initialWords, onChange, onSave, documentId }) => {
@@ -295,12 +289,14 @@ const MotsCroisesEditor: React.FC<MotsCroisesEditorProps> = ({ initialWords, onC
 // Main MotsCroises Manager   //
 //////////////////////////////
 
-export default function MotsCroisesManager(props: { 
-    documentId: string, 
-    onBackClicked?: () => void, 
-    onDocumentProcessingEnd?: () => void 
+export default function MotsCroisesManager(props: {
+    source: H5PManagerSource;
+    onBackClicked?: () => void;
+    onDocumentProcessingEnd?: () => void;
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
 }) {
-    const { documentId, onDocumentProcessingEnd } = props;
+    const { source, onDocumentProcessingEnd, hideBackButton = false, onH5PGenerated } = props;
     const [words, setWords] = useState<CrosswordWord[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [editContentActive, setEditContentActive] = useState(false);
@@ -314,9 +310,18 @@ export default function MotsCroisesManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
-    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+    // Local state for document scope (only used when source.type === 'document')
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>(
+        source.type === 'document' && source.scope 
+            ? source.scope 
+            : { mode: 'document' }
+    );
 
-    const updateMotsCroises = useCallback(async (documentId: string, words: CrosswordWord[]) => {
+    // Helper to determine if we're in document mode
+    const isDocumentMode = source.type === 'document';
+    const documentId = isDocumentMode ? source.documentId : undefined;
+
+    const updateMotsCroises = useCallback(async (docId: string, words: CrosswordWord[]) => {
         setIsSaving(true);
         try {
             const data: ExportH5pResponse = await apiClient.exportH5p({
@@ -324,9 +329,9 @@ export default function MotsCroisesManager(props: {
                 type: 'mots-croises',
                 data: {
                     words,
-                    documentId: documentId,
-                },
-                documentIds: documentId ? [documentId] : [],
+                    documentId: docId,
+                } as any,
+                documentIds: docId ? [docId] : [],
             });
             
             if (data) {
@@ -335,18 +340,25 @@ export default function MotsCroisesManager(props: {
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
                 setRefreshKey(prev => prev + 1);
+                onH5PGenerated?.(data.h5pContentId);
             }
         } finally {
             setIsSaving(false);
         }
-    }, [h5pContentId]);
+    }, [h5pContentId, onH5PGenerated]);
 
     const handleSaveChanges = useCallback(async () => {
-        if (words && documentId) {
+        if (!words) return;
+        
+        if (isDocumentMode && documentId) {
+            // Document mode: save to document
             await updateMotsCroises(documentId, words);
             alertToast.success("Succès", "Changements enregistrés");
+        } else {
+            // AdditionalContext mode: just show success, no document to save to
+            alertToast.success("Succès", "Mots croisés générés avec succès");
         }
-    }, [words, documentId, updateMotsCroises, alertToast]);
+    }, [words, isDocumentMode, documentId, updateMotsCroises, alertToast]);
 
     const generateMotsCroises = useCallback(async () => {
         setProcessingDone(false);
@@ -357,12 +369,22 @@ export default function MotsCroisesManager(props: {
         onDocumentProcessingEnd && onDocumentProcessingEnd();
         
         try {
-            if (!documentId) {
-                console.warn("Document ID manquant");
+            let apiParams: { documentId?: string; chunkId?: string; additionalContext?: string } = {};
+            
+            if (source.type === 'additionalContext') {
+                // Use additionalContext when provided (from H5PSourcePicker)
+                apiParams = { additionalContext: source.context };
+            } else if (source.type === 'document') {
+                // Use documentId/chunkId when available
+                apiParams = buildParamsFromScope({ 
+                    documentId: source.documentId, 
+                    scope: generationScope 
+                });
+            } else {
+                console.warn("Source manquant");
                 return;
             }
 
-            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, motsCroisesData] = await (async () => {
                 try {
                     const response = await apiClient.generateMotsCroises(apiParams);
@@ -386,12 +408,36 @@ export default function MotsCroisesManager(props: {
             
             setWords(motsCroisesData.words);
             
-            await updateMotsCroises(documentId, motsCroisesData.words);
+            if (source.type === 'document') {
+                // Document mode: save and export
+                await updateMotsCroises(source.documentId, motsCroisesData.words);
+            } else {
+                // AdditionalContext mode: just export without saving
+                const exportData = {
+                    words: motsCroisesData.words,
+                    documentId: '',
+                };
+                const data: ExportH5pResponse = await apiClient.exportH5p({
+                    h5pContentId: h5pContentId,
+                    type: 'mots-croises',
+                    data: exportData as any,
+                    documentIds: [],
+                });
+                
+                if (data) {
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
+                    setH5pContentId(data.h5pContentId);
+                    setRefreshKey(prev => prev + 1);
+                    onH5PGenerated?.(data.h5pContentId);
+                }
+            }
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateMotsCroises, onDocumentProcessingEnd, alertToast, generationScope]);
+    }, [source, updateMotsCroises, onDocumentProcessingEnd, alertToast, generationScope, h5pContentId]);
 
     const handleWordsChange = useCallback(
         (updated: CrosswordWord[]) => {
@@ -412,38 +458,40 @@ export default function MotsCroisesManager(props: {
     };
 
     useEffect(() => {
-        if (documentId && isInitialLoad.current) {
+        if (isInitialLoad.current) {
             isInitialLoad.current = false;
             generateMotsCroises();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [documentId]);
+    }, []);
 
     return (
         <>
-            {document.getElementById("mots-croises-back-portal") ? createPortal(
-                <Button
-                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>,
-                document.getElementById("mots-croises-back-portal") as HTMLElement
-            ) : (
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>
+            {!hideBackButton && (
+                document.getElementById("mots-croises-back-portal") ? createPortal(
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>,
+                    document.getElementById("mots-croises-back-portal") as HTMLElement
+                ) : (
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>
+                )
             )}
 
             <div className="w-full relative flex flex-col gap-8">
@@ -487,10 +535,11 @@ export default function MotsCroisesManager(props: {
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
 
-                {processingDone && (
+                {/* Source picker - only shown in document mode */}
+                {processingDone && isDocumentMode && (
                     <div className="w-full">
                         <DocumentChunkScopePicker
-                            documentId={documentId}
+                            documentId={documentId || ''}
                             value={generationScope}
                             onChange={setGenerationScope}
                         />

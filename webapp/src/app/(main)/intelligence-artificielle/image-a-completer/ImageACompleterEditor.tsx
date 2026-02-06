@@ -600,9 +600,11 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
 export default function ImageACompleterManager(props: {
     chunk: ChunkWithScoreUnion,
     onBackClicked?: () => void,
-    onDocumentProcessingEnd?: () => void
+    onDocumentProcessingEnd?: () => void,
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
 }) {
-    const { chunk, onDocumentProcessingEnd } = props;
+    const { chunk, onDocumentProcessingEnd, hideBackButton = false, onH5PGenerated } = props;
     const chunkId = chunk.id;
     const [imagesACompleter, setImagesACompleter] = useState<ImageACompleterBox[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -637,11 +639,12 @@ export default function ImageACompleterManager(props: {
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
                 setRefreshKey(prev => prev + 1);
+                onH5PGenerated?.(data.h5pContentId);
             }
         } finally {
             setIsSaving(false);
         }
-    }, [h5pContentId]);
+    }, [h5pContentId, chunk, onH5PGenerated]);
 
 
     const generateImageACompleter = useCallback(async () => {
@@ -692,25 +695,27 @@ export default function ImageACompleterManager(props: {
 
     return (
         <>
-            {document.getElementById("imageACompleter-back-portal") ? createPortal(
-                <Button
-                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    {/* SVG */}
-                    Retour
-                </Button>,
-                document.getElementById("imageACompleter-back-portal") as HTMLElement
-            ) : (
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    {/* SVG */}
-                    Retour
-                </Button>
+            {!hideBackButton && (
+                document.getElementById("imageACompleter-back-portal") ? createPortal(
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        {/* SVG */}
+                        Retour
+                    </Button>,
+                    document.getElementById("imageACompleter-back-portal") as HTMLElement
+                ) : (
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        {/* SVG */}
+                        Retour
+                    </Button>
+                )
             )}
 
             <div className="w-full relative flex flex-col gap-8">

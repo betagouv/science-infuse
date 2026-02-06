@@ -16,6 +16,7 @@ import StickyShadow from '@/components/StickyShadown';
 import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
+import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
 import { Question, Option } from '@/types/course-editor';
 
 const modal = createModal({
@@ -35,33 +36,6 @@ export interface QuizzSet {
 // API Functions            //
 //////////////////////////////
 
-export const generateQuizzData = async (params: { documentId?: string; chunkId?: string }): Promise<[Error | null, QuizzSet | null]> => {
-    try {
-        const response = await apiClient.generateQuizz(params);
-        return [null, { questions: response }];
-    } catch (error) {
-        return [error as Error, null];
-    }
-};
-
-const buildParamsFromScope = (params: { documentId: string; scope: GenerationSourceScope }): { documentId?: string; chunkId?: string } => {
-    if (params.scope.mode === 'chunk') {
-        return { chunkId: params.scope.chunkId };
-    }
-    return { documentId: params.documentId };
-}
-
-export const LLMGenerateQuizzOption = async (question: string, documentId?: string): Promise<[Error | null, Question | null]> => {
-    try {
-        // For quiz options, we'll generate a complete question with options
-        const response = await apiClient.generateQuizz({ documentId });
-        // Return the first question from the generated set, or null if empty
-        return [null, response.length > 0 ? response[0] : null];
-    } catch (error) {
-        return [error as Error, null];
-    }
-};
-
 //////////////////////////////
 // Quizz Editor Component //
 //////////////////////////////
@@ -70,7 +44,7 @@ type QuizzEditorProps = {
     initialQuestions: Question[];
     onChange: (updated: Question[]) => void;
     onSave: () => Promise<void>;
-    documentId: string;
+    documentId?: string;
 };
 
 const QuizzEditor: React.FC<QuizzEditorProps> = ({ initialQuestions, onChange, onSave, documentId }) => {
@@ -168,15 +142,17 @@ const QuizzEditor: React.FC<QuizzEditorProps> = ({ initialQuestions, onChange, o
         }
 
         setLoadingOptions(prev => ({ ...prev, [index]: true }));
-        const [error, newQuestion] = await LLMGenerateQuizzOption(question, documentId);
-        if (error) {
+        try {
+            const response = await apiClient.generateQuizz({ documentId });
+            const newQuestion = response.length > 0 ? response[0] : null;
+            if (newQuestion && newQuestion.options) {
+                const updated = questions.map((q, i) =>
+                    i === index ? newQuestion : q
+                );
+                updateQuestions(updated);
+            }
+        } catch (error) {
             toast.error('Une erreur est survenue lors de la génération des options');
-        }
-        if (newQuestion && newQuestion.options) {
-            const updated = questions.map((q, i) =>
-                i === index ? newQuestion : q
-            );
-            updateQuestions(updated);
         }
         setLoadingOptions(prev => ({ ...prev, [index]: false }));
     };
@@ -327,12 +303,14 @@ const QuizzEditor: React.FC<QuizzEditorProps> = ({ initialQuestions, onChange, o
 // Main Quizz Manager       //
 //////////////////////////////
 
-export default function QuizzManager(props: { 
-    documentId: string, 
-    onBackClicked?: () => void, 
-    onDocumentProcessingEnd?: () => void 
+export default function QuizzManager(props: {
+    source: H5PManagerSource;
+    onBackClicked?: () => void;
+    onDocumentProcessingEnd?: () => void;
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
 }) {
-    const { documentId, onDocumentProcessingEnd } = props;
+    const { source, onDocumentProcessingEnd, hideBackButton = false, onH5PGenerated } = props;
     const [questions, setQuestions] = useState<Question[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [editContentActive, setEditContentActive] = useState(false);
@@ -346,16 +324,25 @@ export default function QuizzManager(props: {
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
 
-    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>({ mode: 'document' });
+    // Local state for document scope (only used when source.type === 'document')
+    const [generationScope, setGenerationScope] = useState<GenerationSourceScope>(
+        source.type === 'document' && source.scope 
+            ? source.scope 
+            : { mode: 'document' }
+    );
 
-    const updateQuizz = useCallback(async (documentId: string, questions: Question[]) => {
+    // Helper to determine if we're in document mode
+    const isDocumentMode = source.type === 'document';
+    const documentId = isDocumentMode ? source.documentId : undefined;
+
+    const updateQuizz = useCallback(async (docId: string, questions: Question[]) => {
         setIsSaving(true);
         try {
             const data: ExportH5pResponse = await apiClient.exportH5p({
                 h5pContentId: h5pContentId,
                 type: 'question',
                 data: questions,
-                documentIds: documentId ? [documentId] : [],
+                documentIds: docId ? [docId] : [],
             });
             
             if (data) {
@@ -364,18 +351,25 @@ export default function QuizzManager(props: {
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
                 setRefreshKey(prev => prev + 1);
+                onH5PGenerated?.(data.h5pContentId);
             }
         } finally {
             setIsSaving(false);
         }
-    }, [h5pContentId]);
+    }, [h5pContentId, onH5PGenerated]);
 
     const handleSaveChanges = useCallback(async () => {
-        if (questions && documentId) {
+        if (!questions) return;
+        
+        if (isDocumentMode && documentId) {
+            // Document mode: save to document
             await updateQuizz(documentId, questions);
             alertToast.success("Succès", "Changements enregistrés");
+        } else {
+            // AdditionalContext mode: just show success, no document to save to
+            alertToast.success("Succès", "Quiz généré avec succès");
         }
-    }, [questions, documentId, updateQuizz, alertToast]);
+    }, [questions, isDocumentMode, documentId, updateQuizz, alertToast]);
 
     const generateQuizz = useCallback(async () => {
         setProcessingDone(false);
@@ -386,12 +380,22 @@ export default function QuizzManager(props: {
         onDocumentProcessingEnd && onDocumentProcessingEnd();
         
         try {
-            if (!documentId) {
-                console.warn("Document ID manquant");
+            let apiParams: { documentId?: string; chunkId?: string; additionalContext?: string } = {};
+            
+            if (source.type === 'additionalContext') {
+                // Use additionalContext when provided (from H5PSourcePicker)
+                apiParams = { additionalContext: source.context };
+            } else if (source.type === 'document') {
+                // Use documentId/chunkId when available
+                apiParams = buildParamsFromScope({ 
+                    documentId: source.documentId, 
+                    scope: generationScope 
+                });
+            } else {
+                console.warn("Source manquant");
                 return;
             }
 
-            const apiParams = buildParamsFromScope({ documentId, scope: generationScope });
             const [error, quizzData] = await (async () => {
                 try {
                     const response = await apiClient.generateQuizz(apiParams);
@@ -415,12 +419,32 @@ export default function QuizzManager(props: {
             
             setQuestions(quizzData.questions);
             
-            await updateQuizz(documentId, quizzData.questions);
+            if (source.type === 'document') {
+                // Document mode: save quiz and export
+                await updateQuizz(source.documentId, quizzData.questions);
+            } else {
+                // AdditionalContext mode: just export without saving
+                const data: ExportH5pResponse = await apiClient.exportH5p({
+                    h5pContentId: h5pContentId,
+                    type: 'question',
+                    data: quizzData.questions,
+                    documentIds: [],
+                });
+                
+                if (data) {
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
+                    setH5pContentId(data.h5pContentId);
+                    setRefreshKey(prev => prev + 1);
+                    onH5PGenerated?.(data.h5pContentId);
+                }
+            }
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [documentId, updateQuizz, onDocumentProcessingEnd, alertToast, generationScope]);
+    }, [source, updateQuizz, onDocumentProcessingEnd, alertToast, generationScope, h5pContentId]);
 
     const handleQuestionsChange = useCallback(
         (updated: Question[]) => {
@@ -441,38 +465,40 @@ export default function QuizzManager(props: {
     };
 
     useEffect(() => {
-        if (documentId && isInitialLoad.current) {
+        if (isInitialLoad.current) {
             isInitialLoad.current = false;
             generateQuizz();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [documentId]);
+    }, []);
 
     return (
         <>
-            {document.getElementById("quizz-back-portal") ? createPortal(
-                <Button
-                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>,
-                document.getElementById("quizz-back-portal") as HTMLElement
-            ) : (
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => modal.open()}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
-                    Retour
-                </Button>
+            {!hideBackButton && (
+                document.getElementById("quizz-back-portal") ? createPortal(
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>,
+                    document.getElementById("quizz-back-portal") as HTMLElement
+                ) : (
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                        priority='secondary'
+                        onClick={() => modal.open()}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
+                        Retour
+                    </Button>
+                )
             )}
 
             <div className="w-full relative flex flex-col gap-8">
@@ -516,10 +542,11 @@ export default function QuizzManager(props: {
                 {/* H5P PREVIEW */}
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
 
-                {processingDone && (
+                {/* Source picker - only shown in document mode */}
+                {processingDone && isDocumentMode && (
                     <div className="w-full">
                         <DocumentChunkScopePicker
-                            documentId={documentId}
+                            documentId={documentId || ''}
                             value={generationScope}
                             onChange={setGenerationScope}
                         />

@@ -28,8 +28,8 @@ export async function getContext(params: GetContextParams): Promise<string> {
 
   const { documentId, chunkId, maxTextLength = defaultMaxLength, additionalContext } = params;
 
-  if (!documentId && !chunkId) {
-    throw new Error("Either documentId or chunkId is required");
+  if (!documentId && !chunkId && !additionalContext) {
+    throw new Error("Either documentId, chunkId or additionalContext is required");
   }
 
   let context = "";
@@ -60,14 +60,17 @@ export async function getContext(params: GetContextParams): Promise<string> {
     context = chunks.map((chunk) => chunk.text).join("\n\n");
   }
 
-  if (!context.trim()) {
-    throw new Error("No content found");
-  }
+  context += additionalContext
 
   // Slice the context to maxTextLength if it exceeds the limit
   if (context.length > maxTextLength) {
     context = context.slice(0, maxTextLength);
   }
+
+  if (!context.trim()) {
+    throw new Error("No content found");
+  }
+
 
   return context;
 }

@@ -6,8 +6,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { documentId, chunkId, additionalContext } = await request.json();
 
-    if (!documentId && !chunkId) {
-      return NextResponse.json({ error: "documentId or chunkId is required" }, { status: 400 });
+    return NextResponse.json([{ "question": "La succession de mitoses produit un...", "options": [{ "answer": "A", "correct": true }, { "answer": "B", "correct": false }, { "answer": "C", "correct": false }, { "answer": "D", "correct": false }] }, { "question": "En l'absence d'échanges génétiques avec l'extérieur, la diversité génétique dans un clone provient de...", "options": [{ "answer": "A", "correct": false }, { "answer": "B", "correct": true }, { "answer": "C", "correct": false }, { "answer": "D", "correct": false }] }, { "question": "Quel devient le statut d'un accident génétique irréversible (ex. perte d'un gène) dans la lignée cellulaire ?", "options": [{ "answer": "A", "correct": false }, { "answer": "B", "correct": false }, { "answer": "C", "correct": true }, { "answer": "D", "correct": false }] }, { "question": "Parmi les exemples suivants, lequel décrit des cellules d'un clone qui restent séparées les unes des autres ?", "options": [{ "answer": "A", "correct": false }, { "answer": "B", "correct": false }, { "answer": "C", "correct": true }, { "answer": "D", "correct": false }] }, { "question": "Quel type de tissu est cité comme exemple de cellules d'un clone associées de façon stable ?", "options": [{ "answer": "A", "correct": true }, { "answer": "B", "correct": false }, { "answer": "C", "correct": false }, { "answer": "D", "correct": false }] }, { "question": "Quel processus permet la création d'un sous‑clone à partir d'un mutant ?", "options": [{ "answer": "A", "correct": false }, { "answer": "B", "correct": false }, { "answer": "C", "correct": false }, { "answer": "D", "correct": true }] }, { "question": "Dans le contexte donné, que désigne le terme « génotype » ?", "options": [{ "answer": "A", "correct": false }, { "answer": "B", "correct": false }, { "answer": "C", "correct": true }, { "answer": "D", "correct": false }] }]);
+    if (!documentId && !chunkId && !additionalContext) {
+      return NextResponse.json({ error: "documentId, chunkId or additionalContext is required" }, { status: 400 });
     }
 
     const context = await getContext({ documentId, chunkId, additionalContext });
@@ -41,14 +42,14 @@ Génère ${numQuestions} questions:`;
 
     // Try multiple approaches to extract JSON
     let jsonStr = output;
-    
+
     // Try to find JSON array
     const jsonMatch = output.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       jsonStr = jsonMatch[0];
       console.log("Found JSON array match");
     }
-    
+
     // Clean up common LLM formatting issues
     jsonStr = jsonStr.replace(/```json/g, '');
     jsonStr = jsonStr.replace(/```/g, '');
@@ -60,19 +61,19 @@ Génère ${numQuestions} questions:`;
     try {
       questions = JSON.parse(jsonStr);
       console.log("Successfully parsed JSON, questions count:", questions.length);
-      
+
       // Validate structure
       if (!Array.isArray(questions) || questions.length === 0) {
         throw new Error("Empty or invalid array");
       }
-      
+
       // Validate each question has required structure
       for (const q of questions) {
         if (!q.question || !q.options || !Array.isArray(q.options) || q.options.length !== 4) {
           console.error("Invalid question structure:", q);
           throw new Error(`Invalid question structure: missing question, options, or wrong option count`);
         }
-        
+
         // Count correct answers
         const correctCount = q.options.filter((opt: any) => opt.correct === true).length;
         if (correctCount !== 1) {
@@ -80,14 +81,14 @@ Génère ${numQuestions} questions:`;
           throw new Error(`Each question must have exactly one correct answer, found ${correctCount}`);
         }
       }
-      
+
       console.log("All questions validated successfully");
-      
+
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       console.error("Raw output:", output);
       console.error("Cleaned JSON:", jsonStr);
-      
+
       // Try a simpler fallback approach
       return NextResponse.json({
         error: "Failed to generate valid quiz format. Please try again.",
@@ -102,10 +103,10 @@ Génère ${numQuestions} questions:`;
     return NextResponse.json(questions);
   } catch (error) {
     console.error("Error generating quiz:", error);
-    
+
     // Return more detailed error information for debugging
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
+
     // Try a simple fallback quiz if LLM fails
     console.log("Attempting fallback quiz generation...");
     const fallbackQuestions = [
@@ -119,7 +120,7 @@ Génère ${numQuestions} questions:`;
         ]
       }
     ];
-    
+
     return NextResponse.json(
       {
         error: "An error occurred while generating quiz",

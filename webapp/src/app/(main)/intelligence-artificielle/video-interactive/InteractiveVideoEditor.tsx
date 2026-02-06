@@ -519,8 +519,15 @@ const DefinitionEditor: React.FC<DefinitionEditorProps> = ({ documentId, initial
 // Main Interactive Editor  //
 //////////////////////////////
 
-export default function InteractiveVideoEditor(props: { documentId: string, onBackClicked?: () => void, saveDocument?: () => void; onDocumentProcessingEnd?: () => void }) {
-    const { documentId, onDocumentProcessingEnd } = props;
+export default function InteractiveVideoEditor(props: {
+    documentId: string,
+    onBackClicked?: () => void,
+    saveDocument?: () => void;
+    onDocumentProcessingEnd?: () => void;
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
+}) {
+    const { documentId, onDocumentProcessingEnd, hideBackButton = false, onH5PGenerated } = props;
     const [ivQuestions, setIvQuestions] = useState<InteractiveVideoQuestionGroup[] | undefined>([]);
     const [ivDefinitions, setIvDefinitions] = useState<InteractiveVideoDefinitionGroup[] | undefined>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -563,11 +570,12 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
                 setDownloadHTMLUrl(data.downloadHTML);
                 setH5pContentId(data.h5pContentId);
                 setRefreshKey(prev => prev + 1);
+                onH5PGenerated?.(data.h5pContentId);
             }
         } finally {
             setIsSaving(false);
         }
-    }, [h5pContentId]);
+    }, [h5pContentId, onH5PGenerated]);
 
     const handleSaveChanges = useCallback(async (recapEnabled:boolean) => {
         if (ivQuestions && ivDefinitions && documentId) {
@@ -662,35 +670,37 @@ export default function InteractiveVideoEditor(props: { documentId: string, onBa
 
     return (
         <>
-            {document.getElementById("interactive-video-back-portal") ? createPortal(
-                <Button
-                    className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
-                    priority='secondary'
-                    onClick={() => {
-                        modal.open();
-                    }}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
+            {!hideBackButton && (
+                document.getElementById("interactive-video-back-portal") ? createPortal(
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
+                        priority='secondary'
+                        onClick={() => {
+                            modal.open();
+                        }}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
 
-                    Retour
-                </Button>,
-                document.getElementById("interactive-video-back-portal") as HTMLElement
-            ) : (
-                <Button
-                    className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
-                    priority='secondary'
-                    onClick={() => {
-                        modal.open();
-                    }}
-                >
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
-                    </svg>
+                        Retour
+                    </Button>,
+                    document.getElementById("interactive-video-back-portal") as HTMLElement
+                ) : (
+                    <Button
+                        className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
+                        priority='secondary'
+                        onClick={() => {
+                            modal.open();
+                        }}
+                    >
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2.21932 4.99999L5.51932 8.29999L4.57665 9.24266L0.333984 4.99999L4.57665 0.757324L5.51932 1.69999L2.21932 4.99999Z" fill="#000091" />
+                        </svg>
 
-                    Retour
-                </Button>
+                        Retour
+                    </Button>
+                )
             )}
 
             <div className="w-full relative flex flex-col gap-8">

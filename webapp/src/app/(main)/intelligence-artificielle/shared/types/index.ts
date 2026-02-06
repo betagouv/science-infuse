@@ -1,5 +1,7 @@
 // Shared types for interactive content generators
 
+export * from './h5p-manager';
+
 import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 import { TabType } from "@/app/(main)/recherche/Tabs";
 

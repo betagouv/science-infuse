@@ -1,12 +1,12 @@
 import { Extension } from '@tiptap/core'
 import { Command, Editor, RawCommands, ReactRenderer } from '@tiptap/react'
 import { Node as PMNode } from '@tiptap/pm/model'
-import H5PSourcePicker from './H5PSourcePicker'
+import H5PPopup, { H5PContentType } from './H5PPopup'
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
         Quiz: {
-            openH5pPopup: (courseBlockNode: PMNode) => ReturnType;
+            openH5pPopup: (courseBlockNode: PMNode, h5PContentType: H5PContentType) => ReturnType;
         };
     }
 }
@@ -17,11 +17,11 @@ export const QuizExtension = Extension.create({
     addCommands() {
         return {
             openH5pPopup:
-                (courseBlockNode: PMNode) =>
+                (courseBlockNode: PMNode, h5PContentType: H5PContentType) =>
                     ({ editor, chain }) => {
                         let popupElement: HTMLDivElement | null = null;
 
-                        const component = new ReactRenderer(H5PSourcePicker, {
+                        const component = new ReactRenderer(H5PPopup, {
                             props: {
                                 editor,
                                 courseBlockNode,
@@ -31,6 +31,7 @@ export const QuizExtension = Extension.create({
                                         popupElement = null;
                                     }
                                 },
+                                h5PContentType,
                             },
                             editor,
                         })
@@ -41,7 +42,7 @@ export const QuizExtension = Extension.create({
                         popupElement.style.left = '0';
                         popupElement.style.width = '100vw';
                         popupElement.style.height = '100vh';
-                        popupElement.style.zIndex = '999';
+                        popupElement.style.zIndex = '99999';
                         popupElement.appendChild(component.element);
 
                         document.body.appendChild(popupElement);

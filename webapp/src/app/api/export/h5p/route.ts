@@ -1,6 +1,5 @@
 import { ExportH5pResponse } from '@/types/api';
 import { ExportH5PDialogcardsRequest, ExportH5PImageACompleterRequest, ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody, ExportH5PTexteATrousRequest, ExportH5PMotsCroisesRequest } from '@/types/api/export';
-import { Dialogcard } from '@/lib/api-client';
 import { NextRequest, NextResponse } from "next/server";
 import createQuestionSet from './creation-requests/createQuestionSet';
 import createInteractiveVideo from './creation-requests/createInteractiveVideo';

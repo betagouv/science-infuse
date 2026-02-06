@@ -12,14 +12,14 @@ export interface MotsCroisesData {
 }
 
 export default async (input: MotsCroisesData, h5pContentId?: string) => {
-  const document = await prisma.document.findUnique({
-    where: {
-      id: input.documentId
-    },
-  });
-
-  if (!document) {
-    throw new Error(`Document not found for id: ${input.documentId}`);
+  let title = ""
+  if (input?.documentId) {
+    const document = await prisma.document.findUnique({
+      where: {
+        id: input.documentId
+      },
+    });
+    title = document?.mediaName || "";
   }
 
   // Transform words to H5P Crossword format
@@ -99,8 +99,8 @@ export default async (input: MotsCroisesData, h5pContentId?: string) => {
         "license": "U",
         "authors": [],
         "changes": [],
-        "extraTitle": `Mots croisés : ${document.mediaName}`,
-        "title": `Mots croisés : ${document.mediaName}`
+        "extraTitle": `Mots croisés : ${title}`,
+        "title": `Mots croisés : ${title}`
       }
     }
   };

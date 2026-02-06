@@ -159,7 +159,7 @@ export default () => {
                         setDocumentId(undefined)
                         setLoading(false);
                     }}
-                    documentId={documentId}
+                    source={{ type: 'document', documentId }}
                     onDocumentProcessingEnd={onDocumentProcessingEnd}
                 />
             </>}
