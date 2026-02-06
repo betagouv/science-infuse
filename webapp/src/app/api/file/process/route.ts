@@ -1,5 +1,7 @@
 import axios from "axios";
 import { randomUUID, createHash } from "crypto";
+import { writeFile, unlink } from "fs/promises";
+import path from "path";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -7,6 +9,7 @@ import { insertDocument } from "@/lib/utils/db";
 import { NEXT_PUBLIC_SERVER_URL } from "@/config";
 import { z } from "zod";
 import type { ProcessDirectFileResponse, ProcessDirectFilePickedChunk } from "@/types/api/direct-file";
+import s3Storage from "@/app/api/S3Storage";
 
 const PostSchema = z.object({
   file: z.instanceof(File),
@@ -34,6 +37,43 @@ const pickChunkFromDb = async (params: { documentId: string; pickMediaType?: str
     text: chunk.text,
     metadata: chunk.metadata || undefined,
   };
+};
+
+const getProcessingEndpoint = (mimeType: string): string | null => {
+  if (mimeType === "application/pdf") return `${NEXT_PUBLIC_SERVER_URL}/process/pdf`;
+  if (mimeType.startsWith("image/")) return `${NEXT_PUBLIC_SERVER_URL}/process/picture`;
+  if (mimeType.startsWith("video/")) return `${NEXT_PUBLIC_SERVER_URL}/process/youtube`;
+  return null;
+};
+
+const processVideo = async (buffer: Buffer, fileName: string) => {
+  const extension = fileName.split(".").pop() || "mp4";
+  const safeName = `${randomUUID()}.${extension}`;
+  const s3ObjectName = `uploads/${safeName}`;
+  const localFilePath = path.join(process.cwd(), "public", safeName);
+
+  await writeFile(localFilePath, new Uint8Array(buffer));
+  await s3Storage.uploadFile(localFilePath, s3ObjectName);
+  await unlink(localFilePath).catch(() => {});
+
+  return axios
+    .post(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { s3_object_name: s3ObjectName }, {
+      headers: { "Content-Type": "application/json" },
+    })
+    .then((r) => r.data);
+};
+
+const processFileUpload = async (buffer: Buffer, fileName: string, mimeType: string, endpoint: string) => {
+  const extension = mimeType === "application/pdf" ? "pdf" : fileName.split(".").pop() || "bin";
+  const safeName = `${randomUUID()}.${extension}`;
+  const forwardedFile = new File([new Uint8Array(buffer)], safeName, { type: mimeType });
+
+  const form = new FormData();
+  form.append("file", forwardedFile);
+
+  return axios
+    .post(endpoint, form, { headers: { "Content-Type": "multipart/form-data" } })
+    .then((r) => r.data);
 };
 
 export async function POST(request: NextRequest) {
@@ -77,35 +117,16 @@ export async function POST(request: NextRequest) {
   }
 
   const mimeType = file.type || "application/octet-stream";
-  const processingEndpoint =
-    mimeType === "application/pdf"
-      ? `${NEXT_PUBLIC_SERVER_URL}/process/pdf`
-      : mimeType.startsWith("image/")
-        ? `${NEXT_PUBLIC_SERVER_URL}/process/picture`
-        : null;
+  const isVideo = mimeType.startsWith("video/");
 
+  const processingEndpoint = getProcessingEndpoint(mimeType);
   if (!processingEndpoint) {
     return NextResponse.json({ error: `Unsupported mimeType: ${mimeType}` }, { status: 400 });
   }
 
-  // The python backend currently writes the upload to `file.filename`.
-  // Use a random filename to avoid collisions.
-  const extension = mimeType === "application/pdf" ? "pdf" : file.name.split(".").pop() || "bin";
-  const safeName = `${randomUUID()}.${extension}`;
-  // Node's Buffer is not a valid BlobPart in TS typings; wrap it.
-  const forwardedFile = new File([new Uint8Array(buffer)], safeName, { type: mimeType });
-
-  const upstreamForm = new FormData();
-  upstreamForm.append("file", forwardedFile);
-
-  // Call python backend (FastAPI)
-  const processingResponse = await axios
-    .post(processingEndpoint, upstreamForm, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then((r) => r.data);
+  const processingResponse = isVideo
+    ? await processVideo(buffer, file.name)
+    : await processFileUpload(buffer, file.name, mimeType, processingEndpoint);
 
   // Insert into DB (including embeddings)
   const documentId = await insertDocument({

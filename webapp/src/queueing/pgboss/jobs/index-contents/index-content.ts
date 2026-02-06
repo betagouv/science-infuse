@@ -9,6 +9,7 @@ import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 import indexYoutube, { createOrGetTag } from "../index-video";
+import s3Storage from "@/app/api/S3Storage";
 
 const crypto = require('crypto');
 
@@ -50,35 +51,43 @@ export const IndexContentWorker = defineWorker(config, async (job) => {
     // Calculate the hash of the file
     fileHash = crypto.createHash('sha256').update(fileContent).digest('hex');
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('author', author || '');
+    if (mimeType.startsWith('video/')) {
+      // Video files: upload to S3 and process via /process/youtube
+      const s3ObjectName = `indexing/${path.split('/').pop()}`;
+      await s3Storage.uploadFile(path, s3ObjectName);
 
+      [processingError, processingResponse] = await catchErrorTyped(
+        axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { s3_object_name: s3ObjectName }, {
+          headers: { 'Content-Type': 'application/json' },
+        }).then(response => response.data),
+        [Error]
+      );
+    } else {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('author', author || '');
 
-    switch (mimeType) {
-      case "application/pdf":
-        [processingError, processingResponse] = await catchErrorTyped(
-          axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/pdf`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }).then(response => response.data),
-          [Error]
-        )
-        break;
-      case "image/jpeg":
-      case "image/png":
-        [processingError, processingResponse] = await catchErrorTyped(
-          axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/picture`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }).then(response => response.data),
-          [Error]
-        )
-        break;
-      default:
-        return { success: false, message: `Cannot process mimeType "${mimeType}".` };
+      switch (mimeType) {
+        case "application/pdf":
+          [processingError, processingResponse] = await catchErrorTyped(
+            axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/pdf`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            }).then(response => response.data),
+            [Error]
+          );
+          break;
+        case "image/jpeg":
+        case "image/png":
+          [processingError, processingResponse] = await catchErrorTyped(
+            axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/picture`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            }).then(response => response.data),
+            [Error]
+          );
+          break;
+        default:
+          return { success: false, message: `Cannot process mimeType "${mimeType}".` };
+      }
     }
 
     await fs.promises.unlink(path);
@@ -118,6 +127,7 @@ export const IndexContentWorker = defineWorker(config, async (job) => {
       chunks: processingResponse.chunks,
       hash: fileHash,
       isExternal,
+      isPublic: true,
       documentTagIds: Array.from(new Set([...tags])),
       sourceCreationDate,
     })
