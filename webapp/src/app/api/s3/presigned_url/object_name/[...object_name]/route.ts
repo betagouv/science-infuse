@@ -78,10 +78,19 @@ export async function GET(
         return new Response('Missing object_name parameter', { status: 400 });
     }
 
+    let shouldResizeAndWatermarkImage = true;
+    if (user ||
+        request.headers.get('referer')?.includes("/embed/h5p/") ||
+        !request.headers.get('referer')?.includes(`${process.env.NEXT_PUBLIC_WEBAPP_URL}`)
+    ) {
+        shouldResizeAndWatermarkImage = false;
+    }
+
+    console.log("shouldResizeAndWatermarkImage", shouldResizeAndWatermarkImage)
+
     try {
         const presignedUrl = await s3Storage.getPresignedUrl(object_name);
-
-        if (!user) {
+        if (shouldResizeAndWatermarkImage === true) {
             if (object_name.toLowerCase().endsWith('.png')) {
                 if (!presignedUrl) {
                     return NextResponse.json({ error: 'Presigned URL not found' }, { status: 404 });
@@ -93,7 +102,7 @@ export async function GET(
                 return new Response(finalImageBuffer, {
                     headers: {
                         'Content-Type': 'image/png',
-                        'Cache-Control': 'public, max-age=60',
+                        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
                     },
                 });
             }

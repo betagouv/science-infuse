@@ -287,7 +287,7 @@ const CoverPicker = (props: { editor: Editor, chapter: ChapterWithoutBlocks, upd
 
     useEffect(() => {
         if (user) {
-            setSource(`${user.firstName} ${user.lastName}`)
+            setSource(user.firstName ? `${user.firstName} ${user.lastName}` : user.name)
         }
     }, [user])
 
