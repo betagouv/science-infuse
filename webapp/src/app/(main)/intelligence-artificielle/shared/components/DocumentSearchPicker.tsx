@@ -1,5 +1,5 @@
 import SearchPage from "@/app/(main)/recherche/SearchPage";
-import { selectedTabType, TabType } from "@/app/(main)/recherche/Tabs";
+import { TabType } from "@/app/(main)/recherche/Tabs";
 import { MediaTypes } from "@/types/vectordb";
 import SearchBar from "@codegouvfr/react-dsfr/SearchBar";
 import { useRef, useState } from "react";
@@ -11,7 +11,7 @@ const defaultConfig = {
     onInsertedLabel: "Sélectionner",
     mediaTypes: [MediaTypes.VideoTranscript],
     hiddenTabs: [] as TabType[],
-    defaultTab: "videos",
+    defaultTab: TabType.Videos,
     queryFilters: { limit: 100 }
 };
 
@@ -73,9 +73,6 @@ export const DocumentSearchPicker = (props: GenericDocumentPickerProps) => {
             tab={config.defaultTab}
             mediaTypes={config.mediaTypes}
             hiddenTabs={config.hiddenTabs}
-            onTabChange={(newTab) => {
-                selectedTabType.value = newTab;
-            }}
         />}
 
     </div>

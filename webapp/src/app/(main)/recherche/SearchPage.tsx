@@ -2,15 +2,13 @@
 
 import React from "react";
 import { CircularProgress } from "@mui/material";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChunkWithScoreUnion, MediaType, SearchResults } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaType } from "@/types/vectordb";
 import { getSearchWords } from "./text-highlighter";
 import { useTrackedSearch } from "@/hooks/useTrackedSearch";
-import Tabs, { selectedTabType, TabType } from "./Tabs";
-import { useEffect } from "@preact-signals/safe-react/react";
+import Tabs, { TabType } from "./Tabs";
+import { useState, useEffect } from "react";
 import Snackbar from "@/course_editor/components/Snackbar";
 import { RenderSearchResult } from "./RenderSearch";
-import { useSession } from "next-auth/react";
 import { QueryFilters } from "@/types/api";
 
 
@@ -19,21 +17,33 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
     const query = props.query;
     const urlTabType = props.tab || "";
     const searchWords = getSearchWords(query);
-    const { push } = useRouter();
-    const { data: session } = useSession();
-    const user = session?.user;
 
     const { data: results, isLoading, isError } = useTrackedSearch({
         query,
         filters: props.queryFilters
     });
 
+    // Helper to validate and normalize tab type
+    const normalizeTab = (tab: string): TabType => {
+        // Check if it's a valid TabType enum value
+        if (Object.values(TabType).includes(tab as TabType)) {
+            return tab as TabType;
+        }
+        return TabType.Videos;
+    };
+
+    // Derive the active tab from URL - always use the URL value when available
+    // Use state to track user clicks, but initialize from props
+    const [localTab, setLocalTab] = useState<TabType>(() => {
+        return normalizeTab(urlTabType);
+    });
+
+    // Sync with URL when it changes
     useEffect(() => {
-        if (!urlTabType) return;
-        setTimeout(() => {
-            selectedTabType.value = urlTabType as TabType;
-        }, 1000)
-    }, [urlTabType, user])
+        if (urlTabType) {
+            setLocalTab(normalizeTab(urlTabType));
+        }
+    }, [urlTabType]);
 
     const resultPerPage = 10
     const chunks = results ? !props.mediaTypes ? results.chunks : results.chunks.filter(c => props.mediaTypes?.includes(c.mediaType)) : [];
@@ -46,9 +56,11 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
                 favourites={[]}
                 blocks={blocks}
                 chunks={chunks}
-                selectedTabType={selectedTabType.value}
+                selectedTabType={localTab}
                 onTabChange={(newTab) => {
-                    props.onTabChange && props.onTabChange(newTab)
+                    // Update local state when user clicks
+                    setLocalTab(newTab);
+                    props.onTabChange && props.onTabChange(newTab);
                 }}
             />
             {isLoading && <LoadingIndicator />}
@@ -60,7 +72,7 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
                         onInserted={props.onInserted}
                         onInsertedLabel={props.onInsertedLabel}
                         favourites={[]}
-                        selectedTab={selectedTabType.value}
+                        selectedTab={localTab}
                         results={{ ...results, blocks, chunks }}
                         searchWords={searchWords}
                         resultPerPage={resultPerPage}

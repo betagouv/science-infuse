@@ -1,18 +1,9 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
-import { CircularProgress } from "@mui/material";
+import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SearchResults, ChunkWithScore, GroupedVideo, MediaType } from "@/types/vectordb";
-import { getSearchWords } from "./text-highlighter";
-import { fetchSIContent } from "./fetchSIContent";
-import Tabs, { selectedTabType, TabMediaTypeMap, TabType } from "./Tabs";
-import { useEffect, useState } from "@preact-signals/safe-react/react";
+import { selectedTabType } from "./Tabs";
 import Snackbar from "@/course_editor/components/Snackbar";
-import { BlockResults, ChunkResults, GroupedVideoChunkResults, RenderSearchResult } from "./RenderSearch";
-import { useSession } from "next-auth/react";
 import SearchPage from "./SearchPage";
 
 
@@ -22,16 +13,6 @@ const Search: React.FC = () => {
   const query = searchParams.get('query') || "";
   const urlTabType = searchParams.get('tab') || "";
   const { push } = useRouter();
-  const { data: session } = useSession();
-  const user = session?.user;
-
-
-  useEffect(() => {
-    if (!urlTabType) return;
-    setTimeout(() => {
-      selectedTabType.value = urlTabType as TabType;
-    }, 1000)
-  }, [urlTabType, user])
 
 
   return (
@@ -44,7 +25,6 @@ const Search: React.FC = () => {
             url.searchParams.set('tab', newTab);
             push(url.toString());
             selectedTabType.value = newTab;
-
           }} />
         </div>
       </div>

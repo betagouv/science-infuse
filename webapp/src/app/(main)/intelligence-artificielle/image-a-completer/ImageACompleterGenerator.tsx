@@ -127,12 +127,12 @@ export default () => {
                             searchBarLabel: "Rechercher par mot-clé :",
                             searchBarPlaceholder: "Rechercher un document par mot-clé...",
                             onInsertedLabel: "Générer des dialogcards",
-                            mediaTypes: [MediaTypes.PdfImage],
+                            mediaTypes: [MediaTypes.PdfImage, MediaTypes.Image, MediaTypes.RawImage],
                             hiddenTabs: [TabType.Games, TabType.Chapters, TabType.Documents, TabType.Videos],
-                            defaultTab: "documents",
+                            defaultTab: TabType.Pictures,
                             queryFilters: {
-                                limit: 100,
-                                mediaTypes: [MediaTypes.PdfImage]
+                                limit: 1000,
+                                mediaTypes: [MediaTypes.PdfImage, MediaTypes.PdfImage, MediaTypes.RawImage]
                             }
                         }}
                     />
