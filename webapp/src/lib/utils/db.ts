@@ -7,11 +7,13 @@ import { getEmbeddings, getTextToEmbeed } from "./embeddings";
 import { userFullFields } from "@/app/api/accessControl";
 import { auth } from "@/auth";
 
-export const getChaptersWithBlocks = async (userId: string): Promise<ChapterWithBlock[]> => {
+export const getChaptersWithBlocks = async (userId: string, options?: { isAdmin?: boolean }): Promise<ChapterWithBlock[]> => {
+    // Si l'utilisateur est admin, on retourne tous les chapitres
+    // Sinon, on filtre par userId
+    const whereClause = options?.isAdmin ? {} : { userId: userId };
+    
     return await prisma.chapter.findMany({
-        where: {
-            userId: userId,
-        },
+        where: whereClause,
         orderBy: {
             createdAt: 'desc',
         },
@@ -82,7 +84,7 @@ export const insertChunk = async (document: Document, chunk: DocumentChunk, meta
 
 }
 
-export const insertDocument = async ({ document, mediaName, chunks, documentTagIds, hash, sourceCreationDate, isExternal, userId, isPublic }: {
+export const insertDocument = async ({ document, mediaName, chunks, documentTagIds, hash, sourceCreationDate, isExternal, userId, isPublic, title, credit, isDownloadable, identifier, description, youtubeId, source }: {
     document: Document,
     mediaName?: string,
     chunks: (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[],
@@ -92,16 +94,33 @@ export const insertDocument = async ({ document, mediaName, chunks, documentTagI
     isExternal: boolean,
     userId?: string,
     isPublic?: boolean,
+    title?: string,
+    credit?: string,
+    isDownloadable?: boolean,
+    identifier?: string,
+    description?: string,
+    youtubeId?: string,
+    source?: string,
 }): Promise<string> => {
+    const normalizeSource = (value?: string | null) => (value && value.trim() ? value.trim() : undefined);
+    const resolvedSource = normalizeSource(source) || normalizeSource(document.source) || "Universcience";
+
     const createdDocument = await prisma.document.create({
         data: {
             ...document,
+            source: resolvedSource,
             mediaName: mediaName || "",
             isExternal,
             userId: userId,
             fileHash: hash,
             isPublic: isPublic,
             sourceCreationDate: sourceCreationDate,
+            title: title,
+            credit: credit,
+            isDownloadable: isDownloadable ?? true,
+            identifier: identifier || undefined,
+            description: description || undefined,
+            youtubeId: youtubeId || undefined,
             tags: {
                 connect: documentTagIds.map(id => ({ id }))
             },
@@ -109,8 +128,9 @@ export const insertDocument = async ({ document, mediaName, chunks, documentTagI
     });
 
     // create chunks (and  metadatas) and link them to the new document
+    // Use createdDocument (with title/description) instead of the chunk's old document reference
     await Promise.all(chunks.map(async ({ document, metadata, ...chunk }) => {
-        return insertChunk(document, chunk, metadata)
+        return insertChunk(createdDocument, chunk, metadata)
     }));
 
     return createdDocument.id;
@@ -267,7 +287,8 @@ export async function desindexDocuments(documentIds: string[]) {
                 }
             },
             data: {
-                deleted: true
+                deleted: true,
+                deletedAt: new Date()
             }
         })
         return updatedDocuments
@@ -307,7 +328,8 @@ export async function indexDocuments(documentIds: string[]) {
                 }
             },
             data: {
-                deleted: false
+                deleted: false,
+                deletedAt: null
             }
         })
         return updatedDocuments

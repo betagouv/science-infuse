@@ -1,10 +1,12 @@
-// "use client"; 
+'use client';
 
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { indexDocuments } from "@/lib/utils/db";
 import Alert from "@codegouvfr/react-dsfr/Alert";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const modal = createModal({
     id: "index-documents-modal",
@@ -14,6 +16,9 @@ const modal = createModal({
 
 export default function (props: { documentIds: string[] }) {
     const isOpen = useIsModalOpen(modal);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const router = useRouter();
 
     return (
         <>
@@ -25,13 +30,36 @@ export default function (props: { documentIds: string[] }) {
                         closable={false}
                         small
                     />
+                    {errorMessage && (
+                        <Alert
+                            severity="error"
+                            description={errorMessage}
+                            closable={false}
+                            small
+                        />
+                    )}
                     <Button
                         onClick={async () => {
-                            await indexDocuments(props.documentIds)
+                            if (isSubmitting) return;
+                            setIsSubmitting(true);
+                            setErrorMessage(null);
+                            try {
+                                await indexDocuments(props.documentIds);
+                                modal.close();
+                                router.refresh();
+                            } catch (error) {
+                                setErrorMessage("Une erreur est survenue lors de l'indexation.");
+                            } finally {
+                                setIsSubmitting(false);
+                            }
                         }}
-                        className="w-full justify-center" priority="secondary"
+                        className="w-full justify-center"
+                        priority="secondary"
+                        disabled={isSubmitting}
                     >
-                        Indexer {props.documentIds.length} Documents
+                        {isSubmitting
+                            ? "Indexation en cours..."
+                            : `Indexer ${props.documentIds.length} Documents`}
                     </Button>
                 </div>
             </modal.Component>

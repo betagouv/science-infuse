@@ -26,7 +26,8 @@ export default async function FileExplorerPage() {
                 deleted: true,
                 s3ObjectName: true,
                 tags: true,
-                mediaName: true
+                mediaName: true,
+                title: true
             },
         });
 

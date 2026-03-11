@@ -139,7 +139,7 @@ export type ChunkWithScoreUnion =
 //   mediaName: string;
 // }
 
-interface DocumentFull extends Document {
+export interface DocumentFull extends Document {
   tags: DocumentTag[]
 }
 export interface DocumentWithChunks extends DocumentFull {

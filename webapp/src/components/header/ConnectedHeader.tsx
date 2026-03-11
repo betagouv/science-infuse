@@ -154,8 +154,16 @@ export default function MonEspaceDropdown(props: { isGar?: boolean }) {
 
   const handleSignOut = async () => {
     setOpen(false);
-    await signOut();
-    router.push("/");
+    const isGarUser = session?.provider === 'gar-credentials' || session?.provider === 'gar' || !!user?.uai;
+    
+    // Clear the GAR user flag from localStorage
+    localStorage.removeItem('isGarUser');
+    
+    if (isGarUser) {
+      await signOut({ callbackUrl: '/deconnexion?gar=1' });
+    } else {
+      await signOut({ callbackUrl: '/' });
+    }
   };
 
   return (

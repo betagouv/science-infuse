@@ -1,4 +1,4 @@
-FROM docker.io/bitnami/moodle:4.5
+FROM docker.io/bitnamilegacy/moodle:4.5.4-debian-12-r0
 
 # Switch to root to install Node.js
 USER root

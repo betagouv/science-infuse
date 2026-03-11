@@ -11,7 +11,8 @@ import { cx } from '@codegouvfr/react-dsfr/tools/cx';
 import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
 import { headers } from "next/headers";
 import { MuiDsfrThemeProvider } from "../MuiDsfrThemeProvider";
-import { ConsentBannerAndConsentManagement, FooterConsentManagementItem, FooterPersonalDataPolicyItem } from "../../components/dsfr/consentManagement";
+// import { ConsentBannerAndConsentManagement, FooterConsentManagementItem } from "../../components/dsfr/consentManagement";
+import { FooterPersonalDataPolicyItem } from "../../components/dsfr/consentManagement";
 import { auth } from '@/auth';
 
 export default async function RootLayout({ children }: { children: JSX.Element; }) {
@@ -32,7 +33,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
   return (
     <Providers>
       <DsfrProvider lang={lang}>
-        <ConsentBannerAndConsentManagement />
+        {/* <ConsentBannerAndConsentManagement /> */}
         <NextAppDirEmotionCacheProvider options={{ "key": "css", nonce, prepend: true }}>
           <MuiDsfrThemeProvider>
             <Toaster
@@ -45,11 +46,6 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
             {children}
             <SIFooter />
             <Footer
-              brandTop={<>MINISTÈRE DE<br />LA CULTURE</>}
-              homeLinkProps={{
-                href: '/'
-              }}
-
               accessibility="non compliant"
               accessibilityLinkProps={{
                 href: "/declaration-d-accessibilite",
@@ -61,7 +57,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
               bottomItems={[
                 headerFooterDisplayItem,
                 <FooterPersonalDataPolicyItem key="FooterPersonalDataPolicyItem" />,
-                <FooterConsentManagementItem key="FooterConsentManagementItem" />,
+                // <FooterConsentManagementItem key="FooterConsentManagementItem" />,
               ]}
             />
           </MuiDsfrThemeProvider>

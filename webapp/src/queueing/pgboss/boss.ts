@@ -20,7 +20,8 @@ export const JOB_TYPES = {
     "auto-index-youtube"
   ],
   scheduled: [
-    "reindex-youtube"
+    "reindex-youtube",
+    "youtube-purge"
   ]
 } as const;
 

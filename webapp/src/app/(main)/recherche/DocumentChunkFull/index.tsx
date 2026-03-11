@@ -5,6 +5,7 @@ import { WEBAPP_URL } from "@/config";
 import { TiptapEditor, useTiptapEditor } from "@/course_editor";
 import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/components/CourseSettings/ChapterTableOfContents";
 import { apiClient } from "@/lib/api-client";
+import { normalizeUrl } from "@/lib/utils";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
 import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
@@ -23,6 +24,7 @@ import Highlighter from "react-highlight-words";
 import { findNormalizedChunks } from "../text-highlighter";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 import ThreeDotMenu from '@/components/cards/ThreeDotMenu';
+import ImageModal, { openImageModal } from '@/components/ImageModal';
 
 export const StyledCardWithoutTitle = styled(Card)`
 .fr-card__content {
@@ -152,19 +154,51 @@ const StarBlock = (props: { query: string, blockId: string, starred: boolean }) 
     </Tooltip>
 }
 
-export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined }) => {
+export const BuildCardEnd = (props: OnInserted & { chunk: ChunkWithScoreUnion, end?: React.ReactNode, downloadLink?: string, starred: boolean | undefined, imageUrl?: string, imageAlt?: string }) => {
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || "";
     const { data: session } = useSession();
     const user = session?.user;
+
+    const handleViewLarger = () => {
+        if (props.imageUrl) {
+            // Store complete document data in sessionStorage
+            const documentData = {
+                imageUrl: props.imageUrl,
+                title: props.chunk.document.title,
+                description: props.chunk.document.description || props.imageAlt,
+                credit: props.chunk.document.credit,
+                source: props.chunk.document.source,
+                mediaName: props.chunk.document.mediaName,
+                isDownloadable: props.chunk.document.isDownloadable,
+            };
+            sessionStorage.setItem('modalImageData', JSON.stringify(documentData));
+            openImageModal();
+        }
+    };
 
     return (
         <div className="flex flex-col justify-between gap-4">
             {props.end}
             <div className="flex items-center gap-4 ml-auto w-full">
                 {user && props.starred != undefined && <StarDocumentChunk key={props.chunk.id} query={query} chunkId={props.chunk.id} starred={props.starred} />}
+                
+                {/* View larger button for images */}
+                {props.imageUrl && (
+                    <Tooltip title="Voir en grand">
+                        <button
+                            className='flex'
+                            onClick={handleViewLarger}
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" clipRule="evenodd" d="M15 3H21V9H19V5H15V3ZM9 3H3V9H5V5H9V3ZM15 21H21V15H19V19H15V21ZM9 21H3V15H5V19H9V21Z" fill="#161616" />
+                            </svg>
+                        </button>
+                    </Tooltip>
+                )}
+
                 {
-                    props.downloadLink && props.chunk.mediaType !== "video_transcript" && user && <button
+                    props.downloadLink && props.chunk.mediaType !== "video_transcript" && user && props.chunk.document.isDownloadable !== false && <button
                         className='flex'
                         onClick={() => window.open(props.downloadLink, '_blank')}
                     >
@@ -321,12 +355,13 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
     if (chunk.title) {
         path.push(...chunk.title.toLowerCase().split('>'))
     }
+    const imageUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
     return (
         <StyledImageCard
             background
             border
             imageAlt={chunk.text}
-            imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            imageUrl={imageUrl}
             end={<BuildCardEnd
                 onInserted={onInserted}
                 onInsertedLabel={onInsertedLabel}
@@ -338,6 +373,8 @@ export const RenderPdfImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"
                 }
                 starred={!!chunk?.user_starred}
                 downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+                imageUrl={imageUrl}
+                imageAlt={chunk.text}
             />}
             size="medium"
             title=""
@@ -352,18 +389,21 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
     if (chunk.title) {
         path.push(...chunk.title.toLowerCase().split('>'))
     }
+    const imageUrl = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
     return (
         <StyledImageCard
             background
             border
             imageAlt={chunk.text}
-            imageUrl={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            imageUrl={imageUrl}
             end={<BuildCardEnd
                 onInserted={onInserted}
                 onInsertedLabel={onInsertedLabel}
                 chunk={chunk}
                 starred={!!chunk?.user_starred}
                 downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+                imageUrl={imageUrl}
+                imageAlt={chunk.text}
             />}
             size="medium"
             title=""
@@ -376,6 +416,7 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
 export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: GroupedVideo; searchWords: string[], defaultSelectedChunk?: ChunkWithScore<"video_transcript"> }> = ({ onInserted, onInsertedLabel, video, defaultSelectedChunk, searchWords }) => {
     const user = useSession()?.data?.user;
     const firstChunk = video.items[0];
+    const videoTitle = firstChunk.document.title?.trim() || firstChunk.document.mediaName?.trim() || firstChunk.title;
     let originalPath = firstChunk.document.originalPath;
     const [selectedChunk, setSelectedChunk] = useState<ChunkWithScore<"video_transcript"> | undefined>(defaultSelectedChunk)
     if (originalPath.includes("youtube") && selectedChunk) {
@@ -399,7 +440,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
                 chunk={selectedChunk || video.items[0]}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
-                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={openLink} target="_blank">{firstChunk.title}</a>
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={openLink} target="_blank">{videoTitle}</a>
                         <p className="m-0 text-xs text-[#666]">{video.items.length} correspondance{video.items.length > 1 ? 's' : ''}</p>
                     </div>
                 }
@@ -424,7 +465,7 @@ export const RenderGroupedVideoTranscriptCard: React.FC<OnInserted & { video: Gr
 
 export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWithScore<"video_transcript">; searchWords: string[] }> = ({ onInserted, onInsertedLabel, chunk, searchWords }) => {
     const user = useSession()?.data?.user;
-    console.log("chunkKK", chunk)
+    const videoTitle = chunk.document.title?.trim() || chunk.document.mediaName?.trim() || chunk.title;
     let originalPath = chunk.document.originalPath;
     if (originalPath.includes("youtube")) {
         originalPath = originalPath.replace("https://www.youtube.com/watch?v=", "https://youtu.be/") + `?t=${Math.floor(chunk.metadata.start)}`
@@ -437,7 +478,7 @@ export const RenderVideoTranscriptCard: React.FC<OnInserted & { chunk: ChunkWith
                 chunk={chunk}
                 end={
                     <div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
-                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{chunk.title}</a>
+                        <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{videoTitle}</a>
                     </div>
                 }
                 starred={chunk.user_starred}
@@ -471,7 +512,7 @@ export const RenderVideoTranscriptDocumentCard: React.FC<OnInserted & { document
     return (
         <StyledGroupedVideoCard
             end={<div className="flex flex-col items-start justify-between gap-4 overflow-hidden">
-                <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{document.mediaName}</a>
+                <a className="m-0 text-base overflow-hidden whitespace-nowrap overflow-ellipsis max-w-full" href={`${originalPath}`} target="_blank">{document.title?.trim() || document.mediaName}</a>
             </div>}
             desc={
                 <div className="w-full mx-auto">
@@ -671,7 +712,7 @@ export const RenderChapterBlock = (props: { searchWords: string[], block: BlockW
         }
         horizontal
         imageAlt="image d'illustration du bloc"
-        imageUrl={props.block.chapter?.coverPath || baseImageSrc}
+        imageUrl={normalizeUrl(props.block.chapter?.coverPath) || baseImageSrc}
         // imageUrl={blockImageSrc || chapterImageSrc || baseImageSrc}
         footer={
             <div className="flex justify-between items-center">
@@ -725,7 +766,7 @@ export const RenderChapter = (props: { chapter: ChapterWithBlock }) => {
         }
         horizontal
         imageAlt="image d'illustration du chapitre"
-        imageUrl={chapter.coverPath || baseImageSrc}
+        imageUrl={normalizeUrl(chapter.coverPath) || baseImageSrc}
         // imageUrl={chapterImageSrc || blockImageSrc || baseImageSrc}
         footer={
             <a href={`/prof/chapitres/${chapter.id}/view`} id="">
@@ -788,7 +829,7 @@ export const DocumentPreview = (props: { document: DocumentWithChunks }) => {
 
     return (
         <StyledTile
-            title={props.document.mediaName}
+            title={props.document.title?.trim() || props.document.mediaName}
             linkProps={{
                 href: link,
                 target: "_blank"

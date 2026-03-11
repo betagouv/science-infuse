@@ -20,12 +20,11 @@ export default async function ClientHeader({ session }: ClientHeaderProps) {
       className="z-[10000]"
       brandTop={<>MINISTÈRE DE
         <br />LA CULTURE</>}
-      // operatorLogo={{
-      //   alt: 'logo Ada',
-      //   imgUrl: '/images/science_infuse_logo.jpg',
-      //   // imgUrl: '/images/science_infuse_logo.svg',
-      //   orientation: 'horizontal'
-      // }}
+      operatorLogo={{
+        alt: 'logo Universcience',
+        imgUrl: '/images/universcience-logo.svg',
+        orientation: 'horizontal'
+      }}
       quickAccessItems={[
         // <div key="mail" className="flex h-full items-center justify-center">
         //   <a href="/besoin-d-aide" className="fr-btn flex gap-2 !m-0 h-fit justify-center" id="fr-header-header-with-quick-access-items-quick-access-item-1">
@@ -41,8 +40,7 @@ export default async function ClientHeader({ session }: ClientHeaderProps) {
         "href": "/",
         "title": `Accueil - ${PROJECT_NAME}`
       }}
-      serviceTitle={<p className="text-xl text-[#161616]">
-        <span className="font-bold">Ada</span>
+      serviceTitle={<p className="text-xl text-[#161616]"><span className="font-bold">Ada</span>
       </p>}
       serviceTagline={<p className="text-sm text-left text-[#3a3a3a]">
         Contenus multimédias gratuits

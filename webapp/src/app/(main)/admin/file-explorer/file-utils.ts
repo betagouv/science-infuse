@@ -7,6 +7,7 @@ export interface FileExplorerDocument {
     id: string;
     deleted: boolean,
     mediaName: string;
+    title: string | null;
 }
 
 export interface FileNode {

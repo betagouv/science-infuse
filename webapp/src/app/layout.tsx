@@ -4,7 +4,7 @@ import "./css/lists.scss";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { defaultColorScheme } from "./defaultColorScheme";
-import MatomoAnalytics from "@/components/MatomoAnalytics";
+// import MatomoAnalytics from "@/components/MatomoAnalytics";
 import { catchErrorTyped } from "@/errors";
 import { addDisplayTranslations } from "@codegouvfr/react-dsfr/Display";
 import { getScriptNonceFromHeader } from "next/dist/server/app-render/get-script-nonce-from-header"; // or use your own implementation
@@ -32,8 +32,7 @@ export default async function RootLayout({ children }: { children: JSX.Element; 
     <html {...getHtmlAttributes({ defaultColorScheme, lang })} >
       <head>
         <title>Ada - Contenus multimédias gratuits par la Cité des sciences et de l'industrie et le Palais de la découverte</title>
-        <MatomoAnalytics />
-        {/* {process.env.ENVIRONMENT != "dev" && <MatomoAnalytics />} */}
+        {/* <MatomoAnalytics /> */}
         <StartDsfr />
         <DsfrHead
           Link={Link}

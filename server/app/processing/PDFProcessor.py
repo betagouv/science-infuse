@@ -150,66 +150,67 @@ class PDFProcessor(BaseDocumentProcessor):
         return image_path, file_name
 
 
-    def get_pdf_images(self, doc: type[PdfDocument]):
-        temp_images = []
-        logger.info("GET PDF IMAGES logger")
+    # COMMENTED OUT: Image extraction from PDFs is disabled
+    # def get_pdf_images(self, doc: type[PdfDocument]):
+    #     temp_images = []
+    #     logger.info("GET PDF IMAGES logger")
 
-        temp_images = []
+    #     temp_images = []
 
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            
-            for img_index, item in enumerate(doc.get_page_images(page_num)):
-                try:
-                    xref = item[0]
-                    base_image = doc.extract_image(xref)
-                    
-                    if base_image:
-                        image_bytes = base_image["image"]
-                        image_ext = base_image["ext"]
-                        pil_image = Image.open(io.BytesIO(image_bytes))
+    #     for page_num in range(len(doc)):
+    #         page = doc[page_num]
+    #         
+    #         for img_index, item in enumerate(doc.get_page_images(page_num)):
+    #             try:
+    #                 xref = item[0]
+    #                 base_image = doc.extract_image(xref)
+    #                 
+    #                 if base_image:
+    #                     image_bytes = base_image["image"]
+    #                     image_ext = base_image["ext"]
+    #                     pil_image = Image.open(io.BytesIO(image_bytes))
 
-                        if pil_image.mode != "RGB":
-                            pil_image = pil_image.convert("RGB")
-                        
-                        # Get transformation matrix and bounding box
+    #                     if pil_image.mode != "RGB":
+    #                         pil_image = pil_image.convert("RGB")
+    #                     
+    #                     # Get transformation matrix and bounding box
 
-                        # Fix issues where extracted images are mirrored.
-                        # Check for mirroring and rotation using the matrix
-                        bbox, transform = page.get_image_bbox(item[7], transform=True)
-                        # See : https://github.com/pymupdf/PyMuPDF/issues/385
-                        if min(transform.a, transform.d) < 0:
-                            if transform.a < 0:  # Horizontal flip
-                                pil_image = pil_image.transpose(Image.FLIP_LEFT_RIGHT)
-                            if transform.d < 0:  # Vertical flip
-                                pil_image = pil_image.transpose(Image.FLIP_TOP_BOTTOM)
+    #                     # Fix issues where extracted images are mirrored.
+    #                     # Check for mirroring and rotation using the matrix
+    #                     bbox, transform = page.get_image_bbox(item[7], transform=True)
+    #                     # See : https://github.com/pymupdf/PyMuPDF/issues/385
+    #                     if min(transform.a, transform.d) < 0:
+    #                         if transform.a < 0:  # Horizontal flip
+    #                             pil_image = pil_image.transpose(Image.FLIP_LEFT_RIGHT)
+    #                         if transform.d < 0:  # Vertical flip
+    #                             pil_image = pil_image.transpose(Image.FLIP_TOP_BOTTOM)
 
-                        # Apply rotation based on matrix
-                        if transform.a != transform.d:
-                            if transform.a < 0 and transform.d < 0:
-                                pil_image = pil_image.rotate(180)
-                            elif transform.a == 0 and transform.d > 0:
-                                pil_image = pil_image.rotate(90)
-                            elif transform.a > 0 and transform.d == 0:
-                                pil_image = pil_image.rotate(-90)
-                        
-                        x0, y0, x1, y1 = bbox
-                        width = x1 - x0
-                        height = y1 - y0
-                        if (self.keep_image_based_on_size(width, height) and not self.is_single_color(pil_image)):
-                            temp_images.append({
-                                "image": pil_image,
-                                "pageNumber": page_num + 1,
-                                'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1},
-                                'format': image_ext
-                            })
-                        
-                
-                except Exception as e:
-                    print(f"Error processing image {img_index} on page {page_num}: {str(e)}")
-                    continue
-                                    
-        return temp_images
+    #                     # Apply rotation based on matrix
+    #                     if transform.a != transform.d:
+    #                         if transform.a < 0 and transform.d < 0:
+    #                             pil_image = pil_image.rotate(180)
+    #                         elif transform.a == 0 and transform.d > 0:
+    #                             pil_image = pil_image.rotate(90)
+    #                         elif transform.a > 0 and transform.d == 0:
+    #                             pil_image = pil_image.rotate(-90)
+    #                     
+    #                     x0, y0, x1, y1 = bbox
+    #                     width = x1 - x0
+    #                     height = y1 - y0
+    #                     if (self.keep_image_based_on_size(width, height) and not self.is_single_color(pil_image)):
+    #                         temp_images.append({
+    #                             "image": pil_image,
+    #                             "pageNumber": page_num + 1,
+    #                             'bbox': {"x0": x0, "y0": y0, "x1": x1, "y1": y1},
+    #                             'format': image_ext
+    #                         })
+    #                     
+    #             
+    #             except Exception as e:
+    #                 print(f"Error processing image {img_index} on page {page_num}: {str(e)}")
+    #                 continue
+    #                                 
+    #     return temp_images
 
 
     def extract_document(self):
@@ -228,44 +229,47 @@ class PDFProcessor(BaseDocumentProcessor):
 
         with fitz.open(self.pdf_path) as fitz_doc:
 
-            images = self.get_pdf_images(fitz_doc)
-            print("PDFProcessor extract_document images", len(images), flush=True)
+            # COMMENTED OUT: Image extraction and indexing from PDFs
+            # images = self.get_pdf_images(fitz_doc)
+            # print("PDFProcessor extract_document images", len(images), flush=True)
             text_chunks = self.get_pdf_text_chunks(fitz_doc, document)
             print("PDFProcessor extract_document texts", len(text_chunks), flush=True)
-            images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
-            # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
-            images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
-            print("PDFProcessor extract_document images", len(images), len(images_chunks), flush=True)
-            translated_images_descriptions = self.translator.en_to_fr_batch([image['description_en'] for image in images_chunks])
-            images_with_descriptions = [
-                {**image, "description_fr": translated_description}
-                for image, translated_description in zip(images_chunks, translated_images_descriptions)
-            ]
+            # COMMENTED OUT: Image description generation and translation
+            # images_chunks = [{**image, "description_en": self.image_descriptor.get_description(image['image'])} for image in images]
+            # # TODO for now deal with error in description ie ;Unsupported number of image dimensions: 2
+            # images_chunks = [chunk for chunk in images_chunks if chunk['description_en'] is not False]
+            # print("PDFProcessor extract_document images", len(images), len(images_chunks), flush=True)
+            # translated_images_descriptions = self.translator.en_to_fr_batch([image['description_en'] for image in images_chunks])
+            # images_with_descriptions = [
+            #     {**image, "description_fr": translated_description}
+            #     for image, translated_description in zip(images_chunks, translated_images_descriptions)
+            # ]
             
             chunks = []
-            # create chunks for every images, and save them to s3
-            for img in images_with_descriptions:
-                image_path, file_name = self.save_image(img.get('image'))
-                image_s3ObjectName = f"{pdf_s3ObjectName}/images/{file_name}"
-                self.save_to_s3(self.s3, image_path, image_s3ObjectName)
-                img.get('image').close()
+            # COMMENTED OUT: Image chunk creation and S3 upload
+            # # create chunks for every images, and save them to s3
+            # for img in images_with_descriptions:
+            #     image_path, file_name = self.save_image(img.get('image'))
+            #     image_s3ObjectName = f"{pdf_s3ObjectName}/images/{file_name}"
+            #     self.save_to_s3(self.s3, image_path, image_s3ObjectName)
+            #     img.get('image').close()
 
-                chunk = PdfImageChunk(
-                    text=img.get('description_fr'),
-                    title="",
-                    document=document,
-                    metadata=PdfImageMetadata(
-                        s3ObjectName=image_s3ObjectName,
-                        pageNumber=img.get('pageNumber'),
-                        bbox=BoundingBox(
-                            x1=img.get('bbox',{}).get('x1', -1), 
-                            y1=img.get('bbox',{}).get('y1', -1), 
-                            x2=img.get('bbox',{}).get('x2', -1),
-                            y2=img.get('bbox',{}).get('y2', -1)
-                        )
-                    )
-                )
-                chunks.append(chunk)
+            #     chunk = PdfImageChunk(
+            #         text=img.get('description_fr'),
+            #         title="",
+            #         document=document,
+            #         metadata=PdfImageMetadata(
+            #             s3ObjectName=image_s3ObjectName,
+            #             pageNumber=img.get('pageNumber'),
+            #             bbox=BoundingBox(
+            #                 x1=img.get('bbox',{}).get('x1', -1), 
+            #                 y1=img.get('bbox',{}).get('y1', -1), 
+            #                 x2=img.get('bbox',{}).get('x2', -1),
+            #                 y2=img.get('bbox',{}).get('y2', -1)
+            #             )
+            #         )
+            #     )
+            #     chunks.append(chunk)
             for text_chunk in text_chunks:
                 chunks.append(text_chunk)
     

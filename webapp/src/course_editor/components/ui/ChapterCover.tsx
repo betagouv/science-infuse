@@ -1,11 +1,12 @@
 import { ChapterWithoutBlocks } from "@/types/api";
+import { normalizeUrl } from "@/lib/utils";
 
 export default function ChapterCover(props: { chapter: ChapterWithoutBlocks }) {
     return (
         <div className="w-full aspect-[792/351] bg-[#e3e3fd] mb-8">
             <div className="w-full h-full mx-4 py-2 flex">
                 <div className="w-1/2 h-full overflow-hidden">
-                    <img src={props.chapter?.coverPath || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"} alt="Cover" className="w-full h-full object-cover" />
+                    <img src={normalizeUrl(props.chapter?.coverPath) || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"} alt="Cover" className="w-full h-full object-cover" />
                 </div>
 
                 <div className="w-1/2 flex flex-col justify-center -ml-4">

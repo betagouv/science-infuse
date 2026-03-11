@@ -467,7 +467,7 @@ const getTemplate = () => {
                                   valign="middle"
                                 >
                                   <a
-                                    href="https://science-infuse.beta.gouv.fr/connexion"
+                                    href="https://ada.universcience.fr/connexion"
                                     style="
                                       display: inline-block;
                                       background: #000091;
@@ -899,7 +899,7 @@ const getTemplate = () => {
                                 <td style="width: 173px">
                                   <img
                                     alt=""
-                                    src="https://science-infuse.beta.gouv.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
+                                    src="https://ada.universcience.fr/_next/image?url=%2Fimages%2Fhome%2Fsection-2.png&w=3840&q=75"
                                     style="
                                       border: none;
                                       border-radius: px;
@@ -1050,8 +1050,8 @@ const getTemplate = () => {
                                     font-size: 16px;
                                     line-height: 1.5rem;
                                   "
-                                  >Partageables avec la communauté Science
-                                  Infuse si vous le souhaitez</span
+                                  >Partageables avec la communauté ADA si vous
+                                  le souhaitez</span
                                 >
                               </li>
                             </ul>
@@ -1108,7 +1108,7 @@ const getTemplate = () => {
                                 <td style="width: 275px">
                                   <img
                                     alt="Carte cours"
-                                    src="https://sm1y1.mjt.lu/img2/sm1y1/e324ad00-f9b6-42af-903d-71464e87244e/content"
+                                    src="https://ada.universcience.fr/images/email_cours_attachment.png"
                                     style="
                                       border: none;
                                       border-radius: px;

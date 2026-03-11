@@ -1,4 +1,4 @@
-# Call this script with the version of the H5P core as the first argument 
+# Call this script with the version of the H5P core as the first argument
 # (= version tag of h5p-php-library) and the H5P editor as the second argument
 # (= version tag of h5p-editor-php-library).
 # Example: download-core.sh 1.24.0 1.24.1
@@ -42,4 +42,4 @@ unzip -a "$base/tmp/editor.zip" -d"$base/tmp/editor"
 mv "$base/tmp/core/h5p-php-library-$core_version"/* "$base/core/"
 mv "$base/tmp/editor/h5p-editor-php-library-$editor_version"/* "$base/editor/"
 
-rm -rf "$base/tmp"
+rm -rf "$base/tmp"%   

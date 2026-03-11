@@ -12,6 +12,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.backends.redis import RedisBackend
+import os
 
 s3 = S3Storage()
 # create an instance of the logger
@@ -65,10 +66,16 @@ app.include_router(rerank.router, prefix="/rerank", tags=["rerank"])
 app.include_router(data_processor.router, prefix="/process", tags=["process"])
 
 
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
 @app.on_event("startup")
 async def startup_event():
-    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
-    # redis = aioredis.from_url(os.environ.get("REDIS_URL", "redis://redis:6379"))
+    #redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    #redis = aioredis.from_url(os.environ.get("REDIS_URL", "redis://redis:6379"))
+    redis = aioredis.from_url("redis://redis:6379", password=REDIS_PASSWORD)
+    print("REDIS", redis)
+    await redis.ping()
+    print("REDIS PINGED")
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 

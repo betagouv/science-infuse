@@ -12,9 +12,11 @@ import { checkAdaH5pSecret } from './utils';
 const downloadContentFromS3 = async (s3ObjectName: string, contentId: string): Promise<boolean> => {
     try {
         const downloadUrl = await s3Storage.getPresignedUrl(s3ObjectName);
+	console.log({downloadUrl, s3ObjectName, contentId});
         if (!downloadUrl) return false;
 
         const response = await fetch(downloadUrl);
+	console.log({response});
         const buffer = await response.arrayBuffer();
 
         const zipPath = `./h5p/content/${contentId}.zip`;
@@ -51,8 +53,10 @@ const downloadContentFromS3 = async (s3ObjectName: string, contentId: string): P
 
         return true;
     } catch (error) {
+	    console.log({error});
         return false;
     }
+
 }
 
 /** 

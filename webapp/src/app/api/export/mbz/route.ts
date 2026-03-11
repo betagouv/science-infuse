@@ -180,8 +180,19 @@ export async function POST(request: NextRequest) {
     const dom = new JSDOM(html);
     const document = dom.window.document;
     const containers = document.querySelectorAll('.chapter-course-block');
-    const title = document.querySelector('h1')?.textContent || '';
-    const slug = `${title.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, '-')}-${uuidv4().split('-')[0]}`;
+    const rawTitle = document.querySelector('h1')?.textContent || '';
+    // Moodle rejects empty/invalid fullname, so normalize and guarantee a fallback.
+    const title = rawTitle
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 254) || 'Untitled course';
+    const slugBase = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || 'course';
+    const slug = `${slugBase}-${uuidv4().split('-')[0]}`;
     const containerContents = Array.from(containers).map((container: any) => container.innerHTML);
 
     const courseId = await moodleCourseCreator.createCourse(title, slug, 1, 0);

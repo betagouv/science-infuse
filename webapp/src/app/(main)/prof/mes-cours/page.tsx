@@ -6,9 +6,10 @@ import prisma from '@/lib/prisma';
 import { EMPTY_DOCUMENT } from "@/config";
 import { getChaptersWithBlocks } from "@/lib/utils/db";
 import ProfDashboardContent from "../ProfDashboardContent";
-import { ChapterStatus } from "@prisma/client";
+import { ChapterStatus, UserRoles } from "@prisma/client";
 import AutoBreadCrumb from "@/components/AutoBreadCrumb";
 import { auth } from '@/auth';
+import { userIs } from '@/app/api/accessControl';
 
 export default async function ProfDashboard() {
     const session = await auth();
@@ -16,6 +17,9 @@ export default async function ProfDashboard() {
     if (!session || !session.user) {
         redirect('/');
     }
+
+    // Vérifier si l'utilisateur est admin
+    const isAdmin = await userIs(session.user.id, [UserRoles.ADMIN]) ?? false;
 
     async function createChapter() {
         'use server';
@@ -35,9 +39,12 @@ export default async function ProfDashboard() {
     async function deleteChapter(chapterId: string) {
         'use server';
         if (!session) return [];
+        
         const chapter = await prisma.chapter.findUnique({
             where: { id: chapterId },
         });
+        
+        // Seul le propriétaire peut supprimer son chapitre
         if (chapter && chapter.userId === session.user.id) {
             await prisma.chapter.update({
                 where: { id: chapterId },
@@ -45,24 +52,21 @@ export default async function ProfDashboard() {
                     status: ChapterStatus.DELETED,
                 }
             })
-            // // Delete all blocks associated with the chapter
-            // await prisma.block.deleteMany({
-            //     where: { chapterId: chapterId },
-            // });
-            // // Now delete the chapter
-            // await prisma.chapter.delete({
-            //     where: { id: chapterId },
-            // });
         }
 
-        return await getChaptersWithBlocks(session.user.id)
+        // Retourner les chapitres en fonction du rôle (admin voit tout)
+        const isAdminUser = await userIs(session.user.id, [UserRoles.ADMIN]) ?? false;
+        return await getChaptersWithBlocks(session.user.id, { isAdmin: isAdminUser })
     }
 
 
 
-    const chapters = await getChaptersWithBlocks(session.user.id);
+    // Les admins voient tous les cours, les autres utilisateurs voient seulement les leurs
+    const chapters = await getChaptersWithBlocks(session.user.id, { isAdmin });
+    
+    // Pour les blocks, même logique: les admins voient tous les blocks
     const blocks = await prisma.block.findMany({
-        where: {
+        where: isAdmin ? {} : {
             userId: session.user.id,
         },
         orderBy: {

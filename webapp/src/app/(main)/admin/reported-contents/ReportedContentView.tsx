@@ -6,7 +6,7 @@ import { DocumentChunk, Document, ReportedDocumentChunk, User, DocumentChunkMeta
 import ChunkRenderer from '@/app/(main)/recherche/DocumentChunkFull';
 import { useState } from 'react';
 import Button from "@codegouvfr/react-dsfr/Button";
-import { DeleteButton } from "@/app/(main)/intelligence-artificielle/shared/components";
+import { DeleteButton } from "@/app/(main)/intelligence-artificielle/video-interactive/InteractiveVideoEditor";
 import { ChunkWithScoreUnion } from "@/types/vectordb";
 import { desindexDocumentChunk, desindexDocuments, setReportedDocumentChunkStatus } from "@/lib/utils/db";
 import CallOut from "@codegouvfr/react-dsfr/CallOut";

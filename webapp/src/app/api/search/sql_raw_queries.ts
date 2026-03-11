@@ -148,9 +148,13 @@ export async function searchBlocksWithChapter(
   }
 }
 
-export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest) {
+export async function searchDocumentChunks(userId: string, embedding: number[], params: QueryRequest, query: string) {
   const limit = Math.min(params?.filters?.limit || 1000, 1000);
   const startTime = performance.now();
+  
+  // Prepare search pattern for keyword matching (case-insensitive)
+  const searchPattern = `%${query}%`;
+  
   const [_, data] = await prisma.$transaction([
     prisma.$executeRaw`SET LOCAL hnsw.ef_search = 1000`,
     prisma.$queryRaw`
@@ -165,7 +169,11 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
         ${userId ? Prisma.sql`CASE 
           WHEN sdc."id" IS NOT NULL THEN true 
           ELSE false 
-        END` : Prisma.sql`false`} as "user_starred"
+        END` : Prisma.sql`false`} as "user_starred",
+        CASE 
+          WHEN d."description" ILIKE ${searchPattern} OR d."title" ILIKE ${searchPattern} THEN true 
+          ELSE false 
+        END as "keyword_match"
       FROM "DocumentChunk" dc
       LEFT JOIN "DocumentChunkMeta" dcm ON dc."id" = dcm."documentChunkId"
       LEFT JOIN "Document" d ON d."id" = dc."documentId"
@@ -174,14 +182,26 @@ export async function searchDocumentChunks(userId: string, embedding: number[], 
       WHERE dc."textEmbedding" IS NOT NULL
         ${params?.filters?.mediaTypes ? Prisma.sql`AND dc."mediaType" = ANY(${params?.filters?.mediaTypes}::text[])` : Prisma.empty}
         ${params?.filters?.maxDuration ? Prisma.sql`AND d."duration" <= ${params.filters.maxDuration}` : Prisma.empty}
-        AND 1 - (dc."textEmbedding" <=> ${embedding}::vector) > 0.21
+        AND (
+          -- Semantic search: vector similarity above threshold
+          1 - (dc."textEmbedding" <=> ${embedding}::vector) > 0.21
+          OR
+          -- Keyword search: exact match in title or description
+          d."description" ILIKE ${searchPattern}
+          OR
+          d."title" ILIKE ${searchPattern}
+        )
         AND (d."deleted" IS NOT TRUE)
         AND (dc."deleted" IS NOT TRUE)
         AND (d."isPublic" IS NOT FALSE)
-      ORDER BY dc."textEmbedding" <=> ${embedding}::vector
+      ORDER BY 
+        -- Prioritize keyword matches first
+        CASE WHEN d."description" ILIKE ${searchPattern} OR d."title" ILIKE ${searchPattern} THEN 0 ELSE 1 END,
+        -- Then order by vector similarity
+        dc."textEmbedding" <=> ${embedding}::vector
       LIMIT ${limit};
       `
-  ]) as [unknown, (DocumentChunk & { document: Document, metadata: DocumentChunkMeta })[]]
+  ]) as [unknown, (DocumentChunk & { document: Document, metadata: DocumentChunkMeta, keyword_match: boolean })[]]
 
   const endTime = performance.now();
   const executionTime = endTime - startTime;

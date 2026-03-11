@@ -1,13 +1,15 @@
 // src/components/LogoutButton.tsx (or similar)
 'use client';
 import LogoutButton from '@/components/LogoutButton';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoggedOutPage() {
   const { data: session, status } = useSession();
   const [isDisconnected, setIsDisconnected] = useState(false);
+  const searchParams = useSearchParams();
+  const isGarLogout = searchParams.get('gar') === '1';
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -22,7 +24,11 @@ export default function LoggedOutPage() {
         <div className="flex flex-col items-center gap-4">
           {status === 'authenticated' && <LogoutButton />}
           {isDisconnected && (
-            <p className="mt-4">Vous avez été déconnecté avec succès.</p>
+            <p className="mt-4">
+              {isGarLogout
+                ? "Vous avez été déconnecté. Veuillez repasser par votre ENT pour vous connecter."
+                : "Vous avez été déconnecté avec succès."}
+            </p>
           )}
         </div>
       </div>

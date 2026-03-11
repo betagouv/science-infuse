@@ -1,13 +1,14 @@
 
 
 import { Button } from "@codegouvfr/react-dsfr/Button";
-import { useCallback, useRef, useState } from "@preact-signals/safe-react/react";
+import { useCallback, useEffect, useRef, useState } from "@preact-signals/safe-react/react";
 import { useDropzone } from "react-dropzone";
 import { apiClient } from "@/lib/api-client";
 import Input from "@codegouvfr/react-dsfr/Input";
-import { DocumentPickerProps } from "../shared/types";
+import { useSnackbar } from "@/app/SnackBarProvider";
+import { useAlertToast } from "@/components/AlertToast";
 
-export default (props: DocumentPickerProps) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
 
     const [mediaName, setMediaName] = useState("");
     const [droppedFile, setDroppedFile] = useState<File | null>(null)
@@ -42,9 +43,7 @@ export default (props: DocumentPickerProps) => {
         try {
             props.onDocumentProcessingStart();
             const response = await apiClient.indexFile({ file, mediaName });
-            // TODO: review logic
-            // @ts-ignore
-            props.onChunkPicked({document: {id: response.documentId}})
+            props.onDocumentIdPicked(response.documentId)
         } catch (error) {
             if (error instanceof Error) {
                 props.onError(error.message);

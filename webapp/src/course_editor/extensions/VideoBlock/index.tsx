@@ -133,12 +133,16 @@ export default Node.create({
       }
     }
 
-    return ['div', { class: 'block-video', ...HTMLAttributes },
+    const children: any[] = [
       ['p', {}, videoTitle],
       ['video', { src: downloadLink }, ""],
-      !youtubeUrl ? [] : ['a', { href: youtubeUrl, target: '_blank', rel: 'noopener noreferrer' }, "Regarder sur YouTube"],
-      ['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger la vidéo"]
     ];
+    if (youtubeUrl) {
+      children.push(['a', { href: youtubeUrl, target: '_blank', rel: 'noopener noreferrer' }, "Regarder sur YouTube"]);
+    }
+    children.push(['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger la vidéo"]);
+
+    return ['div', { class: 'block-video', ...HTMLAttributes }, ...children];
   },
   addCommands() {
     return {

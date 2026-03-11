@@ -6,6 +6,7 @@ import VideoPlayerHotSpots from '@/app/(main)/mediaViewers/VideoPlayerHotSpots';
 import { ChunkWithScore, s3ToPublicUrl } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { File } from '@prisma/client';
+import { normalizeUrl } from '@/lib/utils';
 
 interface VideoNodeProps {
   chunk?: ChunkWithScore<'video_transcript'>,
@@ -40,7 +41,7 @@ export default function VideoNodeComponent({ node, updateAttributes }: NodeViewP
         onChunkSelected={function (chunk: ChunkWithScore<'video_transcript'> | undefined): void {
         }}
       />}
-      {attrs.userFile && <video src={s3ToPublicUrl(attrs.userFile.s3ObjectName)} className="w-full sm:rounded-xl" controls controlsList="nodownload" />}
+      {attrs.userFile && <video src={normalizeUrl(s3ToPublicUrl(attrs.userFile.s3ObjectName)) || ""} className="w-full sm:rounded-xl" controls controlsList="nodownload" />}
     </NodeViewWrapper>
   );
 }

@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default async (input: InteractiveVideoData, h5pContentId?: string) => {
     const definitions = input.definitions;
+    console.log("definitions", definitions);
     const document = await prisma.document.findUnique({
         where: {
             id: input.documentId

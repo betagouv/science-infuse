@@ -215,7 +215,7 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     required={false}
                     alwaysEditable={true}
                     isMultiSelect
-                    label="Niveaux auxquels j'enseigne pour l'année 2024-2025"
+                    label="Niveaux auxquels j'enseigne"
                     value={educationLevels}
                     onChange={(value) => setEducationLevels(value as string[])}
                     options={educationOptions}
@@ -245,13 +245,13 @@ export default function RegisterForm(props: { handleCloseModal: () => void, educ
                     className='mt-0'
                     options={[
                         {
-                            label: <p className='m-0 ml-2'>Je souhaite recevoir des informations sur les nouvelles fonctionnalités et contenus de {PROJECT_NAME}. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:science-infuse@universcience.fr" target="_blank">science-infuse@universcience.fr</a></p>,
+                            label: <p className='m-0 ml-2'>Je souhaite recevoir des informations sur les nouvelles fonctionnalités et contenus de {PROJECT_NAME}. Vous pouvez vous désinscrire à tout moment en écrivant à <a href="mailto:ada@universcience.fr" target="_blank">ada@universcience.fr</a></p>,
                             nativeInputProps: {
                                 name: 'checkboxes-1',
                                 value: 'value3',
                                 onChange: (e) => setAcceptMail(e.target.checked),
                                 checked: acceptMail,
-                                required: true,
+                                required: false,
                             }
                         }
                     ]}

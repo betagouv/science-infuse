@@ -1,9 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { push } from '@socialgouv/matomo-next';
-
 export default function NotFound(): JSX.Element {
     return (
         <div className='w-full h-full flex flex-col gap-8 py-64 items-center justify-center'>

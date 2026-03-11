@@ -61,6 +61,27 @@ const nextConfig = {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false
 
+    // Exclude test files from build
+    config.module.rules.push({
+      test: /\.(test|spec)\.(ts|tsx|js|jsx)$|test-setup\.(ts|tsx|js|jsx)$|vitest\.config\.(ts|tsx|js|jsx)$/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env'],
+          plugins: [
+            function() {
+              return {
+                visitor: {
+                  Program: function(path) {
+                    path.replaceWithSourceString('module.exports = {};');
+                  }
+                }
+              };
+            }
+          ]
+        }
+      }
+    });
 
     config.module.rules.push({
       test: /\.woff2$/,

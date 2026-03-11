@@ -13,6 +13,7 @@ import { ChunkResults, RenderSearchResult } from '@/app/(main)/recherche/RenderS
 import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import ImageModal from '@/components/ImageModal';
 
 const InspectDocument = () => {
     const searchParams = useSearchParams();
@@ -127,9 +128,8 @@ const InspectDocument = () => {
                     </div>
                 )}
 
-
-
             </div>
+            <ImageModal />
         </AdminWrapper>
     )
 };

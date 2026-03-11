@@ -1,15 +1,16 @@
 import Image from 'next/image'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SIVideoPicker from "./SIVideoPicker";
 import ExternalVideoPicker from "./ExternalVideoPicker";
 import { SegmentedControl } from "@codegouvfr/react-dsfr/SegmentedControl";
 import styled from '@emotion/styled';
 import YoutubeVideoPicker from './YoutubeVideoPicker';
 import InteractiveVideoHelpMessage from './InteractiveVideoHelpMessage';
+import { useRouter } from 'next/navigation';
 import InteractiveVideoEditor from './InteractiveVideoEditor';
+import Button from '@codegouvfr/react-dsfr/Button';
+import ShimmerText from '@/components/ShimmerText';
 import { useAlertToast } from '@/components/AlertToast';
-import { GeneratorLoading, type LoadingMessagesConfig, DocumentSearchPicker } from '../shared/components';
-import { TabType } from "@/app/(main)/recherche/Tabs";
-import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
 
 
 const StyledSegControl = styled(SegmentedControl)`
@@ -38,43 +39,77 @@ export enum InteractiveVideoImportType {
     IMPORT = 'Importer une vidéo'
 }
 
-// Messages de chargement par type d'import
-const loadingMessages: LoadingMessagesConfig = {
-    [InteractiveVideoImportType.RECHERCHE]: [
-        "Génération des questions...",
-        "Création des définitions...",
-        "Création de l'interactif..."
-    ],
-    [InteractiveVideoImportType.LIEN]: [
-        "Téléchargement de la vidéo...",
-        "Préparation du contenu vidéo...",
-        "Reconnaissance vocale en cours...",
-        "Traitement du texte extrait...",
-        "Génération des questions...",
-        "Création des définitions...",
-        "Création de l'interactif..."
-    ],
-    [InteractiveVideoImportType.IMPORT]: [
-        "Importation de la vidéo en cours...",
-        "Création du document...",
-        "Préparation des données...",
-        "Reconnaissance vocale en cours...",
-        "Traitement du texte extrait...",
-        "Génération des questions...",
-        "Création des définitions...",
-        "Création de l'interactif..."
-    ]
-};
-
 export const InteractiveVideoGeneratorLoading = (props: { importType: InteractiveVideoImportType }) => {
+    const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+    // Messages de chargement par type d'import
+    const loadingMessages = {
+        [InteractiveVideoImportType.RECHERCHE]: [
+            "Génération des questions...",
+            "Création des définitions...",
+            "Création de l'interactif..."
+        ],
+        [InteractiveVideoImportType.LIEN]: [
+            "Téléchargement de la vidéo...",
+            "Préparation du contenu vidéo...",
+            "Reconnaissance vocale en cours...",
+            "Traitement du texte extrait...",
+            "Génération des questions...",
+            "Création des définitions...",
+            "Création de l'interactif..."
+        ],
+        [InteractiveVideoImportType.IMPORT]: [
+            "Importation de la vidéo en cours...",
+            "Création du document...",
+            "Préparation des données...",
+            "Reconnaissance vocale en cours...",
+            "Traitement du texte extrait...",
+            "Génération des questions...",
+            "Création des définitions...",
+            "Création de l'interactif..."
+        ]
+    };
+
+    // Sélection des messages en fonction du type d'import
+    const messages = loadingMessages[props.importType];
+
+    useEffect(() => {
+        // Fonction pour passer au message suivant avec un délai aléatoire
+        const rotateMessage = () => {
+            // Délai aléatoire entre 2 et 5 secondes
+            const randomDelay = Math.floor(Math.random() * 3000) + 2000;
+
+            const timer = setTimeout(() => {
+                setCurrentMessageIndex((prevIndex) =>
+                    prevIndex === messages.length - 1 ? 0 : prevIndex + 1
+                );
+            }, randomDelay);
+
+            // Nettoyage du timer lors du démontage du composant
+            return () => clearTimeout(timer);
+        };
+
+        // Démarre la rotation des messages
+        const cleanup = rotateMessage();
+        return cleanup;
+    }, [currentMessageIndex, messages.length]);
+
     return (
-        <GeneratorLoading
-            title="Création de la vidéo interactive"
-            messageType={props.importType}
-            loadingMessages={loadingMessages}
-        />
+        <div className="w-full flex flex-col items-center justify-center p-8">
+            <img className="aspect-square w-16 mb-4" src="https://portailpro.gouv.fr/assets/spinner-9a2a6d7a.gif" alt="Chargement" />
+            <div className="text-center">
+                <p className="text-[1.3rem] font-medium mb-2">
+                    Création de la vidéo interactive
+                </p>
+                <ShimmerText
+                    className="text-[1.1rem] font-thin min-h-8"
+                    text={messages[currentMessageIndex]}
+                    gradientColors="from-gray-600 via-gray-300 to-gray-600"
+                />
+            </div>
+        </div>
     );
-}
+};
 
 
 export default () => {
@@ -83,9 +118,9 @@ export default () => {
     const [loading, setLoading] = useState(false);
     const alertToast = useAlertToast();
 
-    const onChunkPicked = async (_chunk: ChunkWithScoreUnion) => {
+    const onDocumentIdPicked = async (_documentId: string) => {
         window.scrollTo(0, 0);
-        setDocumentId(_chunk.document.id);
+        setDocumentId(_documentId);
     }
 
     const onError = (message: string) => {
@@ -109,7 +144,7 @@ export default () => {
                 <h1 className="m-0 h1 text-center">Je crée une vidéo interactive</h1>
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     <Image
-                        src="/images/interactive-illustration.svg"
+                        src="/images/interactive-video-illustration.svg"
                         height={300}
                         width={300}
                         alt="Picture of the author"
@@ -153,30 +188,13 @@ export default () => {
 
             {!documentId && !loading && <>
                 <div className={`w-full ${importType === InteractiveVideoImportType.RECHERCHE ? 'block' : 'hidden'}`}>
-                    <DocumentSearchPicker
-                        onDocumentProcessingStart={onDocumentProcessingStart}
-                        onError={onError}
-                        onChunkPicked={onChunkPicked}
-                        config={{
-                            searchBarLabel: "Rechercher par mot-clé :",
-                            searchBarPlaceholder: "Rechercher une vidéo par mot-clé...",
-                            onInsertedLabel: "Générer quiz et définitions",
-                            mediaTypes: [MediaTypes.VideoTranscript],
-                            hiddenTabs: [TabType.Chapters, TabType.Documents, TabType.Games, TabType.Others, TabType.Pictures],
-                            defaultTab: "videos",
-                            queryFilters: {
-                                limit: 100,
-                                mediaTypes: [MediaTypes.VideoTranscript],
-                                maxDuration: 600
-                            }
-                        }}
-                    />
+                    <SIVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.LIEN ? 'block' : 'hidden'}`}>
-                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onChunkPicked={onChunkPicked} />
+                    <YoutubeVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
                 <div className={`w-full ${importType === InteractiveVideoImportType.IMPORT ? 'block' : 'hidden'}`}>
-                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onChunkPicked={onChunkPicked} />
+                    <ExternalVideoPicker onDocumentProcessingStart={onDocumentProcessingStart} onError={onError} onDocumentIdPicked={onDocumentIdPicked} />
                 </div>
             </>}
 
@@ -190,11 +208,7 @@ export default () => {
                     onDocumentProcessingEnd={onDocumentProcessingEnd}
                 />
             </>}
-            {loading && <GeneratorLoading
-                title="Création de la vidéo interactive"
-                messageType={importType}
-                loadingMessages={loadingMessages}
-            />}
+            {loading && <InteractiveVideoGeneratorLoading importType={importType} />}
             <div className="flex mt-4 w-full">
                 <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
             </div>

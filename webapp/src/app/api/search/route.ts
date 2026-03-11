@@ -10,10 +10,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<any | { e
     const user = session?.user;
 
     try {
+        console.log("SEARCHING", request.body);
         const params = await request.json() as QueryRequest;
         const embeddings = await getEmbeddings(params.query)
-
-        const chunks = await searchDocumentChunks(user?.id||"xxxx", embeddings, params)
+        const chunks = await searchDocumentChunks(user?.id||"xxxx", embeddings, params, params.query)
         const blocks = await searchBlocksWithChapter(user?.id||"xxxx", embeddings, params.query, true);
         return NextResponse.json({ page_count: 1, chunks, blocks })
     } catch (error) {

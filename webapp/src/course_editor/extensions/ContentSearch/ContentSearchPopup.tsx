@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
-import { BlockWithChapter, ChunkWithScoreUnion, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
+import { BlockWithChapter, ChunkWithScoreUnion, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, SearchResults } from '@/types/vectordb';
 import { WEBAPP_URL } from '@/config';
 import { useTrackedSearch } from '@/hooks/useTrackedSearch';
 import SearchBar from '@/components/search/SearchBar';
@@ -49,10 +49,23 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
     console.log("insertChunk", chunk);
 
     switch (true) {
-      case isPdfImageChunk(chunk):
+      case isPdfImageChunk(chunk): {
         const src = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
         props.editor.chain().setImageBlockAt({ pos: props.pos, src }).focus().run();
         break;
+      }
+
+      case isImageChunk(chunk): {
+        const src = `${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`;
+        props.editor.chain().setImageBlockAt({ pos: props.pos, src }).focus().run();
+        break;
+      }
+
+      case chunk.mediaType === "raw_image": {
+        const src = chunk.metadata.publicPath;
+        props.editor.chain().setImageBlockAt({ pos: props.pos, src }).focus().run();
+        break;
+      }
 
       case isVideoTranscriptChunk(chunk):
         console.log("insertChunk videotranscript", chunk);
@@ -67,7 +80,7 @@ const ContentSearch = (props: { pos: number, editor: Editor; closePopup: () => v
         break;
 
       case isPdfTextChunk(chunk):
-        const url = `${WEBAPP_URL}/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`
+        const url = `${WEBAPP_URL}/media/pdf/${chunk.document.id}/${chunk.metadata.pageNumber}`
         const name = `${chunk.document.mediaName} - page ${chunk.metadata.pageNumber}`
         props.editor.chain()
           .insertContentAt(props.pos, `<blockquote>${chunk.text}<br/><br/><a href="${url}" target="_blank">${name}</a></blockquote>`)

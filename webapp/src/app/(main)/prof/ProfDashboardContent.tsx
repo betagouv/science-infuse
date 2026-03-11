@@ -65,7 +65,7 @@ export default function ProfDashboardContent({ initialChapters, initialBlocks, u
           Nouveau chapitre
         </Button>
       </div>
-      <ChaptersTable chapters={chapters} onDeleteChapter={handleDeleteChapter} />
+      <ChaptersTable chapters={chapters} onDeleteChapter={handleDeleteChapter} currentUserId={user?.id} />
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

@@ -8,7 +8,8 @@ import { Chip, Collapse, IconButton, Link, Paper, Table, TableBody, TableCell, T
 import { ChapterStatus } from '@prisma/client';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import Image from 'next/image'
+import Image from 'next/image';
+import { normalizeUrl } from '@/lib/utils';
 
 const statusToSeverity = {
   [ChapterStatus.DRAFT]: undefined,
@@ -24,7 +25,7 @@ const statusToText = {
   [ChapterStatus.DELETED]: "Supprimé",
 }
 
-const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, onDeleteChapter: (chapterId: string) => void }) => {
+const ChapterRow = ({ chapter, onDeleteChapter, currentUserId }: { chapter: ChapterWithBlock, onDeleteChapter: (chapterId: string) => void, currentUserId?: string }) => {
   const [open, setOpen] = useState(false);
   // people might have created block (so created witha pi) but removed them by pressing delete key or x button,
   // in this case we do not remove them from db, since it would be hard to know if the block should be re-created, for example if the user do a ctrl+y (redo)
@@ -46,7 +47,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
         <TableCell>
           <Image
             className='w-64 h-auto object-contain bg-[#f2f2f9]'
-            src={chapter?.coverPath || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"}
+            src={normalizeUrl(chapter?.coverPath) || "https://www.systeme-de-design.gouv.fr/img/placeholder.16x9.png"}
             alt={`image de couverture du chapitre "${chapter.title}"`}
             width={1024}
             height={1024} 
@@ -74,7 +75,9 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
         <TableCell>{new Date(chapter.updatedAt).toLocaleDateString()}</TableCell>
         <TableCell className=''>
           <div className="w-full flex items-center justify-center">
-            <Trash2 size={16} className="cursor-pointer hover:text-red-500" onClick={() => onDeleteChapter(chapter.id)} />
+            {chapter.userId === currentUserId && (
+              <Trash2 size={16} className="cursor-pointer hover:text-red-500" onClick={() => onDeleteChapter(chapter.id)} />
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -120,7 +123,7 @@ const ChapterRow = ({ chapter, onDeleteChapter }: { chapter: ChapterWithBlock, o
     </>
   );
 };
-const ChaptersTable = ({ chapters, onDeleteChapter }: { chapters: ChapterWithBlock[], onDeleteChapter: (chapterId: string) => void }) => {
+const ChaptersTable = ({ chapters, onDeleteChapter, currentUserId }: { chapters: ChapterWithBlock[], onDeleteChapter: (chapterId: string) => void, currentUserId?: string }) => {
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
@@ -137,7 +140,7 @@ const ChaptersTable = ({ chapters, onDeleteChapter }: { chapters: ChapterWithBlo
         </TableHead>
         <TableBody>
           {chapters.filter(chapter => chapter.status != ChapterStatus.DELETED).map((chapter) => (
-            <ChapterRow key={chapter.id} chapter={chapter} onDeleteChapter={onDeleteChapter} />
+            <ChapterRow key={chapter.id} chapter={chapter} onDeleteChapter={onDeleteChapter} currentUserId={currentUserId} />
           ))}
         </TableBody>
       </Table>

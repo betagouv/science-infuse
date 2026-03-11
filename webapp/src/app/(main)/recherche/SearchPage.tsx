@@ -12,6 +12,7 @@ import Snackbar from "@/course_editor/components/Snackbar";
 import { RenderSearchResult } from "./RenderSearch";
 import { useSession } from "next-auth/react";
 import { QueryFilters } from "@/types/api";
+import ImageModal from "@/components/ImageModal";
 
 
 
@@ -68,6 +69,7 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
                 )
             }
             <Snackbar />
+            <ImageModal />
         </div >
     );
 };

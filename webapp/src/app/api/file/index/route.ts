@@ -95,9 +95,13 @@ export async function POST(request: NextRequest) {
         console.log(">>>>>>> mediaName", mediaName)
 
         if (processingResponse) {
+            const isVideoFile = !!file?.type?.startsWith('video/');
+            const resolvedMediaName =
+                (mediaName && mediaName.trim()) ||
+                (isVideoFile ? (file?.name || "") : "");
             const documentId = await insertDocument({
                 document: processingResponse.document,
-                mediaName: mediaName || "",
+                mediaName: resolvedMediaName,
                 chunks: processingResponse.chunks,
                 userId: user.id,
                 isPublic: false,

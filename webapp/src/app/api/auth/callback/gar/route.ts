@@ -147,9 +147,15 @@ export async function GET(request: NextRequest) {
     console.log('[GAR-CALLBACK] Generated sessionIndex:', sessionIndex);
     console.log('[GAR-CALLBACK] Signing user into NextAuth session via "gar-credentials" provider...');
 
+    // Note: We'll set localStorage flag client-side after redirect
+    // The callbackUrl will include a marker to trigger this
+    const finalCallbackUrl = callbackUrl.includes('?') 
+      ? `${callbackUrl}&gar_login=1` 
+      : `${callbackUrl}?gar_login=1`;
+
     await signIn("gar-credentials", {
       userProfile: JSON.stringify(userInfo),
-      redirectTo: callbackUrl,
+      redirectTo: finalCallbackUrl,
     });
   } catch (error: any) {
     if (error.digest?.startsWith('NEXT_REDIRECT')) {

@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronRight, ChevronDown, File, ExternalLink, X } from 'lucide-react';
 import { buildFileTree, FileExplorerDocument, FileNode } from './file-utils';
 import { s3ToPublicUrl } from '@/types/vectordb';
-import { useEffect } from '@preact-signals/safe-react/react';
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import Button from '@codegouvfr/react-dsfr/Button';
 import AssignDocumentTags from './AssignDocumentTags';
@@ -31,11 +30,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ documents }) => {
 
     const searchTermLower = searchTerm.toLowerCase();
 
-    // Memoize fileTree computation with combined filtering and optimized filtering logic
-    const fileTree = React.useMemo(() => {
-        const filteredDocs = documents.filter((doc) => {
+    const filteredDocs = React.useMemo(() => {
+        return documents.filter((doc) => {
             if (searchTermLower) {
-                const searchableText = `${doc.originalPath} ${doc.mediaName} ${doc.id}`.toLowerCase();
+                const searchableText = `${doc.originalPath} ${doc.mediaName} ${doc.title ?? ''} ${doc.id}`.toLowerCase();
                 if (!searchableText.includes(searchTermLower)) return false;
             }
 
@@ -51,9 +49,12 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ documents }) => {
 
             return true;
         });
-
-        return buildFileTree(filteredDocs);
     }, [documents, searchTermLower, selectedTags, deletedFilter]);
+
+    // Memoize fileTree computation with combined filtering and optimized filtering logic
+    const fileTree = React.useMemo(() => {
+        return buildFileTree(filteredDocs);
+    }, [filteredDocs]);
 
     // Toggle tag selection
     const toggleTagSelection = (tag: string) => {
@@ -71,9 +72,33 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ documents }) => {
         setDeletedFilter('all');
     };
 
+    const isDocumentId = (value: string) => (
+        value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+    );
+
+    const filteredDocIds = React.useMemo(() => {
+        return new Set(filteredDocs.map(doc => doc.id).filter(Boolean));
+    }, [filteredDocs]);
+
     const selectedIds = React.useMemo(() =>
-        Array.from(selectedNodes).filter(n => n.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/))
+        Array.from(selectedNodes).filter(n => isDocumentId(n))
         , [selectedNodes]);
+
+    useEffect(() => {
+        setSelectedNodes((prev) => {
+            let changed = false;
+            const next = new Set(prev);
+
+            prev.forEach((id) => {
+                if (isDocumentId(id) && !filteredDocIds.has(id)) {
+                    next.delete(id);
+                    changed = true;
+                }
+            });
+
+            return changed ? next : prev;
+        });
+    }, [filteredDocIds]);
 
     const toggleSelectNode = useCallback((id: string, allChildrenIds: string[]) => {
         setSelectedNodes((prev) => {
@@ -92,6 +117,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ documents }) => {
             return newSelected;
         });
     }, []);
+
+    const selectAllFiltered = useCallback(() => {
+        setSelectedNodes(new Set(filteredDocIds));
+    }, [filteredDocIds]);
     return (
         <div>
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
@@ -192,21 +221,30 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ documents }) => {
                     title={selectedIds.length == 0 ? `Séléctionner des documents pour effectuer une action` : `${selectedIds.length} documents séléctionnés.`}
                 >
                     <div className="flex flex-col gap-4">
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                priority="secondary"
+                                onClick={selectAllFiltered}
+                                disabled={filteredDocs.length === 0}
+                            >
+                                Tout sélectionner {filteredDocs.length > 0 ? `(${filteredDocs.length})` : ""}
+                            </Button>
+                            {selectedIds.length > 0 && (
+                                <Button priority="secondary" onClick={() => setSelectedNodes(new Set())}>
+                                    Tout deselectionner
+                                </Button>
+                            )}
+                        </div>
                         {selectedIds.length == 0 ? (
                             <p className="text-gray-600">
                                 Les tags permettent d'appliquer facilement des actions à un groupe de documents, par exemple les désindexer.
                             </p>
                         ) : (
-                            <div className="flex flex-col gap-3">
-                                <Button priority="secondary" onClick={() => setSelectedNodes(new Set())}>
-                                    Tout deselectionner
-                                </Button>
-                                <div className="flex flex-wrap gap-2">
-                                    <AssignDocumentTags documentIds={selectedIds} />
-                                    <DesindexSelection documentIds={selectedIds} />
-                                    <ClearDocumentTags documentIds={selectedIds} />
-                                    <IndexSelection documentIds={selectedIds} />
-                                </div>
+                            <div className="flex flex-wrap gap-2">
+                                <AssignDocumentTags documentIds={selectedIds} />
+                                <DesindexSelection documentIds={selectedIds} />
+                                <ClearDocumentTags documentIds={selectedIds} />
+                                <IndexSelection documentIds={selectedIds} />
                             </div>
                         )}
                     </div>
@@ -233,7 +271,38 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     toggleSelectNode,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const documentDisplayName = document?.mediaName || name;
+    const truncateText = (value: string, maxLength: number) => {
+        if (value.length <= maxLength) return value;
+        return `${value.slice(0, maxLength).trim()}...`;
+    };
+
+    const getBaseName = (value: string) => {
+        const normalized = value.replace(/\\/g, '/');
+        const parts = normalized.split('/');
+        return parts[parts.length - 1] || value;
+    };
+
+    const stripTempPrefix = (value: string) => {
+        const match = value.match(/^temp-\d+-/);
+        if (!match) return value;
+        return value.slice(match[0].length) || value;
+    };
+
+    const getDocumentDisplayName = (doc: FileExplorerDocument | undefined, fallbackName: string) => {
+        if (!doc) return fallbackName;
+        const mediaName = doc.mediaName?.trim();
+        const originalNameRaw = doc.originalPath ? getBaseName(doc.originalPath) : fallbackName;
+        const originalName = stripTempPrefix(originalNameRaw);
+        const truncatedOriginal = truncateText(originalName, 30);
+
+        if (mediaName && mediaName !== originalName) {
+            return `${mediaName} - ${truncatedOriginal}`;
+        }
+
+        return truncateText(mediaName || originalName || fallbackName, 30);
+    };
+
+    const documentDisplayName = getDocumentDisplayName(document, name);
 
     const toggleExpand = () => {
         if (children && children.length > 0) {
@@ -308,6 +377,12 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
                             target="_blank"
                         >
                             Inspecter
+                        </a>
+                        <a
+                            className="ml-2 text-green-500 hover:underline"
+                            href={`/admin/edit-media/${document.id}`}
+                        >
+                            Modifier
                         </a>
                         <div className="flex mx-2 gap-2">
                             {document.deleted == true && <Badge small noIcon severity="error"

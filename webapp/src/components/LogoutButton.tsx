@@ -2,8 +2,7 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation'; // Use next/navigation in App Router
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from "@codegouvfr/react-dsfr/Button";
 
 export default function LogoutButton() {
@@ -12,37 +11,25 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     if (status !== 'authenticated' || !session) {
-      // Not logged in, maybe just redirect to home or do nothing
       router.push('/');
       return;
     }
 
-    const garEndSessionEndpoint = process.env.NEXT_PUBLIC_GAR_END_SESSION_ENDPOINT;
-    const postLogoutRedirectUri = `${process.env.NEXT_PUBLIC_WEBAPP_URL}`; 
+    // Check if user is from GAR (multiple ways to detect)
+    const isGarUser = 
+      session.provider === 'gar-credentials' || 
+      session.provider === 'gar' ||
+      !!session.user?.uai; // UAI is only set for GAR users
+    
+    console.log('[LogoutButton] session.provider:', session.provider);
+    console.log('[LogoutButton] session.user.uai:', session.user?.uai);
+    console.log('[LogoutButton] isGarUser:', isGarUser);
 
-    if (session.provider === 'gar' && garEndSessionEndpoint && session.idToken) {
-      try {
-        // Construct the GAR logout URL
-        const url = new URL(garEndSessionEndpoint);
-        url.searchParams.set('id_token_hint', session.idToken as string);
-        url.searchParams.set('post_logout_redirect_uri', postLogoutRedirectUri);
-        // Add any other parameters GAR might require
-
-        // 1. Sign out locally without redirecting
-        await signOut({ redirect: false });
-
-        // 2. Redirect to GAR's end session endpoint
-        // Use window.location.href for full page redirect outside Next.js router
-        window.location.href = url.toString();
-
-      } catch (error) {
-        console.error("GAR logout failed:", error);
-        // Fallback: Just sign out locally if redirect construction fails
-        await signOut({ callbackUrl: '/' }); // Redirect home after local logout
-      }
+    if (isGarUser) {
+      // GAR user: sign out and show the GAR message
+      await signOut({ callbackUrl: '/deconnexion?gar=1' });
     } else {
-      // Handle logout for other providers (e.g., credentials) or if GAR info is missing
-      // Standard local logout, redirecting to homepage after
+      // Normal user: sign out and go to homepage
       await signOut({ callbackUrl: '/' });
     }
   };

@@ -25,7 +25,8 @@ export async function GET(
   console.log(`[AUTH] Handling signin request for provider: ${provider}`);
   
   try {
-    if (provider === 'gar') {
+    if (provider === 'gar' || provider === 'gar-prod') {
+      const isProd = provider === 'gar-prod';
       const callbackUrl = searchParams.get('callbackUrl') || '/';
       
       // Generate PKCE parameters
@@ -53,18 +54,36 @@ export async function GET(
       response.cookies.set('gar_callback_url', callbackUrl, cookieOptions);
       
       // Build the OAuth authorization URL
+      const clientId = isProd ? process.env.GAR_PFPROD_CLIENT_ID : process.env.GAR_CLIENT_ID;
+      const issuer = isProd ? process.env.GAR_PFPROD_ISSUER : process.env.GAR_ISSUER;
+      const idRessource = isProd ? process.env.GAR_PFPROD_ID_RESSOURCE : process.env.GAR_ID_RESSOURCE;
+
+      if (!clientId || !issuer || !idRessource) {
+        console.error('[AUTH] Missing GAR configuration for provider:', provider);
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.AUTH_URL || 'https://ada.beta.gouv.fr';
+        const errorUrl = new URL('/connexion', baseUrl);
+        errorUrl.searchParams.set('error', 'GarConfig');
+        errorUrl.searchParams.set('provider', provider);
+        
+        return NextResponse.redirect(errorUrl.toString(), {
+          headers: response.headers,
+        });
+      }
+
+      const callbackPath = isProd ? '/api/auth/callback/gar-prod' : '/api/auth/callback/gar';
+
       const authParams = new URLSearchParams({
         response_type: 'code',
-        client_id: process.env.GAR_CLIENT_ID!,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/gar`,
+        client_id: clientId,
+        redirect_uri: `${process.env.NEXTAUTH_URL}${callbackPath}`,
         scope: 'openid scope.gar',
         state: state,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
-        idRessource: process.env.GAR_ID_RESSOURCE!,
+        idRessource: idRessource,
       });
       
-      const authorizationUrl = `${process.env.GAR_ISSUER}/oidcAuthorize?${authParams.toString()}`;
+      const authorizationUrl = `${issuer}/oidcAuthorize?${authParams.toString()}`;
       
       console.log(`[AUTH] Redirecting to GAR authorization: ${authorizationUrl}`);
       

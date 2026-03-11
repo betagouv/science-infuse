@@ -7,20 +7,10 @@ const groqClient = new Groq({
     apiKey: process.env['GROQ_API_KEY'],
 });
 
+
 export interface GroqError {
     status: number;
     message: string;
-}
-
-export interface VisionMessage {
-    role: 'user' | 'assistant';
-    content: Array<{
-        type: 'text' | 'image_url';
-        text?: string;
-        image_url?: {
-            url: string;
-        };
-    }> | string;
 }
 
 export const callGroq = async (text: string, model: string = "llama-3.3-70b-versatile"): Promise<[GroqError | undefined, string | undefined]> => {
@@ -47,40 +37,6 @@ export const callGroq = async (text: string, model: string = "llama-3.3-70b-vers
     console.log(chatCompletion.choices[0].message.content);
     return [undefined, chatCompletion.choices[0].message.content || ""];
 }
-
-export const callGroqVision = async (
-    messages: VisionMessage[],
-    model: string = "meta-llama/llama-4-maverick-17b-128e-instruct"
-): Promise<[GroqError | undefined, string | undefined]> => {
-    try {
-        console.log('Calling Groq Vision with model:', model);
-        console.log('Messages:', JSON.stringify(messages, null, 2));
-        
-        const chatCompletion = await groqClient.chat.completions.create({
-            messages: messages as any,
-            model: model,
-            temperature: 1,
-            max_tokens: 1024,
-            top_p: 1,
-        });
-
-        return [undefined, chatCompletion.choices[0]?.message?.content || ""];
-    } catch (err) {
-        if (err instanceof Groq.APIError) {
-            console.error('Groq API Error Details:', {
-                status: err.status,
-                name: err.name,
-                message: err.message,
-                headers: err.headers,
-                error: err.error
-            });
-            return [{ status: err.status, message: err.message || err.name } as GroqError, undefined];
-        } else {
-            console.error('Unexpected error:', err);
-            throw err;
-        }
-    }
-};
 
 
 export const LLMGenerateDefinition = async (notion: string, documentId?: string) => {

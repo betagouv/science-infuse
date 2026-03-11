@@ -157,7 +157,7 @@ const QuizPopup = (props: { editor: Editor; courseBlockNode: PMNode, closePopup:
   const generateQuiz = async (context: string) => {
     setIsGenerating(true);
     try {
-      const quiz = await apiClient.generateQuizz(context);
+      const quiz = await apiClient.generateQuiz(context);
       setQuestions(JSON.parse(quiz));
     } catch (error) {
       showSnackbar(

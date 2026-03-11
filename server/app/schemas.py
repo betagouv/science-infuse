@@ -35,7 +35,7 @@ class Document(BaseModel):
     publicPath: Optional[str] = None
     mediaName: str
     duration: Optional[float] = None
-    source: str = Field(default="UniverScience")
+    source: str = Field(default="Universcience")
     sourceCreationDate: Optional[datetime] = None
     userId: Optional[str] = None
     fileHash: Optional[str] = None

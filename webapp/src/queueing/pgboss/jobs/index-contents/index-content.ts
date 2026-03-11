@@ -9,6 +9,8 @@ import { defineJob, defineWorker, defineWorkerConfig } from "../../boss";
 import { IndexingContentType } from "@/types/queueing";
 import { extractYoutubeVideoId } from "@/lib/utils/youtube";
 import indexYoutube, { createOrGetTag } from "../index-video";
+import s3Storage from "@/app/api/S3Storage";
+import { v4 as uuidv4 } from "uuid";
 
 const crypto = require('crypto');
 
@@ -21,6 +23,12 @@ const config = defineWorkerConfig({
     documentTagIds: z.array(z.string()),
     author: z.string().optional(),
     isExternal: z.boolean(),
+    title: z.string().optional().nullable(),
+    credit: z.string().optional().nullable(),
+    isDownloadable: z.boolean().optional(),
+    identifier: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    youtubeId: z.string().optional().nullable(),
     metadata: z.object({
       channelName: z.string().optional(),
     }).optional(),
@@ -36,7 +44,7 @@ export interface ServerProcessingResult {
 export const indexContentJob = defineJob(config);
 
 export const IndexContentWorker = defineWorker(config, async (job) => {
-  const { path, author, type, documentTagIds, sourceCreationDate, metadata, isExternal } = job.data;
+  const { path, author, type, documentTagIds, sourceCreationDate, metadata, isExternal, title, credit, isDownloadable, identifier, description, youtubeId } = job.data;
 
   let processingError: Error | undefined;
   let processingResponse: ServerProcessingResult | undefined;
@@ -72,6 +80,26 @@ export const IndexContentWorker = defineWorker(config, async (job) => {
           axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/picture`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
+            },
+          }).then(response => response.data),
+          [Error]
+        )
+        break;
+      case "video/mp4":
+      case "video/webm":
+      case "video/quicktime":
+      case "video/x-msvideo":
+      case "video/x-matroska":
+      case "video/ogg":
+        // Videos need to be uploaded to S3 first, then processed
+        const fileExtension = path.split('.').pop() || 'mp4';
+        const s3ObjectName = `videos/${uuidv4()}.${fileExtension}`;
+        await s3Storage.uploadFile(path, s3ObjectName);
+        
+        [processingError, processingResponse] = await catchErrorTyped(
+          axios.post<ServerProcessingResult>(`${NEXT_PUBLIC_SERVER_URL}/process/youtube`, { s3_object_name: s3ObjectName }, {
+            headers: {
+              'Content-Type': 'application/json',
             },
           }).then(response => response.data),
           [Error]
@@ -116,10 +144,17 @@ export const IndexContentWorker = defineWorker(config, async (job) => {
     const documentId = await insertDocument({
       document: processingResponse.document,
       chunks: processingResponse.chunks,
+      source: author,
       hash: fileHash,
       isExternal,
       documentTagIds: Array.from(new Set([...tags])),
       sourceCreationDate,
+      title: title ?? undefined,
+      credit: credit ?? undefined,
+      isDownloadable,
+      identifier: identifier || undefined,
+      description: description || undefined,
+      youtubeId: youtubeId || undefined,
     })
     return { success: true, message: 'Fichier indexé avec succès', documentId, fileHash };
   }

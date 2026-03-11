@@ -2,9 +2,8 @@ import { useRef, useState } from "@preact-signals/safe-react/react";
 import Input from "@codegouvfr/react-dsfr/Input";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { apiClient } from "@/lib/api-client";
-import { DocumentPickerProps } from "../shared/types";
 
-export default (props: DocumentPickerProps) => {
+export default (props: { onDocumentIdPicked: (documentId: string) => void, onDocumentProcessingStart: () => void, onError: (message: string) => void }) => {
 
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -20,9 +19,7 @@ export default (props: DocumentPickerProps) => {
 
         try {
             const response = await apiClient.indexFile({ youtubeUrl });
-            // TODO: review logic
-            // @ts-ignore
-            props.onChunkPicked({document: {id: response.documentId}})
+            props.onDocumentIdPicked(response.documentId)
         } catch (error) {
             if (error instanceof Error) {
                 props.onError(error.message);

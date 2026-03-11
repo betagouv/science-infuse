@@ -1,24 +1,29 @@
 version: '3.4'
+
 services:
   ollama:
     container_name: ollama
-    image: ollama/ollama  # Replace with specific Ollama version if needed
+    image: ollama/ollama
     deploy:
       resources:
         reservations:
           devices:
-          - driver: nvidia
-            capabilities: ["gpu"]
-            count: all  # Adjust count for the number of GPUs you want to use
+            - driver: nvidia
+              capabilities: ["gpu"]
+              count: all
     volumes:
       - ollama:/root/.ollama
     restart: always
+    networks:
+      - science-net
 
   redis:
     image: "redis:alpine"
-    ports:
-      - "6379:6379"
-  # file server
+    command: redis-server --requirepass ${REDIS_PASSWORD} --protected-mode yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - science-net
 
   postgresql:
     image: pgvector/pgvector:0.7.0-pg15
@@ -27,21 +32,19 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"  # Expose PostgreSQL default port
+      - "5432:5432"
     networks:
-      default:
-        aliases:
-          - postgresql
-
+      - science-net
     volumes:
-      - ./postgresql_data:/var/lib/postgresql/data  # Persistent data volume
+      - ./postgresql_data:/var/lib/postgresql/data
 
   documentation:
     build:
       context: ./documentation
     ports:
       - "8004:3000"
-
+    networks:
+      - science-net
 
   webapp:
     container_name: webapp
@@ -88,8 +91,6 @@ services:
         - GAR_CLIENT_SECRET=${GAR_CLIENT_SECRET}
         - GAR_ISSUER=${GAR_ISSUER}
         - GAR_ID_RESSOURCE=${GAR_ID_RESSOURCE}
-
-
     ports:
       - "8002:3000"
     environment:
@@ -131,6 +132,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - science-net
 
   server:
     runtime: nvidia
@@ -147,6 +150,7 @@ services:
       - S3_ENDPOINT=${S3_ENDPOINT}
       - S3_REGION=${S3_REGION}
       - S3_BUCKET=${S3_BUCKET}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     build:
       context: ./server
     ports:
@@ -154,6 +158,8 @@ services:
     volumes:
       - ./documents:/server/documents
       - ./ftp-data:/server/ftp-data
+    networks:
+      - science-net
 
   h5p:
     container_name: h5p
@@ -173,11 +179,12 @@ services:
       context: ./h5p
     ports:
       - "8006:8006"
-      # - "127.0.0.1:8006:8006"
     restart: always
     volumes:
       - ./h5p:/app/h5p
       - ./public:/app/public
+    networks:
+      - science-net
 
   mariadb:
     image: docker.io/bitnami/mariadb:11.4
@@ -189,6 +196,8 @@ services:
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
       - 'mariadb_data:/bitnami/mariadb'
+    networks:
+      - science-net
 
   moodle:
     build: moodle
@@ -206,41 +215,16 @@ services:
     volumes:
       - 'moodle_data:/bitnami/moodle'
       - 'moodledata_data:/bitnami/moodledata'
+    networks:
+      - science-net
 
   youtube-token-generator:
     image: quay.io/invidious/youtube-trusted-session-generator:webserver
     ports:
       - "8007:8080"
     restart: unless-stopped
-
-  # matomo-mariadb:
-  #   image: mariadb:10.11
-  #   command: --max-allowed-packet=64MB
-  #   restart: always
-  #   volumes:
-  #     - matomo_db_data:/var/lib/mysql
-  #   environment:
-  #     - MARIADB_ROOT_PASSWORD=${MATOMO_MARIADB_ROOT_PASSWORD}
-  #     - MARIADB_USER=bn_matomo
-  #     - MARIADB_PASSWORD=${MATOMO_MARIADB_PASSWORD}
-  #     - MARIADB_DATABASE=bitnami_matomo
-  #     - MARIADB_AUTO_UPGRADE=1
-  #     - MARIADB_DISABLE_UPGRADE_BACKUP=1
-
-  # matomo:
-  #   image: matomo
-  #   restart: always
-  #   volumes:
-  #     - matomo_app_data:/var/www/html
-  #   environment:
-  #     - MATOMO_DATABASE_HOST=matomo-mariadb
-  #     - MATOMO_DATABASE_USERNAME=bn_matomo
-  #     - MATOMO_DATABASE_PASSWORD=${MATOMO_MARIADB_PASSWORD}
-  #     - MATOMO_DATABASE_DBNAME=bitnami_matomo
-  #   ports:
-  #     - 8005:80
-  #   depends_on:
-  #     - matomo-mariadb
+    networks:
+      - science-net
 
 volumes:
   mariadb_data:
@@ -254,15 +238,16 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${PWD}/moodle/data/moodle
+      device: /home/debian/science-infuse/moodle/data/moodle
   moodledata_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${PWD}/moodle/data/moodledata
+      device: /home/debian/science-infuse/moodle/data/moodledata
   ollama:
     driver: local
 
-  # matomo_db_data: {}
-  # matomo_app_data: {}
+networks:
+  science-net:
+    external: true

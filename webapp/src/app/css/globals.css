@@ -58,6 +58,15 @@ h1 {
   color: #161616;
 }
 
+/* Header service title styling - only target our specific text */
+.service-title-text {
+  font-weight: 300 !important;
+}
+
+.service-title-text .font-bold {
+  font-weight: 700 !important;
+}
+
 /* header */
 
 @media (min-width: 992px) {
@@ -268,4 +277,18 @@ h1 {
 
 .gar-custom-button:not(:disabled):focus {
   background-image: url('/images/gar/BoutonGAR_Focus.svg') !important;
+}
+
+/* Image modal z-index fix - ensure modal appears above header */
+dialog#image-viewer-modal {
+  z-index: 10001 !important;
+}
+
+dialog#image-viewer-modal::backdrop {
+  z-index: 10000 !important;
+}
+
+/* Also target the DSFR modal dialog wrapper */
+.fr-modal[id="image-viewer-modal"] dialog {
+  z-index: 10001 !important;
 }

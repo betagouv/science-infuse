@@ -89,7 +89,7 @@ ${userSystemPrompt}
             const mappedMediaTypes = Array.from(new Set((args.mediaTypes || []).flatMap((type: string) => {
               switch (type) {
                 case 'image':
-                  return ['image', 'pdf_image', 'raw_image'];
+                  return ['image', 'raw_image'];
                 case 'text':
                   return ['pdf_text', 'website', 'website_qa', 'website_experience'];
                 case 'video':

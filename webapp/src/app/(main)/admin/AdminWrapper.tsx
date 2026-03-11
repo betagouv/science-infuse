@@ -55,6 +55,12 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                             },
                             {
                                 linkProps: {
+                                    href: "/admin/drafts",
+                                },
+                                text: "Mes brouillons"
+                            },
+                            {
+                                linkProps: {
                                     href: "#",
                                 },
                                 text: "Tâches",
@@ -85,6 +91,13 @@ const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
                                 },
                                 text: "Explorer les fichiers"
                             },
+                            // Hidden for now - redundant functionality
+                            // {
+                            //     linkProps: {
+                            //         href: "/admin/edit-media",
+                            //     },
+                            //     text: "Modifier les médias"
+                            // },
                             {
                                 linkProps: {
                                     href: "/admin/document-tags",

@@ -33,7 +33,7 @@ const IndexUrls = () => {
         setIsGlobalIndexing(true);
         const urlsToIndedx = getCleanedUrls(urls);
 
-        const indexPromises = urlsToIndedx.map(async (url) => {
+        const indexPromises = urlsToIndedx.map(async (url): Promise<true | false | { conflict: true; id?: string }> => {
             try {
                 await apiClient.indexContent({
                     content: url,
@@ -44,22 +44,44 @@ const IndexUrls = () => {
                 return true;
             } catch (error: any) {
                 console.error(`Error indexing ${url}:`, error);
+                if (error?.response?.status === 409) {
+                    return { conflict: true, id: error?.response?.data?.id };
+                }
                 return false;
             }
         });
 
         const results = await Promise.all(indexPromises);
 
-        const successCount = results.filter(Boolean).length;
-        const failureCount = results.filter(v => !v).length;
+        const successCount = results.filter((r): r is true => r === true).length;
+        const failureCount = results.filter(r => r !== true).length;
+        const conflictResults = results.filter((r): r is { conflict: true; id?: string } => typeof r === 'object' && r !== null && 'conflict' in r && r.conflict === true);
 
-        showSnackbar(
-            <p className="m-0">
-                {successCount} fichier(s) ajouté(s) à la liste d'indexation, {failureCount} échec(s).
-                <a href="/admin/tasks-list" target='_blank'>Voir la liste</a>
-            </p>,
-            successCount > 0 ? 'success' : 'error'
-        );
+        if (successCount > 0) {
+            showSnackbar(
+                <p className="m-0">
+                    {successCount} fichier(s) ajouté(s) à la liste d'indexation, {failureCount} échec(s).
+                    <a href="/admin/tasks-list" target='_blank'>Voir la liste</a>
+                </p>,
+                'success'
+            );
+        } else if (conflictResults.length > 0) {
+            const existingId = conflictResults[0]?.id;
+            showSnackbar(
+                <p className="m-0">
+                    Cette URL existe déjà dans l'index{existingId ? ` avec l'id : ${existingId}` : ''}.
+                </p>,
+                'error'
+            );
+        } else {
+            showSnackbar(
+                <p className="m-0">
+                    {successCount} fichier(s) ajouté(s) à la liste d'indexation, {failureCount} échec(s).
+                    <a href="/admin/tasks-list" target='_blank'>Voir la liste</a>
+                </p>,
+                'error'
+            );
+        }
 
         // setUrls("");
         setIsGlobalIndexing(false);

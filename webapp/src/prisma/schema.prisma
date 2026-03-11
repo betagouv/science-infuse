@@ -15,11 +15,12 @@ model Document {
   s3ObjectName          String?
   originalPath          String
   deleted               Boolean         @default(false)
+  deletedAt             DateTime?
   publicPath            String?
   mediaName             String
   isExternal            Boolean         @default(false)
   duration              Float?
-  source                String          @default("UniverScience")
+  source                String          @default("Universcience")
   sourceCreationDate    DateTime?
   userId                String?
   user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -29,6 +30,12 @@ model Document {
   h5pContents           H5PContent[]    @relation("DocumentToH5PContent")
   showcasedH5PContent   H5PContent?     @relation("DocumentShowcaseH5PContent", fields: [showcasedH5PContentId], references: [id])
   showcasedH5PContentId String?
+  title                 String?
+  credit                String?
+  isDownloadable        Boolean         @default(true)
+  identifier            String?
+  description           String?
+  youtubeId             String?
 }
 
 model H5PContent {
@@ -49,6 +56,35 @@ model DocumentTag {
   title       String     @unique
   description String
   documents   Document[] @relation("DocumentToDocumentTag")
+}
+
+model Draft {
+  id                    String          @id @default(cuid())
+  title                 String?
+  credit                String?
+  source                String?
+  isDownloadable        Boolean         @default(true)
+  documentTagIds        String[]        // Store tag IDs as array
+  identifier            String?
+  description           String?
+  contentType           String?         // Type of content: 'images', 'videos', 'pdf'
+  files                 DraftFile[]     @relation("DraftToDraftFile")
+  userId                String
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
+
+model DraftFile {
+  id                    String          @id @default(cuid())
+  originalName          String
+  s3ObjectName          String
+  mimeType              String
+  size                  Int
+  iptcData              Json?
+  draftId               String
+  draft                 Draft           @relation("DraftToDraftFile", fields: [draftId], references: [id], onDelete: Cascade)
+  createdAt             DateTime        @default(now())
 }
 
 model DocumentChunk {
@@ -320,6 +356,7 @@ model User {
 
   H5PContent            H5PContent[]
   ReportedDocumentChunk ReportedDocumentChunk[]
+  drafts                Draft[]
 }
 
 model Account {

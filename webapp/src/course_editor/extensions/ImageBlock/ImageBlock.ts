@@ -180,12 +180,16 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
       style: imageStyle,
     };
   
+    const mediaChildren: any[] = [['img', mergeAttributes(imageAttributes)]];
+    if (downloadLink) {
+      mediaChildren.push(['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger l'image"]);
+    }
+    if (fileSource) {
+      mediaChildren.push(['p', { class: "file-source" }, `Source : ${fileSource}`]);
+    }
+
     return ['div', { class: 'block-image', style: containerStyle },
-      ['div', { style: 'display: flex; flex-direction: column;' },
-        ['img', mergeAttributes(imageAttributes)],
-        downloadLink && ['a', { href: downloadLink, target: '_blank', rel: 'noopener noreferrer' }, "télécharger l'image"],
-        fileSource && ['p', { class: "file-source" }, `Source : ${fileSource}`],
-      ]
+      ['div', { style: 'display: flex; flex-direction: column;' }, ...mediaChildren]
     ];
   },
   addCommands() {

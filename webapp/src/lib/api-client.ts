@@ -1,15 +1,9 @@
-import { DialogcardSet } from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
-import { ImageACompleterBox } from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor';
-import { TexteATrousSet } from '@/app/(main)/intelligence-artificielle/texte-a-trous/TexteATrousEditor';
-import { CrosswordSet } from '@/app/(main)/intelligence-artificielle/mots-croises/MotsCroisesEditor';
-import { Question } from '@/types/course-editor';
 import { WEBAPP_URL } from '@/config';
 import { ChapterWithBlock, ChapterWithoutBlocks, CreateBlockRequest, CreateMessageRequest, CreateThreadRequest, ExportH5pResponse, ExportUrlResponse, FullCommentThread, GroupedFavorites, QueryRequest, TextWithScore, UserFull, UserFullWithChapterCount } from '@/types/api';
 import { ExportH5PRequestBody, ExportMbzRequestBody } from '@/types/api/export';
 import { IndexingContentType, PgBossJobGetIndexContentResponse } from '@/types/queueing';
 import { TableOfContents } from '@/types/TOC';
 import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults } from '@/types/vectordb';
-import type { ProcessDirectFileResponse } from '@/types/api/direct-file';
 import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, ReportedDocumentChunk, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
 
@@ -39,6 +33,11 @@ class ApiClient {
 
   async reportChunk(chunkId: string, reason: string): Promise<ReportedDocumentChunk> {
     const response = await this.axiosInstance.post<ReportedDocumentChunk>(`/documentChunks/${chunkId}/report`, { reason });
+    return response.data;
+  }
+
+  async updateDocument(documentId: string, data: { title?: string; credit?: string; source?: string; isDownloadable?: boolean; tagIds?: string[]; identifier?: string; description?: string }): Promise<DocumentWithChunks> {
+    const response = await this.axiosInstance.put<DocumentWithChunks>(`/document/${documentId}`, data);
     return response.data;
   }
 
@@ -187,8 +186,8 @@ class ApiClient {
     return response.data;
   }
 
-  async indexContent(props: { content: File | string, type: IndexingContentType, author: string, documentTags: DocumentTag[], isExternal?: boolean }): Promise<string> {
-    const { content, type, author, documentTags, isExternal } = props;
+  async indexContent(props: { content: File | string, type: IndexingContentType, author: string, documentTags: DocumentTag[], isExternal?: boolean, title?: string, credit?: string, isDownloadable?: boolean, draftFileId?: string, identifier?: string, description?: string, youtubeId?: string }): Promise<string> {
+    const { content, type, author, documentTags, isExternal, title, credit, isDownloadable, draftFileId, identifier, description, youtubeId } = props;
     console.log("selectedDocumentTags", documentTags)
     const formData = new FormData();
     formData.append('content', content);
@@ -197,6 +196,20 @@ class ApiClient {
     formData.append('documentTags', JSON.stringify(documentTags));
     if (author)
       formData.append('author', author);
+    if (title)
+      formData.append('title', title);
+    if (credit)
+      formData.append('credit', credit);
+    if (isDownloadable !== undefined)
+      formData.append('isDownloadable', isDownloadable.toString());
+    if (draftFileId)
+      formData.append('draftFileId', draftFileId);
+    if (identifier)
+      formData.append('identifier', identifier);
+    if (description)
+      formData.append('description', description);
+    if (youtubeId)
+      formData.append('youtubeId', youtubeId);
 
     const response = await this.axiosInstance.post<string>('/index-content', formData, {
       headers: {
@@ -271,35 +284,6 @@ class ApiClient {
     }
   }
 
-  async processDirectFile(props: { file: File; mediaName?: string; pickMediaType?: string }): Promise<ProcessDirectFileResponse> {
-    const { file, mediaName, pickMediaType } = props;
-    const formData = new FormData();
-    formData.append('file', file);
-    if (mediaName) formData.append('mediaName', mediaName);
-    if (pickMediaType) formData.append('pickMediaType', pickMediaType);
-
-    try {
-      const response = await this.axiosInstance.post<ProcessDirectFileResponse>(
-        '/file/process',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Upload error:', error.response?.data || error.message);
-        throw new Error(`Upload failed: ${error.response?.data?.error || error.message} `);
-      } else {
-        console.error('Unexpected error:', error);
-        throw new Error('An unexpected error occurred during upload');
-      }
-    }
-  }
-
   async shareFile(s3ObjectName: string, shared: boolean): Promise<boolean> {
     const response = await this.axiosInstance.post<boolean>('/file/share', { s3ObjectName, shared });
     if (response.data) {
@@ -341,89 +325,12 @@ class ApiClient {
   }
 
 
-  async generateQuizz(documentId: string): Promise<Question[]> {
-    try {
-      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', { documentId });
-      if (response.data) {
-        return response.data
-      }
-    } catch (error) {
-      console.error("Error generating quiz:", error);
-      // Return a simple fallback quiz if generation fails
-      return [
-        {
-          question: "Quel est le concept principal de ce document?",
-          options: [
-            { answer: "Le concept principal", correct: true },
-            { answer: "Un concept secondaire", correct: false },
-            { answer: "Une idée non mentionnée", correct: false },
-            { answer: "Un détail mineur", correct: false }
-          ]
-        }
-      ];
+  async generateQuiz(context: string): Promise<string> {
+    const response = await this.axiosInstance.post<string>('/ai/quiz', { context });
+    if (response.data) {
+      return response.data
     }
-    return [];
-  }
-
-  async generateQuizzFromText(context: string): Promise<Question[]> {
-    try {
-      const response = await this.axiosInstance.post<Question[]>('/ai/quizz', { context });
-      return response.data;
-    } catch (error) {
-      console.error("Error generating quiz from text:", error);
-      return [];
-    }
-  }
-
-  async generateDialogcards(documentId: string): Promise<DialogcardSet> {
-    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { documentId });
-    return response.data;
-  }
-
-  async generateDialogcardsFromText(context: string): Promise<DialogcardSet> {
-    const response = await this.axiosInstance.post<DialogcardSet>('/ai/dialogcards', { context });
-    return response.data;
-  }
-
-  async generateDialogcardAnswer(question: string, documentId?: string): Promise<string> {
-    const response = await this.axiosInstance.post<{ answer: string }>('/ai/dialogcard-answer', { question, documentId });
-    return response.data.answer;
-  }
-
-  async generateImageACompleter(chunkId: string): Promise<ImageACompleterBox[]> {
-    const response = await this.axiosInstance.post<ImageACompleterBox[]>('/ai/image-a-completer', { chunkId });
-    return response.data;
-
-  }
-
-  async generateTexteATrous(documentId: string): Promise<TexteATrousSet> {
-    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', { documentId });
-    return response.data;
-  }
-
-  async generateTexteATrousFromText(context: string): Promise<TexteATrousSet> {
-    const response = await this.axiosInstance.post<TexteATrousSet>('/ai/texte-a-trous', { context });
-    return response.data;
-  }
-
-  async generateTexteATrousAnswer(text: string, documentId?: string): Promise<string> {
-    const response = await this.axiosInstance.post<{ answer: string }>('/ai/texte-a-trous-answer', { text, documentId });
-    return response.data.answer;
-  }
-
-  async generateMotsCroises(documentId: string): Promise<CrosswordSet> {
-    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', { documentId });
-    return response.data;
-  }
-
-  async generateMotsCroisesFromText(context: string): Promise<CrosswordSet> {
-    const response = await this.axiosInstance.post<CrosswordSet>('/ai/mots-croises', { context });
-    return response.data;
-  }
-
-  async generateMotsCroisesClue(answer: string, documentId?: string): Promise<string> {
-    const response = await this.axiosInstance.post<{ clue: string }>('/ai/mots-croises-clue', { answer, documentId });
-    return response.data.clue;
+    return "";
   }
 
   async updateBlock(chapterId: string, blockId: string, title: string, content: any[]): Promise<boolean> {
@@ -467,6 +374,51 @@ class ApiClient {
   async getUsers(): Promise<UserFullWithChapterCount[]> {
     const response = await this.axiosInstance.get<UserFullWithChapterCount[]>(`/users`);
 
+    return response.data;
+  }
+
+  // Draft management methods
+  async getDraft(draftId?: string): Promise<any> {
+    const url = draftId ? `/drafts?draftId=${draftId}` : '/drafts';
+    const response = await this.axiosInstance.get(url);
+    return response.data;
+  }
+
+  async getAllDrafts(): Promise<any> {
+    const response = await this.axiosInstance.get('/drafts');
+    return response.data;
+  }
+
+  async saveDraft(data: { title?: string, credit?: string, source?: string, isDownloadable?: boolean, documentTagIds?: string[], files?: File[], fileIptcData?: Array<{ iptcData?: unknown }>, draftId?: string, identifier?: string, description?: string, contentType?: string }): Promise<any> {
+    const formData = new FormData();
+
+    if (data.title) formData.append('title', data.title);
+    if (data.credit) formData.append('credit', data.credit);
+    if (data.source) formData.append('source', data.source);
+    if (data.isDownloadable !== undefined) formData.append('isDownloadable', data.isDownloadable.toString());
+    if (data.documentTagIds) formData.append('documentTagIds', JSON.stringify(data.documentTagIds));
+    if (data.draftId) formData.append('draftId', data.draftId);
+    if (data.identifier) formData.append('identifier', data.identifier);
+    if (data.description) formData.append('description', data.description);
+    if (data.contentType) formData.append('contentType', data.contentType);
+    if (data.fileIptcData) formData.append('fileIptcData', JSON.stringify(data.fileIptcData));
+
+    if (data.files) {
+      data.files.forEach(file => {
+        formData.append('files', file);
+      });
+    }
+
+    const response = await this.axiosInstance.post('/drafts', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  async deleteDraftById(draftId: string): Promise<any> {
+    const response = await this.axiosInstance.delete(`/drafts?draftId=${draftId}`);
     return response.data;
   }
 }

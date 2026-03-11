@@ -1,19 +1,14 @@
 import { ExportH5pResponse } from '@/types/api';
-import { ExportH5PDialogcardsRequest, ExportH5PImageACompleterRequest, ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody, ExportH5PTexteATrousRequest, ExportH5PMotsCroisesRequest } from '@/types/api/export';
-import { Dialogcard } from '@/lib/api-client';
+import { ExportH5PInteractiveVideoRequest, ExportH5PQuestionRequest, ExportH5PRequestBody } from '@/types/api/export';
 import { NextRequest, NextResponse } from "next/server";
 import createQuestionSet from './creation-requests/createQuestionSet';
 import createInteractiveVideo from './creation-requests/createInteractiveVideo';
-import createDialogcards from './creation-requests/createDialogcards';
 import { withAccessControl } from '../../accessControl';
 import { User } from 'next-auth';
 import s3Storage from '../../S3Storage';
 import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
 import { h5pIdToPublicUrl } from '@/types/vectordb';
-import createImageACompleter from './creation-requests/createImageACompleter';
-import createTexteATrous from './creation-requests/createTexteATrous';
-import createMotsCroises from './creation-requests/createMotsCroises';
 
 export const dynamic = 'force-dynamic'
 
@@ -23,22 +18,6 @@ function isQuestionRequest(body: ExportH5PRequestBody): body is ExportH5PQuestio
 
 function isInteractiveVideoRequest(body: ExportH5PRequestBody): body is ExportH5PInteractiveVideoRequest {
     return body.type === 'interactive-video';
-}
-
-function isDialogcardsRequest(body: ExportH5PRequestBody): body is ExportH5PDialogcardsRequest {
-    return body.type === 'dialogcards';
-}
-
-function isImageACompleterRequest(body: ExportH5PRequestBody): body is ExportH5PImageACompleterRequest {
-    return body.type === 'image-a-completer';
-}
-
-function isTexteATrousRequest(body: ExportH5PRequestBody): body is ExportH5PTexteATrousRequest {
-    return body.type === 'texte-a-trous';
-}
-
-function isMotsCroisesRequest(body: ExportH5PRequestBody): body is ExportH5PMotsCroisesRequest {
-    return body.type === 'mots-croises';
 }
 
 async function downloadH5PFile(id: string): Promise<string> {
@@ -63,18 +42,6 @@ export const POST = withAccessControl(
         } else if (isInteractiveVideoRequest(body)) {
             game = await createInteractiveVideo(body.data, body.h5pContentId);
             type = "video";
-        } else if (isDialogcardsRequest(body)) {
-            game = await createDialogcards(body.data, body.h5pContentId);
-            type = "dialogcards";
-        } else if (isImageACompleterRequest(body)) {
-            game = await createImageACompleter(body.data, body.h5pContentId)
-            type = "image-a-completer"
-        } else if (isTexteATrousRequest(body)) {
-            game = await createTexteATrous(body.data, body.h5pContentId)
-            type = "texte-a-trous"
-        } else if (isMotsCroisesRequest(body)) {
-            game = await createMotsCroises(body.data, body.h5pContentId)
-            type = "mots-croises"
         }
         else {
             throw new Error(`Unsupported type: ${body.type}`);
