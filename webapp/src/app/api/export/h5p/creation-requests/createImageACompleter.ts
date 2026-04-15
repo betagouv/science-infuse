@@ -2,24 +2,24 @@ import prisma from "@/lib/prisma";
 import { createH5P } from "."
 import { ImageACompleterBox } from "@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterEditor";
 import { s3ToPublicUrl } from "@/types/vectordb";
+
 export interface ImageACompleterData {
   boxes: ImageACompleterBox[]
   chunkId: string;
 }
+
 async function getImageDimensions(url: string): Promise<{ width: number; height: number }> {
   try {
     const response = await fetch(url);
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Simple PNG dimension detection
     if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
       const width = buffer.readUInt32BE(16);
       const height = buffer.readUInt32BE(20);
       return { width, height };
     }
 
-    // Simple JPEG dimension detection
     if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
       let offset = 2;
       while (offset < buffer.length) {
@@ -34,153 +34,165 @@ async function getImageDimensions(url: string): Promise<{ width: number; height:
       }
     }
 
-    // Default fallback
     return { width: 800, height: 600 };
   } catch (error) {
     console.error('Error reading image dimensions:', error);
-    return { width: 800, height: 600 };
+    return { width: 800, height: 600 }; // Fallback
   }
 }
+
+// Fonction de sécurité pour bloquer les coordonnées entre 0 et 1 (0% et 100%)
+const clamp = (val: number) => Math.max(0, Math.min(1, val));
+
 export default async (input: ImageACompleterData, h5pContentId?: string) => {
   const chunk = await prisma.documentChunk.findUnique({
-    where: {
-      id: input.chunkId
-    },
-    select: {
-      id: true,
-      metadata: true
-    }
-  })
-  if (!chunk) {
-    throw new Error(`Chunk not found for id: ${input.chunkId}`);
-  }
+    where: { id: input.chunkId },
+    select: { id: true, metadata: true }
+  });
+
+  if (!chunk) throw new Error(`Chunk not found for id: ${input.chunkId}`);
+  
   const metadata = chunk.metadata as { s3ObjectName?: string } | null;
   const s3ObjectName = metadata?.s3ObjectName;
-  if (!s3ObjectName) {
-    throw new Error(`No image found in chunk: ${input.chunkId}`);
-  }
-  // Get public URL and image dimensions
+
+  if (!s3ObjectName) throw new Error(`No image found in chunk: ${input.chunkId}`);
+
   const imageUrl = s3ToPublicUrl(s3ObjectName);
   const imageDimensions = await getImageDimensions(imageUrl);
-  console.log("IMAGEDIMENSIONS", imageDimensions)
-  // H5P DragQuestion uses a canvas with the background image
-  // The canvas size should match the image for simplicity
-  // All x,y positions are percentages (0-100) of this canvas
-  // Width/height for elements and dropzones are in em (relative to font-size, default scaled to 16px base)
-  const canvasWidth = imageDimensions.width;
-  const canvasHeight = imageDimensions.height;
-  const baseFontSize = 16; // Base font size in px used for em calculations
-
-  // Drop zones on the image (positions in %, sizes in em)
-  // bbox are normalized 0-1, convert to % for positions, and em for sizes
-  // em = (fraction * dimension_px) / baseFontSize
-  const dropZones = input.boxes.map((box, index) => ({
-    x: box.bbox.x1 * 100,
-    y: box.bbox.y1 * 100,
-    width: (box.bbox.x2 - box.bbox.x1) * canvasWidth / baseFontSize,
-    height: (box.bbox.y2 - box.bbox.y1) * canvasHeight / baseFontSize,
-    correctElements: [index.toString()],
-    showLabel: false,
-    label: box.label, // For accessibility
-    backgroundOpacity: 0,
-    tipsAndFeedback: {
-      tip: "",
-      feedbackOnCorrect: "Correct !",
-      feedbackOnIncorrect: "Incorrect."
-    },
-    single: true,
-    autoAlign: false
-  }));
-
-  // Draggable text elements positioned at the bottom in a grid
-  // Allow dropping any label on any drop zone to enable mistakes and scoring
-  // Positions in %, sizes in em
-  const elementsPerRow = Math.min(input.boxes.length, 4); // Max 4 per row for readability
-  const numRows = Math.ceil(input.boxes.length / elementsPerRow);
-
-  // Desired percentages for layout (adjust as needed)
-  const desiredElementHeightPercent = 5; // ~5% of canvas height per element
-  const verticalSpacingPercent = 5; // 6% vertical spacing between rows
-  const bottomMarginPercent = 6; // Small margin at bottom
-
-  const totalElementsHeightPercent = numRows * desiredElementHeightPercent + (numRows - 1) * verticalSpacingPercent;
-  const startY = 100 - totalElementsHeightPercent - bottomMarginPercent;
   
-  // For variable widths
-  const charWidthEmAt1 = 0.34;
-  const fontSizeFactor = 0.5125;
-  const perCharEm = charWidthEmAt1 * fontSizeFactor;
-  const paddingEm = 0.25;
-  const minWidthEm = 2;
-  const spacingPercent = 4; // Increased spacing between elements
-  const rowMarginPercent = 2; // Reduced margin on each side, total 4%
+  // 1. Filtrer les boîtes invalides (misclicks frontend ou dimensions nulles)
+  const validBoxes = input.boxes.filter(box => {
+      const w = clamp(box.bbox.x2) - clamp(box.bbox.x1);
+      const h = clamp(box.bbox.y2) - clamp(box.bbox.y1);
+      return w > 0.01 && h > 0.01; // Ignorer les zones trop petites/invalides
+  });
 
-  // Group boxes into rows
-  const rows: ImageACompleterBox[][] = [];
-  for (let r = 0; r < numRows; r++) {
-    rows.push(input.boxes.slice(r * elementsPerRow, (r + 1) * elementsPerRow));
+  if (validBoxes.length === 0) {
+      throw new Error("Aucune zone valide n'a été fournie pour générer l'H5P.");
   }
 
-  const elements = rows.flatMap((row, r) => {
-    const rowWidthsEm = row.map(box => {
-      const labelLength = box.label.length;
-      return Math.max(minWidthEm, labelLength * perCharEm + paddingEm);
-    });
+  // 2. Normalisation de la vue pour une UX de grille parfaite 
+  const TARGET_WIDTH = 800;
+  const scaleToTarget = TARGET_WIDTH / imageDimensions.width;
+  const canvasWidth = TARGET_WIDTH;
+  const canvasHeight = Math.round(imageDimensions.height * scaleToTarget);
+  const BASE_FONT_SIZE = 16; 
 
-    let rowWidthsPercent = rowWidthsEm.map(wEm => (wEm * baseFontSize / canvasWidth) * 100);
+  const maxRowWidthEm = (canvasWidth / BASE_FONT_SIZE) - 2; 
+  
+  const draggables = validBoxes.map((box, index) => {
+    const labelText = box.label || `Zone ${index + 1}`;
+    const estimatedWidthEm = labelText.length * 0.55 + 1.5; 
+    const widthEm = Math.min(Math.max(4.5, estimatedWidthEm), maxRowWidthEm);
+    return { 
+      id: index, 
+      label: labelText, 
+      widthEm 
+    };
+  });
 
-    let totalContentWidthPercent = rowWidthsPercent.reduce((a, b) => a + b, 0);
-    let totalSpacingPercent = (row.length - 1) * spacingPercent;
-    let totalRowPercent = totalContentWidthPercent + totalSpacingPercent;
+  // Mélanger/trier pour que l'exercice ait du sens
+  draggables.sort((a, b) => a.label.localeCompare(b.label));
 
-    let scale = 1;
-    const availableWidthPercent = 100 - 2 * rowMarginPercent;
-    if (totalRowPercent > availableWidthPercent) {
-      scale = availableWidthPercent / totalRowPercent;
-      rowWidthsPercent = rowWidthsPercent.map(w => w * scale);
-      totalContentWidthPercent *= scale;
-      totalSpacingPercent *= scale;
-      totalRowPercent = totalContentWidthPercent + totalSpacingPercent;
+  // 3. Algorithme de Packing (disposition en grille pour les étiquettes)
+  const hGapEm = 1;
+  const vGapEm = 0.5;
+  const labelHeightEm = 2.2;
+  const marginEm = 1;
+
+  const rows: { items: typeof draggables, width: number }[] = [];
+  let currentRow: typeof draggables = [];
+  let currentRowWidth = 0;
+
+  draggables.forEach(item => {
+    if (currentRow.length === 0) {
+      currentRow.push(item);
+      currentRowWidth = item.widthEm;
+    } else {
+      if (currentRowWidth + hGapEm + item.widthEm <= maxRowWidthEm) {
+        currentRow.push(item);
+        currentRowWidth += hGapEm + item.widthEm;
+      } else {
+        rows.push({ items: currentRow, width: currentRowWidth });
+        currentRow = [item];
+        currentRowWidth = item.widthEm;
+      }
     }
+  });
+  if (currentRow.length > 0) rows.push({ items: currentRow, width: currentRowWidth });
 
-    const startX = rowMarginPercent + (availableWidthPercent - totalRowPercent) / 2; // center the row
-    let currentX = startX;
+  const numRows = rows.length;
+  const totalBlockHeightEm = numRows * labelHeightEm + (numRows - 1) * vGapEm;
+  const startYEm = Math.max(0, (canvasHeight / BASE_FONT_SIZE) - totalBlockHeightEm - marginEm);
 
-    return row.map((box, c) => {
-      const widthPercent = rowWidthsPercent[c];
-      const widthEm = (widthPercent / 100 * canvasWidth) / baseFontSize;
-      const elementHeightEm = (desiredElementHeightPercent / 100 * canvasHeight) / baseFontSize;
-      const y = startY + r * (desiredElementHeightPercent + verticalSpacingPercent);
-      const label = box.label.replace(/\s+/g, '&nbsp;');
-      const index = r * elementsPerRow + c;
+  const elements: any[] = [];
+  const originalToNewIndex: Record<number, number> = {};
 
-      const element = {
-        x: currentX,
-        y,
-        width: widthEm,
-        height: elementHeightEm,
-        dropZones: input.boxes.map((_, i) => i.toString()), // Can drop on any drop zone
+  rows.forEach((row, rIdx) => {
+    const startXEm = marginEm + (maxRowWidthEm - row.width) / 2;
+    let currentXEm = startXEm;
+    const yEm = startYEm + rIdx * (labelHeightEm + vGapEm);
+
+    row.items.forEach(item => {
+      const xPercent = clamp((currentXEm * BASE_FONT_SIZE) / canvasWidth) * 100;
+      const yPercent = clamp((yEm * BASE_FONT_SIZE) / canvasHeight) * 100;
+      
+      const newIndex = elements.length;
+      originalToNewIndex[item.id] = newIndex; 
+
+      elements.push({
+        x: xPercent,
+        y: yPercent,
+        width: item.widthEm,
+        height: labelHeightEm,
+        dropZones: validBoxes.map((_, i) => i.toString()), 
         type: {
           library: "H5P.AdvancedText 1.1",
           params: {
-            text: `<p style="text-align: center; margin: 0; padding: 0.25em; font-size: 0.4125em; line-height: 1em;">${label}</p>`
+            text: `<p style="text-align: center; margin: 0; padding: 0.35em 0.5em; font-size: 1em; line-height: 1.2em; color: #333;">${item.label}</p>`
           },
-          subContentId: `element-${index}`,
+          subContentId: `draggable-${newIndex}`,
           metadata: {
             contentType: "Text",
             license: "U",
-            title: box.label,
+            title: item.label,
             authors: [],
             changes: []
           }
         },
-        backgroundOpacity: 100, // Solid background for draggables
-        multiple: false
-      };
+        backgroundOpacity: 100,
+        multiple: false,
+        label: item.label // Important : Propriété vitale pour éviter l'erreur H5P Accessibility !
+      });
 
-      currentX += widthPercent + spacingPercent;
-      return element;
+      currentXEm += item.widthEm + hGapEm;
     });
+  });
+
+  // 4. Générer les DropZones sécurisées
+  const dropZones = validBoxes.map((box, index) => {
+    const x1 = clamp(box.bbox.x1);
+    const x2 = clamp(box.bbox.x2);
+    const y1 = clamp(box.bbox.y1);
+    const y2 = clamp(box.bbox.y2);
+
+    return {
+      x: x1 * 100,
+      y: y1 * 100,
+      width: Math.max(1, (x2 - x1) * canvasWidth / BASE_FONT_SIZE), // Éviter width: 0
+      height: Math.max(1, (y2 - y1) * canvasHeight / BASE_FONT_SIZE), // Éviter height: 0
+      correctElements: [String(originalToNewIndex[index])], 
+      showLabel: false,
+      label: box.label || `Zone ${index + 1}`, // Important : Propriété vitale !
+      backgroundOpacity: 0,
+      tipsAndFeedback: {
+        tip: "",
+        feedbackOnCorrect: "Correct !",
+        feedbackOnIncorrect: "Incorrect."
+      },
+      single: true,
+      autoAlign: false
+    };
   });
 
   const data = {
@@ -199,10 +211,8 @@ export default async (input: ImageACompleterData, h5pContentId?: string) => {
             },
             "background": {
               "path": imageUrl,
-              "mime": "image/png", // Assume PNG, adjust if needed
-              "copyright": {
-                "license": "U"
-              },
+              "mime": "image/jpeg", 
+              "copyright": { "license": "U" },
               "width": canvasWidth,
               "height": canvasHeight
             }
@@ -213,21 +223,9 @@ export default async (input: ImageACompleterData, h5pContentId?: string) => {
           }
         },
         "overallFeedback": [
-          {
-            "from": 0,
-            "to": 49,
-            "feedback": "Essaie encore !"
-          },
-          {
-            "from": 50,
-            "to": 99,
-            "feedback": "Bien, mais tu peux faire mieux !"
-          },
-          {
-            "from": 100,
-            "to": 100,
-            "feedback": "Parfait !"
-          }
+          { "from": 0, "to": 49, "feedback": "Essaie encore !" },
+          { "from": 50, "to": 99, "feedback": "Bien, mais tu peux faire mieux !" },
+          { "from": 100, "to": 100, "feedback": "Parfait !" }
         ],
         "behaviour": {
           "enableRetry": true,
@@ -241,19 +239,19 @@ export default async (input: ImageACompleterData, h5pContentId?: string) => {
           "showScorePoints": true,
           "showTitle": true
         },
-        "grabbablePrefix": "Grabbable {num} of {total}.",
-        "grabbableSuffix": "Placed in dropzone {num}.",
-        "dropzonePrefix": "Dropzone {num} of {total}.",
-        "noDropzone": "No dropzone.",
-        "tipLabel": "Show tip.",
-        "tipAvailable": "Tip available",
-        "correctAnswer": "Correct answer",
-        "wrongAnswer": "Wrong answer",
-        "feedbackHeader": "Feedback",
-        "scoreBarLabel": "You got :num out of :total points",
-        "scoreExplanationButtonLabel": "Show score explanation",
-        "a11yCheck": "Check the answers. The responses will be marked as correct, incorrect, or unanswered.",
-        "a11yRetry": "Retry the task. Reset all responses and start the task over again.",
+        "grabbablePrefix": "Élément {num} sur {total}.",
+        "grabbableSuffix": "Placé dans la zone {num}.",
+        "dropzonePrefix": "Zone de dépôt {num} sur {total}.",
+        "noDropzone": "Aucune zone de dépôt.",
+        "tipLabel": "Afficher l'indice.",
+        "tipAvailable": "Indice disponible",
+        "correctAnswer": "Bonne réponse",
+        "wrongAnswer": "Mauvaise réponse",
+        "feedbackHeader": "Retour",
+        "scoreBarLabel": "Vous avez obtenu :num sur :total points",
+        "scoreExplanationButtonLabel": "Afficher l'explication du score",
+        "a11yCheck": "Vérifier les réponses.",
+        "a11yRetry": "Recommencer la tâche.",
         "localize": {
           "fullscreen": "Plein écran",
           "exitFullscreen": "Quitter le plein écran"
@@ -269,5 +267,6 @@ export default async (input: ImageACompleterData, h5pContentId?: string) => {
       }
     }
   };
+
   return await createH5P(data, h5pContentId);
 }

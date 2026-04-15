@@ -36,21 +36,15 @@ interface BBox {
     color: string;
 }
 
-interface DraggingState {
-    index: number;
-    startX: number;
-    startY: number;
-}
-
-interface ResizingState {
-    index: number;
-    corner: number;
-}
-
 interface Point {
     x: number;
     y: number;
 }
+
+type ActionState =
+    | { type: 'draw'; startX: number; startY: number }
+    | { type: 'drag'; index: number; startX: number; startY: number; initialBox: BBox }
+    | { type: 'resize'; index: number; corner: 'nw' | 'ne' | 'se' | 'sw'; initialBox: BBox };
 
 interface BoundingBoxAnnotatorProps {
     imageUrl: string;
@@ -62,17 +56,22 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
     const [boxes, setBoxes] = useState<BBox[]>(initialBoxes);
     const [history, setHistory] = useState<BBox[][]>([initialBoxes]);
     const [historyIndex, setHistoryIndex] = useState(0);
-    const [drawing, setDrawing] = useState(false);
+
     const [currentBox, setCurrentBox] = useState<Partial<BBox> | null>(null);
     const [selectedBox, setSelectedBox] = useState<number | null>(null);
-    const [dragging, setDragging] = useState<DraggingState | null>(null);
-    const [resizing, setResizing] = useState<ResizingState | null>(null);
     const [editingLabel, setEditingLabel] = useState<number | null>(null);
     const [mode, setMode] = useState<'select' | 'draw'>('select');
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
-    // Load image dimensions
+    // Pointer actions (drawing, dragging, resizing)
+    const [action, setAction] = useState<ActionState | null>(null);
+
+    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+    const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
+
+    // Charger les dimensions réelles de l'image
     useEffect(() => {
         const img = new Image();
         img.onload = () => {
@@ -81,7 +80,32 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
         img.src = imageUrl;
     }, [imageUrl]);
 
-    // Add to history and notify parent
+    // Observer la taille du conteneur pour adapter l'overlay parfaitement
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const observer = new ResizeObserver((entries) => {
+            const { width, height } = entries[0].contentRect;
+            setContainerSize({ width, height });
+        });
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    // Calcul de la taille affichée de l'image (Object-fit: contain logic)
+    let fittedWidth = 0;
+    let fittedHeight = 0;
+    if (imageDimensions.width > 0 && imageDimensions.height > 0 && containerSize.width > 0 && containerSize.height > 0) {
+        const imageRatio = imageDimensions.width / imageDimensions.height;
+        const containerRatio = containerSize.width / containerSize.height;
+        if (imageRatio > containerRatio) {
+            fittedWidth = containerSize.width;
+            fittedHeight = containerSize.width / imageRatio;
+        } else {
+            fittedHeight = containerSize.height;
+            fittedWidth = containerSize.height * imageRatio;
+        }
+    }
+
     const addToHistory = useCallback((newBoxes: BBox[]) => {
         const newHistory = history.slice(0, historyIndex + 1);
         newHistory.push([...newBoxes]);
@@ -91,15 +115,13 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
         onChange?.(newBoxes);
     }, [history, historyIndex, onChange]);
 
-    // Undo/Redo handlers
     const undo = useCallback(() => {
         if (historyIndex > 0) {
             const newIndex = historyIndex - 1;
             setHistoryIndex(newIndex);
-            const newBoxes = [...history[newIndex]];
-            setBoxes(newBoxes);
+            setBoxes([...history[newIndex]]);
             setSelectedBox(null);
-            onChange?.(newBoxes);
+            onChange?.(history[newIndex]);
         }
     }, [historyIndex, history, onChange]);
 
@@ -107,177 +129,167 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
         if (historyIndex < history.length - 1) {
             const newIndex = historyIndex + 1;
             setHistoryIndex(newIndex);
-            const newBoxes = [...history[newIndex]];
-            setBoxes(newBoxes);
+            setBoxes([...history[newIndex]]);
             setSelectedBox(null);
-            onChange?.(newBoxes);
+            onChange?.(history[newIndex]);
         }
     }, [historyIndex, history, onChange]);
 
-    // Keyboard shortcuts
+    // Raccourcis clavier (Undo/Redo & Suppression)
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 undo();
             } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
                 e.preventDefault();
                 redo();
+            } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedBox !== null) {
+                e.preventDefault();
+                const newBoxes = boxes.filter((_, i) => i !== selectedBox);
+                addToHistory(newBoxes);
+                setSelectedBox(null);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [historyIndex, history]);
+    }, [undo, redo, selectedBox, boxes, addToHistory]);
 
-    const getMousePos = (e: React.MouseEvent): Point => {
-        const canvas = canvasRef.current;
-        if (!canvas) return { x: 0, y: 0 };
-
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = imageDimensions.width / rect.width;
-        const scaleY = imageDimensions.height / rect.height;
+    // Récupérer la position de la souris relative aux dimensions internes de l'image
+    const getPos = useCallback((clientX: number, clientY: number): Point => {
+        if (!overlayRef.current) return { x: 0, y: 0 };
+        const rect = overlayRef.current.getBoundingClientRect();
+        const displayX = Math.max(0, Math.min(clientX - rect.left, rect.width));
+        const displayY = Math.max(0, Math.min(clientY - rect.top, rect.height));
 
         return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY
+            x: (displayX / rect.width) * imageDimensions.width,
+            y: (displayY / rect.height) * imageDimensions.height,
         };
-    };
+    }, [imageDimensions]);
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        const pos = getMousePos(e);
+    const normalizeBox = (box: Partial<BBox>): BBox => ({
+        ...box,
+        x1: Math.min(box.x1!, box.x2!),
+        y1: Math.min(box.y1!, box.y2!),
+        x2: Math.max(box.x1!, box.x2!),
+        y2: Math.max(box.y1!, box.y2!),
+    } as BBox);
 
+    // Global Pointer Events pour une interaction fluide même en dehors de la zone
+    useEffect(() => {
+        if (!action) return;
+
+        const handlePointerMove = (e: PointerEvent) => {
+            const pos = getPos(e.clientX, e.clientY);
+
+            if (action.type === 'draw' && currentBox) {
+                setCurrentBox({ ...currentBox, x2: pos.x, y2: pos.y });
+            } else if (action.type === 'drag') {
+                const dx = pos.x - action.startX;
+                const dy = pos.y - action.startY;
+                const { initialBox } = action;
+                const width = initialBox.x2 - initialBox.x1;
+                const height = initialBox.y2 - initialBox.y1;
+
+                let newX1 = initialBox.x1 + dx;
+                let newY1 = initialBox.y1 + dy;
+                let newX2 = initialBox.x2 + dx;
+                let newY2 = initialBox.y2 + dy;
+
+                // Contraintes de bordures
+                if (newX1 < 0) { newX1 = 0; newX2 = width; }
+                if (newY1 < 0) { newY1 = 0; newY2 = height; }
+                if (newX2 > imageDimensions.width) { newX2 = imageDimensions.width; newX1 = imageDimensions.width - width; }
+                if (newY2 > imageDimensions.height) { newY2 = imageDimensions.height; newY1 = imageDimensions.height - height; }
+
+                const updated = [...boxes];
+                updated[action.index] = { ...initialBox, x1: newX1, y1: newY1, x2: newX2, y2: newY2 };
+                setBoxes(updated);
+            } else if (action.type === 'resize') {
+                const updated = [...boxes];
+                const box = { ...action.initialBox };
+
+                if (action.corner === 'nw') { box.x1 = pos.x; box.y1 = pos.y; }
+                if (action.corner === 'ne') { box.x2 = pos.x; box.y1 = pos.y; }
+                if (action.corner === 'se') { box.x2 = pos.x; box.y2 = pos.y; }
+                if (action.corner === 'sw') { box.x1 = pos.x; box.y2 = pos.y; }
+
+                box.x1 = Math.max(0, Math.min(imageDimensions.width, box.x1));
+                box.y1 = Math.max(0, Math.min(imageDimensions.height, box.y1));
+                box.x2 = Math.max(0, Math.min(imageDimensions.width, box.x2));
+                box.y2 = Math.max(0, Math.min(imageDimensions.height, box.y2));
+
+                updated[action.index] = box;
+                setBoxes(updated);
+            }
+        };
+
+        const handlePointerUp = () => {
+            if (action.type === 'draw' && currentBox && currentBox.x1 !== undefined && currentBox.x2 !== undefined) {
+                const width = Math.abs(currentBox.x2 - currentBox.x1);
+                const height = Math.abs(currentBox.y2! - currentBox.y1!);
+
+                if (width > 10 && height > 10) {
+                    const newBox: BBox = normalizeBox({
+                        ...currentBox,
+                        label: `Objet ${boxes.length + 1}`,
+                        color: COLORS[boxes.length % COLORS.length]
+                    });
+                    const newBoxes = [...boxes, newBox];
+                    addToHistory(newBoxes);
+                    setSelectedBox(boxes.length);
+                    setMode('select');
+                }
+                setCurrentBox(null);
+            } else if (action.type === 'drag' || action.type === 'resize') {
+                const updatedBoxes = [...boxes];
+                updatedBoxes[action.index] = normalizeBox(updatedBoxes[action.index]);
+                addToHistory(updatedBoxes);
+            }
+            setAction(null);
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+        };
+    }, [action, boxes, currentBox, imageDimensions, getPos, addToHistory]);
+
+    const handlePointerDownOverlay = (e: React.PointerEvent) => {
+        if (e.button !== 0) return; // Seulement clic gauche
+        const pos = getPos(e.clientX, e.clientY);
         if (mode === 'draw') {
             setSelectedBox(null);
-            setDrawing(true);
             setCurrentBox({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-            return;
-        }
-
-        // Check if clicking on a resize handle
-        const resizeHandle = getResizeHandle(pos);
-        if (resizeHandle) {
-            setResizing(resizeHandle);
-            return;
-        }
-
-        // Check if clicking on an existing box
-        const clickedBox = boxes.findIndex(box =>
-            pos.x >= Math.min(box.x1, box.x2) && pos.x <= Math.max(box.x1, box.x2) &&
-            pos.y >= Math.min(box.y1, box.y2) && pos.y <= Math.max(box.y1, box.y2)
-        );
-
-        if (clickedBox !== -1) {
-            setSelectedBox(clickedBox);
-            setDragging({ index: clickedBox, startX: pos.x, startY: pos.y });
+            setAction({ type: 'draw', startX: pos.x, startY: pos.y });
         } else {
             setSelectedBox(null);
         }
     };
 
-    const getResizeHandle = (pos: Point): ResizingState | null => {
-        if (selectedBox === null) return null;
-        const box = boxes[selectedBox];
-        const handles = getHandles(box);
-        const canvas = canvasRef.current;
-        if (!canvas) return null;
-
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = rect.width / imageDimensions.width;
-        const threshold = 12 / scaleX;
-
-        for (let i = 0; i < handles.length; i++) {
-            const dist = Math.sqrt(Math.pow(pos.x - handles[i].x, 2) + Math.pow(pos.y - handles[i].y, 2));
-            if (dist < threshold) {
-                return { index: selectedBox, corner: i };
-            }
-        }
-        return null;
+    const handlePointerDownBox = (e: React.PointerEvent, index: number) => {
+        if (e.button !== 0 || mode === 'draw') return;
+        e.stopPropagation();
+        setSelectedBox(index);
+        const pos = getPos(e.clientX, e.clientY);
+        setAction({ type: 'drag', index, startX: pos.x, startY: pos.y, initialBox: boxes[index] });
     };
 
-    const getHandles = (box: BBox): Point[] => {
-        const x1 = Math.min(box.x1, box.x2);
-        const y1 = Math.min(box.y1, box.y2);
-        const x2 = Math.max(box.x1, box.x2);
-        const y2 = Math.max(box.y1, box.y2);
-        return [
-            { x: x1, y: y1 },
-            { x: x2, y: y1 },
-            { x: x2, y: y2 },
-            { x: x1, y: y2 }
-        ];
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const pos = getMousePos(e);
-
-        if (drawing && currentBox) {
-            setCurrentBox({ ...currentBox, x2: pos.x, y2: pos.y });
-        } else if (dragging) {
-            const dx = pos.x - dragging.startX;
-            const dy = pos.y - dragging.startY;
-            const box = boxes[dragging.index];
-            const updated = [...boxes];
-            updated[dragging.index] = {
-                ...box,
-                x1: box.x1 + dx,
-                y1: box.y1 + dy,
-                x2: box.x2 + dx,
-                y2: box.y2 + dy
-            };
-            setBoxes(updated);
-            setDragging({ ...dragging, startX: pos.x, startY: pos.y });
-        } else if (resizing) {
-            const updated = [...boxes];
-            const box = updated[resizing.index];
-            const handles = getHandles(box);
-            handles[resizing.corner] = { x: pos.x, y: pos.y };
-
-            updated[resizing.index] = {
-                ...box,
-                x1: Math.min(handles[0].x, handles[2].x),
-                y1: Math.min(handles[0].y, handles[2].y),
-                x2: Math.max(handles[0].x, handles[2].x),
-                y2: Math.max(handles[0].y, handles[2].y)
-            };
-            setBoxes(updated);
-        }
-    };
-
-    const handleMouseUp = () => {
-        if (drawing && currentBox && currentBox.x1 !== undefined && currentBox.y1 !== undefined && currentBox.x2 !== undefined && currentBox.y2 !== undefined) {
-            const width = Math.abs(currentBox.x2 - currentBox.x1);
-            const height = Math.abs(currentBox.y2 - currentBox.y1);
-            if (width > 5 && height > 5) {
-                const newBox: BBox = {
-                    x1: currentBox.x1,
-                    y1: currentBox.y1,
-                    x2: currentBox.x2,
-                    y2: currentBox.y2,
-                    label: `Object ${boxes.length + 1}`,
-                    color: COLORS[boxes.length % COLORS.length]
-                };
-                const newBoxes = [...boxes, newBox];
-                addToHistory(newBoxes);
-                setSelectedBox(boxes.length);
-                setMode('select');
-            }
-            setCurrentBox(null);
-        }
-        if (dragging) {
-            addToHistory(boxes);
-        }
-        if (resizing) {
-            addToHistory(boxes);
-        }
-        setDrawing(false);
-        setDragging(null);
-        setResizing(null);
+    const handlePointerDownHandle = (e: React.PointerEvent, index: number, corner: ActionState extends { type: 'resize' } ? ActionState['corner'] : never) => {
+        if (e.button !== 0 || mode === 'draw') return;
+        e.stopPropagation();
+        setAction({ type: 'resize', index, corner, initialBox: boxes[index] });
     };
 
     const deleteBox = (index: number) => {
         const newBoxes = boxes.filter((_, i) => i !== index);
         addToHistory(newBoxes);
-        setSelectedBox(null);
+        if (selectedBox === index) setSelectedBox(null);
     };
 
     const updateLabel = (index: number, label: string) => {
@@ -286,121 +298,133 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
         addToHistory(updated);
     };
 
-    const drawBoxes = () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+    const renderBox = (box: Partial<BBox>, index: number) => {
+        const isCurrent = index === -1;
+        const isSelected = index === selectedBox;
+        const color = box.color || COLORS[(isCurrent ? boxes.length : index) % COLORS.length];
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+        const x1 = Math.min(box.x1!, box.x2!);
+        const y1 = Math.min(box.y1!, box.y2!);
+        const x2 = Math.max(box.x1!, box.x2!);
+        const y2 = Math.max(box.y1!, box.y2!);
 
-            // Draw all boxes
-            const allBoxes: (BBox | Partial<BBox>)[] = [...boxes];
-            if (currentBox && currentBox.x1 !== undefined && currentBox.y1 !== undefined && currentBox.x2 !== undefined && currentBox.y2 !== undefined) {
-                allBoxes.push(currentBox as BBox);
-            }
-            
-            allBoxes.forEach((box, i) => {
-                if (!box || box.x1 === undefined || box.y1 === undefined || box.x2 === undefined || box.y2 === undefined) return;
-                
-                const isSelected = i === selectedBox && !currentBox;
-                const x1 = Math.min(box.x1, box.x2);
-                const y1 = Math.min(box.y1, box.y2);
-                const width = Math.abs(box.x2 - box.x1);
-                const height = Math.abs(box.y2 - box.y1);
+        const left = (x1 / imageDimensions.width) * 100 + '%';
+        const top = (y1 / imageDimensions.height) * 100 + '%';
+        const width = ((x2 - x1) / imageDimensions.width) * 100 + '%';
+        const height = ((y2 - y1) / imageDimensions.height) * 100 + '%';
 
-                ctx.strokeStyle = box.color || COLORS[i % COLORS.length];
-                ctx.lineWidth = isSelected ? 4 : 3;
-                ctx.strokeRect(x1, y1, width, height);
+        // Gérer le cas où le titre dépasserait en haut (si moins de 28px depuis le bord)
+        const topPx = (y1 / imageDimensions.height) * fittedHeight;
+        const isTooCloseToTop = topPx < 28;
 
-                if (box.label) {
-                    ctx.fillStyle = box.color || COLORS[i % COLORS.length];
-                    ctx.font = 'bold 18px sans-serif';
-                    const textWidth = ctx.measureText(box.label).width;
-                    const padding = 12;
-                    const labelHeight = 28;
-                    ctx.fillRect(x1, y1 - labelHeight, textWidth + padding * 2, labelHeight);
-                    ctx.fillStyle = 'white';
-                    ctx.fillText(box.label, x1 + padding, y1 - 8);
-                }
+        return (
+            <div
+                key={isCurrent ? 'current' : index}
+                className={`absolute ${isSelected ? 'z-20' : 'z-10 hover:z-20'}`}
+                style={{
+                    left, top, width, height,
+                    border: `${isSelected ? 4 : 2}px solid ${color}`,
+                    backgroundColor: isSelected ? `${color}4D` : `${color}26`, // 30% alpha (selected) vs 15% alpha
+                    cursor: mode === 'draw' ? 'crosshair' : (isSelected ? 'move' : 'pointer'),
+                    boxSizing: 'border-box'
+                }}
+                onPointerDown={isCurrent ? undefined : (e) => handlePointerDownBox(e, index)}
+            >
+                {/* Étiquette / Titre comme l'original */}
+                {(box.label) && !isCurrent && (
+                    <div
+                        className={`absolute left-[-2px] whitespace-nowrap flex items-center px-2 py-1 rounded-sm shadow-sm`}
+                        style={{
+                            backgroundColor: color,
+                            color: 'white',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            lineHeight: 1,
+                            ...(isTooCloseToTop ? { top: '0' } : { bottom: '100%', marginBottom: '2px' })
+                        }}
+                    >
+                        {box.label}
+                    </div>
+                )}
 
-                // Draw resize handles for selected box
-                if (isSelected && box.x1 !== undefined && box.y1 !== undefined && box.x2 !== undefined && box.y2 !== undefined) {
-                    const fullBox: BBox = box as BBox;
-                    const handles = getHandles(fullBox);
-                    ctx.fillStyle = fullBox.color || COLORS[i % COLORS.length];
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
-                    handles.forEach(handle => {
-                        // Draw white border first
-                        ctx.fillStyle = 'white';
-                        ctx.fillRect(handle.x - 10, handle.y - 10, 20, 20);
-                        // Draw colored center
-                        ctx.fillStyle = fullBox.color || COLORS[i % COLORS.length];
-                        ctx.fillRect(handle.x - 8, handle.y - 8, 16, 16);
-                    });
-                }
-            });
-        };
-        img.src = imageUrl;
+                {/* Poignées de redimensionnement reprenant le design original */}
+                {isSelected && !isCurrent && (['nw', 'ne', 'se', 'sw'] as const).map((corner) => {
+                    const positions = {
+                        'nw': 'top-0 left-0 -translate-x-1/2 -translate-y-1/2',
+                        'ne': 'top-0 right-0 translate-x-1/2 -translate-y-1/2',
+                        'se': 'bottom-0 right-0 translate-x-1/2 translate-y-1/2',
+                        'sw': 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2',
+                    };
+                    const cursors = {
+                        'nw': 'nwse-resize',
+                        'ne': 'nesw-resize',
+                        'se': 'nwse-resize',
+                        'sw': 'nesw-resize',
+                    };
+
+                    return (
+                        <div
+                            key={corner}
+                            className={`absolute w-3 h-3 bg-white border-[2px] shadow-sm ${positions[corner]}`}
+                            style={{ 
+                                borderColor: color, 
+                                cursor: cursors[corner],
+                                boxSizing: 'border-box'
+                            }}
+                            onPointerDown={(e) => handlePointerDownHandle(e, index, corner)}
+                        >
+                            <div className="w-full h-full" style={{ backgroundColor: color, opacity: 0.8 }} />
+                        </div>
+                    );
+                })}
+            </div>
+        );
     };
 
-    useEffect(() => {
-        drawBoxes();
-    }, [boxes, currentBox, selectedBox, imageUrl]);
-
     return (
-        <div className="flex flex-col h-full bg-gray-50">
-            <div className="bg-white border-b p-4 shadow-sm">
-                <div className="flex items-center justify-between max-w-12xl mx-auto gap-4">
-                    <h1 className="text-2xl font-bold text-gray-800">Bounding Box Annotator</h1>
+        <div className="flex flex-col h-full bg-gray-50 border rounded-lg overflow-hidden">
+            <div className="bg-white border-b p-4 shadow-sm z-30 relative">
+                <div className="flex items-center justify-between mx-auto gap-4">
+                    <h2 className="text-xl m-0 font-bold text-gray-800">Annotateur de zones</h2>
 
                     <div className="flex items-center gap-4">
-                        {/* Mode Toggle */}
                         <div className="flex bg-gray-100 rounded-lg p-1">
                             <button
                                 onClick={() => setMode('select')}
                                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition ${mode === 'select'
-                                        ? 'bg-white shadow-sm text-blue-600'
-                                        : 'text-gray-600 hover:text-gray-900'
+                                    ? 'bg-white shadow-sm text-blue-600 font-medium'
+                                    : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 <MousePointer2 size={18} />
-                                Select
+                                Sélectionner
                             </button>
                             <button
                                 onClick={() => setMode('draw')}
                                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition ${mode === 'draw'
-                                        ? 'bg-white shadow-sm text-blue-600'
-                                        : 'text-gray-600 hover:text-gray-900'
+                                    ? 'bg-white shadow-sm text-blue-600 font-medium'
+                                    : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 <Square size={18} />
-                                Draw
+                                Dessiner
                             </button>
                         </div>
 
-                        {/* Undo/Redo */}
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 border-l pl-4">
                             <button
                                 onClick={undo}
                                 disabled={historyIndex <= 0}
-                                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                                title="Undo (Ctrl+Z)"
+                                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                                title="Annuler (Ctrl+Z)"
                             >
                                 <Undo2 size={20} />
                             </button>
                             <button
                                 onClick={redo}
                                 disabled={historyIndex >= history.length - 1}
-                                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                                title="Redo (Ctrl+Y)"
+                                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                                title="Rétablir (Ctrl+Y)"
                             >
                                 <Redo2 size={20} />
                             </button>
@@ -409,43 +433,55 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
-                <div className="flex-1 relative bg-gray-900 flex items-center justify-center overflow-hidden"
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
+            <div className="flex flex-1 overflow-hidden min-h-[500px]">
+                <div
+                    ref={containerRef}
+                    className="flex-1 relative bg-gray-900 overflow-hidden p-4 flex items-center justify-center touch-none select-none"
+                    style={{
+                        cursor: mode === 'draw' ? 'crosshair' : 'default'
+                    }}
                 >
-                    <canvas
-                        ref={canvasRef}
-                        className="max-w-full max-h-full object-contain"
-                        style={{
-                            cursor: mode === 'draw' ? 'crosshair'
-                                : drawing ? 'crosshair'
-                                    : dragging ? 'move'
-                                        : resizing ? 'nwse-resize'
-                                            : 'default'
-                        }}
-                    />
+                    {imageDimensions.width > 0 && fittedWidth > 0 && (
+                        <div
+                            ref={overlayRef}
+                            style={{ width: fittedWidth, height: fittedHeight }}
+                            className="relative bg-white touch-none"
+                            onPointerDown={handlePointerDownOverlay}
+                        >
+                            {/* Image de fond en lecture seule */}
+                            <img
+                                src={imageUrl}
+                                className="w-full h-full block pointer-events-none"
+                                draggable={false}
+                                alt="Document à annoter"
+                            />
+
+                            {/* Rendu de toutes les zones */}
+                            {boxes.map((box, i) => renderBox(box, i))}
+                            {action?.type === 'draw' && currentBox && renderBox(currentBox, -1)}
+                        </div>
+                    )}
                 </div>
 
-                <div className="w-80 bg-white border-l overflow-y-auto">
-                    <div className="p-4">
-                        <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                            Bounding Boxes ({boxes.length})
-                        </h2>
+                <div className="w-80 bg-white border-l overflow-y-auto z-20 flex flex-col">
+                    <div className="p-4 flex-1">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg m-0 font-semibold text-gray-800">
+                                Zones ({boxes.length})
+                            </h3>
+                        </div>
                         <div className="space-y-2">
                             {boxes.map((box, i) => (
                                 <div
                                     key={i}
-                                    className={`p-3 rounded-lg border-2 cursor-pointer transition ${selectedBox === i ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                                    className={`p-3 rounded-lg border-2 cursor-pointer transition ${selectedBox === i ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                     onClick={() => setSelectedBox(i)}
                                 >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 flex-1 min-w-0 mr-2">
                                             <div
-                                                className="w-4 h-4 rounded"
+                                                className="w-4 h-4 rounded shrink-0"
                                                 style={{ backgroundColor: box.color }}
                                             />
                                             {editingLabel === i ? (
@@ -455,20 +491,31 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
                                                     onChange={(e) => updateLabel(i, e.target.value)}
                                                     onBlur={() => setEditingLabel(null)}
                                                     onKeyDown={(e) => e.key === 'Enter' && setEditingLabel(null)}
-                                                    className="px-2 py-1 border rounded text-sm flex-1"
+                                                    className="px-2 py-1 border border-blue-400 rounded text-sm w-full outline-none focus:ring-2 focus:ring-blue-100"
                                                     autoFocus
+                                                    onClick={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
-                                                <span className="font-medium text-sm">{box.label}</span>
+                                                <span 
+                                                    className="font-medium text-sm truncate" 
+                                                    title={box.label}
+                                                    onDoubleClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingLabel(i);
+                                                    }}
+                                                >
+                                                    {box.label}
+                                                </span>
                                             )}
                                         </div>
-                                        <div className="flex gap-1">
+                                        <div className="flex gap-1 shrink-0">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setEditingLabel(i);
                                                 }}
-                                                className="p-1 hover:bg-gray-200 rounded"
+                                                className="p-1.5 text-gray-500 hover:bg-gray-200 hover:text-gray-800 rounded transition"
+                                                title="Modifier le nom"
                                             >
                                                 <Edit2 size={14} />
                                             </button>
@@ -477,31 +524,39 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
                                                     e.stopPropagation();
                                                     deleteBox(i);
                                                 }}
-                                                className="p-1 hover:bg-red-100 text-red-600 rounded"
+                                                className="p-1.5 text-red-500 hover:bg-red-100 hover:text-red-700 rounded transition"
+                                                title="Supprimer la zone"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="text-xs text-gray-500 font-mono">
-                                        ({Math.round(Math.min(box.x1, box.x2))}, {Math.round(Math.min(box.y1, box.y2))}) →
-                                        ({Math.round(Math.max(box.x1, box.x2))}, {Math.round(Math.max(box.y1, box.y2))})
-                                    </div>
                                 </div>
                             ))}
+                            {boxes.length === 0 && (
+                                <div className="text-center p-6 text-gray-500 border-2 border-dashed rounded-lg bg-gray-50">
+                                    Aucune zone créée.<br/>
+                                    Passez en mode "Dessiner" pour commencer.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border-t p-3 text-sm text-gray-600">
-                <div className="max-w-7xl mx-auto flex gap-6 items-center">
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${mode === 'draw' ? 'bg-blue-100 text-blue-700 font-medium' : ''
-                        }`}>
-                        <span>{mode === 'draw' ? 'Draw mode: Click and drag to create boxes' : 'Select mode: Click boxes to select, drag to move'}</span>
+            <div className="bg-white border-t p-3 text-sm text-gray-600 z-30 relative">
+                <div className="flex justify-between items-center px-2 flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                        {mode === 'draw' ? (
+                            <><Square size={16} className="text-blue-600" /> Cliquez et glissez sur l'image pour créer une zone</>
+                        ) : (
+                            <><MousePointer2 size={16} className="text-blue-600" /> Cliquez sur une zone pour la déplacer ou double-cliquez sur son nom pour le modifier</>
+                        )}
                     </div>
-                    <span>Drag corners to resize</span>
-                    <span>Ctrl+Z/Y to undo/redo</span>
+                    <div className="text-gray-500 flex gap-4">
+                        <span><kbd className="bg-gray-100 border rounded px-1 font-mono text-xs">Suppr</kbd> pour supprimer</span>
+                        <span><kbd className="bg-gray-100 border rounded px-1 font-mono text-xs">Ctrl+Z</kbd> pour annuler</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -532,7 +587,6 @@ export const generateImagesACompleterData = async (params: { chunkId: string }):
     }
 };
 
-
 type ImageACompleterEditorProps = {
     initialItems: ImageACompleterBox[];
     onChange: (updated: ImageACompleterBox[]) => void;
@@ -544,7 +598,6 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
     const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
     const imageUrl = s3ToPublicUrl((chunk as ChunkWithScore<"pdf_image">).metadata.s3ObjectName);
 
-    // Load image to get dimensions
     useEffect(() => {
         const img = new Image();
         img.onload = () => {
@@ -555,9 +608,8 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
 
     const convertToBoxFormat = (items: ImageACompleterBox[], dimensions: { width: number; height: number }): BBox[] => {
         return items.map((item, index) => {
-            // Check if coordinates are normalized (0-1) or pixel values
             const isNormalized = item.bbox.x1 <= 1 && item.bbox.y1 <= 1 && item.bbox.x2 <= 1 && item.bbox.y2 <= 1;
-            
+
             return {
                 x1: isNormalized ? item.bbox.x1 * dimensions.width : item.bbox.x1,
                 y1: isNormalized ? item.bbox.y1 * dimensions.height : item.bbox.y1,
@@ -573,7 +625,6 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
         return boxes.map(box => ({
             label: box.label,
             bbox: {
-                // Store as normalized coordinates for consistency
                 x1: box.x1 / dimensions.width,
                 y1: box.y1 / dimensions.height,
                 x2: box.x2 / dimensions.width,
@@ -588,9 +639,13 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
         }
     };
 
-    // Wait for image dimensions before rendering
     if (!imageDimensions) {
-        return <div className="flex items-center justify-center p-8">Loading image...</div>;
+        return (
+            <div className="flex flex-col items-center justify-center p-12 bg-gray-50 border rounded-lg">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-600">Chargement de l'image...</p>
+            </div>
+        );
     }
 
     return (
@@ -602,8 +657,30 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
     );
 };
 
+const ImageACompleterEditorDebounced: React.FC<
+    ImageACompleterEditorProps & { onDebouncedChange: (updated: ImageACompleterBox[]) => void }
+> = ({ onDebouncedChange, onChange, ...rest }) => {
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const handleChange = useCallback((updated: ImageACompleterBox[]) => {
+        onChange(updated);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+            onDebouncedChange(updated);
+        }, 800);
+    }, [onChange, onDebouncedChange]);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
+
+    return <ImageACompleterEditor {...rest} onChange={handleChange} />;
+};
+
 //////////////////////////////
-// Main ImageACompleter Manager   //
+// Main ImageACompleter Manager
 //////////////////////////////
 
 export default function ImageACompleterManager(props: {
@@ -661,7 +738,6 @@ export default function ImageACompleterManager(props: {
         setIsLoading(true);
         setImagesACompleter([]);
 
-        // Stop parent loading indicator since we're showing our own
         onDocumentProcessingEnd && onDocumentProcessingEnd();
 
         try {
@@ -677,7 +753,6 @@ export default function ImageACompleterManager(props: {
                     "Erreur",
                     `Le traitement a échoué`
                 );
-                // handleQuitWithoutSave();
                 console.log("ERROR GENERATING FLASHCARDS", error);
                 return;
             }
@@ -686,7 +761,7 @@ export default function ImageACompleterManager(props: {
 
             setImagesACompleter(imageACompleterData);
 
-            await updateImageACompleter(chunkId, imageACompleterData,);
+            await updateImageACompleter(chunkId, imageACompleterData);
         } finally {
             setIsLoading(false);
             setProcessingDone(true);
@@ -699,8 +774,7 @@ export default function ImageACompleterManager(props: {
             isInitialLoad.current = false;
             generateImageACompleter();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [chunkId]);
+    }, [chunkId, generateImageACompleter]);
 
     const handleSaveAndQuit = async () => {
         modal.close();
@@ -722,7 +796,6 @@ export default function ImageACompleterManager(props: {
                         priority='secondary'
                         onClick={() => modal.open()}
                     >
-                        {/* SVG */}
                         Retour
                     </Button>,
                     document.getElementById("imageACompleter-back-portal") as HTMLElement
@@ -732,7 +805,6 @@ export default function ImageACompleterManager(props: {
                         priority='secondary'
                         onClick={() => modal.open()}
                     >
-                        {/* SVG */}
                         Retour
                     </Button>
                 )
@@ -772,10 +844,12 @@ export default function ImageACompleterManager(props: {
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
 
                 {processingDone && editContentActive && imagesACompleter && (
-                    <ImageACompleterEditor
+                    <ImageACompleterEditorDebounced
                         initialItems={imagesACompleter}
                         onChange={(updated) => {
                             setImagesACompleter(updated);
+                        }}
+                        onDebouncedChange={(updated) => {
                             updateImageACompleter(chunkId, updated);
                         }}
                         onSave={async () => {

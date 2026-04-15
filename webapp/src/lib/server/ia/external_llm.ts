@@ -50,12 +50,9 @@ export const callGroq = async (text: string, model: string = "llama-3.3-70b-vers
 
 export const callGroqVision = async (
     messages: VisionMessage[],
-    model: string = "meta-llama/llama-4-maverick-17b-128e-instruct"
+    model: string = "meta-llama/llama-4-scout-17b-16e-instruct"
 ): Promise<[GroqError | undefined, string | undefined]> => {
-    try {
-        console.log('Calling Groq Vision with model:', model);
-        console.log('Messages:', JSON.stringify(messages, null, 2));
-        
+    try {        
         const chatCompletion = await groqClient.chat.completions.create({
             messages: messages as any,
             model: model,
