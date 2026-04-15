@@ -142,7 +142,7 @@ const CourseBlockNode = Node.create({
         return false
       },
       addCourseBlock: (blockId: string) => ({ chain, state, editor }) => {
-        if (state.selection.$from.depth > 1) {
+        if (state.selection.$from.depth > 0) {
           return false
         }
 

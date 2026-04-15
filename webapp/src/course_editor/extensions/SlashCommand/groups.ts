@@ -35,7 +35,7 @@ export const GROUPS: Group[] = [
           editor.chain().focus().setParagraph().insertContent('<p>&nbsp</p>').addCourseBlock(newBlock.id).run()
         },
         shouldBeHidden: editor => {
-          return editor.state.selection.$from.depth > 1
+          return editor.state.selection.$from.depth > 0
         }
       },
       {

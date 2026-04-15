@@ -11,7 +11,7 @@ export const addCourseBlockAtEnd = async (editor: Editor) => {
     editor.chain().focus().command(({ tr, dispatch }) => {
         if (dispatch) {
             const { doc } = tr
-            const position = doc.content.size
+            const position = doc.content.size - 1
             const courseBlock = editor.schema.nodes.courseBlock.create(
                 { id: newBlock.id },
                 editor.schema.nodes.paragraph.create()

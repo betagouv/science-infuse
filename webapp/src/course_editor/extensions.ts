@@ -1,5 +1,5 @@
 import { Editor } from '@tiptap/core'
-import { NodeSelection } from '@tiptap/pm/state'
+import { NodeSelection, Plugin } from '@tiptap/pm/state'
 import FileHandler from '@tiptap/extension-file-handler'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
@@ -42,6 +42,30 @@ const CustomDocument = Document.extend({
     content: 'heading courseBlock*',
 })
 
+const PreventNestedCourseBlock = new Plugin({
+    appendTransaction: (_transactions, _oldState, newState) => {
+        let tr = newState.tr
+        let hasChanges = false
+
+        newState.doc.descendants((node, pos) => {
+            if (node.type.name !== 'courseBlock') {
+                return
+            }
+
+            if (newState.doc.resolve(pos).depth === 1) {
+                return
+            }
+
+            tr = tr.replaceWith(pos, pos + node.nodeSize, node.content)
+            hasChanges = true
+
+            return false
+        })
+
+        return hasChanges ? tr : null
+    },
+})
+
 const imagesMime = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
 const pdfMime = ['application/pdf']
 const videoMime = ['video/mp4']
@@ -71,6 +95,9 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
             className: 'has-focus',
             mode: 'all',
         }),
+        // Prevent pasted or externally inserted course blocks from nesting.
+        // Any nested courseBlock wrapper is removed while preserving its inner content.
+        PreventNestedCourseBlock,
         SlashCommand,
         SIVideo,
         // course
@@ -132,7 +159,7 @@ export const getExtensions = (showSnackbar: (message: string, severity: TSeverit
         FontSize,
         // AutocompleteExtension,
         CharacterCount.configure({
-            limit: 10000,
+            limit: 100000,
         }),
         Placeholder.configure({
             // placeholder: 'My Custom Placeholder',
