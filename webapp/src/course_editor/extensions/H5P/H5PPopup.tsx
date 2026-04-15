@@ -75,10 +75,46 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
   // Close on click outside
   useOnClickOutside(ref, handleClosePopup);
 
-  // Extract full document text
+  // Extract full document text in order (combining block text and its PDFs)
   const getFullText = (): string => {
-    return editor.getText();
+    const { view, state } = editor;
+    const { doc } = state;
+    let fullText = '';
+
+    doc.forEach((node, pos) => {
+      let blockText = node.textContent || '';
+
+      const domElement = view.nodeDOM(pos) as HTMLElement | null;
+      const domElementById = node.attrs.id ? document.getElementById(node.attrs.id) : null;
+      const element = domElement || domElementById;
+
+      if (element) {
+        const pdfs: HTMLElement[] = Array.from(
+          element.querySelectorAll('.node-pdf .pdf-wrapper')
+        );
+
+        if (element.classList.contains('node-pdf') && element.querySelector('.pdf-wrapper')) {
+          pdfs.push(element.querySelector('.pdf-wrapper') as HTMLElement);
+        }
+
+        const pdfsTexts = pdfs.map((pdf) => pdf.innerText).join('\n\n');
+
+        if (pdfsTexts) {
+          blockText += (blockText ? '\n\n' : '') + pdfsTexts.trim();
+        }
+      }
+
+      if (blockText.trim()) {
+        fullText += blockText.trim() + '\n\n';
+      }
+
+    });
+
+    console.log("FULLTEXT", fullText)
+
+    return fullText.trim();
   };
+
 
   // Extract current chapter/block text
   const getCourseBlockText = (): string => {
