@@ -301,7 +301,7 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                editor.chain().focus().insertH5PBlock({ h5pContentId: generatedH5pId, h5pContentType: h5PContentType }).run();
+                editor.chain().focus().setTextSelection(editor.state.selection.to).insertH5PBlock({ h5pContentId: generatedH5pId, h5pContentType: h5PContentType }).run();
                 handleClosePopup();
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white transition-colors"
