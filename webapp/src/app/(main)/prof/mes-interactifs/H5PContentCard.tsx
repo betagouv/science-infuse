@@ -40,7 +40,7 @@ function H5PContentCard({
 }) {
     const downloadH5p = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=h5p`;
     const downloadHTML = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/api/export/h5p?id=${content.h5pId}&name=${content.contentType}&media=html`;
-
+    console.log("CONTENTTT", content.title, content)
     return (
         <StyledCard
             background
@@ -54,7 +54,8 @@ function H5PContentCard({
             end={
                 <>
                     <p className="text-xl">
-                        {content.documents.length === 0 ? 'Source : Youtube' : 'Source : Universcience'}
+                        Source : Universcience
+                        {/* {content.documents.length === 0 ? 'Source : Youtube' : 'Source : Universcience'} */}
                     </p>
                     <div className="flex flex-col gap-4">
                         {content.documents.map((d) => (

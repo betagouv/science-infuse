@@ -13,13 +13,17 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import SubjectIcon from '@mui/icons-material/Subject';
 import StyleIcon from '@mui/icons-material/Style';
 import GridOnIcon from '@mui/icons-material/GridOn';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import QuizzManager from '@/app/(main)/intelligence-artificielle/quizz/QuizzEditor';
 import TexteATrousManager from '@/app/(main)/intelligence-artificielle/texte-a-trous/TexteATrousEditor';
 import DialogcardManager from '@/app/(main)/intelligence-artificielle/dialogcards/DialogcardEditor';
 import MotsCroisesManager from '@/app/(main)/intelligence-artificielle/mots-croises/MotsCroisesEditor';
+import InteractiveVideoGenerator from '@/app/(main)/intelligence-artificielle/video-interactive/InteractiveVideoGenerator';
+import ImageACompleterGenerator from '@/app/(main)/intelligence-artificielle/image-a-completer/ImageACompleterGenerator';
 
-type SourceType = 'full' | 'chapter';
-export type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises';
+type SourceType = 'full' | 'chapter' | 'picker';
+export type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises' | 'interactive-video' | 'image-a-completer';
 
 interface H5PPopupProps {
   editor: Editor;
@@ -34,7 +38,8 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
   closePopup,
   h5PContentType,
 }) => {
-  const [selectedSource, setSelectedSource] = useState<SourceType | null>(null);
+  const isPickerBasedContent = h5PContentType === 'interactive-video' || h5PContentType === 'image-a-completer';
+  const [selectedSource, setSelectedSource] = useState<SourceType | null>(isPickerBasedContent ? 'picker' : null);
   const [generatedH5pId, setGeneratedH5pId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -190,6 +195,10 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
         return { icon: StyleIcon, label: 'Flash Cards', color: '#059669', bgColor: '#d1fae5' };
       case 'mots-croises':
         return { icon: GridOnIcon, label: 'Mots croisés', color: '#dc2626', bgColor: '#fee2e2' };
+      case 'interactive-video':
+        return { icon: OndemandVideoIcon, label: 'Vidéo interactive', color: '#2563eb', bgColor: '#dbeafe' };
+      case 'image-a-completer':
+        return { icon: ImageSearchIcon, label: 'Image à compléter', color: '#7c3aed', bgColor: '#ede9fe' };
       default:
         return { icon: AutoAwesomeIcon, label: '', color: '#4f46e5', bgColor: '#e8edff' };
     }
@@ -198,6 +207,48 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
   // Render source selection step
   const renderSourceSelection = () => {
     const { icon: Icon, label, color, bgColor } = getContentTypeInfo();
+    if (isPickerBasedContent) {
+      const description = h5PContentType === 'interactive-video'
+        ? 'Rechercher ou importer une vidéo, puis générer ses quiz et définitions.'
+        : 'Rechercher ou importer une image, puis générer les zones à compléter.';
+
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col gap-8 w-full"
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div
+              className="flex items-center gap-3 px-6 py-3 rounded-full text-white font-medium"
+              style={{ backgroundColor: color }}
+            >
+              <Icon className="text-2xl" />
+              <span>Générer {label}</span>
+            </div>
+            <h2 className="text-2xl font-bold text-center text-[#161616]">Choisir le média</h2>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setSelectedSource('picker')}
+            className="w-full flex items-center gap-4 p-6 rounded-xl bg-white border-2 border-[#e8edff] hover:border-[#4f46e5] transition-colors text-left"
+          >
+            <div className="flex-shrink-0 flex justify-center items-center w-12 h-12 rounded-lg" style={{ backgroundColor: bgColor }}>
+              <Icon className="text-2xl" style={{ color }} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold text-[#161616]">{label}</span>
+              <span className="text-sm text-[#6b7280]">{description}</span>
+            </div>
+          </motion.button>
+        </motion.div>
+      );
+    }
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -279,10 +330,19 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
       return <MotsCroisesManager source={source} hideBackButton={true} onH5PGenerated={onH5PGenerated} />;
     }
 
+    if (h5PContentType === 'interactive-video') {
+      return <InteractiveVideoGenerator hideBackButton={true} hideHelpMessage={true} onH5PGenerated={onH5PGenerated} />;
+    }
+
+    if (h5PContentType === 'image-a-completer') {
+      return <ImageACompleterGenerator hideBackButton={true} onH5PGenerated={onH5PGenerated} />;
+    }
+
     return null;
   };
 
   const { icon: Icon, label, color } = getContentTypeInfo();
+  const popupMaxWidth = isPickerBasedContent ? 'max-w-[1200px]' : 'max-w-[700px]';
 
   return (
     <div className="flex h-full transition-[0.4s] w-full items-center justify-center bg-[#16161686]">
@@ -292,7 +352,7 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="overflow-auto flex flex-col items-center gap-8 bg-white rounded-xl shadow-2xl w-[90vw] md:w-[80vw] h-fit max-w-[700px] max-h-[90vh] relative"
+        className={`overflow-hidden flex flex-col items-center bg-white rounded-xl shadow-2xl w-[94vw] md:w-[86vw] h-[92vh] ${popupMaxWidth} max-h-[92vh] relative`}
       >
         {/* Close button */}
         <motion.button
@@ -306,8 +366,8 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
         </motion.button>
 
         {/* Header with content type indicator */}
-        <div className="w-full flex items-center justify-between px-8 md:px-12 py-4 sticky top-0 bg-white z-10">
-          {selectedSource && (
+        <div className="w-full flex items-center justify-between gap-4 px-8 md:px-12 py-4 bg-white border-b border-[#e5e7eb] z-10 shrink-0">
+          {selectedSource && !isPickerBasedContent && (
             <motion.button
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -351,7 +411,7 @@ const H5PPopup: React.FC<H5PPopupProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-8 md:p-12">
+        <div className="w-full flex-1 overflow-y-auto p-8 md:p-12">
           <AnimatePresence mode="wait">
             {!selectedSource ? (
               <motion.div

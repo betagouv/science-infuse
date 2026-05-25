@@ -9,9 +9,11 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import StyleIcon from '@mui/icons-material/Style';
 import SubjectIcon from '@mui/icons-material/Subject';
 import GridOnIcon from '@mui/icons-material/GridOn';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
-type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises';
+type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises' | 'interactive-video' | 'image-a-completer';
 
 interface ActionButtonsProps {
     courseBlockNode: PMNode;
@@ -105,6 +107,28 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ courseBlockNode, editor, 
                             title="Mots croisés"
                         >
                             <GridOnIcon className="text-xl" />
+                        </motion.button>
+
+                        {/* Vidéo interactive - Icon only */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleH5PClick('interactive-video')}
+                            className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-[#dbeafe] text-[#2563eb] hover:opacity-80 transition-opacity"
+                            title="Vidéo interactive"
+                        >
+                            <OndemandVideoIcon className="text-xl" />
+                        </motion.button>
+
+                        {/* Image à compléter - Icon only */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleH5PClick('image-a-completer')}
+                            className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-[#ede9fe] text-[#7c3aed] hover:opacity-80 transition-opacity"
+                            title="Image à compléter"
+                        >
+                            <ImageSearchIcon className="text-xl" />
                         </motion.button>
 
                         {/* Toggle expand/collapse button */}
@@ -207,8 +231,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ courseBlockNode, editor, 
                                 </motion.button>
                             </div>
 
-                            {/* Crossword Button - Full Width */}
-                            <div className="w-full flex justify-center">
+                            <div className="w-full flex flex-wrap justify-center items-center gap-4">
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
@@ -218,6 +241,30 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ courseBlockNode, editor, 
                                     <GridOnIcon className="text-2xl flex-shrink-0" />
                                     <p className="m-0 text-base font-medium">
                                         Mots croisés
+                                    </p>
+                                </motion.button>
+
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleH5PClick('interactive-video')}
+                                    className="min-w-[180px] max-w-[280px] cursor-pointer flex items-center gap-3 p-4 rounded-lg bg-[#dbeafe] text-[#2563eb] hover:opacity-80 transition-opacity"
+                                >
+                                    <OndemandVideoIcon className="text-2xl flex-shrink-0" />
+                                    <p className="m-0 text-base font-medium">
+                                        Vidéo interactive
+                                    </p>
+                                </motion.button>
+
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleH5PClick('image-a-completer')}
+                                    className="min-w-[180px] max-w-[280px] cursor-pointer flex items-center gap-3 p-4 rounded-lg bg-[#ede9fe] text-[#7c3aed] hover:opacity-80 transition-opacity"
+                                >
+                                    <ImageSearchIcon className="text-2xl flex-shrink-0" />
+                                    <p className="m-0 text-base font-medium">
+                                        Image à compléter
                                     </p>
                                 </motion.button>
                             </div>

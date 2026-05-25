@@ -29,31 +29,35 @@ legend {
     justify-content: space-evenly;
 }`;
 
-export enum DialogcardImportType {
+export enum ImageACompleterImportType {
     RECHERCHE = 'Rechercher dans la bibliothèque',
     IMPORT = 'Importer un document'
 }
 
 // Messages de chargement par type d'import
 const loadingMessages: LoadingMessagesConfig = {
-    [DialogcardImportType.RECHERCHE]: [
+    [ImageACompleterImportType.RECHERCHE]: [
         "Analyse du contenu...",
         "Identification des concepts clés...",
-        "Génération des dialogcards...",
+        "Génération des zones à compléter...",
         "Création de l'interactif..."
     ],
-    [DialogcardImportType.IMPORT]: [
+    [ImageACompleterImportType.IMPORT]: [
         "Importation du document...",
         "Analyse du contenu...",
         "Extraction des informations...",
         "Identification des concepts clés...",
-        "Génération des dialogcards...",
+        "Génération des zones à compléter...",
         "Création de l'interactif..."
     ]
 };
 
-export default () => {
-    const [importType, setImportType] = useState<DialogcardImportType>(DialogcardImportType.RECHERCHE);
+export default (props: {
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
+}) => {
+    const { hideBackButton = false, onH5PGenerated } = props;
+    const [importType, setImportType] = useState<ImageACompleterImportType>(ImageACompleterImportType.RECHERCHE);
     const [chunk, setChunk] = useState<ChunkWithScoreUnion>()
     const [loading, setLoading] = useState(false);
     const alertToast = useAlertToast();
@@ -87,7 +91,7 @@ export default () => {
                         src="/images/interactive-illustration.svg"
                         height={300}
                         width={300}
-                        alt="Illustration dialogcards"
+                        alt="Illustration image à compléter"
                         className="w-[80px] sm:w-[120px] md:w-[160px] lg:w-[200px] h-auto object-contain mix-blend-multiply mx-auto" />
                     <div className="flex flex-col justify-center max-w-2xl flex-1">
                         <p className="text-base text-start text-[#161616] mb-4 sm:mb-6">
@@ -98,17 +102,17 @@ export default () => {
                             className='&_legend]:text-[#161616] w-full [&_.fr-segmented__elements]:w-full' legend="Mon document : "
                             segments={[
                                 {
-                                    label: DialogcardImportType.RECHERCHE,
+                                    label: ImageACompleterImportType.RECHERCHE,
                                     nativeInputProps: {
-                                        checked: importType === DialogcardImportType.RECHERCHE,
-                                        onChange: () => setImportType(DialogcardImportType.RECHERCHE)
+                                        checked: importType === ImageACompleterImportType.RECHERCHE,
+                                        onChange: () => setImportType(ImageACompleterImportType.RECHERCHE)
                                     }
                                 },
                                 {
-                                    label: DialogcardImportType.IMPORT,
+                                    label: ImageACompleterImportType.IMPORT,
                                     nativeInputProps: {
-                                        checked: importType === DialogcardImportType.IMPORT,
-                                        onChange: () => setImportType(DialogcardImportType.IMPORT)
+                                        checked: importType === ImageACompleterImportType.IMPORT,
+                                        onChange: () => setImportType(ImageACompleterImportType.IMPORT)
                                     }
                                 }
                             ]}
@@ -118,7 +122,7 @@ export default () => {
             </>}
 
             {!chunk && !loading && <>
-                <div className={`w-full ${importType === DialogcardImportType.RECHERCHE ? 'block' : 'hidden'}`}>
+                <div className={`w-full ${importType === ImageACompleterImportType.RECHERCHE ? 'block' : 'hidden'}`}>
                     <DocumentSearchPicker
                         onDocumentProcessingStart={onDocumentProcessingStart}
                         onError={onError}
@@ -126,7 +130,7 @@ export default () => {
                         config={{
                             searchBarLabel: "Rechercher par mot-clé :",
                             searchBarPlaceholder: "Rechercher un document par mot-clé...",
-                            onInsertedLabel: "Générer des dialogcards",
+                            onInsertedLabel: "Générer une image à compléter",
                             mediaTypes: [MediaTypes.PdfImage, MediaTypes.Image, MediaTypes.RawImage],
                             hiddenTabs: [TabType.Games, TabType.Chapters, TabType.Documents, TabType.Videos],
                             defaultTab: TabType.Pictures,
@@ -137,7 +141,7 @@ export default () => {
                         }}
                     />
                 </div>
-                <div className={`w-full ${importType === DialogcardImportType.IMPORT ? 'block' : 'hidden'}`}>
+                <div className={`w-full ${importType === ImageACompleterImportType.IMPORT ? 'block' : 'hidden'}`}>
                     <DirectFileDocumentPicker
                         accept={{
                             // 'application/pdf': ['.pdf'],
@@ -163,11 +167,13 @@ export default () => {
                     }}
                     chunk={chunk}
                     onDocumentProcessingEnd={onDocumentProcessingEnd}
+                    hideBackButton={hideBackButton}
+                    onH5PGenerated={onH5PGenerated}
                 />
             </>}
 
             {loading && <GeneratorLoading
-                title="Création des dialogcards"
+                title="Création de l'image à compléter"
                 messageType={importType}
                 loadingMessages={loadingMessages}
             />}

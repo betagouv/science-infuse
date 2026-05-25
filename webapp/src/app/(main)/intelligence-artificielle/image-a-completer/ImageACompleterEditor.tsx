@@ -280,7 +280,7 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
         setAction({ type: 'drag', index, startX: pos.x, startY: pos.y, initialBox: boxes[index] });
     };
 
-    const handlePointerDownHandle = (e: React.PointerEvent, index: number, corner: ActionState extends { type: 'resize' } ? ActionState['corner'] : never) => {
+    const handlePointerDownHandle = (e: React.PointerEvent, index: number, corner: Extract<ActionState, { type: 'resize' }>['corner']) => {
         if (e.button !== 0 || mode === 'draw') return;
         e.stopPropagation();
         setAction({ type: 'resize', index, corner, initialBox: boxes[index] });
@@ -766,7 +766,7 @@ export default function ImageACompleterManager(props: {
             setIsLoading(false);
             setProcessingDone(true);
         }
-    }, [chunkId, updateImageACompleter, onDocumentProcessingEnd, alertToast]);
+    }, [chunk, chunkId, updateImageACompleter, onDocumentProcessingEnd, alertToast]);
 
 
     useEffect(() => {

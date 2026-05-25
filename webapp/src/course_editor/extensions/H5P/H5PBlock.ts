@@ -3,13 +3,15 @@ import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { H5PBlockView } from './H5PBlockView'
 
-export type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises';
+export type H5PContentType = 'quiz' | 'texte-a-trous' | 'dialogcards' | 'mots-croises' | 'interactive-video' | 'image-a-completer';
 
 const contentTypeLabels: Record<H5PContentType, string> = {
     'quiz': 'Quiz',
     'texte-a-trous': 'Texte à trous',
     'dialogcards': 'Flash Cards',
     'mots-croises': 'Mots croisés',
+    'interactive-video': 'Vidéo interactive',
+    'image-a-completer': 'Image à compléter',
 }
 
 declare module '@tiptap/core' {

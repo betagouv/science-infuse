@@ -101,6 +101,30 @@ export const GROUPS: Group[] = [
           }
         },
       },
+      {
+        name: 'interactive-video',
+        label: 'Vidéo interactive',
+        iconName: 'Video',
+        description: 'Générer une vidéo interactive',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'interactive-video')
+          }
+        },
+      },
+      {
+        name: 'image-a-completer',
+        label: 'Image à compléter',
+        iconName: 'ImagePlus',
+        description: 'Générer une image à compléter interactive',
+        action: async editor => {
+          const courseBlockNode = findCourseBlockNode(editor)
+          if (courseBlockNode) {
+            editor.commands.openH5pPopup(courseBlockNode, 'image-a-completer')
+          }
+        },
+      },
     ],
   },
   {

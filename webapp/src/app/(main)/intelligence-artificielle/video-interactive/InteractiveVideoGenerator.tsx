@@ -77,7 +77,12 @@ export const InteractiveVideoGeneratorLoading = (props: { importType: Interactiv
 }
 
 
-export default () => {
+export default (props: {
+    hideHelpMessage?: boolean;
+    hideBackButton?: boolean;
+    onH5PGenerated?: (h5pId: string) => void;
+}) => {
+    const { hideHelpMessage = false, hideBackButton = false, onH5PGenerated } = props;
     const [importType, setImportType] = useState<InteractiveVideoImportType>(InteractiveVideoImportType.RECHERCHE);
     const [documentId, setDocumentId] = useState<string>()
     const [loading, setLoading] = useState(false);
@@ -188,6 +193,8 @@ export default () => {
                     }}
                     documentId={documentId}
                     onDocumentProcessingEnd={onDocumentProcessingEnd}
+                    hideBackButton={hideBackButton}
+                    onH5PGenerated={onH5PGenerated}
                 />
             </>}
             {loading && <GeneratorLoading
@@ -195,9 +202,11 @@ export default () => {
                 messageType={importType}
                 loadingMessages={loadingMessages}
             />}
-            <div className="flex mt-4 w-full">
-                <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
-            </div>
+            {!hideHelpMessage && (
+                <div className="flex mt-4 w-full">
+                    <InteractiveVideoHelpMessage hideHowItWorks={!!documentId} />
+                </div>
+            )}
 
         </div>
     );
