@@ -99,14 +99,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Chunk not found" }, { status: 404 });
     }
 
-    // Get image URL from chunk metadata
-    const metadata = chunk.metadata as { s3ObjectName?: string } | null;
-    const s3ObjectName = metadata?.s3ObjectName;
-    if (!s3ObjectName) {
+    // Get image URL from chunk metadata. Indexed images can be S3-backed
+    // (`image`, `pdf_image`) or direct public URLs (`raw_image`).
+    const metadata = chunk.metadata as { s3ObjectName?: string; publicPath?: string } | null;
+    const imageUrl = metadata?.s3ObjectName
+      ? s3ToPublicUrl(metadata.s3ObjectName)
+      : metadata?.publicPath || chunk.document.publicPath;
+
+    if (!imageUrl) {
       return NextResponse.json({ error: "No image found in chunk" }, { status: 400 });
     }
-
-    const imageUrl = s3ToPublicUrl(s3ObjectName);
     
     console.log('Fetching image from:', imageUrl);
     

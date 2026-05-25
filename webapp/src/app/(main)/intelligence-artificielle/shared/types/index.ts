@@ -2,7 +2,7 @@
 
 export * from './h5p-manager';
 
-import { ChunkWithScoreUnion, MediaTypes } from "@/types/vectordb";
+import { ChunkWithScoreUnion, MediaType } from "@/types/vectordb";
 import { TabType } from "@/app/(main)/recherche/Tabs";
 
 export interface DocumentPickerProps {
@@ -22,12 +22,12 @@ export interface SearchPickerConfig {
     searchBarLabel?: string;
     searchBarPlaceholder?: string;
     onInsertedLabel?: string;
-    mediaTypes?: MediaTypes[];
+    mediaTypes?: MediaType[];
     hiddenTabs?: TabType[];
     defaultTab?: string;
     queryFilters?: {
         limit?: number;
-        mediaTypes?: MediaTypes[];
+        mediaTypes?: MediaType[];
         maxDuration?: number;
     };
 }

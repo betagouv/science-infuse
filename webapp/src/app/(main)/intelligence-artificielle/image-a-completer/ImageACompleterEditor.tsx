@@ -5,7 +5,6 @@ import { apiClient } from "@/lib/api-client";
 import { GeneratorLoading, type LoadingMessagesConfig } from '../shared/components';
 import { ExportH5pResponse } from "@/types/api";
 import H5PRenderer from '@/app/(main)/mediaViewers/H5PRenderer';
-import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { createPortal } from 'react-dom';
 import { useAlertToast } from '@/components/AlertToast';
 import { Edit2, Trash2, Undo2, Redo2, MousePointer2, Square } from 'lucide-react';
@@ -563,11 +562,6 @@ const BoundingBoxAnnotator = ({ imageUrl, initialBoxes = [], onChange }: Boundin
     );
 };
 
-const modal = createModal({
-    id: "modal-quit-page-without-saving",
-    isOpenedByDefault: false
-});
-
 export interface ImageACompleterBox {
     label: string;
     bbox: {
@@ -596,7 +590,17 @@ type ImageACompleterEditorProps = {
 
 const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialItems, onChange, onSave, chunk }) => {
     const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
-    const imageUrl = s3ToPublicUrl((chunk as ChunkWithScore<"pdf_image">).metadata.s3ObjectName);
+    const imageUrl = (() => {
+        if (chunk.mediaType === "pdf_image" || chunk.mediaType === "image") {
+            return s3ToPublicUrl((chunk as ChunkWithScore<"pdf_image" | "image">).metadata.s3ObjectName);
+        }
+
+        if (chunk.mediaType === "raw_image") {
+            return (chunk as ChunkWithScore<"raw_image">).metadata.publicPath || chunk.document.publicPath || "";
+        }
+
+        return "";
+    })();
 
     useEffect(() => {
         const img = new Image();
@@ -658,17 +662,41 @@ const ImageACompleterEditor: React.FC<ImageACompleterEditorProps> = ({ initialIt
 };
 
 const ImageACompleterEditorDebounced: React.FC<
-    ImageACompleterEditorProps & { onDebouncedChange: (updated: ImageACompleterBox[]) => void }
-> = ({ onDebouncedChange, onChange, ...rest }) => {
+    ImageACompleterEditorProps & {
+        onDebouncedChange: (updated: ImageACompleterBox[]) => Promise<void>;
+        registerFlushPendingChange: (flush: () => Promise<void>) => void;
+    }
+> = ({ onDebouncedChange, onChange, registerFlushPendingChange, ...rest }) => {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pendingChangeRef = useRef<ImageACompleterBox[] | null>(null);
 
     const handleChange = useCallback((updated: ImageACompleterBox[]) => {
         onChange(updated);
+        pendingChangeRef.current = updated;
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
+            pendingChangeRef.current = null;
             onDebouncedChange(updated);
         }, 800);
     }, [onChange, onDebouncedChange]);
+
+    const flushPendingChange = useCallback(async () => {
+        if (!pendingChangeRef.current) return;
+
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+
+        const pendingChange = pendingChangeRef.current;
+        pendingChangeRef.current = null;
+        await onDebouncedChange(pendingChange);
+    }, [onDebouncedChange]);
+
+    useEffect(() => {
+        registerFlushPendingChange(flushPendingChange);
+        return () => registerFlushPendingChange(async () => undefined);
+    }, [flushPendingChange, registerFlushPendingChange]);
 
     useEffect(() => {
         return () => {
@@ -704,32 +732,39 @@ export default function ImageACompleterManager(props: {
     const [refreshKey, setRefreshKey] = useState(0);
     const alertToast = useAlertToast();
     const isInitialLoad = useRef(true);
+    const flushPendingSaveRef = useRef<() => Promise<void>>(async () => undefined);
+    const latestSaveRef = useRef<Promise<void>>(Promise.resolve());
 
-    const updateImageACompleter = useCallback(async (chunkId: string, boxes: ImageACompleterBox[]) => {
-        setIsSaving(true);
-        try {
-            const exportData: ImageACompleterData = {
-                boxes,
-                chunkId,
-            }
-            const data: ExportH5pResponse = await apiClient.exportH5p({
-                h5pContentId: h5pContentId,
-                type: 'image-a-completer',
-                data: exportData,
-                documentIds: chunk ? [chunk.document.id] : [],
-            });
+    const updateImageACompleter = useCallback((chunkId: string, boxes: ImageACompleterBox[]) => {
+        const savePromise = (async () => {
+            setIsSaving(true);
+            try {
+                const exportData: ImageACompleterData = {
+                    boxes,
+                    chunkId,
+                }
+                const data: ExportH5pResponse = await apiClient.exportH5p({
+                    h5pContentId: h5pContentId,
+                    type: 'image-a-completer',
+                    data: exportData,
+                    documentIds: chunk ? [chunk.document.id] : [],
+                });
 
-            if (data) {
-                setPreviewUrl(data.embedUrl);
-                setDownloadH5pUrl(data.downloadH5p);
-                setDownloadHTMLUrl(data.downloadHTML);
-                setH5pContentId(data.h5pContentId);
-                setRefreshKey(prev => prev + 1);
-                onH5PGenerated?.(data.h5pContentId);
+                if (data) {
+                    setPreviewUrl(data.embedUrl);
+                    setDownloadH5pUrl(data.downloadH5p);
+                    setDownloadHTMLUrl(data.downloadHTML);
+                    setH5pContentId(data.h5pContentId);
+                    setRefreshKey(prev => prev + 1);
+                    onH5PGenerated?.(data.h5pContentId);
+                }
+            } finally {
+                setIsSaving(false);
             }
-        } finally {
-            setIsSaving(false);
-        }
+        })();
+
+        latestSaveRef.current = savePromise;
+        return savePromise;
     }, [h5pContentId, chunk, onH5PGenerated]);
 
 
@@ -776,14 +811,9 @@ export default function ImageACompleterManager(props: {
         }
     }, [chunkId, generateImageACompleter]);
 
-    const handleSaveAndQuit = async () => {
-        modal.close();
-        await updateImageACompleter(chunkId, imagesACompleter || []);
-        props.onBackClicked && props.onBackClicked();
-    };
-
-    const handleQuitWithoutSave = () => {
-        modal.close();
+    const handleBackClicked = async () => {
+        await flushPendingSaveRef.current();
+        await latestSaveRef.current;
         props.onBackClicked && props.onBackClicked();
     };
 
@@ -794,43 +824,25 @@ export default function ImageACompleterManager(props: {
                     <Button
                         className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
                         priority='secondary'
-                        onClick={() => modal.open()}
+                        onClick={handleBackClicked}
+                        disabled={isSaving}
                     >
-                        Retour
+                        {isSaving ? "Enregistrement..." : "Retour"}
                     </Button>,
                     document.getElementById("imageACompleter-back-portal") as HTMLElement
                 ) : (
                     <Button
                         className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
                         priority='secondary'
-                        onClick={() => modal.open()}
+                        onClick={handleBackClicked}
+                        disabled={isSaving}
                     >
-                        Retour
+                        {isSaving ? "Enregistrement..." : "Retour"}
                     </Button>
                 )
             )}
 
             <div className="w-full relative flex flex-col gap-8">
-                <modal.Component title="">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex gap-2 items-center">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M16.5633 9.66673L9.41132 2.51473L11.2967 0.629395L21.6673 11.0001L11.2967 21.3707L9.41132 19.4854L16.5633 12.3334H0.333984V9.66673H16.5633Z" fill="#161616" />
-                            </svg>
-                            <p className="text-2xl m-0 font-bold text-left text-[#161616]">Quitter la page</p>
-                        </div>
-                        <p>Attention, certaines modifications n'ont pas été enregistrées.</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Button className="w-full justify-center sm:w-auto" onClick={handleSaveAndQuit}>
-                                {isSaving ? "Enregistrement en cours" : "Enregistrer et quitter"}
-                            </Button>
-                            <Button className="w-full justify-center sm:w-auto" priority='secondary' onClick={handleQuitWithoutSave}>
-                                Quitter sans enregistrer
-                            </Button>
-                        </div>
-                    </div>
-                </modal.Component>
-
                 {isLoading && (
                     <GeneratorLoading
                         title="Création de l'image à compléter"
@@ -850,7 +862,10 @@ export default function ImageACompleterManager(props: {
                             setImagesACompleter(updated);
                         }}
                         onDebouncedChange={(updated) => {
-                            updateImageACompleter(chunkId, updated);
+                            return updateImageACompleter(chunkId, updated);
+                        }}
+                        registerFlushPendingChange={(flush) => {
+                            flushPendingSaveRef.current = flush;
                         }}
                         onSave={async () => {
                             await updateImageACompleter(chunkId, imagesACompleter);

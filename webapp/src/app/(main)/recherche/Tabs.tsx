@@ -101,11 +101,11 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
     return true;
   });
 
-  // Determine which tab to show - if selected tab is hidden, default to Videos
+  // Determine which tab to show - if selected tab is hidden, default to the first visible tab
   let selectedTab = props.selectedTabType;
   const selectedTabIsVisible = tabs.some(t => t.tabId === selectedTab);
   if (!selectedTabIsVisible) {
-    selectedTab = TabType.Videos;
+    selectedTab = tabs[0]?.tabId || TabType.Videos;
   }
 
   return (
@@ -113,7 +113,7 @@ const TabsComponent = (props: { favourites?: ChunkWithScoreUnion[], blocks: Bloc
       <Tabs
         selectedTabId={selectedTab as string}
         tabs={tabs}
-        onTabChange={(tabId) => props.onTabChange(tabId as TabType)}
+        onTabChange={(tabId: string) => props.onTabChange(tabId as TabType)}
       >
         <></>
       </Tabs>

@@ -7,7 +7,7 @@ import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import Masonry from '@mui/lab/Masonry';
 import React, { useEffect, useMemo, useState } from "react";
 import ChunkRenderer, { RenderChapter, RenderChapterBlock, RenderGroupedVideoTranscriptCard } from "../DocumentChunkFull";
-import { ColumnsMediaTypeMap, selectedTabType, TabMediaTypeMap, TabType } from "../Tabs";
+import { ColumnsMediaTypeMap, TabMediaTypeMap, TabType } from "../Tabs";
 
 
 export const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) => {
@@ -38,9 +38,9 @@ export const groupVideo = (videoChunks: ChunkWithScore<"video_transcript">[]) =>
 };
 
 
-export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: GroupedVideo[], searchWords: string[] }> = ({ onInsertedLabel, onInserted, groupedVideos, searchWords }) => {
+export const GroupedVideoChunkResults: React.FC<OnInserted & { groupedVideos: GroupedVideo[], searchWords: string[], selectedTab: TabType }> = ({ onInsertedLabel, onInserted, groupedVideos, searchWords, selectedTab }) => {
   return (
-    <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
+    <Masonry columns={ColumnsMediaTypeMap[selectedTab](window.innerWidth < 500)} spacing={2}>
       {groupedVideos
         .map((video, index) => {
           return (
@@ -73,8 +73,8 @@ export const ChapterResults: React.FC<OnInserted & { chapters: ChapterWithBlock[
   </Masonry>
 };
 
-export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], searchWords: string[] }> = ({ blocks, searchWords }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
+export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], searchWords: string[], selectedTab: TabType }> = ({ blocks, searchWords, selectedTab }) => {
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTab](window.innerWidth < 500)} spacing={2}>
     {blocks
       .sort((a, b) => b.score - a.score)
       .map((block, index) => (
@@ -86,8 +86,8 @@ export const BlockResults: React.FC<OnInserted & { blocks: BlockWithChapter[], s
   </Masonry>
 };
 
-export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[], searchWords: string[] }> = ({ onInsertedLabel, onInserted, chunks, searchWords }) => {
-  return <Masonry columns={ColumnsMediaTypeMap[selectedTabType.value](window.innerWidth < 500)} spacing={2}>
+export const ChunkResults: React.FC<OnInserted & { chunks: ChunkWithScoreUnion[], searchWords: string[], selectedTab?: TabType }> = ({ onInsertedLabel, onInserted, chunks, searchWords, selectedTab = TabType.Pictures }) => {
+  return <Masonry columns={ColumnsMediaTypeMap[selectedTab](window.innerWidth < 500)} spacing={2}>
     {chunks
       .sort((a, b) => b.score - a.score)
       .map((result, index) => (
@@ -139,18 +139,21 @@ export const RenderSearchResult = (props: OnInserted & { favourites?: ChunkWithS
             <BlockResults
               onInserted={props.onInserted}
               onInsertedLabel={props.onInsertedLabel}
+              selectedTab={props.selectedTab}
               blocks={props.results.blocks}
               searchWords={props.searchWords} /> :
             props.selectedTab !== TabType.Videos ?
               <ChunkResults
                 onInserted={props.onInserted}
                 onInsertedLabel={props.onInsertedLabel}
+                selectedTab={props.selectedTab}
                 chunks={chunks.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
                 searchWords={props.searchWords}
               /> :
               <GroupedVideoChunkResults
                 onInserted={props.onInserted}
                 onInsertedLabel={props.onInsertedLabel}
+                selectedTab={props.selectedTab}
                 groupedVideos={groupedVideos.slice((pageNumber - 1) * props.resultPerPage, pageNumber * props.resultPerPage)}
                 searchWords={props.searchWords}
               />

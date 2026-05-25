@@ -149,8 +149,6 @@ const indexYoutubeVideo = async (url: string, channelName: string) => {
             // sourceCreationDate,
         })
     }
-
-
 }
 
 export function videoIdToYoutubeUrl(videoId: string): string {

@@ -32,18 +32,32 @@ const SearchPage = (props: { query: string, queryFilters?: QueryFilters, tab?: s
         return TabType.Videos;
     };
 
+    const getVisibleDefaultTab = (tab: string): TabType => {
+        const requestedTab = normalizeTab(tab);
+        if (!props.hiddenTabs?.includes(requestedTab)) {
+            return requestedTab;
+        }
+
+        if (!props.hiddenTabs?.includes(TabType.Pictures)) {
+            return TabType.Pictures;
+        }
+
+        return Object.values(TabType).find(tabType =>
+            tabType !== TabType.Favourites && !props.hiddenTabs?.includes(tabType)
+        ) || Object.values(TabType).find(tabType => !props.hiddenTabs?.includes(tabType)) || TabType.Videos;
+    };
+
     // Derive the active tab from URL - always use the URL value when available
     // Use state to track user clicks, but initialize from props
     const [localTab, setLocalTab] = useState<TabType>(() => {
-        return normalizeTab(urlTabType);
+        return getVisibleDefaultTab(urlTabType);
     });
 
     // Sync with URL when it changes
     useEffect(() => {
-        if (urlTabType) {
-            setLocalTab(normalizeTab(urlTabType));
-        }
-    }, [urlTabType]);
+        setLocalTab(getVisibleDefaultTab(urlTabType));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [urlTabType, props.hiddenTabs?.join(',')]);
 
     const resultPerPage = 10
     const chunks = results ? !props.mediaTypes ? results.chunks : results.chunks.filter(c => props.mediaTypes?.includes(c.mediaType)) : [];

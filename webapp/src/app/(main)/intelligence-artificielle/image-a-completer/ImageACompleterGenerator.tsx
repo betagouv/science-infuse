@@ -136,7 +136,7 @@ export default (props: {
                             defaultTab: TabType.Pictures,
                             queryFilters: {
                                 limit: 1000,
-                                mediaTypes: [MediaTypes.PdfImage, MediaTypes.PdfImage, MediaTypes.RawImage]
+                                mediaTypes: [MediaTypes.PdfImage, MediaTypes.Image, MediaTypes.RawImage]
                             }
                         }}
                     />

@@ -205,6 +205,10 @@ export const isImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScor
   return chunk.mediaType == "image";
 }
 
+export const isRawImageChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"raw_image"> => {
+  return chunk.mediaType == "raw_image";
+}
+
 export const isPdfTextChunk = (chunk: ChunkWithScoreUnion): chunk is ChunkWithScore<"pdf_text"> => {
   return chunk.mediaType === "pdf_text";
 }

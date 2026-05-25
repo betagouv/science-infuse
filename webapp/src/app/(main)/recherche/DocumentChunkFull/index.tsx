@@ -7,7 +7,7 @@ import { RenderChapterBlockTOC, RenderChapterTOC } from "@/course_editor/compone
 import { apiClient } from "@/lib/api-client";
 import { ChapterWithBlock } from "@/types/api";
 import { OnInserted } from "@/types/course-editor";
-import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
+import { BlockWithChapter, ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, GroupedVideo, isImageChunk, isPdfImageChunk, isPdfTextChunk, isRawImageChunk, isVideoTranscriptChunk, isWebsiteChunk, isWebsiteExperienceChunk, isWebsiteQAChunk, s3ToPublicUrl } from "@/types/vectordb";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Button } from "@codegouvfr/react-dsfr/Button";
 import { Card } from "@codegouvfr/react-dsfr/Card";
@@ -364,6 +364,30 @@ export const RenderImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"ima
                 chunk={chunk}
                 starred={!!chunk?.user_starred}
                 downloadLink={`${WEBAPP_URL}/api/s3/presigned_url/object_name/${chunk.metadata.s3ObjectName}`}
+            />}
+            size="medium"
+            title=""
+            titleAs="h3"
+        />
+
+    )
+};
+
+export const RenderRawImageCard: React.FC<OnInserted & { chunk: ChunkWithScore<"raw_image"> }> = ({ onInserted, onInsertedLabel, chunk }) => {
+    const imageUrl = chunk.metadata.publicPath || chunk.document.publicPath || "";
+
+    return (
+        <StyledImageCard
+            background
+            border
+            imageAlt={chunk.text}
+            imageUrl={imageUrl}
+            end={<BuildCardEnd
+                onInserted={onInserted}
+                onInsertedLabel={onInsertedLabel}
+                chunk={chunk}
+                starred={!!chunk?.user_starred}
+                downloadLink={imageUrl}
             />}
             size="medium"
             title=""
@@ -853,6 +877,7 @@ export const YoutubeEmbed = forwardRef<YouTubePlayerRef, ResponsiveYoutubeEmbedP
 });
 export const ChunkRenderer: React.FC<OnInserted & ChunkRendererProps> = ({ onInserted, onInsertedLabel, chunk, searchWords }) => {
     if (isImageChunk(chunk)) return <RenderImageCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} />;
+    if (isRawImageChunk(chunk)) return <RenderRawImageCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} />;
     if (isPdfImageChunk(chunk)) return <RenderPdfImageCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} />;
     if (isPdfTextChunk(chunk)) return <RenderPdfTextCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} searchWords={searchWords} />;
     if (isVideoTranscriptChunk(chunk)) return <RenderVideoTranscriptCard onInserted={onInserted} onInsertedLabel={onInsertedLabel} chunk={chunk} searchWords={searchWords} />;

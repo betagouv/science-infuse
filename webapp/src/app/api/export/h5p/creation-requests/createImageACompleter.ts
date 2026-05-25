@@ -47,17 +47,25 @@ const clamp = (val: number) => Math.max(0, Math.min(1, val));
 export default async (input: ImageACompleterData, h5pContentId?: string) => {
   const chunk = await prisma.documentChunk.findUnique({
     where: { id: input.chunkId },
-    select: { id: true, metadata: true }
+    select: {
+      id: true,
+      metadata: true,
+      document: {
+        select: {
+          publicPath: true
+        }
+      }
+    }
   });
 
   if (!chunk) throw new Error(`Chunk not found for id: ${input.chunkId}`);
   
-  const metadata = chunk.metadata as { s3ObjectName?: string } | null;
-  const s3ObjectName = metadata?.s3ObjectName;
+  const metadata = chunk.metadata as { s3ObjectName?: string; publicPath?: string } | null;
+  const imageUrl = metadata?.s3ObjectName
+    ? s3ToPublicUrl(metadata.s3ObjectName)
+    : metadata?.publicPath || chunk.document.publicPath;
 
-  if (!s3ObjectName) throw new Error(`No image found in chunk: ${input.chunkId}`);
-
-  const imageUrl = s3ToPublicUrl(s3ObjectName);
+  if (!imageUrl) throw new Error(`No image found in chunk: ${input.chunkId}`);
   const imageDimensions = await getImageDimensions(imageUrl);
   
   // 1. Filtrer les boîtes invalides (misclicks frontend ou dimensions nulles)
