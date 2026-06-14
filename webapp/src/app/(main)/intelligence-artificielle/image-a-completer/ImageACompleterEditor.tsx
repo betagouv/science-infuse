@@ -855,6 +855,38 @@ export default function ImageACompleterManager(props: {
 
                 {h5pContentId && <H5PRenderer key={refreshKey} h5pContentId={h5pContentId} />}
 
+                <div className="flex flex-wrap items-center gap-4">
+                    {processingDone && (
+                        <>
+                            {downloadHTMLUrl && (
+                                <Button
+                                    priority='secondary'
+                                    className='flex gap-2 w-full justify-center sm:w-fit'
+                                    onClick={() => window.open(downloadHTMLUrl, '_blank')}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
+                                    </svg>
+                                    <p className='m-0'>Télécharger en HTML</p>
+                                </Button>
+                            )}
+
+                            {downloadH5pUrl && (
+                                <Button
+                                    priority='secondary'
+                                    className='flex gap-2 w-full justify-center sm:w-fit'
+                                    onClick={() => window.open(downloadH5pUrl, '_blank')}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M2 12.6663H14V13.9997H2V12.6663ZM8.66667 8.78101L12.714 4.73301L13.6567 5.67567L8 11.333L2.34333 5.67634L3.286 4.73301L7.33333 8.77967V1.33301H8.66667V8.78101Z" fill="#000091" />
+                                    </svg>
+                                    <p className='m-0'>Télécharger en H5P</p>
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </div>
+
                 {processingDone && editContentActive && imagesACompleter && (
                     <ImageACompleterEditorDebounced
                         initialItems={imagesACompleter}
