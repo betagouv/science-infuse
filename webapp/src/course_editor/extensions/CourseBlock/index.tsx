@@ -38,7 +38,7 @@ declare module "@tiptap/core" {
 
 const CourseBlockNode = Node.create({
   name: 'courseBlock',
-  group: 'block',
+  // Only CustomDocument should allow courseBlock, at the document root.
   content: 'block+',
 
   defining: true,
@@ -136,28 +136,23 @@ const CourseBlockNode = Node.create({
           if (dispatch) {
             dispatch(tr)
           }
-          return false
+          return true
         }
 
         return false
       },
-      addCourseBlock: (blockId: string) => ({ chain, state, editor }) => {
-        if (state.selection.$from.depth > 0) {
-          return false
-        }
+      addCourseBlock: (blockId: string) => ({ tr, state }) => {
+        const courseBlock = state.schema.nodes.courseBlock.create(
+          { id: blockId },
+          state.schema.nodes.paragraph.create()
+        )
+        const position = tr.doc.content.size
 
-        return chain()
-          .insertContent({
-            type: this.name,
-            attrs: { id: blockId },
-            content: [
-              {
-                type: 'paragraph',
-              },
-            ],
-          })
-          .focus()
-          .run()
+        tr.insert(position, courseBlock)
+        tr.setSelection(TextSelection.create(tr.doc, position + 2))
+        tr.scrollIntoView()
+
+        return true
       },
       removeCourseBlock: (id: string) => ({ tr, dispatch, editor }) => {
         const { doc } = tr
@@ -300,6 +295,11 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   }
 
   const quizQuestions: Question[] = node.attrs?.quizQuestions || []
+  const [title, setTitle] = useState(node.attrs.title || '');
+
+  useEffect(() => {
+    setTitle(node.attrs.title || '');
+  }, [node.attrs.title]);
 
   // Detect when sticky header is "sticking" using IntersectionObserver
   // Once collapsed, it stays collapsed until user manually toggles
@@ -341,9 +341,14 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
         <TextareaAutosize
           placeholder="Donner un titre au bloc"
           className="mt-8 text-[1.75rem] md:text-[2.25rem] font-bold text-left text-black w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
-          value={node.attrs.title}
+          contentEditable={false}
+          value={title}
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
           onChange={(e) => {
             const newTitle = e.target.value;
+            setTitle(newTitle);
             editor.commands.setCourseBlockTitle(node.attrs.id, newTitle);
           }}
           minRows={1}

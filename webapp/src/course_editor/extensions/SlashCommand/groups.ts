@@ -32,7 +32,7 @@ export const GROUPS: Group[] = [
             content: '[]',
             chapterId: editor.storage.simetadata.chapterId,
           })
-          editor.chain().focus().setParagraph().insertContent('<p>&nbsp</p>').addCourseBlock(newBlock.id).run()
+          editor.chain().focus().addCourseBlock(newBlock.id).run()
         },
         shouldBeHidden: editor => {
           return editor.state.selection.$from.depth > 0
