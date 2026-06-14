@@ -6,6 +6,7 @@ import { GeneratorLoading, type LoadingMessagesConfig } from '../shared/componen
 import { ExportH5pResponse } from "@/types/api";
 import H5PRenderer from '@/app/(main)/mediaViewers/H5PRenderer';
 import { createPortal } from 'react-dom';
+import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { useAlertToast } from '@/components/AlertToast';
 import { Edit2, Trash2, Undo2, Redo2, MousePointer2, Square } from 'lucide-react';
 import { ImageACompleterData } from '@/app/api/export/h5p/creation-requests/createImageACompleter';
@@ -24,6 +25,11 @@ const COLORS = [
     '#ef4444', '#f97316', '#eab308', '#22c55e',
     '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
+
+const modal = createModal({
+    id: "modal-quit-image-a-completer-without-saving",
+    isOpenedByDefault: false
+});
 
 // TypeScript interfaces
 interface BBox {
@@ -811,9 +817,15 @@ export default function ImageACompleterManager(props: {
         }
     }, [chunkId, generateImageACompleter]);
 
-    const handleBackClicked = async () => {
+    const handleSaveAndQuit = async () => {
+        modal.close();
         await flushPendingSaveRef.current();
         await latestSaveRef.current;
+        props.onBackClicked && props.onBackClicked();
+    };
+
+    const handleQuitWithoutSave = () => {
+        modal.close();
         props.onBackClicked && props.onBackClicked();
     };
 
@@ -824,7 +836,7 @@ export default function ImageACompleterManager(props: {
                     <Button
                         className='flex justify-center self-start items-center gap-2 md:absolute relative mb-4'
                         priority='secondary'
-                        onClick={handleBackClicked}
+                        onClick={() => modal.open()}
                         disabled={isSaving}
                     >
                         {isSaving ? "Enregistrement..." : "Retour"}
@@ -834,7 +846,7 @@ export default function ImageACompleterManager(props: {
                     <Button
                         className='flex justify-center self-start items-center gap-2 xl:absolute xl:translate-x-[calc(-100%-2rem)] translate-x-0 relative'
                         priority='secondary'
-                        onClick={handleBackClicked}
+                        onClick={() => modal.open()}
                         disabled={isSaving}
                     >
                         {isSaving ? "Enregistrement..." : "Retour"}
@@ -843,6 +855,26 @@ export default function ImageACompleterManager(props: {
             )}
 
             <div className="w-full relative flex flex-col gap-8">
+                <modal.Component title="">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex gap-2 items-center">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" clipRule="evenodd" d="M16.5633 9.66673L9.41132 2.51473L11.2967 0.629395L21.6673 11.0001L11.2967 21.3707L9.41132 19.4854L16.5633 12.3334H0.333984V9.66673H16.5633Z" fill="#161616" />
+                            </svg>
+                            <p className="text-2xl m-0 font-bold text-left text-[#161616]">Quitter la page</p>
+                        </div>
+                        <p>Attention, certaines modifications n'ont pas été enregistrées.</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Button className="w-full justify-center sm:w-auto" onClick={handleSaveAndQuit}>
+                                {isSaving ? "Enregistrement en cours" : "Enregistrer et quitter"}
+                            </Button>
+                            <Button className="w-full justify-center sm:w-auto" priority='secondary' onClick={handleQuitWithoutSave}>
+                                Quitter sans enregistrer
+                            </Button>
+                        </div>
+                    </div>
+                </modal.Component>
+
                 {isLoading && (
                     <GeneratorLoading
                         title="Création de l'image à compléter"
