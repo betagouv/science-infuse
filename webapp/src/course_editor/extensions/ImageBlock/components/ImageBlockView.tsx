@@ -1,28 +1,20 @@
 // ImageBlockView.tsx
 import { cn } from '@/lib/utils'
 import { File } from '@prisma/client'
-import { Node } from '@tiptap/pm/model'
-import { Editor, NodeViewWrapper } from '@tiptap/react'
+import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 import { useCallback, useRef } from 'react'
 
-interface ImageBlockViewProps {
-  editor: Editor
-  getPos: () => number
-  node: Node & {
-    attrs: {
-      src: string
-      isUploading: boolean
-      isLoaded: boolean,
-      userFile?: File
-    }
-  }
-  updateAttributes: (attrs: Record<string, string | boolean>) => void
+type ImageBlockAttrs = {
+  src: string
+  isUploading: boolean
+  isLoaded: boolean
+  userFile?: File
 }
 
-export const ImageBlockView = (props: ImageBlockViewProps) => {
+export const ImageBlockView = (props: NodeViewProps) => {
   const { editor, getPos, node } = props
   const imageWrapperRef = useRef<HTMLDivElement>(null)
-  const { src, isUploading, isLoaded, userFile } = node.attrs
+  const { src, isUploading, isLoaded, userFile } = node.attrs as ImageBlockAttrs
 
   const wrapperClassName = cn(
     node.attrs.align === 'left' ? 'ml-0' : 'ml-auto',
@@ -31,7 +23,10 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
   )
 
   const onClick = useCallback(() => {
-    editor.commands.setNodeSelection(getPos())
+    const pos = getPos()
+    if (typeof pos === 'number') {
+      editor.commands.setNodeSelection(pos)
+    }
   }, [getPos, editor.commands])
 
   return (

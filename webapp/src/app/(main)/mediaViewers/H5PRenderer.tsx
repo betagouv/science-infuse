@@ -1,6 +1,13 @@
+"use client"
+
 import { ContentService } from "@/lib/h5p/services/ContentService";
-import { H5PPlayerUI } from "@lumieducation/h5p-react";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+const H5PPlayerUI = dynamic(
+    () => import("@lumieducation/h5p-react").then(module => module.H5PPlayerUI),
+    { ssr: false }
+);
 
 export default (props: { h5pContentId: string }) => {
     const contentService = useMemo(() => new ContentService(process.env.NEXT_PUBLIC_H5P_URL || ""), []);

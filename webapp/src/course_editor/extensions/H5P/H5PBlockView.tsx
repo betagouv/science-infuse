@@ -9,10 +9,20 @@ const alignToJustify: Record<string, string> = {
     right: 'flex-end',
 }
 
+const h5pContentTypeLabels: Record<string, string> = {
+    'quiz': 'Quiz',
+    'texte-a-trous': 'Texte a trous',
+    'dialogcards': 'Flash cards',
+    'mots-croises': 'Mots croises',
+    'interactive-video': 'Video interactive',
+    'image-a-completer': 'Image a completer',
+}
+
 export const H5PBlockView = (props: NodeViewProps) => {
     const { node, editor, getPos, selected } = props
     const [interactive, setInteractive] = useState(false)
-    const { width = '100%', align = 'center', h5pContentId } = node.attrs
+    const { width = '100%', align = 'center', h5pContentId, h5pContentType } = node.attrs
+    const contentLabel = h5pContentTypeLabels[h5pContentType] || 'Contenu interactif'
 
     const handleClick = useCallback(() => {
         const pos = getPos()
@@ -55,13 +65,18 @@ export const H5PBlockView = (props: NodeViewProps) => {
                         }}
                     />
                 )}
-                <div 
-                className='p-4 bg-white'
-                style={{
-                    border: selected ? '2px solid #4f46e5' : '2px solid transparent',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                }}>
+                <div className="h5p-block__drag-preview" contentEditable={false}>
+                    <span className="h5p-block__drag-preview-badge">H5P</span>
+                    <span className="h5p-block__drag-preview-title">{contentLabel}</span>
+                </div>
+                <div
+                    className='h5p-block__content p-4 bg-white'
+                    style={{
+                        border: selected ? '2px solid #4f46e5' : '2px solid transparent',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                    }}
+                >
                     <H5PRenderer key={`${h5pContentId}-${width}`} h5pContentId={h5pContentId} />
                 </div>
             </div>

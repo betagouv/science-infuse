@@ -1,21 +1,56 @@
 import { apiClient } from "@/lib/api-client"
 import { Editor } from "@tiptap/core"
+import { useRef, useState } from "react"
+
+const pendingBlockCreationEditors = new WeakSet<Editor>()
 
 export const addCourseBlockAtEnd = async (editor: Editor) => {
-    const newBlock = await apiClient.createBlock({
-        title: ``,
-        content: '[]',
-        chapterId: editor.storage.simetadata.chapterId,
-    })
-    editor.chain().focus().addCourseBlock(newBlock.id).run()
+    if (pendingBlockCreationEditors.has(editor)) {
+        return
+    }
+
+    pendingBlockCreationEditors.add(editor)
+    try {
+        const newBlock = await apiClient.createBlock({
+            title: ``,
+            content: '[]',
+            chapterId: editor.storage.simetadata.chapterId,
+        })
+        editor.chain().focus().addCourseBlock(newBlock.id).run()
+    } finally {
+        pendingBlockCreationEditors.delete(editor)
+    }
 }
 
 const AddBlockAtEnd = (props: { editor: Editor }) => {
+    const [isCreating, setIsCreating] = useState(false)
+    const isCreatingRef = useRef(false)
 
     if (!props.editor.isEditable)
         return "";
+
+    const handleAddCourseBlock = async () => {
+        if (isCreatingRef.current) {
+            return
+        }
+
+        isCreatingRef.current = true
+        setIsCreating(true)
+        try {
+            await addCourseBlockAtEnd(props.editor)
+        } finally {
+            isCreatingRef.current = false
+            setIsCreating(false)
+        }
+    }
+
     return (
-        <div onClick={() => addCourseBlockAtEnd(props.editor)} className="flex items-center h-12 cursor-pointer">
+        <button
+            type="button"
+            onClick={handleAddCourseBlock}
+            disabled={isCreating}
+            className="flex items-center h-12 cursor-pointer appearance-none border-0 bg-transparent p-0 text-left disabled:cursor-wait disabled:opacity-60"
+        >
             <div className="flex flex-col items-center relative mt-16">
                 <div className="flex items-center gap-2">
                     <svg
@@ -48,7 +83,7 @@ const AddBlockAtEnd = (props: { editor: Editor }) => {
                     <line x1={345} y1="0.540985" y2="0.540985" stroke="black" />
                 </svg>
             </div>
-        </div>
+        </button>
     )
 }
 export default AddBlockAtEnd;

@@ -45,6 +45,10 @@ export const ImageBlock = TiptapImage.extend<ImageBlockOptions>({
   addOptions() {
     return {
       ...this.parent?.(),
+      inline: false,
+      allowBase64: false,
+      HTMLAttributes: {},
+      resize: false,
       showSnackbar: (message: string, severity: TSeverity) => { },
     };
   },

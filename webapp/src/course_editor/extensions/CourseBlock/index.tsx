@@ -1,18 +1,18 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Collapse, TextareaAutosize } from '@mui/material';
-import { useState } from '@preact-signals/safe-react/react';
 import { KeyIdea } from '@prisma/client';
 import { Editor, Node, mergeAttributes } from '@tiptap/core';
 import { keymap } from '@tiptap/pm/keymap';
 import { Node as PMNode } from '@tiptap/pm/model';
-import { Selection, TextSelection } from '@tiptap/pm/state';
-import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
-import React, { useRef, useEffect } from 'react';
+import { Selection, TextSelection, Plugin } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { NodeViewContent, NodeViewProps, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import ActionButtons from './ActionButtons';
 import { apiClient } from '@/lib/api-client';
 import { Question } from '@/types/course-editor';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
+import React, { useEffect, useRef, useState } from 'react';
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -34,6 +34,23 @@ declare module "@tiptap/core" {
   }
 }
 
+
+const textRelatedCourseBlockChildNames = new Set([
+  'paragraph',
+  'heading',
+  'title',
+  'bulletList',
+  'orderedList',
+  'taskList',
+  'listItem',
+  'taskItem',
+  'blockquote',
+  'codeBlock',
+])
+
+const isTextRelatedCourseBlockChild = (node: PMNode) => {
+  return node.isTextblock || textRelatedCourseBlockChildNames.has(node.type.name)
+}
 
 
 const CourseBlockNode = Node.create({
@@ -110,8 +127,6 @@ const CourseBlockNode = Node.create({
         ])
       ]
     ] : [];
-    console.log("QUIZQUESTIONS", quizQuestions, quizContent)
-
     return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'chapter-course-block', class: 'chapter-course-block' }),
       ['h2', { class: 'course-block-title' }, node.attrs.title || ''],
       ['div', { class: 'course-block-content' }, 0],
@@ -141,16 +156,39 @@ const CourseBlockNode = Node.create({
 
         return false
       },
-      addCourseBlock: (blockId: string) => ({ tr, state }) => {
-        const courseBlock = state.schema.nodes.courseBlock.create(
-          { id: blockId },
-          state.schema.nodes.paragraph.create()
-        )
-        const position = tr.doc.content.size
+      addCourseBlock: (blockId: string) => ({ dispatch, state }) => {
+        let blockAlreadyExists = false
 
-        tr.insert(position, courseBlock)
-        tr.setSelection(TextSelection.create(tr.doc, position + 2))
-        tr.scrollIntoView()
+        state.doc.descendants((node) => {
+          if (node.type.name === 'courseBlock' && node.attrs.id === blockId) {
+            blockAlreadyExists = true
+            return false
+          }
+        })
+
+        if (blockAlreadyExists) {
+          return true
+        }
+
+        const courseBlock = state.schema.nodes.courseBlock
+        const paragraph = state.schema.nodes.paragraph
+
+        if (!courseBlock || !paragraph) {
+          return false
+        }
+
+        const position = state.doc.content.size
+        const nextBlock = courseBlock.create(
+          { id: blockId },
+          paragraph.create(),
+        )
+
+        if (dispatch) {
+          const tr = state.tr.insert(position, nextBlock)
+          tr.setSelection(TextSelection.create(tr.doc, position + 2))
+          tr.scrollIntoView()
+          dispatch(tr)
+        }
 
         return true
       },
@@ -192,7 +230,6 @@ const CourseBlockNode = Node.create({
 
         if (nodePos > -1) {
           tr.setNodeAttribute(nodePos, 'quizQuestions', questions)
-          console.log("UPDATE BLOCK QUIZ", dispatch)
           if (dispatch) {
             dispatch(tr)
           }
@@ -228,6 +265,8 @@ const CourseBlockNode = Node.create({
   },
 
   addProseMirrorPlugins() {
+    const editor = this.editor
+
     return [
       keymap({
         'Mod-a': (state, dispatch) => {
@@ -257,17 +296,95 @@ const CourseBlockNode = Node.create({
           return false
         },
       }),
+      new Plugin({
+        props: {
+          decorations(state) {
+            if (!editor.isEditable) {
+              return DecorationSet.empty
+            }
+
+            const decorations: Decoration[] = []
+            const paragraph = state.schema.nodes.paragraph
+
+            if (!paragraph) {
+              return DecorationSet.empty
+            }
+
+            state.doc.descendants((node, pos) => {
+              if (node.type.name !== 'courseBlock') {
+                return
+              }
+
+              node.content.forEach((child, offset, index) => {
+                if (index >= node.childCount - 1) {
+                  return
+                }
+
+                const nextChild = node.child(index + 1)
+
+                if (isTextRelatedCourseBlockChild(child) && isTextRelatedCourseBlockChild(nextChild)) {
+                  return
+                }
+
+                const position = pos + 1 + offset + child.nodeSize
+
+                decorations.push(Decoration.widget(
+                  position,
+                  () => {
+                    const button = document.createElement('button')
+                    const label = document.createElement('span')
+
+                    button.type = 'button'
+                    button.contentEditable = 'false'
+                    button.className = 'course-block-inline-insertion-zone group flex h-8 w-full items-center justify-center rounded-md border border-dashed border-transparent text-sm text-transparent transition hover:border-[#000091] hover:text-[#000091] focus:border-[#000091] focus:text-[#000091] focus:outline-none'
+                    label.className = 'opacity-80'
+                    label.textContent = 'Ajouter du contenu ici'
+
+                    button.appendChild(label)
+
+                    button.addEventListener('mousedown', event => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                    })
+
+                    button.addEventListener('click', event => {
+                      event.preventDefault()
+                      event.stopPropagation()
+
+                      const tr = editor.state.tr.insert(position, paragraph.create())
+                      tr.setSelection(TextSelection.create(tr.doc, position + 1))
+                      tr.scrollIntoView()
+                      editor.view.dispatch(tr)
+                      editor.view.focus()
+                    })
+
+                    return button
+                  },
+                  {
+                    key: `course-block-inline-insertion-zone-${position}`,
+                    side: -1,
+                  }
+                ))
+              })
+            })
+
+            return DecorationSet.create(state.doc, decorations)
+          },
+        },
+      }),
     ]
   },
 
 
   addNodeView() {
-    return ReactNodeViewRenderer(CourseBlockComponent)
+    return ReactNodeViewRenderer(CourseBlockComponent, {
+      trackNodeViewPosition: true,
+    })
   },
 })
 
 
-const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor: Editor; selected: boolean; }) => {
+const CourseBlockComponent = ({ node, editor, getPos }: NodeViewProps) => {
   const handleDelete = () => {
     if (node.attrs.id)
       editor.commands.removeCourseBlock(node.attrs.id)
@@ -328,9 +445,60 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
   }, []);
 
   const parentRef = useRef<HTMLDivElement>(null);
+  const insertParagraphInsideCourseBlock = (where: 'start' | 'end') => {
+    if (typeof getPos !== 'function') {
+      return
+    }
+
+    const courseBlockPos = getPos()
+    if (typeof courseBlockPos !== 'number') {
+      return
+    }
+
+    const position = where === 'start'
+      ? courseBlockPos + 1
+      : courseBlockPos + node.nodeSize - 1
+    const paragraph = editor.schema.nodes.paragraph.create()
+    const tr = editor.state.tr.insert(position, paragraph)
+
+    tr.setSelection(TextSelection.create(tr.doc, position + 1))
+    tr.scrollIntoView()
+    editor.view.dispatch(tr)
+    editor.view.focus()
+  }
+
+  const renderInsertionZone = (where: 'start' | 'end') => {
+    if (!editor.isEditable) {
+      return null
+    }
+
+    return (
+      <button
+        type="button"
+        contentEditable={false}
+        className="group flex h-8 w-full items-center justify-center rounded-md border border-dashed border-transparent text-sm text-transparent transition hover:border-[#000091] hover:text-[#000091] focus:border-[#000091] focus:text-[#000091] focus:outline-none"
+        onMouseDown={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+        onClick={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          insertParagraphInsideCourseBlock(where)
+        }}
+      >
+        <span className="opacity-80">Ajouter du contenu ici</span>
+      </button>
+    )
+  }
 
   return (
-    <NodeViewWrapper id={node.attrs.id} data-id={node.attrs.id} ref={parentRef} className="relative chapter-course-block"
+    <NodeViewWrapper
+      id={node.attrs.id}
+      data-id={node.attrs.id}
+      data-drag-root-node="courseBlock"
+      ref={parentRef}
+      className="relative chapter-course-block"
       onClick={handleClick}
     >
       {editor.isEditable && <span className="delete-course-block absolute top-2 right-2 cursor-pointer" onClick={handleDelete}>❌</span>}
@@ -379,7 +547,9 @@ const CourseBlockComponent = ({ node, selected, editor }: { node: PMNode; editor
             />
           </div>
         </>}
+        {renderInsertionZone('start')}
         <NodeViewContent className="content" />
+        {renderInsertionZone('end')}
 
         {/* quiz if available */}
         {quizQuestions.length > 0 && <RenderBlockQuiz editor={editor} questions={quizQuestions} openQuizPopup={() => {

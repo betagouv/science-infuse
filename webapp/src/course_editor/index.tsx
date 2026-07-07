@@ -9,6 +9,7 @@ import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import styled from '@emotion/styled';
 import { ChapterStatus, EducationLevel, SchoolSubject, Theme } from '@prisma/client';
 import { Content, Editor, EditorContent, useEditor } from '@tiptap/react';
+import { EditorState } from '@tiptap/pm/state';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AddBlockAtEnd from './components/AddBlockAtEnd';
@@ -29,13 +30,15 @@ const StyledEditor = styled.div`
 export const useTiptapEditor = (params: { preview?: boolean }) => {
 
   const { showSnackbar } = useSnackbar();
+  const extensions = useMemo(() => getExtensions(showSnackbar), [showSnackbar]);
+  const setContentTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
     editable: !params?.preview,
-    extensions: getExtensions(showSnackbar),
+    extensions,
     content: EMPTY_DOCUMENT,
-  })
+  }, [extensions, params?.preview])
 
   const getContent = useCallback(() => {
     return editor?.getJSON() ?? ''
@@ -47,10 +50,34 @@ export const useTiptapEditor = (params: { preview?: boolean }) => {
 
   const setContent = useCallback((content: Content) => {
     // https://github.com/ueberdosis/tiptap/issues/3764
-    setTimeout(() => {
-      editor?.commands.setContent(content)
+    if (setContentTimeoutRef.current) {
+      clearTimeout(setContentTimeoutRef.current)
+    }
+
+    setContentTimeoutRef.current = setTimeout(() => {
+      if (editor && typeof content === 'object' && content && 'type' in content && content.type === 'doc') {
+        const doc = editor.schema.nodeFromJSON(content)
+        const state = EditorState.create({
+          doc,
+          schema: editor.schema,
+          plugins: editor.state.plugins,
+        })
+
+        editor.view.updateState(state)
+      } else {
+        editor?.commands.setContent(content)
+      }
+      setContentTimeoutRef.current = null
     })
   }, [editor])
+
+  useEffect(() => {
+    return () => {
+      if (setContentTimeoutRef.current) {
+        clearTimeout(setContentTimeoutRef.current)
+      }
+    }
+  }, [])
 
 
   return {
@@ -125,7 +152,7 @@ export const TiptapEditor = (props: { chapter?: ChapterWithoutBlocks, editor: Ed
       educationLevels,
       schoolSubjects
     }
-  }, [themes, educationLevels])
+  }, [themes, educationLevels, schoolSubjects])
 
 
   return (

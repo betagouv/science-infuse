@@ -1,4 +1,5 @@
-import { BubbleMenu, Editor } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react/menus'
+import { Editor } from '@tiptap/react'
 import { memo } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { Toolbar } from '@/course_editor/components/ui/Toolbar'
@@ -31,7 +32,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
 
   return (
     <BubbleMenu
-      tippyOptions={{ popperOptions: { placement: 'top-start' }, zIndex: 999 }}
+      tippyOptions={{ popperOptions: { placement: 'top-start' }, zIndex: 999999 }}
       editor={editor}
       pluginKey="textMenu"
       shouldShow={states.shouldShow}

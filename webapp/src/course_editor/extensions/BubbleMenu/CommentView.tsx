@@ -1,6 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { BubbleMenu, Editor } from "@tiptap/react"
+import { BubbleMenu } from "@tiptap/react/menus"
+import { Editor } from "@tiptap/react"
 import { useEffect, useState } from "react";
 import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';

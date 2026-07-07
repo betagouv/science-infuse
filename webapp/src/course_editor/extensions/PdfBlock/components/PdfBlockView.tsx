@@ -1,34 +1,29 @@
 // PdfBlockView.tsx
 import { cn } from '@/lib/utils'
-import { Node } from '@tiptap/pm/model'
-import { Editor, NodeViewWrapper } from '@tiptap/react'
+import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 import { useCallback, useRef, useState } from 'react'
 
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-interface PdfBlockViewProps {
-  editor: Editor
-  getPos: () => number
-  node: Node & {
-    attrs: {
-      src: string
-      isUploading: boolean
-      isLoaded: boolean,
-      userFile?: File
-    }
-  }
-  updateAttributes: (attrs: Record<string, string | boolean>) => void
+type PdfBlockAttrs = {
+  src: string
+  isUploading: boolean
+  isLoaded: boolean
+  userFile?: File
 }
 
-export const PdfBlockView = (props: PdfBlockViewProps) => {
+export const PdfBlockView = (props: NodeViewProps) => {
   const { editor, getPos, node } = props
   const imageWrapperRef = useRef<HTMLDivElement>(null)
-  const { src, isUploading, isLoaded } = node.attrs
+  const { src, isUploading, isLoaded } = node.attrs as PdfBlockAttrs
 
   const onClick = useCallback(() => {
-    editor.commands.setNodeSelection(getPos())
+    const pos = getPos()
+    if (typeof pos === 'number') {
+      editor.commands.setNodeSelection(pos)
+    }
   }, [getPos, editor.commands])
 
   const [numPages, setNumPages] = useState<number | null>(null)

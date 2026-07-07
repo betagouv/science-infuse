@@ -41,14 +41,14 @@ export default async function ClientHeader({ session }: ClientHeaderProps) {
         "href": "/",
         "title": `Accueil - ${PROJECT_NAME}`
       }}
-      serviceTitle={<p className="text-xl text-[#161616]">
+      serviceTitle={<span className="block text-xl text-[#161616]">
         <span className="font-bold">Ada</span>
-      </p>}
-      serviceTagline={<p className="text-sm text-left text-[#3a3a3a]">
+      </span>}
+      serviceTagline={<span className="block text-sm text-left text-[#3a3a3a]">
         Contenus multimédias gratuits
         <br />
         par la Cité des sciences et de l'industrie et le Palais de la découverte
-      </p>}
+      </span>}
       // serviceTagline="Création de cours pour les enseignants de SVT au collège"
       navigation={<Navigation />}
     />

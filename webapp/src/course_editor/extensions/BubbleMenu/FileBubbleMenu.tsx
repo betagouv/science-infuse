@@ -1,6 +1,7 @@
 'use client';
 
-import { BubbleMenu as BaseBubbleMenu, Editor } from '@tiptap/react'
+import { BubbleMenu as BaseBubbleMenu } from '@tiptap/react/menus'
+import { Editor } from '@tiptap/react'
 import React, { memo, useCallback, useRef } from 'react'
 import { Instance, sticky } from 'tippy.js'
 import { Toolbar } from '@/course_editor/components/ui/Toolbar'
@@ -215,12 +216,12 @@ export const FileBubbleMenu = ({ editor, appendTo }: any): JSX.Element => {
         updateDelay={100}
         tippyOptions={{
           maxWidth: '100%',
-          zIndex: 99,
+          zIndex: 99999,
           offset: [0, -50],
           popperOptions: {
             modifiers: [{ name: 'flip', enabled: false }],
           },
-          // getReferenceClientRect,
+          getReferenceClientRect,
           onCreate: (instance: Instance) => {
             tippyInstance.current = instance
           },

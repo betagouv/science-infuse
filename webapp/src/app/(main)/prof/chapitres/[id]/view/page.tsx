@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api-client';
 import { ChapterWithoutBlocks } from '@/types/api';
 import styled from '@emotion/styled';
 import { JSONContent } from '@tiptap/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ViewChapterWrapper = styled.div`
 .tiptap > h1 {
@@ -13,17 +13,46 @@ const ViewChapterWrapper = styled.div`
 }
 `
 
+const chapterRequests = new Map<string, Promise<ChapterWithoutBlocks>>()
+
+const getChapterRequest = (chapterId: string) => {
+  const existingRequest = chapterRequests.get(chapterId)
+
+  if (existingRequest) {
+    return existingRequest
+  }
+
+  const request = apiClient.getChapter(chapterId).finally(() => {
+    setTimeout(() => {
+      if (chapterRequests.get(chapterId) === request) {
+        chapterRequests.delete(chapterId)
+      }
+    }, 30000)
+  })
+
+  chapterRequests.set(chapterId, request)
+  return request
+}
+
 const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   const [chapter, setChapter] = useState<ChapterWithoutBlocks | null>(null);
+  const appliedContentKeyRef = useRef<string | null>(null);
 
 
   useEffect(() => {
-    console.log("PARAMSSS", params)
     if (!params.id) return;
-    apiClient.getChapter(params.id).then(chapter => {
-      setChapter(chapter);
+
+    let ignore = false;
+    getChapterRequest(params.id).then(chapter => {
+      if (!ignore) {
+        setChapter(chapter);
+      }
     })
-  }, [params]);
+
+    return () => {
+      ignore = true;
+    }
+  }, [params.id]);
 
 
 
@@ -33,7 +62,13 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     if (editor && chapter) {
       const content = chapter.content;
-      console.log("EDITORRR", editor, content)
+      const contentKey = `${chapter.id}:${typeof content === 'string' ? content : JSON.stringify(content)}`
+
+      if (appliedContentKeyRef.current === contentKey) {
+        return
+      }
+
+      appliedContentKeyRef.current = contentKey
       document.title = chapter.title
       editor.storage.simetadata.chapterId = chapter.id;
       editor.storage.simetadata.skills = chapter.skills;
@@ -52,7 +87,7 @@ const EditCourseChapter = ({ params }: { params: { id: string } }) => {
       }, 400)
 
     }
-  }, [editor, chapter])
+  }, [editor, chapter, setContent])
 
   return (
     <div className="py-16">

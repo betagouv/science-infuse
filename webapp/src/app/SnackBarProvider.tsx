@@ -1,5 +1,5 @@
 import { TSeverity } from '@/types/snackbar';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 interface SnackbarState {
     open: boolean;
@@ -28,16 +28,22 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
         icon: undefined,
     });
 
-    const showSnackbar = (message: React.ReactElement | string, severity: TSeverity, icon?: React.ReactElement) => {
+    const showSnackbar = useCallback((message: React.ReactElement | string, severity: TSeverity, icon?: React.ReactElement) => {
         setSnackbar({ open: true, message: typeof message === 'string' ? <>{message}</> : message, severity, icon });
-    };
+    }, []);
 
-    const hideSnackbar = () => {
+    const hideSnackbar = useCallback(() => {
         setSnackbar((prev) => ({ ...prev, open: false }));
-    };
+    }, []);
+
+    const providerValue = useMemo(() => ({
+        snackbar,
+        showSnackbar,
+        hideSnackbar,
+    }), [snackbar, showSnackbar, hideSnackbar]);
 
     return (
-        <SnackbarContext.Provider value={{ snackbar, showSnackbar, hideSnackbar }}>
+        <SnackbarContext.Provider value={providerValue}>
             {children}
         </SnackbarContext.Provider>
     );
