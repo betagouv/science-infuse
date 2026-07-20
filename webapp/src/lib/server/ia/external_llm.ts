@@ -23,29 +23,32 @@ export interface VisionMessage {
     }> | string;
 }
 
-export const callGroq = async (text: string, model: string = "llama-3.3-70b-versatile"): Promise<[GroqError | undefined, string | undefined]> => {
-    const chatCompletion = await groqClient.chat.completions.create({
-        messages: [{ role: 'user', content: text }],
-        model: model,
-    }).catch((err) => {
-        if (err instanceof Groq.APIError) {
-            console.log(err.status);
-            console.log(err.name);
-            console.log(err.headers);
-            return [{ status: err.status, message: err.name } as GroqError, undefined];
-        } else {
-            throw err;
-        }
-    });
-    if (!chatCompletion) {
-        return [undefined, undefined];
-    }
-    if (Array.isArray(chatCompletion)) {
-        return chatCompletion as [GroqError, undefined];
-    }
+export const callGroq = async (
+    text: string,
+    model: string = "llama-3.3-70b-versatile",
+    maxTokens?: number,
+): Promise<[GroqError | undefined, string | undefined]> => {
+    try {
+        const chatCompletion = await groqClient.chat.completions.create({
+            messages: [{ role: 'user', content: text }],
+            model: model,
+            ...(maxTokens ? { max_tokens: maxTokens } : {}),
+        });
 
-    console.log(chatCompletion.choices[0].message.content);
-    return [undefined, chatCompletion.choices[0].message.content || ""];
+        return [undefined, chatCompletion.choices[0]?.message?.content || ""];
+    } catch (err) {
+        if (err instanceof Groq.APIError) {
+            console.error('Groq API error:', {
+                status: err.status,
+                name: err.name,
+                message: err.message,
+                error: err.error,
+            });
+            return [{ status: err.status, message: err.message || err.name }, undefined];
+        }
+
+        throw err;
+    }
 }
 
 export const callGroqVision = async (

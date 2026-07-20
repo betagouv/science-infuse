@@ -12,7 +12,7 @@ import { ChunkWithScore, ChunkWithScoreUnion, DocumentWithChunks, SearchResults 
 import type { ProcessDirectFileResponse } from '@/types/api/direct-file';
 import { Academy, Block, CommentThread, File as DbFile, DocumentChunk, DocumentTag, EducationLevel, FileType, KeyIdea, ReportedDocumentChunk, SchoolSubject, Skill, Theme } from '@prisma/client';
 import axios from 'axios';
-import { AiGenerationParams } from './server/context-helper';
+import type { AiGenerationParams } from './server/context-helper';
 
 
 
@@ -371,8 +371,8 @@ class ApiClient {
     return response.data;
   }
 
-  async generateDialogcardAnswer(question: string, documentId?: string): Promise<string> {
-    const response = await this.axiosInstance.post<{ answer: string }>('/ai/dialogcard-answer', { question, documentId });
+  async generateDialogcardAnswer(question: string, context: AiGenerationParams = {}): Promise<string> {
+    const response = await this.axiosInstance.post<{ answer: string }>('/ai/dialogcard-answer', { question, ...context });
     return response.data.answer;
   }
 

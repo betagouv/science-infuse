@@ -1,5 +1,6 @@
 'use client'
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Pagination } from "@codegouvfr/react-dsfr/Pagination";
 import Button from '@codegouvfr/react-dsfr/Button';
@@ -17,6 +18,7 @@ import { useAlertToast } from '@/components/AlertToast';
 import { DeleteButton, GeneratorLoading, type LoadingMessagesConfig } from '../shared/components';
 import { DocumentChunkScopePicker, type GenerationSourceScope } from '../shared/components';
 import { H5PManagerSource, buildParamsFromScope } from '../shared/types';
+import type { AiGenerationParams } from '@/lib/server/context-helper';
 
 const loadingMessages: LoadingMessagesConfig = {
     default: [
@@ -26,6 +28,8 @@ const loadingMessages: LoadingMessagesConfig = {
         "Création de l'interactif..."
     ]
 };
+
+const MAX_QUESTION_LENGTH = 2000;
 
 const modal = createModal({
     id: "modal-quit-dialogcards-without-saving",
@@ -58,10 +62,9 @@ export const generateDialogcardsData = async (params: { documentId?: string; chu
     }
 };
 
-export const LLMGenerateDialogcardAnswer = async (question: string, documentId?: string): Promise<[Error | null, string | null]> => {
+export const LLMGenerateDialogcardAnswer = async (question: string, context: AiGenerationParams = {}): Promise<[Error | null, string | null]> => {
     try {
-        // Replace with your actual API call
-        const response = await apiClient.generateDialogcardAnswer(question, documentId);
+        const response = await apiClient.generateDialogcardAnswer(question, context);
         return [null, response];
     } catch (error) {
         return [error as Error, null];
@@ -76,14 +79,15 @@ type DialogcardEditorProps = {
     initialCards: Dialogcard[];
     onChange: (updated: Dialogcard[]) => void;
     onSave: () => Promise<void>;
-    documentId?: string;
+    answerContext?: AiGenerationParams;
 };
 
-const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onChange, onSave, documentId }) => {
+const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onChange, onSave, answerContext }) => {
     const [cards, setCards] = useState(initialCards);
     const [hasChanges, setHasChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [loadingAnswers, setLoadingAnswers] = useState<{ [key: number]: boolean }>({});
+    const isGeneratingAnswer = Object.values(loadingAnswers).some(Boolean);
 
     useEffect(() => {
         setCards(initialCards);
@@ -156,9 +160,16 @@ const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onCha
         }
 
         setLoadingAnswers(prev => ({ ...prev, [index]: true }));
-        const [error, answer] = await LLMGenerateDialogcardAnswer(question, documentId);
+        const [error, answer] = await LLMGenerateDialogcardAnswer(question, answerContext);
         if (error) {
-            toast.error('Une erreur est survenue lors de la génération de la réponse');
+            const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+            if (status === 413) {
+                toast.error('Le contexte est encore trop volumineux pour générer cette réponse');
+            } else if (status === 429) {
+                toast.error('Trop de réponses ont été demandées. Réessayez dans quelques instants');
+            } else {
+                toast.error('Une erreur est survenue lors de la génération de la réponse');
+            }
         }
         if (answer) {
             handleAnswerChange(index, answer);
@@ -250,6 +261,7 @@ const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onCha
                             placeholder: "Saisissez votre question...",
                             value: card.question,
                             onChange: (e) => handleQuestionChange(index, e.target.value),
+                            maxLength: MAX_QUESTION_LENGTH,
                             required: true,
                             rows: 3,
                         }}
@@ -262,7 +274,7 @@ const DialogcardEditor: React.FC<DialogcardEditorProps> = ({ initialCards, onCha
                         addon={
                             card.answer.length === 0 && card.question.trim().length > 0 && (
                                 <Button
-                                    disabled={loadingAnswers[index]}
+                                    disabled={isGeneratingAnswer}
                                     onClick={() => generateAnswer(index)}
                                     priority="tertiary"
                                     className="whitespace-nowrap gap-2"
@@ -645,7 +657,11 @@ export default function DialogcardManager(props: {
                             initialCards={dialogcards}
                             onChange={handleDialogcardsChange}
                             onSave={handleSaveChanges}
-                            documentId={documentId}
+                            answerContext={
+                                source.type === 'additionalContext'
+                                    ? { additionalContext: source.context }
+                                    : buildParamsFromScope({ documentId: source.documentId, scope: generationScope })
+                            }
                         />
                     </>
                 )}

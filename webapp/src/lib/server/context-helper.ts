@@ -22,8 +22,9 @@ export type GetContextParams = AiGenerationParams & {
  * @throws {Error} If neither documentId nor chunkId is provided, or if no content is found
  */
 export async function getContext(params: GetContextParams): Promise<string> {
-  const defaultMaxLength = process.env.LLM_MAX_CONTEXT_LENGTH
-    ? parseInt(process.env.LLM_MAX_CONTEXT_LENGTH, 10)
+  const configuredMaxLength = Number.parseInt(process.env.LLM_MAX_CONTEXT_LENGTH || "", 10);
+  const defaultMaxLength = Number.isFinite(configuredMaxLength) && configuredMaxLength > 0
+    ? configuredMaxLength
     : 10000;
 
   const { documentId, chunkId, maxTextLength = defaultMaxLength, additionalContext } = params;
@@ -60,7 +61,9 @@ export async function getContext(params: GetContextParams): Promise<string> {
     context = chunks.map((chunk) => chunk.text).join("\n\n");
   }
 
-  context += additionalContext
+  if (additionalContext?.trim()) {
+    context += `${context ? "\n\n" : ""}${additionalContext}`;
+  }
 
   // Slice the context to maxTextLength if it exceeds the limit
   if (context.length > maxTextLength) {
